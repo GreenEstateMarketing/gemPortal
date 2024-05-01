@@ -1,0 +1,30 @@
+<?php
+
+return [
+    'title'                                     => 'Accounts',
+    'description'                               => 'Settings for members',
+    'verify_account_email'                      => 'Verify account\'s email?',
+    'square_unit'                               => 'Unit of square',
+    'square_unit_none'                          => 'None',
+    'square_unit_meter'                         => 'Square Meter(m²)',
+    'square_unit_feet'                          => 'Square Feet(ft²)',
+    'general'                                   => 'General settings',
+    'general_description'                       => 'Basic settings for Real Estate',
+    'real_estate_convert_money_to_text_enabled' => 'Convert money to text if it is too big?',
+    'thousands_separator'                        => 'Thousands separator',
+    'decimal_separator'                         => 'Decimal separator',
+    'separator_period'                          => 'Period (.)',
+    'separator_comma'                           => 'Comma (,)',
+    'separator_space'                           => 'Space ( )',
+    'area_unit'                                 => 'Area units',
+    'area_unit_description'                     => 'List of Area units Conversion using on website',
+    'real_estate_sqaure_feet_unit_to_marla'     => 'Square Feet to Marla',
+    'area_unit_calculation'                     => 'Area Units Calculation',
+    'area_unit_calculation_description'         => 'Area Units Calculation used on create property save to store area in default format',
+    'real_estate_marla_to_square_ft'            =>'Marla to Square Feet',
+    'real_estate_square_meter_to_sq_ft'         =>'Square Meter to Square Feet',
+    'ft²'                                       =>'Square Feet',
+    'real_estate_sqaure_feet_unit_to_square_meter'=>'Square Feet to Square Meter',
+    'real_estate_yards_to_sq_ft'                =>'Yards To Square Feet',
+    'real_estate_kanal_to_sq_ft'                =>'Kanal To Square Feet'
+ ];

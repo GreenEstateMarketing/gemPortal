@@ -1,0 +1,67 @@
+@extends('plugins/real-estate::account.layouts.skeleton')
+@section('content')
+  <div class="dashboard crop-avatar">
+    <div class="">
+      <div class="row full-with-row">
+          @include('plugins/real-estate::account.dashboard.sidebar')
+          <div class="col-md-9 mb-3 col-xl-10 pt-5 pr-5 sidebar-inner-pages">
+            {!! apply_filters(ACCOUNT_TOP_STATISTIC_FILTER, null) !!}
+              <div class="container ">
+                  @if (!auth('account')->user()->canPost())
+                  <div class="alert alert-warning">{{ trans('plugins/real-estate::package.add_credit_warning') }}
+                      <a href="{{ route('public.member.packages') }}">{{ trans('plugins/real-estate::package.add_credit') }}</a>
+                  </div>
+                  @endif
+
+              </div>
+              <br>
+              <div class="row">
+                  <div class="col-md-4">
+                      <div class="agent-primary-text">
+                          <div class="br2 pa3 mb3 card-hover card-active p-4" style="box-shadow: 0 1px 1px #ccc;">
+                              <div class="media-body">
+                                  <div class="f3">
+                                      <span class="fw6"><i class="far fa-check-circle"></i></span>
+                                      <span class="fr">{{ $user->properties()->where('moderation_status', \Botble\RealEstate\Enums\ModerationStatusEnum::APPROVED)->count() }}</span>
+                                  </div>
+                                  <h5 class="black-text text-right">{{ trans('plugins/real-estate::dashboard.approved_properties') }}</h5>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="col-md-4">
+                      <div class="agent-primary-text">
+                          <div class="br2 pa3 bg-white mb3 card-hover p-4" style="box-shadow: 0 1px 1px #ccc;">
+                              <div class="media-body">
+                                  <div class="f3">
+                                      <span class="fw6"><i class="fas fa-user-clock"></i></span>
+                                      <span class="fr">{{ $user->properties()->where('moderation_status', \Botble\RealEstate\Enums\ModerationStatusEnum::PENDING)->count() }}</span>
+                                  </div>
+                                  <h5 class="black-text text-right">{{ trans('plugins/real-estate::dashboard.pending_approve_properties') }}</h5>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="col-md-4">
+                      <div class="agent-primary-text">
+                          <div class="br2 pa3 bg-white mb3 card-hover p-4" style="box-shadow: 0 1px 1px #ccc;">
+                              <div class="media-body">
+                                  <div class="f3">
+                                      <span class="fw6"><i class="far fa-edit"></i></span>
+                                      <span class="fr">{{ $user->properties()->where('moderation_status', \Botble\RealEstate\Enums\ModerationStatusEnum::REJECTED)->count() }}</span>
+                                  </div>
+                                  <h5 class="black-text text-right">{{ trans('plugins/real-estate::dashboard.rejected_properties') }}</h5>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <div id="app-real-estate">
+                    <activity-log-component default-active-tab="activity-logs"></activity-log-component>
+              </div>
+          </div>
+      </div>
+    </div>
+    @include('plugins/real-estate::account.modals.avatar')
+  </div>
+@endsection

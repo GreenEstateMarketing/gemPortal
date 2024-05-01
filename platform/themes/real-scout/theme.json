@@ -1,0 +1,14 @@
+{
+    "name": "GEM",
+    "namespace": "Theme\\FlexHome\\",
+    "description": "Real Estate theme",
+    "author": "Swift Logix",
+    "version": "2.16",
+    "required_plugins": [
+        "blog",
+        "contact",
+        "language",
+        "location",
+        "real-estate"
+    ]
+}

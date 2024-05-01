@@ -1,0 +1,10 @@
+/vendor/
+node_modules/
+npm-debug.log
+yarn-error.log
+
+storage/*.key
+.env
+.phpunit.result.cache
+
+/v8-compile-cache-0

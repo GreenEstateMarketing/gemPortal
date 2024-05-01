@@ -1,0 +1,7 @@
+php artisan cms:theme:assets:publish
+php artisan vendor:publish --tag=cms-public --force
+php artisan cache:clear
+php artisan config:cache
+
+composer require beyondcode/laravel-vouchers
+php artisan key:generate

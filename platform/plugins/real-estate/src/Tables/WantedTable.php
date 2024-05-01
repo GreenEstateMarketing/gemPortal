@@ -1,0 +1,186 @@
+<?php
+
+namespace Botble\RealEstate\Tables;
+
+use Auth;
+use BaseHelper;
+use Botble\Base\Enums\BaseStatusEnum;
+use Botble\RealEstate\Models\Wanted;
+use Botble\RealEstate\Repositories\Interfaces\WantedInterface;
+use Botble\Table\Abstracts\TableAbstract;
+use Html;
+use Illuminate\Contracts\Routing\UrlGenerator;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\JsonResponse;
+use Throwable;
+use Yajra\DataTables\DataTables;
+
+class WantedTable extends TableAbstract
+{
+
+    /**
+     * @var bool
+     */
+    protected $hasActions = true;
+
+    /**
+     * @var bool
+     */
+    protected $hasFilter = true;
+
+    /**
+     * CategoryTable constructor.
+     * @param DataTables $table
+     * @param UrlGenerator $urlDevTool
+     * @param CategoryInterface $categoryRepository
+     */
+    public function __construct(DataTables $table, UrlGenerator $urlDevTool, WantedInterface $wantedRepository)
+    {
+        $this->repository = $wantedRepository;
+        $this->setOption('id', 'plugins-real-estate-categories');
+        parent::__construct($table, $urlDevTool);
+
+        if (!Auth::user()->hasAnyPermission(['property_category.edit', 'property_category.destroy'])) {
+            $this->hasOperations = false;
+            $this->hasActions = false;
+        }
+    }
+
+    /**
+     * Display ajax response.
+     *
+     * @return JsonResponse
+     * @since 2.1
+     */
+    public function ajax()
+    {
+        $data = $this->table
+            ->eloquent($this->query())
+            ->editColumn('name', function ($item) {
+                if (!Auth::user()->hasPermission('property_category.edit')) {
+                    return $item->name;
+                }
+                return Html::link(route('wanted.view', $item->id), $item->name);
+            })
+            ->editColumn('checkbox', function ($item) {
+                return $this->getCheckbox($item->id);
+            })
+            ->editColumn('created_at', function ($item) {
+                return BaseHelper::formatDate($item->created_at);
+            });
+            /*->editColumn('status', function ($item) {
+                return $item->status->toHtml();
+            });*/
+
+        return apply_filters(BASE_FILTER_GET_LIST_DATA, $data, $this->repository->getModel())
+            ->addColumn('operations', function ($item) {
+                return $this->getOperations('wanted.view', 'wanted.destroy', $item);
+            })
+            ->escapeColumns([])
+            ->make(true);
+    }
+
+    /**
+     * Get the query object to be processed by table.
+     *
+     * @return \Illuminate\Database\Query\Builder|Builder
+     * @since 2.1
+     */
+    public function query()
+    {
+        $model = $this->repository->getModel();
+        $select = [
+            'wanted.id',
+            'wanted.name',
+            'wanted.created_at',
+            'wanted.status',
+            'wanted.type'
+
+        ];
+
+        $query = $model->select($select);
+
+        return $this->applyScopes(apply_filters(BASE_FILTER_TABLE_QUERY, $query, $model, $select));
+    }
+
+    /**
+     * @return array
+     * @since 2.1
+     */
+    public function columns()
+    {
+        return [
+            'id'         => [
+                'name'  => 'wanted.id',
+                'title' => trans('core/base::tables.id'),
+                'width' => '20px',
+            ],
+            'name'       => [
+                'name'  => 'wanted.name',
+                'title' => trans('core/base::tables.name'),
+                'class' => 'text-left',
+            ],
+            'type'       => [
+                'name'  => 'wanted.type',
+                'title' => trans('core/base::tables.type'),
+                'class' => 'text-left',
+            ],
+           'created_at' => [
+                'name'  => 'wanted.created_at',
+                'title' => trans('core/base::tables.created_at'),
+                'width' => '100px',
+                'class' => 'text-left',
+            ],
+            'status'     => [
+                'name'  => 'wanted.status',
+                'title' => trans('core/base::tables.status'),
+                'width' => '100px',
+            ],
+        ];
+    }
+
+    /**
+     * @return array
+     * @throws Throwable
+     * @since 2.1
+     */
+    public function buttons()
+    {
+        $buttons = $this->addCreateButton(route('property_category.create'), 'property_category.create');
+
+        return apply_filters(BASE_FILTER_TABLE_BUTTONS, $buttons, Wanted::class);
+    }
+
+    /**
+     * @return array
+     * @throws Throwable
+     */
+    public function bulkActions(): array
+    {
+        return $this->addDeleteAction(route('property_category.deletes'), 'property_category.destroy', parent::bulkActions());
+    }
+
+    /**
+     * @return array
+     */
+    public function getBulkChanges(): array
+    {
+        return [
+            'wanted.name'       => [
+                'title'    => trans('core/base::tables.name'),
+                'type'     => 'text',
+                'validate' => 'required|max:120',
+            ],
+            'wanted.status'     => [
+                'title'    => trans('core/base::tables.status'),
+                'type'     => 'select',
+                'choices'  => BaseStatusEnum::labels(),
+                'validate' => 'required|in:' . implode(',', BaseStatusEnum::values()),
+            ],
+            'wanted.created_at' => [
+                'title' => trans('core/base::tables.created_at'),
+                'type'  => 'date',
+            ],
+        ];
+    }
+}
