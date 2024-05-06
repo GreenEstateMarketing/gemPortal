@@ -179,9 +179,8 @@
                 @endif
             </div>
             <!-- end logo -->
-            <div class="phone-email"><img src="{{Theme::asset()->url('images/icon-phone.png') }}" alt="Image">
-                <h4>{{ theme_option('hotline') }}</h4>
-                <small><a href="mailto:{{ theme_option('email') }}">{{ theme_option('email') }}</a></small></div>
+            <div class="phone-email">
+               </div>
             <!-- end phone -->
             <!--<div class="language"> <a href="#">EN</a> </div> -->
             <!-- end language -->
