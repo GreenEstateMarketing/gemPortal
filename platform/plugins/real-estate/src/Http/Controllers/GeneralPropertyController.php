@@ -596,7 +596,7 @@ class GeneralPropertyController extends Controller
 
             return redirect('/member/dashboard');
         }
-        return back()->withErrors(['Invalid email or password']);
+        return back()->withErrors(['Invalid email or password'])->withInput();
             /*->withInput($request->only('email', 'remember'))->with('error' , 'Wrong email or password')*/;
 
     }
@@ -625,7 +625,7 @@ class GeneralPropertyController extends Controller
         // }
         if ($validator->fails())
         {
-            return redirect()->back()->withErrors($validator->errors());
+            return redirect()->back()->withErrors($validator->errors())->withInput();
         }
         if(Member::where('email',$request['email'])->first()){
             return redirect()->back()->with(array('error_msg'=>'Email already exists.'));
