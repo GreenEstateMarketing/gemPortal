@@ -13,7 +13,7 @@ class Wanted extends Model
         'email',
         'city_id',
         'type',
-        'city_area_id',
+        'area',
         'mobile_no',
         'comments',
         'category_id'
