@@ -76,6 +76,7 @@ class Shortcode
      */
     public function compile($value)
     {
+        \Log::debug("value", [$value]);
         // Always enable when we call the compile method directly
         $this->enable();
 
