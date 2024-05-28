@@ -1,6 +1,7 @@
 <?php
 
 use Botble\Theme\Theme;
+use Illuminate\Support\Facades\Route;
 
 return [
 

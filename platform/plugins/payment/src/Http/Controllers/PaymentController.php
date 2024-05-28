@@ -25,6 +25,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Throwable;
 
@@ -150,6 +151,7 @@ class PaymentController extends Controller
      */
     public function postCheckout(CheckoutRequest $request)
     {
+
         $returnUrl = $request->input('return_url');
 
         $currency = $request->input('currency', config('plugins.payment.payment.currency'));

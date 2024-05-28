@@ -1133,6 +1133,7 @@ class GeneralPropertyController extends Controller
         TransactionInterface $transactionRepository,
         BaseHttpResponse $response
     ) {
+        \Illuminate\Support\Facades\Log::debug('YEAHHHHHHHHHHHH');
         $package = $packageRepository->findOrFail($packageId);
 
         if ($request->input('type') == PaymentMethodEnum::PAYPAL) {
@@ -1161,6 +1162,8 @@ class GeneralPropertyController extends Controller
                 ->setNextUrl(route('public.member.packages'))
                 ->setMessage($payPalService->getErrorMessage());
         }
+
+        dd('yeah it is coming outside');
 
         $this->savePayment($package, $request->input('charge_id'), $transactionRepository);
 

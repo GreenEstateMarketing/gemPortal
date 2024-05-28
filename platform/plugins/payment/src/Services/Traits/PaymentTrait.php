@@ -2,7 +2,7 @@
 
 namespace Botble\Payment\Services\Traits;
 
-use Auth;
+use Illuminate\Support\Facades\Auth;
 use Botble\Payment\Enums\PaymentMethodEnum;
 use Botble\Payment\Enums\PaymentStatusEnum;
 use Botble\Payment\Repositories\Interfaces\PaymentInterface;
@@ -10,7 +10,6 @@ use Illuminate\Support\Arr;
 
 trait PaymentTrait
 {
-
     /**
      * Store payment on local
      *
@@ -31,6 +30,7 @@ trait PaymentTrait
             'currency'        => $data['currency'],
             'charge_id'       => $data['charge_id'],
             'order_id'        => $data['order_id'],
+            'user_id'         => auth('member')->user()->getAuthIdentifier(),
             'payment_channel' => $paymentChannel,
             'status'          => Arr::get($data, 'status', PaymentStatusEnum::PENDING),
         ]);
