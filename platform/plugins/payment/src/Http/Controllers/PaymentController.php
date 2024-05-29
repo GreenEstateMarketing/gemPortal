@@ -349,6 +349,10 @@ class PaymentController extends Controller
         $payment->status = $request->input('status');
         $this->paymentRepository->createOrUpdate($payment);
 
+        if ($payment->status == PaymentStatusEnum::COMPLETED) {
+            //add credits to member
+        }
+
         return $response
             ->setPreviousUrl(route('payment.show', $payment->id))
             ->setMessage(trans('core/base::notices.update_success_message'));
