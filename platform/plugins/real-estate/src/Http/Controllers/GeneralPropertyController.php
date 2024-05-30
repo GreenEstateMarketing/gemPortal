@@ -1108,16 +1108,9 @@ class GeneralPropertyController extends Controller
         $package = $packageRepository->findOrFail($id);
         $total_price=$package->price;
         $voucher=false;
-        $package=Package::findOrFail($id);
-        $id=auth('member')->user()->id;
-       // echo session('discount');exit;
-        //$data=member_voucher::where('member_id',$id)->orderBy('redeemed_at','desc')->limit(1)->get();
         if(session('discount'))
         {
-          //  echo session('discount');exit;
             $package->price=$total_price-session('discount');
-
-
         }
 
 

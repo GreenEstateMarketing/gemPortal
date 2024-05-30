@@ -76,6 +76,7 @@ class PaymentServiceProvider extends ServiceProvider
 
         add_shortcode('payment-form', 'Payment form', 'Payment form', function ($shortCode) {
             $data = [
+                'package_id'  => $shortCode->package_id,
                 'name'        => $shortCode->name,
                 'currency'    => $shortCode->currency,
                 'amount'      => $shortCode->amount,

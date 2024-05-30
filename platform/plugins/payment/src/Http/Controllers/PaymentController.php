@@ -17,6 +17,7 @@ use Botble\Payment\Services\Gateways\CodPaymentService;
 use Botble\Payment\Services\Gateways\PayPalPaymentService;
 use Botble\Payment\Services\Gateways\StripePaymentService;
 use Botble\Payment\Tables\PaymentTable;
+use Botble\RealEstate\Repositories\Interfaces\PackageInterface;
 use Botble\Setting\Supports\SettingStore;
 use Exception;
 use Illuminate\Contracts\View\Factory;
@@ -25,7 +26,6 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Routing\Redirector;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Throwable;
 
@@ -62,6 +62,11 @@ class PaymentController extends Controller
     protected $paymentRepository;
 
     /**
+     * @var PackageInterface
+     */
+    protected $packageRepository;
+
+    /**
      * PaymentController constructor.
      * @param PayPalPaymentService $payPalService
      * @param StripePaymentService $stripePaymentService
@@ -70,12 +75,14 @@ class PaymentController extends Controller
      * @param PaymentInterface $paymentRepository
      */
     public function __construct(
-        PayPalPaymentService $payPalService,
-        StripePaymentService $stripePaymentService,
-        CodPaymentService $codPaymentService,
+        PayPalPaymentService       $payPalService,
+        StripePaymentService       $stripePaymentService,
+        CodPaymentService          $codPaymentService,
         BankTransferPaymentService $bankTransferPaymentService,
-        PaymentInterface $paymentRepository
-    ) {
+        PaymentInterface           $paymentRepository,
+        PackageInterface           $packageRepository
+    )
+    {
         $this->payPalService = $payPalService;
 
         $this->stripePaymentService = $stripePaymentService;
@@ -84,6 +91,8 @@ class PaymentController extends Controller
         $this->returnUrl = config('plugins.payment.payment.return_url_after_payment');
         $this->codPaymentService = $codPaymentService;
         $this->bankTransferPaymentService = $bankTransferPaymentService;
+        $this->packageRepository = $packageRepository;
+
     }
 
     /**
@@ -151,18 +160,17 @@ class PaymentController extends Controller
      */
     public function postCheckout(CheckoutRequest $request)
     {
-
         $returnUrl = $request->input('return_url');
 
         $currency = $request->input('currency', config('plugins.payment.payment.currency'));
         $currency = strtoupper($currency);
 
         $data = [
-            'error'    => false,
-            'message'  => false,
-            'amount'   => $request->input('amount'),
+            'error' => false,
+            'message' => false,
+            'amount' => $request->input('amount'),
             'currency' => $currency,
-            'type'     => $request->input('payment_method'),
+            'type' => $request->input('payment_method'),
         ];
 
         switch ($request->input('payment_method')) {
@@ -220,9 +228,10 @@ class PaymentController extends Controller
      */
     public function getPayPalStatus(
         PayPalPaymentCallbackRequest $request,
-        PayPalPaymentService $palPaymentService,
-        BaseHttpResponse $response
-    ) {
+        PayPalPaymentService         $palPaymentService,
+        BaseHttpResponse             $response
+    )
+    {
         $palPaymentService->afterMakePayment($request);
 
         return $response
@@ -349,8 +358,9 @@ class PaymentController extends Controller
         $payment->status = $request->input('status');
         $this->paymentRepository->createOrUpdate($payment);
 
-        if ($payment->status == PaymentStatusEnum::COMPLETED) {
-            //add credits to member
+        if ($payment->status == PaymentStatusEnum::COMPLETED && $payment->package_id) {
+            $package = $this->packageRepository->findOrFail($payment->package_id);
+            //work to continue from here
         }
 
         return $response

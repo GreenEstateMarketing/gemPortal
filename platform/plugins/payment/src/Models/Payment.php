@@ -36,6 +36,7 @@ class Payment extends BaseModel
         'customer_id',
         'refunded_amount',
         'refund_note',
+        'package_id'
     ];
 
     /**

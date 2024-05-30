@@ -162,7 +162,7 @@
             <div class="row justify-content-center pb-5">
 
                 <div class="col-xs-12">
-                    {!! do_shortcode('[payment-form currency="' . strtoupper($package->currency->title) . '" amount="' . $package->price . '" name="' . $package->name . '" return_url="' . route('public.member.packages') . '" callback_url="' . route('public.member.package.subscribe.callback', $package->id) . '"][/payment-form]') !!}
+                    {!! do_shortcode('[payment-form currency="' . strtoupper($package->currency->title) . '" amount="' . $package->price . '" package_id="' . $package->id . '" name="' . $package->name . '" return_url="' . route('public.member.packages') . '" callback_url="' . route('public.member.package.subscribe.callback', $package->id) . '"][/payment-form]') !!}
                 </div>
             </div>
         </div>

@@ -5,6 +5,7 @@ namespace Botble\Payment\Services\Gateways;
 use Botble\Payment\Enums\PaymentMethodEnum;
 use Botble\Payment\Enums\PaymentStatusEnum;
 use Botble\Payment\Services\Traits\PaymentTrait;
+use Botble\RealEstate\Models\Package;
 use Botble\Support\Services\ProduceServiceInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -28,6 +29,7 @@ class BankTransferPaymentService implements ProduceServiceInterface
             'order_id'        => $request->input('order_id'),
             'payment_channel' => PaymentMethodEnum::BANK_TRANSFER,
             'status'          => PaymentStatusEnum::PENDING,
+            'package_id'      => $request->input('package_id')
         ]);
 
         return $chargeId;

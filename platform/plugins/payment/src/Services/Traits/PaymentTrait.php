@@ -33,6 +33,7 @@ trait PaymentTrait
             'user_id'         => auth('member')->user()->getAuthIdentifier(),
             'payment_channel' => $paymentChannel,
             'status'          => Arr::get($data, 'status', PaymentStatusEnum::PENDING),
+            'package_id'      => $data['package_id']
         ]);
     }
 }
