@@ -17,6 +17,7 @@ use Botble\Payment\Services\Gateways\CodPaymentService;
 use Botble\Payment\Services\Gateways\PayPalPaymentService;
 use Botble\Payment\Services\Gateways\StripePaymentService;
 use Botble\Payment\Tables\PaymentTable;
+use Botble\RealEstate\Models\Member;
 use Botble\RealEstate\Repositories\Interfaces\PackageInterface;
 use Botble\Setting\Supports\SettingStore;
 use Exception;
@@ -360,7 +361,11 @@ class PaymentController extends Controller
 
         if ($payment->status == PaymentStatusEnum::COMPLETED && $payment->package_id) {
             $package = $this->packageRepository->findOrFail($payment->package_id);
-            //work to continue from here
+            $member = Member::find($payment->user_id);
+
+            $member->credits = $member->credits + $package->number_of_listings;
+
+            $member->save();
         }
 
         return $response
