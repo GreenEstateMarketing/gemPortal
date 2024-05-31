@@ -46,7 +46,7 @@
                         <h4><label for="status" class="control-label required" aria-required="true">{{ trans('core/base::tables.status') }}</label></h4>
                     </div>
                     <div class="widget-body">
-                        {!! Form::customSelect('status', $paymentStatuses, $payment->status) !!}
+                        {!! Form::customSelect('status', $paymentStatuses, $payment->status, ['disabled' => $payment->status == 'completed' ? 'disabled' : null]) !!}
                     </div>
                 </div>
                 @php do_action(BASE_ACTION_META_BOXES, 'side', $payment) @endphp
