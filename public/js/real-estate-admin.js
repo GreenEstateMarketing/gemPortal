@@ -1,7 +1,7 @@
 /*const jquery-validation = require('jquery-validation');*/
 ///////////////agent list//////////////
 
-$( window ).on("load", function() {
+$(window).on("load", function () {
     // Handler for .load() called.
     $('.city_id').on('change', function () {
         var city_id = $(this).val();
@@ -14,88 +14,86 @@ $( window ).on("load", function() {
                 city_id: city_id
             },
             success: function (response) {
-    
+
                 $('#city_area_id').empty();
                 $('#city_area_id').html('<option selected value> Select city area... </option>');
-                $.each(response.data, function(i,item) {
+                $.each(response.data, function (i, item) {
                     $('#city_area_id').append('<option value="'
                         + item.id
                         + '">'
                         + item.city_area_name
                         + '</option>'
                     );
-    
+
                 });
                 // $('#location_id').prop("selectedIndex", -1);
             }
         });
     });
-    console.log();
     $(".info-area-icon").after('<div class="infoTitle d-none"></div> <i class="showInfoArea ml-2 active fas fa-info-circle" style="cursor: pointer" title=""></i> ');
     //ajax to get area units data
 
-    $(".showInfoArea").click(function() {
+    $(".showInfoArea").click(function () {
 
 
         $.ajax({
             url: "/api/v1/area-units",
             type: "get",
             dataType: 'json',
-            async:false,
-            data:{area:$("#square").val(),unit:$("#area_units").val()},
+            async: false,
+            data: { area: $("#square").val(), unit: $("#area_units").val() },
 
-             success: function (response) {
+            success: function (response) {
 
                 $(".infoTitle").html(response.html);
-                 $(".infoTitle").removeClass('d-none');
+                $(".infoTitle").removeClass('d-none');
             },
         });
 
     });
 
 
-    $( ".showInfoArea" ).mouseleave(function() {
+    $(".showInfoArea").mouseleave(function () {
         $(".infoTitle").addClass('d-none');
     });
-    function agent_list()
-    {
-     /*   var latitude=  $("#latitude").val();
-        var longitude=  $("#longitude").val();
+    function agent_list() {
+        /*   var latitude=  $("#latitude").val();
+           var longitude=  $("#longitude").val();
+           $.ajax({
+               url: "/api/v1/agent-list",
+               type: "get",
+               dataType: 'json',
+               data: {
+                   longitude:longitude,
+                   latitude:latitude
+   
+               },
+               success: function (response) {
+                   $("#author_id").empty();
+                   $("#author_id").append('<option value="">Select</option>');
+   
+   
+                   $.each(response, function (key, value) {
+                       if(value.rating)
+                           $("#author_id").append('<option value='+value.id+'>'+value.first_name+' ('+value.rating+')</option>');
+                       else
+                           $("#author_id").append('<option value='+value.id+'>'+value.first_name+'</option>');
+                   });
+   
+               },
+           });*/
+        var latitude = $("#latitude").val();
+        var longitude = $("#longitude").val();
         $.ajax({
             url: "/api/v1/agent-list",
             type: "get",
             dataType: 'json',
             data: {
-                longitude:longitude,
-                latitude:latitude
+                longitude: longitude,
+                latitude: latitude
 
             },
-            success: function (response) {
-                $("#author_id").empty();
-                $("#author_id").append('<option value="">Select</option>');
-
-
-                $.each(response, function (key, value) {
-                    if(value.rating)
-                        $("#author_id").append('<option value='+value.id+'>'+value.first_name+' ('+value.rating+')</option>');
-                    else
-                        $("#author_id").append('<option value='+value.id+'>'+value.first_name+'</option>');
-                });
-
-            },
-        });*/
-        var latitude=  $("#latitude").val();
-        var longitude=  $("#longitude").val();
-        $.ajax({
-            url: "/api/v1/agent-list",
-            type: "get",
-            dataType: 'json',
-            data: {
-                longitude:longitude,
-                latitude:latitude
-
-            },
-            async:false,
+            async: false,
             success: function (response) {
 
                 $("#dropdown-menu-admin").empty();
@@ -104,18 +102,16 @@ $( window ).on("load", function() {
                 //$("#dropdown-menu-admin").append(');
                 $("#dropdown-menu-admin").append('<input type="text" placeholder="Search.." class="form-control" id="myInputadmin" onKeyUp="filterFunction()">');
                 $("#dropdown-menu-checklist").append('<input type="text" placeholder="Search.." class="form-control" id="myInputchecklist" onKeyUp="filterFunctionCheck()">');
-                if(response.length > 0) {
+                if (response.length > 0) {
                     $.each(response, function (key, value) {
 
-                        //console.log(value.img_src);
-
                         if (value.rating) {
-                            $("#dropdown-menu-admin").append('<li class="dropdown-item" data-agent-id="' + value.id + '"><img src="' + value.img_src.encoded + '" width="50px" height="50px" class="br-100 v-mid mr-2">  ' + value.first_name + ''+value.last_name+' (' + value.rating + '<i class="fa fa-star" style="color:#f3a54a" aria-hidden="true"></i>)</li>');
-                            $("#dropdown-menu-checklist").append('<li class="dropdown-item" data-agent-id="' + value.id + '"><img src="' + value.img_src.encoded + '" width="50px" height="50px" class="br-100 v-mid mr-2">  ' + value.first_name + ''+value.last_name+' (' + value.rating + '<i class="fa fa-star" style="color:#f3a54a" aria-hidden="true"></i>)</li>');
+                            $("#dropdown-menu-admin").append('<li class="dropdown-item" data-agent-id="' + value.id + '"><img src="' + value.img_src.encoded + '" width="50px" height="50px" class="br-100 v-mid mr-2">  ' + value.first_name + '' + value.last_name + ' (' + value.rating + '<i class="fa fa-star" style="color:#f3a54a" aria-hidden="true"></i>)</li>');
+                            $("#dropdown-menu-checklist").append('<li class="dropdown-item" data-agent-id="' + value.id + '"><img src="' + value.img_src.encoded + '" width="50px" height="50px" class="br-100 v-mid mr-2">  ' + value.first_name + '' + value.last_name + ' (' + value.rating + '<i class="fa fa-star" style="color:#f3a54a" aria-hidden="true"></i>)</li>');
 
                         } else {
-                            $("#dropdown-menu-admin").append('<li class="dropdown-item"  data-agent-id="' + value.id + '"><img src="' + value.img_src.encoded + '" width="50" height="50"  class="br-100 v-mid mr-2">  ' + value.first_name + ' '+value.last_name+'</li>');
-                            $("#dropdown-menu-checklist").append('<li class="dropdown-item" data-agent-id="' + value.id + '"><img src="' + value.img_src.encoded + '" width="50px" height="50px" class="br-100 v-mid mr-2">  ' + value.first_name + ''+value.last_name+'</li>');
+                            $("#dropdown-menu-admin").append('<li class="dropdown-item"  data-agent-id="' + value.id + '"><img src="' + value.img_src.encoded + '" width="50" height="50"  class="br-100 v-mid mr-2">  ' + value.first_name + ' ' + value.last_name + '</li>');
+                            $("#dropdown-menu-checklist").append('<li class="dropdown-item" data-agent-id="' + value.id + '"><img src="' + value.img_src.encoded + '" width="50px" height="50px" class="br-100 v-mid mr-2">  ' + value.first_name + '' + value.last_name + '</li>');
 
                         }
                         //       $("#agent_list").append('  <img src="/themes/real-scout/images/team01.jpeg" class="br-100 v-mid mr-1" style="width: 30px;"><option value='+value.id+'>'+value.first_name+' ('+value.rating+')</option>');
@@ -124,8 +120,7 @@ $( window ).on("load", function() {
 
                     });
                 }
-                else
-                {
+                else {
 
                     $("#dropdown-menu-admin").append('<li class="dropdown-item disabled" disabled="disabled">No Agent Found in this Area</li>');
                     $("#dropdown-menu-checklist").append('<li class="dropdown-item disabled" disabled="disabled">No Agent Found in this Area</li>');
@@ -136,41 +131,39 @@ $( window ).on("load", function() {
     }
     agent_list();
 
-    $('#latitude').on('change', function() {
+    $('#latitude').on('change', function () {
         agent_list();
     });
-    property_id=$("input[name='property_id']").val();
-    category_id= $("input[name='category_id']").val();
-    if(property_id=="")
-    {
-       $(".p-category").first().trigger("click");
-     //  $('ul.sub-category li:first').trigger('click');
+    property_id = $("input[name='property_id']").val();
+    category_id = $("input[name='category_id']").val();
+    if (property_id == "") {
+        $(".p-category").first().trigger("click");
+        //  $('ul.sub-category li:first').trigger('click');
 
 
-        var myObject = {'$a' : 'number_bedroom', '$b' : 'number_bathroom','$c':'square','$d':'type','$e':'area_units','$f':'category_name','$g':'number_floor'  };
+        var myObject = { '$a': 'number_bedroom', '$b': 'number_bathroom', '$c': 'square', '$d': 'type', '$e': 'area_units', '$f': 'category_name', '$g': 'number_floor' };
         //   setTemplateVariables(myObject);
     }
-    else
-    {
+    else {
 
-        $(".p-subcategory").each(function() {
+        $(".p-subcategory").each(function () {
             $(this).removeClass('label-secondary').addClass('label-sub-category');
-            if($(this).attr('data-id')==category_id){
+            if ($(this).attr('data-id') == category_id) {
                 $(this).removeClass('label-sub-category').addClass('label-primary');
-                $(this).html('<span class="category-tick-selected"><i class="fas fa-check"></i></span> '+$(this).attr('data-category_name'));
+                $(this).html('<span class="category-tick-selected"><i class="fas fa-check"></i></span> ' + $(this).attr('data-category_name'));
                 // $(this).parent().parent().css('display','block');
-                var p_id= $(this).attr("data-id");
+                var p_id = $(this).attr("data-id");
                 $(".pcateory_data").html($(this).parent().parent().html());
                 return false;
             }
         });
 
-        agent_id= $("input[name='author_id_hidden']").val();
-        liObj=$("#dropdown-menu-admin").find('li[data-agent-id='+agent_id+']');
+        agent_id = $("input[name='author_id_hidden']").val();
+        liObj = $("#dropdown-menu-admin").find('li[data-agent-id=' + agent_id + ']');
         var btnObj = liObj.parent().siblings('button');
         $(btnObj).text(liObj.text());
         ////popup agent
-        liObj=$("#dropdown-menu-checklist").find('li[data-agent-id='+agent_id+']');
+        liObj = $("#dropdown-menu-checklist").find('li[data-agent-id=' + agent_id + ']');
         var btnObj = liObj.parent().siblings('button');
         $(btnObj).text(liObj.text());
         $("#author_id").val(agent_id);
@@ -201,14 +194,14 @@ $( window ).on("load", function() {
 
 });
 $(window).ready(function () {
-    $(document).on("click", "#dropdown-menu-admin li", function(event) {
+    $(document).on("click", "#dropdown-menu-admin li", function (event) {
 
         var btnObj = $(this).parent().siblings('button');
         $(btnObj).text($(this).text());
         //$(btnObj).val($(this).text());
         $("#author_id").val($(this).attr('data-agent-id'));
         $(".show_contact_detail").addClass("d-none");
-        if($(this).attr('data-agent-id')==""){
+        if ($(this).attr('data-agent-id') == "") {
             $(".agent-detail").addClass('d-none');
         }
         else {
@@ -219,17 +212,17 @@ $(window).ready(function () {
                 data: {
                     id: $(this).attr('data-agent-id')
                 },
-                async:false,
+                async: false,
                 success: function (response) {
 
-                    if(response.phone==null ){
+                    if (response.phone == null) {
 
-                        $(".showContact").css('display','none');
+                        $(".showContact").css('display', 'none');
                     }
-                    else{
-                        $(".showContact").css('display','block');
+                    else {
+                        $(".showContact").css('display', 'block');
                     }
-                    $(".agent-image").attr('src',response.avatar_url.encoded);
+                    $(".agent-image").attr('src', response.avatar_url.encoded);
                     /*$("#agent_name").text(response.first_name+" "+response.last_name);
                     $("#agent_email").text(response.email);
                     $("#agent_desc").html(response.description);
@@ -237,15 +230,15 @@ $(window).ready(function () {
                     $(".agent-detail").removeClass('d-none');*/
                     //
                     $(".agent-detail-admin").removeClass('d-none');
-                    $("#agent_name_admin").text(response.first_name+" "+response.last_name);
+                    $("#agent_name_admin").text(response.first_name + " " + response.last_name);
                     $("#agent_email_admin").text(response.email);
                     $("#agent_desc_admin").html(response.description);
-                    if(response.phone==null ) {
-                        $(".phone-icon").css('display','none');
+                    if (response.phone == null) {
+                        $(".phone-icon").css('display', 'none');
                         $("#agent_no_admin").html('');
                     }
-                    else{
-                        $(".phone-icon").css('display','block');
+                    else {
+                        $(".phone-icon").css('display', 'block');
                         $("#agent_no_admin").html(response.phone);
                     }
 
@@ -253,14 +246,14 @@ $(window).ready(function () {
             });
         }
     });
-    $(document).on("click", "#dropdown-menu-checklist li", function(event) {
+    $(document).on("click", "#dropdown-menu-checklist li", function (event) {
 
         var btnObj = $(this).parent().siblings('button');
         $(btnObj).text($(this).text());
         //$(btnObj).val($(this).text());
         $("#author_id").val($(this).attr('data-agent-id'));
         $(".show_contact_detail").addClass("d-none");
-        if($(this).attr('data-agent-id')==""){
+        if ($(this).attr('data-agent-id') == "") {
             $(".agent-detail").addClass('d-none');
         }
         else {
@@ -271,17 +264,17 @@ $(window).ready(function () {
                 data: {
                     id: $(this).attr('data-agent-id')
                 },
-                async:false,
+                async: false,
                 success: function (response) {
 
-                    if(response.phone==null ){
+                    if (response.phone == null) {
 
-                        $(".showContact").css('display','none');
+                        $(".showContact").css('display', 'none');
                     }
-                    else{
-                        $(".showContact").css('display','block');
+                    else {
+                        $(".showContact").css('display', 'block');
                     }
-                    $(".agent-image").attr('src',response.avatar_url.encoded);
+                    $(".agent-image").attr('src', response.avatar_url.encoded);
                     /*$("#agent_name").text(response.first_name+" "+response.last_name);
                     $("#agent_email").text(response.email);
                     $("#agent_desc").html(response.description);
@@ -289,15 +282,15 @@ $(window).ready(function () {
                     $(".agent-detail").removeClass('d-none');*/
                     //
                     $(".agent-detail-admin").removeClass('d-none');
-                    $("#agent_name_admin").text(response.first_name+" "+response.last_name);
+                    $("#agent_name_admin").text(response.first_name + " " + response.last_name);
                     $("#agent_email_admin").text(response.email);
                     $("#agent_desc_admin").html(response.description);
-                    if(response.phone==null ) {
-                        $(".phone-icon").css('display','none');
+                    if (response.phone == null) {
+                        $(".phone-icon").css('display', 'none');
                         $("#agent_no_admin").html('');
                     }
-                    else{
-                        $(".phone-icon").css('display','block');
+                    else {
+                        $(".phone-icon").css('display', 'block');
                         $("#agent_no_admin").html(response.phone);
                     }
 
@@ -306,24 +299,22 @@ $(window).ready(function () {
         }
     });
 
-    moderation_status=$("input[name='moderation_status_hidden']").val();
+    moderation_status = $("input[name='moderation_status_hidden']").val();
 
-    if(moderation_status=="rejected" /*&& property_id > 0*/) {
+    if (moderation_status == "rejected" /*&& property_id > 0*/) {
 
         $("#reject_reason").parent().removeClass('d-none');
     }
-    else
-    {
+    else {
         $("input[name='reject_reason']").val('');
         $("#reject_reason").parent().addClass('d-none');
     }
     $("#moderation_status").change(function () {
-        if($(this).val()=="rejected" /*&& property_id > 0*/) {
+        if ($(this).val() == "rejected" /*&& property_id > 0*/) {
 
             $("#reject_reason").parent().removeClass('d-none');
         }
-        else
-        {
+        else {
             $("input[name='reject_reason']").val('');
             $("#reject_reason").parent().addClass('d-none');
         }
@@ -331,9 +322,8 @@ $(window).ready(function () {
 
 
 });
-$(document).ready(function(){
-    function temp_list()
-    {
+$(document).ready(function () {
+    function temp_list() {
         /*   var latitude=  $("#latitude").val();
            var longitude=  $("#longitude").val();
            $.ajax({
@@ -364,15 +354,15 @@ $(document).ready(function(){
             url: "/api/v1/get_template",
             type: "get",
             dataType: 'json',
-            async:false,
-            data:{category_id:$("#category_id").val()},
+            async: false,
+            data: { category_id: $("#category_id").val() },
 
             success: function (response) {
                 // alert(response.detail);
-                if(response.status) {
+                if (response.status) {
                     $("#description").val(response.html.detail);
                     $("#template_desp").val(response.html.detail);
-                    $("#description").prop('readonly',true);
+                    $("#description").prop('readonly', true);
                 }
 
             },
@@ -383,25 +373,23 @@ $(document).ready(function(){
 
         $(".p-category").removeClass("category-parent-active").addClass('category-parent-inactive');
         $(this).addClass('category-parent-active');
-        $(this).html('<span class="category-tick-selected"><i class="fas fa-check"></i></span> '+$(this).attr('data-category_name'));
-       $(".category-tick-selected").html('');
-        var p_id= $(this).attr("data-id");
-        $(".pcateory_data").html($(".p"+p_id).html());
+        $(this).html('<span class="category-tick-selected"><i class="fas fa-check"></i></span> ' + $(this).attr('data-category_name'));
+        $(".category-tick-selected").html('');
+        var p_id = $(this).attr("data-id");
+        $(".pcateory_data").html($(".p" + p_id).html());
 
-        var c_name=$(this).attr('data-category_name');
-        if(c_name=="PLOTS" || c_name=="plots" || c_name=="plot")
-        {
+        var c_name = $(this).attr('data-category_name');
+        if (c_name == "PLOTS" || c_name == "plots" || c_name == "plot") {
             $(".category_attr").addClass('d-none');
         }
-        else if(c_name=="COMMERCIALS" || c_name=="Commercials" || c_name=="COMMERCIAL" || c_name=="Commercials" )
-        {
+        else if (c_name == "COMMERCIALS" || c_name == "Commercials" || c_name == "COMMERCIAL" || c_name == "Commercials") {
 
             $(".category_attr").removeClass('d-none');
             $(".number_bedroom").addClass('d-none');
             $(".number_bathroom").addClass('d-none');
 
         }
-        else{
+        else {
             $(".category_attr").removeClass('d-none');
             $(".number_bedroom").removeClass('d-none');
             $(".number_bathroom").removeClass('d-none');
@@ -412,56 +400,52 @@ $(document).ready(function(){
     });
     $(".p-category").click(function () {
 
-       $(".category-tick-selected").html('');
+        $(".category-tick-selected").html('');
         $(".p-category").removeClass("label-primary").addClass('label-secondary');
         $(this).removeClass("label-secondary").addClass('label-primary');
-        $(this).html('<span class="category-tick-selected"><i class="fas fa-check"></i></span> '+$(this).attr('data-category_name'));
-        var p_id= $(this).attr("data-id");
-        $(".pcateory_data").html($(".p"+p_id).html());
-      $("input[name='category_id']").val(p_id);
+        $(this).html('<span class="category-tick-selected"><i class="fas fa-check"></i></span> ' + $(this).attr('data-category_name'));
+        var p_id = $(this).attr("data-id");
+        $(".pcateory_data").html($(".p" + p_id).html());
+        $("input[name='category_id']").val(p_id);
         $("input[name='category_name']").val($(this).attr('data-category_name'));
-       // temp_list();
-        var myObject = {'$a' : 'number_bedroom', '$b' : 'number_bathroom','$c':'square','$d':'type','$e':'area_units','$f':'category_name','$g':'number_floor' };
-      //  setTemplateVariables(myObject);
-       var c_name=$(this).attr('data-category_name');
-       if(c_name=="PLOTS" || c_name=="plots" ||c_name=="plot")
-       {
-           $(".category_attr").addClass('d-none');
-       }
-       else if(c_name=="COMMERCIALS" || c_name=="Commercials" || c_name=="COMMERCIAL" || c_name=="Commercials" )
-       {
-
-           $(".category_attr").removeClass('d-none');
-           $(".number_bedroom").addClass('d-none');
-           $(".number_bathroom").addClass('d-none');
-
-       }
-       else{
-           $(".category_attr").removeClass('d-none');
-           $(".number_bedroom").removeClass('d-none');
-           $(".number_bathroom").removeClass('d-none');
-
-
-       }
-        $('.pcateory_data ').find('li.p-subcategory:nth-child(1)').trigger("click");
-
-    }) ;
-    $('body').on('click', '.p-subcategory', function() {
-
-        var c_name=$(this).attr('data-parent-name');
-        if(c_name=="PLOTS" || c_name=="plots" ||c_name=="plot")
-        {
+        // temp_list();
+        var myObject = { '$a': 'number_bedroom', '$b': 'number_bathroom', '$c': 'square', '$d': 'type', '$e': 'area_units', '$f': 'category_name', '$g': 'number_floor' };
+        //  setTemplateVariables(myObject);
+        var c_name = $(this).attr('data-category_name');
+        if (c_name == "PLOTS" || c_name == "plots" || c_name == "plot") {
             $(".category_attr").addClass('d-none');
         }
-        else if(c_name=="COMMERCIALS" || c_name=="Commercials" || c_name=="COMMERCIAL" || c_name=="Commercials" )
-        {
+        else if (c_name == "COMMERCIALS" || c_name == "Commercials" || c_name == "COMMERCIAL" || c_name == "Commercials") {
 
             $(".category_attr").removeClass('d-none');
             $(".number_bedroom").addClass('d-none');
             $(".number_bathroom").addClass('d-none');
 
         }
-        else{
+        else {
+            $(".category_attr").removeClass('d-none');
+            $(".number_bedroom").removeClass('d-none');
+            $(".number_bathroom").removeClass('d-none');
+
+
+        }
+        $('.pcateory_data ').find('li.p-subcategory:nth-child(1)').trigger("click");
+
+    });
+    $('body').on('click', '.p-subcategory', function () {
+
+        var c_name = $(this).attr('data-parent-name');
+        if (c_name == "PLOTS" || c_name == "plots" || c_name == "plot") {
+            $(".category_attr").addClass('d-none');
+        }
+        else if (c_name == "COMMERCIALS" || c_name == "Commercials" || c_name == "COMMERCIAL" || c_name == "Commercials") {
+
+            $(".category_attr").removeClass('d-none');
+            $(".number_bedroom").addClass('d-none');
+            $(".number_bathroom").addClass('d-none');
+
+        }
+        else {
             $(".category_attr").removeClass('d-none');
             $(".number_bedroom").removeClass('d-none');
             $(".number_bathroom").removeClass('d-none');
@@ -471,48 +455,44 @@ $(document).ready(function(){
         $(this).siblings().removeClass("label-primary").addClass('label-sub-category');
         $(this).removeClass("label-sub-category").addClass('label-primary');
         $(".category-tick-selected").html('');
-        $(this).html('<span class="category-tick-selected"><i class="fas fa-check"></i></span> '+$(this).attr('data-category_name'));
-        var p_id= $(this).attr("data-id");
+        $(this).html('<span class="category-tick-selected"><i class="fas fa-check"></i></span> ' + $(this).attr('data-category_name'));
+        var p_id = $(this).attr("data-id");
         $("input[name='category_id']").val(p_id);
         $("input[name='category_name']").val($(this).attr('data-category_name'));
         getDocumentsList();
         ///template setting////
-        $default=$(this).attr('data-category_name');
+        $default = $(this).attr('data-category_name');
         temp_list();
 
-        var myObject = {'$a' : 'number_bedroom', '$b' : 'number_bathroom','$c':'square','$d':'type','$e':'area_units','$f':'category_name','$g':'number_floor'  };
+        var myObject = { '$a': 'number_bedroom', '$b': 'number_bathroom', '$c': 'square', '$d': 'type', '$e': 'area_units', '$f': 'category_name', '$g': 'number_floor' };
         setTemplateVariables(myObject);
 
     });
-    property_id=$("input[name='property_id']").val();
+    property_id = $("input[name='property_id']").val();
     ///////////seting current category on edit/////////
-    category_id=$("input[name='category_id']").val();
-    if(property_id=="")
-    {
+    category_id = $("input[name='category_id']").val();
+    if (property_id == "") {
         $(".p-category").first().trigger("click");
         $('.pcateory_data ').find('li.p-subcategory:nth-child(1)').trigger("click");
 
     }
-    else
-    {
+    else {
 
-        $(".p-subcategory").each(function() {
+        $(".p-subcategory").each(function () {
 
-            if($(this).attr('data-id')==category_id){
-                var c_name=$(this).attr('data-parent-name');
-                if(c_name=="PLOTS" || c_name=="plots" ||c_name=="plot")
-                {
+            if ($(this).attr('data-id') == category_id) {
+                var c_name = $(this).attr('data-parent-name');
+                if (c_name == "PLOTS" || c_name == "plots" || c_name == "plot") {
                     $(".category_attr").addClass('d-none');
                 }
-                else if(c_name=="COMMERCIALS" || c_name=="Commercials" || c_name=="COMMERCIAL" || c_name=="Commercials" )
-                {
+                else if (c_name == "COMMERCIALS" || c_name == "Commercials" || c_name == "COMMERCIAL" || c_name == "Commercials") {
 
                     $(".category_attr").removeClass('d-none');
                     $(".number_bedroom").addClass('d-none');
                     $(".number_bathroom").addClass('d-none');
 
                 }
-                else{
+                else {
                     $(".category_attr").removeClass('d-none');
                     $(".number_bedroom").removeClass('d-none');
                     $(".number_bathroom").removeClass('d-none');
@@ -520,9 +500,9 @@ $(document).ready(function(){
 
                 }
                 $(this).removeClass('label-sub-category').addClass('label-primary');
-                $(this).html('<span class="category-tick-selected"><i class="fas fa-check"></i></span> '+$(this).attr('data-category_name'));
+                $(this).html('<span class="category-tick-selected"><i class="fas fa-check"></i></span> ' + $(this).attr('data-category_name'));
                 // $(this).parent().parent().css('display','block');
-                var p_id= $(this).attr("data-id");
+                var p_id = $(this).attr("data-id");
                 $(".pcateory_data").html($(this).parent().parent().html());
                 return false;
             }
@@ -543,50 +523,50 @@ $(document).ready(function(){
         $("input[name='category_name']").val($(this).attr('data-category_name'));
         getDocumentsList();
     });*/
-   /* function setTemplateVariables(ob) {
+    /* function setTemplateVariables(ob) {
+ 
+       /!*  temp_update = temp.replace('$d', p_id);
+         ber=$("#number_bedroom").val();
+         temp_update = temp_update.replace('$a',ber);
+         ///bathroom
+         br=$("#number_bathroom").val();
+         temp_update = temp_update.replace('$b', br);
+         ///square
+         sq=$("#square").val();
+         temp_update = temp_update.replace('$c', sq);
+         $("#description").val(temp_update);*!/
+     }*/
 
-      /!*  temp_update = temp.replace('$d', p_id);
-        ber=$("#number_bedroom").val();
-        temp_update = temp_update.replace('$a',ber);
-        ///bathroom
-        br=$("#number_bathroom").val();
-        temp_update = temp_update.replace('$b', br);
-        ///square
-        sq=$("#square").val();
-        temp_update = temp_update.replace('$c', sq);
-        $("#description").val(temp_update);*!/
-    }*/
-
-   /* $(document).on('click', '.p-subcategory', function() {
-
-
-        $(this).siblings().removeClass("label-primary").addClass('label-sub-category');
-        $(this).removeClass("label-sub-category").addClass('label-primary');
-        $(".category-tick-selected").html('');
-        $(this).html('<span class="category-tick-selected"><i class="fas fa-check"></i></span> '+$(this).attr('data-category_name'));
-        var p_id= $(this).attr("data-id");
-        $("input[name='category_id']").val(p_id);
-        $("input[name='category_name']").val($(this).attr('data-category_name'));
-        getDocumentsList();
-        ///template setting////
-        $default=$(this).attr('data-category_name');
-        temp_list();
-        var myObject = {'$a' : 'number_bedroom', '$b' : 'number_bathroom','$c':'square','$d':'type','$e':'area_units','$f':'category_name','$g':'number_floor'  };
-        setTemplateVariables(myObject);
-
-    });*/
+    /* $(document).on('click', '.p-subcategory', function() {
+ 
+ 
+         $(this).siblings().removeClass("label-primary").addClass('label-sub-category');
+         $(this).removeClass("label-sub-category").addClass('label-primary');
+         $(".category-tick-selected").html('');
+         $(this).html('<span class="category-tick-selected"><i class="fas fa-check"></i></span> '+$(this).attr('data-category_name'));
+         var p_id= $(this).attr("data-id");
+         $("input[name='category_id']").val(p_id);
+         $("input[name='category_name']").val($(this).attr('data-category_name'));
+         getDocumentsList();
+         ///template setting////
+         $default=$(this).attr('data-category_name');
+         temp_list();
+         var myObject = {'$a' : 'number_bedroom', '$b' : 'number_bathroom','$c':'square','$d':'type','$e':'area_units','$f':'category_name','$g':'number_floor'  };
+         setTemplateVariables(myObject);
+ 
+     });*/
     // $(".type_sale").first().trigger("click");
     $(".type_sale").click(function () {
 
         $(".type_rent").removeClass("label-primary").addClass('label-secondary');
         $(".tick-selected").html('');
         $(this).removeClass("label-secondary").addClass('label-primary');
-        $(this).html('<span class="tick-selected"><i class="fas fa-check"></i></span> '+$(this).attr('data-type-name'));
+        $(this).html('<span class="tick-selected"><i class="fas fa-check"></i></span> ' + $(this).attr('data-type-name'));
 
         //$(this).html();
-        var p_id= $(this).attr("data-id");
+        var p_id = $(this).attr("data-id");
         $("input[name='type']").val(p_id);
-        var myObject = {'$a' : 'number_bedroom', '$b' : 'number_bathroom','$c':'square','$d':'type','$e':'area_units','$f':'category_name' ,'$g':'number_floor' };
+        var myObject = { '$a': 'number_bedroom', '$b': 'number_bathroom', '$c': 'square', '$d': 'type', '$e': 'area_units', '$f': 'category_name', '$g': 'number_floor' };
 
         setTemplateVariables(myObject);
     });
@@ -595,21 +575,21 @@ $(document).ready(function(){
         $(".type_sale").removeClass("label-primary").addClass('label-secondary');
         $(".tick-selected").html('');
         $(this).removeClass("label-secondary").addClass('label-primary');
-        $(this).html('<span class="tick-selected"><i class="fas fa-check"></i></span> '+$(this).attr('data-type-name'));
+        $(this).html('<span class="tick-selected"><i class="fas fa-check"></i></span> ' + $(this).attr('data-type-name'));
 
         //$(this).html();
-        var p_id= $(this).attr("data-id");
+        var p_id = $(this).attr("data-id");
         $("input[name='type']").val(p_id);
-        var myObject = {'$a' : 'number_bedroom', '$b' : 'number_bathroom','$c':'square','$d':'type','$e':'area_units','$f':'category_name' ,'$g':'number_floor' };
+        var myObject = { '$a': 'number_bedroom', '$b': 'number_bathroom', '$c': 'square', '$d': 'type', '$e': 'area_units', '$f': 'category_name', '$g': 'number_floor' };
 
         setTemplateVariables(myObject);
     });
-    property_id=$("input[name='property_id']").val();
-    moderation_status=$("input[name='moderation_status']").val();
-    if($("input[name='type']").val() == '' ){
+    property_id = $("input[name='property_id']").val();
+    moderation_status = $("input[name='moderation_status']").val();
+    if ($("input[name='type']").val() == '') {
         $(".type_sale").first().trigger("click");
     }
-    
+
 
     /* ********  wizard *****/////////////////// */
 
@@ -633,46 +613,46 @@ $(document).ready(function(){
 
         },
     });*/
-  /*  ///////on change to get agent data///
-    $("#agent_list_admin").change(function(e){
-        if($(this).val()==""){
-            $(".agent-detail-admin").addClass('d-none');
-        }
-        else {
+    /*  ///////on change to get agent data///
+      $("#agent_list_admin").change(function(e){
+          if($(this).val()==""){
+              $(".agent-detail-admin").addClass('d-none');
+          }
+          else {
+  
+              $.ajax({
+                  url: "/api/v1/agent-data",
+                  type: "get",
+                  dataType: 'json',
+                  data: {
+                      id: $(this).val()
+                  },
+                  success: function (response) {
+                      $(".agent-detail-admin").removeClass('d-none');
+                      $("#agent_name_admin").text(response.first_name+" "+response.last_name);
+                      $("#agent_email_admin").text(response.email);
+                      $("#agent_desc_admin").html(response.description);
+                      if(response.phone==null ) {
+                              $(".phone-icon").css('display','none');
+                              $("#agent_no_admin").html('');
+                      }
+                      else{
+                          $(".phone-icon").css('display','block');
+                          $("#agent_no_admin").html(response.phone);
+                      }
+                  },
+              });
+          }
+      });*/
 
-            $.ajax({
-                url: "/api/v1/agent-data",
-                type: "get",
-                dataType: 'json',
-                data: {
-                    id: $(this).val()
-                },
-                success: function (response) {
-                    $(".agent-detail-admin").removeClass('d-none');
-                    $("#agent_name_admin").text(response.first_name+" "+response.last_name);
-                    $("#agent_email_admin").text(response.email);
-                    $("#agent_desc_admin").html(response.description);
-                    if(response.phone==null ) {
-                            $(".phone-icon").css('display','none');
-                            $("#agent_no_admin").html('');
-                    }
-                    else{
-                        $(".phone-icon").css('display','block');
-                        $("#agent_no_admin").html(response.phone);
-                    }
-                },
-            });
-        }
-    });*/
-
-    function  getDocumentsList(){
+    function getDocumentsList() {
         //////////get documents lists///
 
-        property_id=$("input[name='property_id']").val();
+        property_id = $("input[name='property_id']").val();
         $(".document-row").empty();
         $(".verify-documents").empty();
         var requiredcheck = "";
-        var warningcheck="";
+        var warningcheck = "";
         var span = "";
 
         /* if(property_id=="") {*/
@@ -680,17 +660,15 @@ $(document).ready(function(){
             url: "/api/v1/get-checklist-documents",
             type: "get",
             dataType: 'json',
-            async:false,
+            async: false,
             data: {
                 category_id: $("input[name='category_id']").val(),
-                property_id: $("input[name='property_id']").val()!=""?$("input[name='property_id']").val():0
+                property_id: $("input[name='property_id']").val() != "" ? $("input[name='property_id']").val() : 0
             },
             success: function (response) {
-                console.log(response);
-                if (response.status){
+                if (response.status) {
                     $.each(response.data.documents, function (key, value) {
-                        // console.log(data.documents);
-                        //alert(value.required);
+                        console.log('VALUE', value);
                         //  alert(response.data.document_images[key].id);
                         var doc_image = '<input type="hidden" data-src="">';
                         var doc_image_status = 0;
@@ -722,7 +700,7 @@ $(document).ready(function(){
 
                             }
                             $(".document-row").append('<div class="col-md-4"><label class="control-label ' + requiredcheck + '">' + value.documents.name + '</label><input type="hidden" name="document_ids[]" value=' + value.document_id + '>' + doc_image + '<input type="file"  name="documents[]" class="form-control" data-document-id="' + value.document_id + '" data-required="' + requiredcheck + '"   ' + requiredcheck + '></div>');
-                            console.log(value);
+
                             //checklists add
 
                             $(".verify-documents").append('<div class="row">' +
@@ -759,7 +737,7 @@ $(document).ready(function(){
                             }*/
                             if (property_id != "") {
                                 $(".document-row").append('<div class="col-md-4"><label class="control-label ' + requiredcheck + '">' + value.documents.name + '</label>' + warningcheck + '<input type="hidden" name="document_ids[]" value=' + value.document_id + '>' + doc_image + '<input type="file"  name="documents[]" class="form-control" data-document-id="' + value.document_id + '" data-required="' + requiredcheck + '"   ' + requiredcheck + '></div>');
-                                console.log(value);
+
                                 //checklists add
 
                                 $(".verify-documents").append('<div class="row">' +
@@ -770,7 +748,7 @@ $(document).ready(function(){
                             }
                         }
                     });
-            }
+                }
             },
         });
         /* }
@@ -816,16 +794,16 @@ $(document).ready(function(){
     /////////
     ///////get checklist data//////
 
-    user=$("input[name='super_user']").val();
-    property_id=$("input[name='property_id']").val();
-    author_id=$("input[name='author_id_hidden']").val();
+    user = $("input[name='super_user']").val();
+    property_id = $("input[name='property_id']").val();
+    author_id = $("input[name='author_id_hidden']").val();
 
     // var user = "<?php echo Auth()->user() ?>";
     $(".btn-agent").click(function () {
 
 
-        $(".agents").css('display','block');
-        $(".documents").css('display','none');
+        $(".agents").css('display', 'block');
+        $(".documents").css('display', 'none');
         $(".btn-document").removeClass('btn-primary').addClass('btn-gray');
         $(this).removeClass('btn-gray').addClass('btn-primary');
 
@@ -833,50 +811,50 @@ $(document).ready(function(){
     $(".btn-document").click(function () {
 
 
-        $(".agents").css('display','none');
-        $(".documents").css('display','block');
+        $(".agents").css('display', 'none');
+        $(".documents").css('display', 'block');
         $(".btn-agent").removeClass('btn-primary').addClass('btn-gray');
         $(this).removeClass('btn-gray').addClass('btn-primary');
     });
-    if(author_id==""){
-        $(".btn-agent").css('display','block');
-        $(".agent-name").css('display','block');
+    if (author_id == "") {
+        $(".btn-agent").css('display', 'block');
+        $(".agent-name").css('display', 'block');
     }
-    if(user && property_id!="") {
+    if (user && property_id != "") {
         $.ajax({
             url: "/api/v1/get-checklist",
             type: "get",
             dataType: 'json',
             data:
-                {
-                    property_id: $("input[name='property_id']").val() ? $("input[name='property_id']").val() : 0,
-                    /*category_id:$("input[name='category_id']").val()*/
-                },
+            {
+                property_id: $("input[name='property_id']").val() ? $("input[name='property_id']").val() : 0,
+                /*category_id:$("input[name='category_id']").val()*/
+            },
             success: function (response) {
+                let category = $('ul.parent-category li.label-primary').text().trim();
+                let subcategory = $('ul.sub-category li.label-primary').attr('data-category_name').trim();
+
                 if (response.status) {
-                    // alert(response.data[0].id);
+                    console.log('response succ')
                     checklist = response.data[0];
 
-                    if (checklist.is_verify==1 && author_id!="") {
-                        /* if(author_id!="")
-                         {*/
+                    if (checklist.is_verify == 1 && author_id != "") {
+                        console.log('VErified')
                         $("#btn_verify").text('Verified');
                         $(".moderation_status").removeClass('d-none');
-
-
                     } else {
-                        if(checklist.document_checklist!="")
-                        {
+                        console.log('Not VErified')
+                        if (checklist.document_checklist != "") {
                             parsedarr = JSON.parse(checklist.document_checklist);
-                            $("input[name='verify_document[]']").each(function() {
-                                var val= $(this).attr('data-document-id');
-                                var index=parsedarr.indexOf(val);
-                                if(index >-1){
-                                    $(this).prop("checked",true);
+                            $("input[name='verify_document[]']").each(function () {
+                                var val = $(this).attr('data-document-id');
+                                var index = parsedarr.indexOf(val);
+                                if (index > -1) {
+                                    $(this).prop("checked", true);
 
                                 }
-                                else{
-                                    $(this).prop("checked",false);
+                                else {
+                                    $(this).prop("checked", false);
                                 }
                             });
                         }
@@ -884,31 +862,38 @@ $(document).ready(function(){
                         $("#myModal").modal("show");
                         $("#btn_verify").css('display', 'block');
                         $(".moderation_status").addClass('d-none');
-
                     }
-
                 } else {
-
-                    $("#myModal").modal("show");
-                    $("#btn_verify").css('display', 'block');
-                    $(".moderation_status").addClass('d-none');
+                    if (category === 'HOME') {
+                        if (subcategory === 'House' || subcategory === 'Room') {
+                            $("#myModal").modal("show");
+                            $("#btn_verify").css('display', 'block');
+                            $(".moderation_status").addClass('d-none');
+                        } else {
+                            $("#myModal").modal("hide");
+                            $("#btn_verify").css('display', 'none');
+                            $(".moderation_status").removeClass('d-none');
+                        }
+                    } else {
+                        $("#myModal").modal("hide");
+                        $("#btn_verify").css('display', 'none');
+                        $(".moderation_status").removeClass('d-none');
+                    }
                 }
-
             },
         });
-        ///////////////////
 
         property_id = $("input[name='property_id']").val();
 
         $("#verify_checklist").click(function () {
             //ajax to update subscription
-            var data =[];
-            $('.checklist:checked').each(function() {
+            var data = [];
+            $('.checklist:checked').each(function () {
 
                 data.push($(this).val());
             });
 
-            if(data !="") {
+            if (data != "") {
                 $("#checklist_dp").addClass('d-none');
                 $.ajax({
                     url: "/api/v1/update-checklist",
@@ -922,7 +907,7 @@ $(document).ready(function(){
                     success: function (response) {
                         if (response.status) {
                             //alert("Checklist updated successfully!");
-                            toastr.success('Document Checklist Updated successfully!','success',{iconClass:"toast-custom"});
+                            toastr.success('Document Checklist Updated successfully!', 'success', { iconClass: "toast-custom" });
                             if (response.approved && author_id != "") {
 
                                 $(".moderation_status").removeClass('d-none');
@@ -934,7 +919,7 @@ $(document).ready(function(){
                     },
                 });
             }
-            else{
+            else {
                 $("#checklist_dp").removeClass('d-none');
                 $("#checklist_dp").text('please select checklist first');
 
@@ -944,9 +929,8 @@ $(document).ready(function(){
         $("#assign_checklist").click(function () {
 
             //ajax to update subscription
-            var author_idd=$("#author_id").val();
-            if(author_idd=="")
-            {
+            var author_idd = $("#author_id").val();
+            if (author_idd == "") {
                 //checklist_agent
                 //alert("please Select Agent from list First");
                 $("#checklist_agent").removeClass('d-none');
@@ -965,9 +949,9 @@ $(document).ready(function(){
                     success: function (response) {
                         if (response.status) {
                             //alert("Agent Assigned successfully!");
-                            toastr.success('Agent Assigned successfully!','success',{iconClass:"toast-custom"});
-                            agent_id= $("#author_id").val();
-                            liObj=$("#dropdown-menu-admin").find('li[data-agent-id='+agent_id+']');
+                            toastr.success('Agent Assigned successfully!', 'success', { iconClass: "toast-custom" });
+                            agent_id = $("#author_id").val();
+                            liObj = $("#dropdown-menu-admin").find('li[data-agent-id=' + agent_id + ']');
                             var btnObj = liObj.parent().siblings('button');
                             $(btnObj).text(liObj.text());
                             if (response.approved && author_idd != "")
@@ -989,50 +973,48 @@ $(document).ready(function(){
             $(this).attr("href", "/storage/documents/" + oldUrl); // Set herf value
         });
     }
-    else{
-        $("#btn_verify").css('display','none');
+    else {
+        $("#btn_verify").css('display', 'none');
     }
 });
 
 function setTemplateVariables(ob) {
 
-        temp_update = $("#template_desp").val();
+    temp_update = $("#template_desp").val();
 
-            for (key in ob) {
-                var id = ob[key];
-                ber = $("#" + id).val();
+    for (key in ob) {
+        var id = ob[key];
+        ber = $("#" + id).val();
 
-                temp_update = temp_update.replaceAll(key, ber);
-            }
-            $("#description").val(temp_update);
+        temp_update = temp_update.replaceAll(key, ber);
+    }
+    $("#description").val(temp_update);
 
 }
 
-$(document).ready(function(){
+$(document).ready(function () {
 
     $(this).scrollTop(0);
     $("button[type=submit]").click(function () {
-        var submit=1;
-        $('input[name^="documents"]').each(function() {
-            if($(this).attr("data-required")=="required")
-            {
+        var submit = 1;
+        $('input[name^="documents"]').each(function () {
+            if ($(this).attr("data-required") == "required") {
 
-                if($(this).val()=="" && $(this).prev().attr('data-src')==""){
-                    submit=0;
-                    $(this).css('border','1px solid red');
+                if ($(this).val() == "" && $(this).prev().attr('data-src') == "") {
+                    submit = 0;
+                    $(this).css('border', '1px solid red');
                     $(this).focus();
                 }
-                else{
-                    submit=1;
-                    $(this).css('border','');
+                else {
+                    submit = 1;
+                    $(this).css('border', '');
                 }
             }
         });
-        if(submit)
-        {
+        if (submit) {
             return true;
         }
-        else{
+        else {
             return false;
         }
 
@@ -1054,10 +1036,10 @@ $(document).ready(function(){
                  }
              }
              });*/
-    $("#admin_comment").click(function(e) {
+    $("#admin_comment").click(function (e) {
 
         var comment = $("input[name='comment']").val();
-        if(comment!="") {
+        if (comment != "") {
             $("input[name='comment']").parent().next(".validation").remove();
             var form = $('#admin_form')[0];
             var formData = new FormData(form);
@@ -1071,13 +1053,12 @@ $(document).ready(function(){
                 async: false,
                 success: function (data) {
                     $("input[name='comment']").val('');
-                    if ($(".d-comment").find(".display-comment").length)
-                    {
+                    if ($(".d-comment").find(".display-comment").length) {
 
                         //   alert(data.admin_url.encoded);
                         $(".display-comment:last").append('<img src="' + data.admin_url.encoded + '" class="br-100 v-mid mr-2" style="width: 30px;"><strong>' + data.admin.first_name + '</strong><p class="comment-desp">' + data.comment + '</p>');
                     }
-                    else{
+                    else {
 
                         //   alert(data.admin_url.encoded);
                         $(".comment-box").find(".d-comment").append('<div class="display-comment"><img src="' + data.admin_url.encoded + '" class="br-100 v-mid mr-2" style="width: 30px;"><strong>' + data.admin.first_name + '</strong><p class="comment-desp">' + data.comment + '</p></div>');
@@ -1088,7 +1069,7 @@ $(document).ready(function(){
 
             });
         }
-        else{
+        else {
             $("input[name='comment']").parent().next(".validation").remove();
             $("input[name='comment']").parent().after("<div class='validation' style='color:red;margin-bottom: 20px;'>Please enter comment</div>");
 
@@ -1096,7 +1077,7 @@ $(document).ready(function(){
         }
     });
     $("#number_bedroom").change(function () {
-        var myObject = {'$a' : 'number_bedroom', '$b' : 'number_bathroom','$c':'square','$d':'type','$e':'area_units','$f':'category_name','$g':'number_floor'  };
+        var myObject = { '$a': 'number_bedroom', '$b': 'number_bathroom', '$c': 'square', '$d': 'type', '$e': 'area_units', '$f': 'category_name', '$g': 'number_floor' };
 
         setTemplateVariables(myObject);
         /*var temp=$("#template_desp").val();
@@ -1116,7 +1097,7 @@ $(document).ready(function(){
 
     });
     $("#number_bedroom").change(function () {
-        var myObject = {'$a' : 'number_bedroom', '$b' : 'number_bathroom','$c':'square','$d':'type','$e':'area_units','$f':'category_name','$g':'number_floor'  };
+        var myObject = { '$a': 'number_bedroom', '$b': 'number_bathroom', '$c': 'square', '$d': 'type', '$e': 'area_units', '$f': 'category_name', '$g': 'number_floor' };
 
         setTemplateVariables(myObject);
         /*var temp=$("#template_desp").val();
@@ -1136,26 +1117,26 @@ $(document).ready(function(){
 
     });
     $("#number_bathroom").change(function () {
-        var myObject = {'$a' : 'number_bedroom', '$b' : 'number_bathroom','$c':'square','$d':'type','$e':'area_units','$f':'category_name','$g':'number_floor' };
+        var myObject = { '$a': 'number_bedroom', '$b': 'number_bathroom', '$c': 'square', '$d': 'type', '$e': 'area_units', '$f': 'category_name', '$g': 'number_floor' };
 
         setTemplateVariables(myObject);
-       /* var temp=$("#template_desp").val();
-         temp_update = temp.replace('$b', $(this).val());
-        ///type for sale/rent
-        p_id=$("input[name='type']").val();
-        temp_update = temp_update.replace('$d', p_id);
-        // $("#description").val(temp_update);
-        ///bedroom
-        br=$("#number_bedroom").val();
-        temp_update = temp_update.replace('$a', br);
-        $("#description").val(temp_update);
-        ///square
-        sq=$("#square").val();
-        temp_update = temp_update.replace('$c', sq);
-        $("#description").val(temp_update);*/
+        /* var temp=$("#template_desp").val();
+          temp_update = temp.replace('$b', $(this).val());
+         ///type for sale/rent
+         p_id=$("input[name='type']").val();
+         temp_update = temp_update.replace('$d', p_id);
+         // $("#description").val(temp_update);
+         ///bedroom
+         br=$("#number_bedroom").val();
+         temp_update = temp_update.replace('$a', br);
+         $("#description").val(temp_update);
+         ///square
+         sq=$("#square").val();
+         temp_update = temp_update.replace('$c', sq);
+         $("#description").val(temp_update);*/
     });
     $("#square").change(function () {
-        var myObject = {'$a' : 'number_bedroom', '$b' : 'number_bathroom','$c':'square','$d':'type','$e':'area_units','$f':'category_name','$g':'number_floor' };
+        var myObject = { '$a': 'number_bedroom', '$b': 'number_bathroom', '$c': 'square', '$d': 'type', '$e': 'area_units', '$f': 'category_name', '$g': 'number_floor' };
 
         setTemplateVariables(myObject);
         /*var temp=$("#template_desp").val();
@@ -1176,7 +1157,7 @@ $(document).ready(function(){
 
     });
     $("#area_units").change(function () {
-        var myObject = {'$a' : 'number_bedroom', '$b' : 'number_bathroom','$c':'square','$d':'type','$e':'area_units','$f':'category_name','$g':'number_floor' };
+        var myObject = { '$a': 'number_bedroom', '$b': 'number_bathroom', '$c': 'square', '$d': 'type', '$e': 'area_units', '$f': 'category_name', '$g': 'number_floor' };
 
         setTemplateVariables(myObject);
         /*var temp=$("#template_desp").val();
@@ -1210,7 +1191,7 @@ function filterFunction() {
         txtValue = a[i].textContent || a[i].innerText;
 
         if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                   // alert("here");
+            // alert("here");
             a[i].style.display = "";
         } else {
 

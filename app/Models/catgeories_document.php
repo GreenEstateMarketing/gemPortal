@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class catgeories_document extends Model
 {
     use HasFactory;
-    protected $table='category_documents';
+    protected $table = 'category_documents';
     protected $fillable = [
         'category_id',
         'document_id',
@@ -17,7 +17,7 @@ class catgeories_document extends Model
     ];
     public function documents()
     {
-        return $this->hasOne(document::class,'id','document_id');
+        return $this->hasOne(document::class, 'id', 'document_id');
     }
 
 }

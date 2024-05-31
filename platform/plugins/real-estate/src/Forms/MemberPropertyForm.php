@@ -22,14 +22,12 @@ class MemberPropertyForm extends PropertyForm
     public function buildForm()
     {
         parent::buildForm();
-        $res=Account::where('confirmed_at','!=',null)->get();
-        $agents=[];
+        $res = Account::where('confirmed_at', '!=', null)->get();
+        $agents = [];
         foreach ($res as $gent) {
-
-
-            $agents[$gent->id] =$gent->getFullName();
+            $agents[$gent->id] = $gent->getFullName();
         }
-       // dd($agents);exit;
+        // dd($agents);exit;
         Assets::addScriptsDirectly('vendor/core/core/base/libraries/tinymce/tinymce.min.js');
         Assets::addStyles(['datetimepicker'])
             ->addScripts(['input-mask'])
@@ -76,20 +74,20 @@ class MemberPropertyForm extends PropertyForm
             ->remove('never_expired')
             ->remove('btn_verify')
             ->modify('auto_renew', 'onOff', [
-                'label'         => trans('plugins/real-estate::property.renew_notice', ['days' => config('plugins.real-estate.real-estate.property_expired_after_x_days')]),
-                'label_attr'    => ['class' => 'control-label'],
+                'label' => trans('plugins/real-estate::property.renew_notice', ['days' => config('plugins.real-estate.real-estate.property_expired_after_x_days')]),
+                'label_attr' => ['class' => 'control-label'],
                 'default_value' => false,
-                'wrapper'       => [
+                'wrapper' => [
                     'class' => 'form-group col-md-6 auto-renew-form-group' . (!$this->getModel()->id || $this->getModel()->never_expired == true ? ' hidden' : null),
                 ],
             ], true)
             ->remove('author_id')
-           /* ->addAfter('description', 'content', 'customEditor', [
-                'label'      => trans('core/base::forms.content'),
-                'label_attr' => ['class' => 'control-label required'],
-            ])*/
-           ->addAfter('description', 'images', 'multipleUpload', [
-                'label'      => trans('plugins/real-estate::property.form.images'),
+            /* ->addAfter('description', 'content', 'customEditor', [
+                 'label'      => trans('core/base::forms.content'),
+                 'label_attr' => ['class' => 'control-label required'],
+             ])*/
+            ->addAfter('description', 'images', 'multipleUpload', [
+                'label' => trans('plugins/real-estate::property.form.images'),
                 'label_attr' => ['class' => 'control-label'],
             ]);
 

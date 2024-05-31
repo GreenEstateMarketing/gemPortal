@@ -29,7 +29,7 @@
     @endif
     <div id="map-container">
     <div id="map"></div>
-        <span id="messageText" ></span>
+        <span id="messageText"></span>
     </div>
 
 

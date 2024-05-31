@@ -26,7 +26,7 @@ class PropertyRequest
             'square'        =>'required|min:0|max:99999999',
             'price'           => 'required|min:0|max:999999999999999',
             'images'            => ['required'],
-            /*'document1'       =>'required',
+            /*'document1'       =>'required', 
             'document2'       =>'required',
             'document3'       =>'required',*/
             'status'          => Rule::in(PropertyStatusEnum::values()),
