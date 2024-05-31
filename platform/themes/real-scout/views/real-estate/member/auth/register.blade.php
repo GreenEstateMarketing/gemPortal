@@ -66,7 +66,7 @@
                             @endif
                         </div>
                         <div class="form-group">
-                            <input id="mobile_no" type="number"
+                            <input id="mobile_no" type="number" value="{{ old('mobile_no') }}"
                                    class="form-control{{ $errors->has('mobile_no') ? ' is-invalid' : '' }}"
                                    name="mobile_no" required
                                    placeholder="{{ trans('plugins/real-estate::dashboard.mobile_no') }}">
@@ -79,7 +79,7 @@
                         <div class="form-group">
                             <input id="password" type="password"
                                    class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}"
-                                   name="password" required
+                                   name="password" required value="{{ old('password') }}"
                                    placeholder="{{ trans('plugins/real-estate::dashboard.password') }}">
                             @if ($errors->has('password'))
                                 <span class="invalid-feedback">

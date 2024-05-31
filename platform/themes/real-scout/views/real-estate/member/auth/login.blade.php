@@ -31,7 +31,7 @@
                         </div>
                         <div class="form-group">
                             <input id="password" type="password"
-                                   class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}"
+                                   class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" value="{{ old('password') }}"
                                    placeholder="{{ trans('plugins/real-estate::dashboard.password') }}" name="password">
                             @if ($errors->has('password'))
                                 <span class="invalid-feedback">
