@@ -47,10 +47,10 @@ class PublicController extends Controller
 
             EmailHandler::setModule(CONTACT_MODULE_SCREEN_NAME)
                 ->setVariableValues([
-                    'contact_name'    => $contact->name ?? 'N/A',
+                    'contact_name' => $contact->name ?? 'N/A',
                     'contact_subject' => $contact->subject ?? 'N/A',
-                    'contact_email'   => $contact->email ?? 'N/A',
-                    'contact_phone'   => $contact->phone ?? 'N/A',
+                    'contact_email' => $contact->email ?? 'N/A',
+                    'contact_phone' => $contact->phone ?? 'N/A',
                     'contact_address' => $contact->address ?? 'N/A',
                     'contact_content' => $contact->content ?? 'N/A',
                 ])
@@ -66,7 +66,7 @@ class PublicController extends Controller
     }
     public function postSendWanted(Request $request, BaseHttpResponse $response)
     {
-
+        try {
             $validator = Validator::make($request->all(),[
                 'type' => 'required',
                 'category_id' => 'required',
@@ -74,20 +74,27 @@ class PublicController extends Controller
                 'email' => 'required|email|string',
                 'mobile_no' => 'required|min:11|numeric|regex:^[0][\d]{3}[\d]{7}$^',
                 'city_id' => 'required|not_in:0',
-                'city_area_id' => 'required|not_in:0',
+                'city_area_id' => 'not_in:0',
                 'comments' => 'required|string|min:5|max:255',
-
-
             ],[
                 'city_id.required' => 'City field is required',
                 'city_area_id.required' => 'City area field is required',
                 'city_id.not_in' => 'Choose city from list',
                 'city_area_id.not_in' => 'Choose city area from list'
             ]);
+
+
             if ($validator->fails()) {
-                return response()->json(['error'=>$validator->errors()->all()]);
+                return response()->json(['error' => $validator->errors()->all()]);
             }
-           $response = Wanted::create($request->all());
+
+            $data = $request->all();
+            $cityAreaId = $data['city_area_id'];
+            unset($data['city_area_id']);
+            $data['area'] = $cityAreaId;
+
+
+            $response = Wanted::create($data);
 
 
             //  EmailHandler::setModule(CONTACT_MODULE_SCREEN_NAME)
@@ -104,6 +111,8 @@ class PublicController extends Controller
             //     ->sendUsingTemplate('notice');
 
             return response()->json(['success' => 'Your Wanted property details submit successfully!']);
-
+        } catch (\Exception $e) {
+            return response()->json(['error'=> $e->getMessage()]);
+        }
     }
 }

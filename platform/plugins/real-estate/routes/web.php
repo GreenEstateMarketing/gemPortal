@@ -7,18 +7,18 @@ use Botble\RealEstate\Models\Property;
 Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' => ['web', 'core']], function () {
 
     Route::group([
-        'prefix'     => BaseHelper::getAdminPrefix() . '/real-estate',
+        'prefix' => BaseHelper::getAdminPrefix() . '/real-estate',
         'middleware' => 'auth',
     ], function () {
 
         Route::get('settings', [
-            'as'   => 'real-estate.settings',
+            'as' => 'real-estate.settings',
             'uses' => 'RealEstateController@getSettings',
         ]);
 
         Route::post('settings', [
-            'as'         => 'real-estate.settings.post',
-            'uses'       => 'RealEstateController@postSettings',
+            'as' => 'real-estate.settings.post',
+            'uses' => 'RealEstateController@postSettings',
             'permission' => 'real-estate.settings',
         ]);
 
@@ -27,8 +27,8 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                 ->parameters(['' => 'property']);
 
             Route::delete('items/destroy', [
-                'as'         => 'deletes',
-                'uses'       => 'PropertyController@deletes',
+                'as' => 'deletes',
+                'uses' => 'PropertyController@deletes',
                 'permission' => 'property.destroy',
             ]);
         });
@@ -38,8 +38,8 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                 ->parameters(['' => 'project']);
 
             Route::delete('items/destroy', [
-                'as'         => 'deletes',
-                'uses'       => 'ProjectController@deletes',
+                'as' => 'deletes',
+                'uses' => 'ProjectController@deletes',
                 'permission' => 'project.destroy',
             ]);
         });
@@ -49,8 +49,8 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                 ->parameters(['' => 'property_feature']);
 
             Route::delete('items/destroy', [
-                'as'         => 'deletes',
-                'uses'       => 'FeatureController@deletes',
+                'as' => 'deletes',
+                'uses' => 'FeatureController@deletes',
                 'permission' => 'property_feature.destroy',
             ]);
         });
@@ -59,8 +59,8 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
             Route::resource('', 'InvestorController')
                 ->parameters(['' => 'investor']);
             Route::delete('items/destroy', [
-                'as'         => 'deletes',
-                'uses'       => 'InvestorController@deletes',
+                'as' => 'deletes',
+                'uses' => 'InvestorController@deletes',
                 'permission' => 'investor.destroy',
             ]);
         });
@@ -70,13 +70,13 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                 ->parameters(['' => 'consult'])
                 ->except(['create', 'store']);
             Route::delete('items/destroy', [
-                'as'         => 'deletes',
-                'uses'       => 'ConsultController@deletes',
+                'as' => 'deletes',
+                'uses' => 'ConsultController@deletes',
                 'permission' => 'consult.destroy',
             ]);
             Route::get('properties/{id}', [
-                'as'         => 'property.consults',
-                'uses'       => 'ConsultController@propertyConsults',
+                'as' => 'property.consults',
+                'uses' => 'ConsultController@propertyConsults',
 
             ]);
         });
@@ -85,8 +85,8 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
             Route::resource('', 'CategoryController')
                 ->parameters(['' => 'category']);
             Route::delete('items/destroy', [
-                'as'         => 'deletes',
-                'uses'       => 'CategoryController@deletes',
+                'as' => 'deletes',
+                'uses' => 'CategoryController@deletes',
                 'permission' => 'property_category.destroy',
             ]);
         });
@@ -97,18 +97,18 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
          ]);*/
         Route::group(['prefix' => 'wanted', 'as' => 'wanted.'], function () {
             Route::get('/', [
-                'as'         => 'list',
-                'uses'       => 'WantedController@index',
+                'as' => 'list',
+                'uses' => 'WantedController@index',
                 /*'permission' => 'account.index',*/
             ]);
             Route::get('/view/{id}', [
-                'as'         => 'view',
-                'uses'       => 'WantedController@view',
+                'as' => 'view',
+                'uses' => 'WantedController@view',
                 /*'permission' => 'account.index',*/
             ]);
             Route::delete('/destroy/{id}', [
-                'as'         => 'destroy',
-                'uses'       => 'WantedController@destroy',
+                'as' => 'destroy',
+                'uses' => 'WantedController@destroy',
                 /*'permission' => 'account.index',*/
             ]);
 
@@ -121,43 +121,43 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                 'permission' => 'voucher.create',
             ]);*/
             Route::get('/create', [
-                'as'         => 'create',
-                'uses'       => 'VoucherController@create',
+                'as' => 'create',
+                'uses' => 'VoucherController@create',
                 'permission' => 'voucher.create',
             ]);
             Route::post('/create', [
-                'as'         => 'save',
-                'uses'       => 'VoucherController@save',
+                'as' => 'save',
+                'uses' => 'VoucherController@save',
                 'permission' => 'voucher.create',
             ]);
             Route::get('/view/{id}', [
-                'as'         => 'view',
-                'uses'       => 'VoucherController@view',
+                'as' => 'view',
+                'uses' => 'VoucherController@view',
                 'permission' => 'voucher.view',
             ]);
             Route::get('/edit/{id}', [
-                'as'         => 'edit',
-                'uses'       => 'VoucherController@edit',
+                'as' => 'edit',
+                'uses' => 'VoucherController@edit',
                 'permission' => 'voucher.edit',
             ]);
             Route::post('/edit/{id}', [
-                'as'         => 'update',
-                'uses'       => 'VoucherController@update',
+                'as' => 'update',
+                'uses' => 'VoucherController@update',
                 'permission' => 'voucher.edit',
             ]);
             Route::get('/list', [
-                'as'         => 'list',
-                'uses'       => 'VoucherController@list',
+                'as' => 'list',
+                'uses' => 'VoucherController@list',
                 'permission' => 'voucher.list',
             ]);
             Route::delete('/destroy/{id}', [
-                'as'         => 'destroy',
-                'uses'       => 'VoucherController@destroy',
+                'as' => 'destroy',
+                'uses' => 'VoucherController@destroy',
                 'permission' => 'voucher.destroy',
             ]);
             Route::delete('items/destroy', [
-                'as'         => 'deletes',
-                'uses'       => 'VoucherController@deletes',
+                'as' => 'deletes',
+                'uses' => 'VoucherController@deletes',
                 'permission' => 'voucher.destroy',
             ]);
 
@@ -166,8 +166,8 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
             Route::resource('', 'FacilityController')
                 ->parameters(['' => 'facility']);
             Route::delete('items/destroy', [
-                'as'         => 'deletes',
-                'uses'       => 'FacilityController@deletes',
+                'as' => 'deletes',
+                'uses' => 'FacilityController@deletes',
                 'permission' => 'facility.destroy',
             ]);
         });
@@ -178,30 +178,30 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                 ->parameters(['' => 'account']);
 
             Route::delete('items/destroy', [
-                'as'         => 'deletes',
-                'uses'       => 'AccountController@deletes',
+                'as' => 'deletes',
+                'uses' => 'AccountController@deletes',
                 'permission' => 'account.destroy',
             ]);
 
             Route::get('list', [
-                'as'         => 'list',
-                'uses'       => 'AccountController@getList',
+                'as' => 'list',
+                'uses' => 'AccountController@getList',
                 'permission' => 'account.index',
             ]);
 
             Route::post('credits/{id}', [
-                'as'         => 'credits.add',
-                'uses'       => 'TransactionController@postCreate',
+                'as' => 'credits.add',
+                'uses' => 'TransactionController@postCreate',
                 'permission' => 'account.edit',
             ]);
             Route::get('agent_area', [
-                'as'         => 'agent_area',
-                'uses'       => 'AccountController@agent_area',
+                'as' => 'agent_area',
+                'uses' => 'AccountController@agent_area',
                 'permission' => 'account.agent_area',
             ]);
             Route::get('getAgentAreaList', [
-                'as'         => 'agent_area_list',
-                'uses'       => 'AccountController@getAgentInAreas',
+                'as' => 'agent_area_list',
+                'uses' => 'AccountController@getAgentInAreas',
                 'permission' => 'account.agent_area_list',
             ]);
         });
@@ -210,20 +210,20 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
             Route::resource('', 'PackageController')
                 ->parameters(['' => 'package']);
             Route::delete('items/destroy', [
-                'as'         => 'deletes',
-                'uses'       => 'PackageController@deletes',
+                'as' => 'deletes',
+                'uses' => 'PackageController@deletes',
                 'permission' => 'package.destroy',
             ]);
         });
         /////////////////Voucer Manement/////////////////////
         Route::group(['prefix' => 'packages', 'as' => 'package.'], function () {
-           /* Route::resource('', 'PackageController')
-                ->parameters(['' => 'package']);*/
-           /* Route::delete('items/destroy', [
-                'as'         => 'deletes',
-                'uses'       => 'PackageController@deletes',
-                'permission' => 'package.destroy',
-            ]);*/
+            /* Route::resource('', 'PackageController')
+                 ->parameters(['' => 'package']);*/
+            /* Route::delete('items/destroy', [
+                 'as'         => 'deletes',
+                 'uses'       => 'PackageController@deletes',
+                 'permission' => 'package.destroy',
+             ]);*/
         });
 
     });
@@ -239,18 +239,23 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
             Route::get(SlugHelper::getPrefix(Property::class, 'properties'), 'PublicController@getProperties')
                 ->name('public.properties');
 
-            Route::get(SlugHelper::getPrefix(Category::class, 'property-category') . '/{slug}',
-                'PublicController@getPropertyCategory')
+            Route::get(
+                SlugHelper::getPrefix(Category::class, 'property-category') . '/{slug}',
+                'PublicController@getPropertyCategory'
+            )
                 ->name('public.property-category');
 
-            Route::get(SlugHelper::getPrefix(Property::class, 'properties') . '/{slug}',
-                'PublicController@getProperty')->name('public.property.show');
+            Route::get(
+                SlugHelper::getPrefix(Property::class, 'properties') . '/{slug}',
+                'PublicController@getProperty'
+            )->name('public.property.show');
 
             Route::post('send-consult', 'PublicController@postSendConsult')->name('public.send.consult');
-            Route::post('send-post',[\Botble\Contact\Http\Controllers\PublicController::class,'postSendWanted'])
+            Route::post('send-post', [\Botble\Contact\Http\Controllers\PublicController::class, 'postSendWanted'])
                 ->name('public.send.wanted');
+                
             Route::get('currency/switch/{code?}', [
-                'as'   => 'public.change-currency',
+                'as' => 'public.change-currency',
                 'uses' => 'PublicController@changeCurrency',
             ]);
 
@@ -270,27 +275,37 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                     Route::get('verify', 'RegisterController@getVerify')
                         ->name('verify');
 
-                    Route::get('password/request',
-                        'ForgotPasswordController@showLinkRequestForm')
+                    Route::get(
+                        'password/request',
+                        'ForgotPasswordController@showLinkRequestForm'
+                    )
                         ->name('password.request');
-                    Route::post('password/email',
-                        'ForgotPasswordController@sendResetLinkEmail')
+                    Route::post(
+                        'password/email',
+                        'ForgotPasswordController@sendResetLinkEmail'
+                    )
                         ->name('password.email');
                     Route::post('password/reset', 'ResetPasswordController@reset')
                         ->name('password.update');
-                    Route::get('password/reset/{token}',
-                        'ResetPasswordController@showResetForm')
+                    Route::get(
+                        'password/reset/{token}',
+                        'ResetPasswordController@showResetForm'
+                    )
                         ->name('password.reset');
                 });
 
                 Route::group([
                     'middleware' => [
-                        setting('verify_account_email',
-                            config('plugins.real-estate.real-estate.verify_email')) ? 'account.guest' : 'account',
+                        setting(
+                            'verify_account_email',
+                            config('plugins.real-estate.real-estate.verify_email')
+                        ) ? 'account.guest' : 'account',
                     ],
                 ], function () {
-                    Route::get('register/confirm/resend',
-                        'RegisterController@resendConfirmation')
+                    Route::get(
+                        'register/confirm/resend',
+                        'RegisterController@resendConfirmation'
+                    )
                         ->name('resend_confirmation');
                     Route::get('register/confirm/{email}', 'RegisterController@confirm')
                         ->name('confirm');
@@ -298,7 +313,7 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
             });
 
             Route::get('feed/properties', [
-                'as'   => 'feeds.properties',
+                'as' => 'feeds.properties',
                 'uses' => 'PublicController@getPropertyFeeds',
             ]);
         });
@@ -310,42 +325,42 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                     ->name('logout');
 
                 Route::get('dashboard', [
-                    'as'   => 'dashboard',
+                    'as' => 'dashboard',
                     'uses' => 'PublicAccountController@getDashboard',
                 ]);
 
                 Route::get('settings', [
-                    'as'   => 'settings',
+                    'as' => 'settings',
                     'uses' => 'PublicAccountController@getSettings',
                 ]);
 
                 Route::post('settings', [
-                    'as'   => 'post.settings',
+                    'as' => 'post.settings',
                     'uses' => 'PublicAccountController@postSettings',
                 ]);
 
                 Route::get('security', [
-                    'as'   => 'security',
+                    'as' => 'security',
                     'uses' => 'PublicAccountController@getSecurity',
                 ]);
 
                 Route::put('security', [
-                    'as'   => 'post.security',
+                    'as' => 'post.security',
                     'uses' => 'PublicAccountController@postSecurity',
                 ]);
 
                 Route::post('avatar', [
-                    'as'   => 'avatar',
+                    'as' => 'avatar',
                     'uses' => 'PublicAccountController@postAvatar',
                 ]);
 
                 Route::get('packages', [
-                    'as'   => 'packages',
+                    'as' => 'packages',
                     'uses' => 'PublicAccountController@getPackages',
                 ]);
 
                 Route::get('transactions', [
-                    'as'   => 'transactions',
+                    'as' => 'transactions',
                     'uses' => 'PublicAccountController@getTransactions',
                 ]);
 
@@ -353,22 +368,22 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
 
             Route::group(['prefix' => 'ajax/accounts'], function () {
                 Route::get('activity-logs', [
-                    'as'   => 'activity-logs',
+                    'as' => 'activity-logs',
                     'uses' => 'PublicAccountController@getActivityLogs',
                 ]);
 
                 Route::get('transactions', [
-                    'as'   => 'ajax.transactions',
+                    'as' => 'ajax.transactions',
                     'uses' => 'PublicAccountController@ajaxGetTransactions',
                 ]);
 
                 Route::post('upload', [
-                    'as'   => 'upload',
+                    'as' => 'upload',
                     'uses' => 'PublicAccountController@postUpload',
                 ]);
 
                 Route::post('upload-from-editor', [
-                    'as'   => 'upload-from-editor',
+                    'as' => 'upload-from-editor',
                     'uses' => 'PublicAccountController@postUploadFromEditor',
                 ]);
             });
@@ -378,7 +393,7 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                     ->parameters(['' => 'property']);
 
                 Route::post('renew/{id}', [
-                    'as'   => 'renew',
+                    'as' => 'renew',
                     'uses' => 'AccountPropertyController@renew',
                 ]);
             });
@@ -388,13 +403,13 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                     ->parameters(['' => 'consult'])
                     ->except(['create', 'store']);
                 Route::delete('items/destroy', [
-                    'as'         => 'deletes',
-                    'uses'       => 'AccountConsultController@deletes',
+                    'as' => 'deletes',
+                    'uses' => 'AccountConsultController@deletes',
                     'permission' => 'account.consult.destroy',
                 ]);
                 Route::get('properties/{id}', [
-                    'as'         => 'property.consults',
-                    'uses'       => 'AccountConsultController@propertyConsults',
+                    'as' => 'property.consults',
+                    'uses' => 'AccountConsultController@propertyConsults',
 
                 ]);
             });
@@ -409,8 +424,10 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                 Route::get('packages/{id}/subscribe', 'PublicAccountController@getSubscribePackage')
                     ->name('package.subscribe');
 
-                Route::get('packages/{id}/subscribe/callback',
-                    'PublicAccountController@getPackageSubscribeCallback')
+                Route::get(
+                    'packages/{id}/subscribe/callback',
+                    'PublicAccountController@getPackageSubscribeCallback'
+                )
                     ->name('package.subscribe.callback');
             });
             Route::group(['prefix' => 'account'], function () {
@@ -420,9 +437,9 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
             });
 
         });
-        Route::get('Add-Property',[\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class,'create'])
-           ->name('general-add-property');
-        Route::POST('member-property-save',[\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class,'store'])
+        Route::get('Add-Property', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'create'])
+            ->name('general-add-property');
+        Route::POST('member-property-save', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'store'])
             ->name('general-save-property');
 
         //////////////////////////////members////////////////////////
@@ -456,7 +473,7 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
 
             'uses' => 'GeneralPropertyController@currency_unit_update',
         ]);
-            Route::group(['middleware' => ['preventBackHistory','member']], function () {
+        Route::group(['middleware' => ['preventBackHistory', 'member']], function () {
 
 
             Route::get('/member/dashboard', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'dashboard'])
@@ -474,10 +491,13 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                 'as' => 'activity-logs',
                 'uses' => 'GeneralPropertyController@getActivityLogs',
             ]);
-            Route::post('checkout-discount-apply',
-                [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'postcheckout'])
+            Route::post(
+                'checkout-discount-apply',
+                [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'postcheckout']
+            )
                 ->name('public.member.package.postcheckout-discount');
-            Route::get('/term-conditions',
+            Route::get(
+                '/term-conditions',
                 [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'term_conditions'],
             )->name('gem.terms');
             Route::get('/term-conditions/{file}', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'term_conditions'])->name('gem.terms.download');
@@ -509,14 +529,20 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
             Route::post('member/packages/discount', 'GeneralPropertyController@discountPackage')
                 ->name('public.member.package.discount');
 
-            Route::get('packages/{id}/subscribe/callback',
-                'GeneralPropertyController@getPackageSubscribeCallback')
+            Route::get(
+                'packages/{id}/subscribe/callback',
+                'GeneralPropertyController@getPackageSubscribeCallback'
+            )
                 ->name('public.member.package.subscribe.callback');
-            Route::get('checkout/{id}',
-                'GeneralPropertyController@checkout')
+            Route::get(
+                'checkout/{id}',
+                'GeneralPropertyController@checkout'
+            )
                 ->name('public.member.package.checkout');
-            Route::post('checkout',
-                'GeneralPropertyController@postcheckout')
+            Route::post(
+                'checkout',
+                'GeneralPropertyController@postcheckout'
+            )
                 ->name('public.member.package.postcheckout');
 
             Route::post('/member/rate', 'GeneralPropertyController@rateSave')->name('member.rate.save');
