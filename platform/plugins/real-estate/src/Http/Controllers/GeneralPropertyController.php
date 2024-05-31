@@ -1108,16 +1108,9 @@ class GeneralPropertyController extends Controller
         $package = $packageRepository->findOrFail($id);
         $total_price=$package->price;
         $voucher=false;
-        $package=Package::findOrFail($id);
-        $id=auth('member')->user()->id;
-       // echo session('discount');exit;
-        //$data=member_voucher::where('member_id',$id)->orderBy('redeemed_at','desc')->limit(1)->get();
         if(session('discount'))
         {
-          //  echo session('discount');exit;
             $package->price=$total_price-session('discount');
-
-
         }
 
 
@@ -1133,6 +1126,7 @@ class GeneralPropertyController extends Controller
         TransactionInterface $transactionRepository,
         BaseHttpResponse $response
     ) {
+        \Illuminate\Support\Facades\Log::debug('YEAHHHHHHHHHHHH');
         $package = $packageRepository->findOrFail($packageId);
 
         if ($request->input('type') == PaymentMethodEnum::PAYPAL) {
@@ -1161,6 +1155,8 @@ class GeneralPropertyController extends Controller
                 ->setNextUrl(route('public.member.packages'))
                 ->setMessage($payPalService->getErrorMessage());
         }
+
+        dd('yeah it is coming outside');
 
         $this->savePayment($package, $request->input('charge_id'), $transactionRepository);
 

@@ -10,6 +10,7 @@
             <input type="hidden" name="currency" value="{{ $currency }}">
             <input type="hidden" name="return_url" value="{{ $returnUrl }}">
             <input type="hidden" name="callback_url" value="{{ $callbackUrl }}">
+            <input type="hidden" name="package_id" value="{{ $package_id }}">
             <ul class="list-group list_payment_method">
                 @if (setting('payment_stripe_status') == 1)
                     <li class="list-group-item">
