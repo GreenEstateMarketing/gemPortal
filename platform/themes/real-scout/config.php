@@ -65,10 +65,10 @@ return [
             $theme->asset()->usePath()->add('style-css', 'css/style.css', [], [], $version);
 
             if (
-                Route::current()->getName() != "public.index" &&
-                Route::current()->getName() != "public.property.show" &&
-                Route::current()->getName() != "public.project.show" &&
-                Route::current()->getName() != "public.properties"
+                Route::current() && Route::current()->getName() != "public.index" &&
+                Route::current() && Route::current()->getName() != "public.property.show" &&
+                Route::current() && Route::current()->getName() != "public.project.show" &&
+                Route::current() && Route::current()->getName() != "public.properties"
             ) {
                 $theme->asset()->add('real-estate-admin', 'css/real-estate-admin.css', [], []);
             }
@@ -90,7 +90,7 @@ return [
             $theme->asset()->container('header')->usePath()->add('owl-carousel-js', 'libraries/owl-carousel/owl.carousel.min.js');
             $theme->asset()->container('header')->usePath()->add('equal-height-js', 'libraries/jquery.matchHeight-min.js');
             $theme->asset()->container('footer')->usePath()->add('waypoints-js', 'libraries/jquery.waypoints.min.js');
-            //if(Route::current()->getName()!="public.property.show")
+            //if(Route::current() && Route::current()->getName()!="public.property.show")
         
             $theme->asset()->container('footer')->usePath()->add('app-js', 'js/app.js', [], [], $version);
             $theme->asset()->container('footer')->usePath()->add('components-js', 'js/components.js', [], [], $version);
@@ -103,7 +103,7 @@ return [
             $theme->asset()->container('footer')->usePath()->add('swiper-js', 'js/swiper.min.js');
             $theme->asset()->container('footer')->usePath()->add('fancybox-js', 'js/fancybox.min.js');
             $theme->asset()->container('footer')->usePath()->add('load-js', 'js/load.min.js');
-            //  if(Route::current()->getName()!="public.property.show")
+            //  if(Route::current() && Route::current()->getName()!="public.property.show")
             $theme->asset()->container('footer')->usePath()->add('text-rotator-js', 'js/text-rotater.js');
 
             $theme->asset()->container('footer')->usePath()->add('stellar-js', 'js/jquery.stellar.js');
@@ -116,45 +116,45 @@ return [
             /*    $theme->asset()->container('footer')->add('leaflet-js', 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js');
                 $theme->asset()->container('footer')->add('leaflet-draw-js', 'https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.4.2/leaflet.draw.js');
                 $theme->asset()->container('footer')->add('leaflet-pip-js', 'https://rawgit.com/hayeswise/Leaflet.PointInPolygon/master/wise-leaflet-pip.js');*/
-            // if(Route::current()->getName()!="public.property.show")
+            // if(Route::current() && Route::current()->getName()!="public.property.show")
             $theme->asset()->container('footer')->add('choices-div', 'https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/choices.min.js');
             $theme->asset()->container('footer')->add('jquery-ui-js', 'https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js');
             $theme->asset()->container('footer')->add('tokenfield-js', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tokenfield/0.12.0/bootstrap-tokenfield.js');
-            //if(Route::current()->getName()!="public.property.show")
+            //if(Route::current() && Route::current()->getName()!="public.property.show")
             $theme->asset()->container('footer')->usePath()->add('validate-en-js', 'libraries/jquery-validation/jquery.validationEngine-vi.js');
             $theme->asset()->container('footer')->usePath()->add('validate-ens-js', 'libraries/jquery-validation/jquery.validationEngine.js');
 
             $theme->asset()->container('footer')->usePath()->add('scripts-js', 'js/scripts.js');
 
-            if (Route::current()->getName() != "public.property.show")
+            if (Route::current() && Route::current()->getName() != "public.property.show")
                 $theme->asset()->container('footer')->add('googleapis-js', "https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=false&sensor=false&key=" . setting('google_map_api_key') . "");
-            if (Route::current()->getName() == "public.property.show" || Route::current()->getName() == "public.project.show")
+            if (Route::current() && Route::current()->getName() == "public.property.show" || Route::current() && Route::current()->getName() == "public.project.show")
                 $theme->asset()->container('footer')->add('googleapis-js', "https://maps.googleapis.com/maps/api/js?key=" . setting('google_map_api_key') . "&libraries=places,geometry&callback=initMapNeighbourhood");
 
             $theme->asset()->container('footer')->add('show-contact-js', 'js/show-contact.js', [], []);
-            if (Route::current()->getName() != "public.index" && Route::current()->getName() != "public.property.show" && Route::current()->getName() != "public.project.show")
+            if (Route::current() && Route::current()->getName() != "public.index" && Route::current() && Route::current()->getName() != "public.property.show" && Route::current() && Route::current()->getName() != "public.project.show")
                 $theme->asset()->container('footer')->add('real-estate-admin-js', 'js/real-estate-admin.js', [], []);
 
-            /* if(Route::current()->getName()=="general-add-property")
+            /* if(Route::current() && Route::current()->getName()=="general-add-property")
 
                 $theme->asset()->add('bootstrap-css', 'custom/css/agent_style.css');*/
-            /* if(Route::current()->getName()=="general-add-property")
+            /* if(Route::current() && Route::current()->getName()=="general-add-property")
              $theme->asset()->container('footer')->add('real-estate-admin-js', 'js/real-member-user.js', [], []);*/
-            //if( Route::current()->getName()=="public.property.show" || Route::current()->getName()=="public.project.show" || Route::current()->getName()=="public.index")
+            //if( Route::current() && Route::current()->getName()=="public.property.show" || Route::current() && Route::current()->getName()=="public.project.show" || Route::current() && Route::current()->getName()=="public.index")
             $theme->asset()->container('footer')->add('tabs-div', 'https://code.jquery.com/jquery-1.12.0.min.js');
             $theme->asset()->container('footer')->add('validate-app-js', '/js/jquery.validate.min.js');
             $theme->asset()->container('footer')->add('additional-methods-js', '/js/additional-methods.min.js');
 
-            if (Route::current()->getName() == "public.member.package.subscribe" && Route::current()->getName() == "public.account.package.subscribe") {
+            if (Route::current() && Route::current()->getName() == "public.member.package.subscribe" && Route::current() && Route::current()->getName() == "public.account.package.subscribe") {
                 $theme->asset()->container('footer')->add('checkout-js', '/js/checkout.js');
             }
-            if (Route::current()->getName() == "wanted") {
+            if (Route::current() && Route::current()->getName() == "wanted") {
                 $theme->asset()->add('select2-css', '/vendor/core/core/base/libraries/select2/css/select2.min.css', [], []);
                 $theme->asset()->add('wanted-css', 'css/wanted.css', [], []);
                 $theme->asset()->container('footer')->add('wanted-js', '/js/wanted.js');
                 $theme->asset()->container('footer')->add('select2-js', '/vendor/core/core/base/libraries/select2/js/select2.min.js');
             }
-            if (Route::current()->getName() == "public.index" || Route::current()->getName() == "public.properties" || Route::current()->getName() == "public.projects") {
+            if (Route::current() && Route::current()->getName() == "public.index" || Route::current() && Route::current()->getName() == "public.properties" || Route::current() && Route::current()->getName() == "public.projects") {
 
                 //$theme->asset()->container('footer')->add('choosen-js', '/js/chosen.jquery.min.js');
                 // $theme->asset()->container('footer')->add('choosen-proto-js', '/js/chosen.proto.min.js');

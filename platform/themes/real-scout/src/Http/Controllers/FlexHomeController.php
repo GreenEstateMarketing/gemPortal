@@ -22,6 +22,7 @@ use Botble\Theme\Http\Controllers\PublicController;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 use SeoHelper;
 use Theme;
 use Theme\FlexHome\Http\Resources\PostResource;
@@ -29,6 +30,7 @@ use Theme\FlexHome\Http\Resources\PropertyResource;
 use App\Models\area;
 use DB;
 use Theme\FlexHome\Http\Resources\ProjectResource;
+
 class FlexHomeController extends PublicController
 {
     /**
@@ -52,8 +54,8 @@ class FlexHomeController extends PublicController
 
         $params = [
             'paginate' => [
-                'per_page'      => (int)theme_option('number_of_projects_per_page', 12),
-                'current_paged' => (int)$request->input('page', 1),
+                'per_page' => (int) theme_option('number_of_projects_per_page', 12),
+                'current_paged' => (int) $request->input('page', 1),
             ],
             'order_by' => ['re_projects.created_at' => 'DESC'],
         ];
@@ -87,23 +89,22 @@ class FlexHomeController extends PublicController
 
         $params = [
             'paginate' => [
-                'per_page'      => (int)theme_option('number_of_properties_per_page', 12),
-                'current_paged' => (int)$request->input('page', 1),
+                'per_page' => (int) theme_option('number_of_properties_per_page', 12),
+                'current_paged' => (int) $request->input('page', 1),
             ],
             'order_by' => ['re_properties.created_at' => 'DESC'],
         ];
 
-        $chosenArr=[];
-        $chosenFullArr=array();
+        $chosenArr = [];
+        $chosenFullArr = array();
 
-        $cities = City::select('id','name')->where('status','published')->get();
-        $parent_id=0;
+        $cities = City::select('id', 'name')->where('status', 'published')->get();
+        $parent_id = 0;
 
-        if(!isset($chosenArr))
-            $chosenArr=array();
-        else
-        {
-            $chosenFullArr=$chosenArr;
+        if (!isset($chosenArr))
+            $chosenArr = array();
+        else {
+            $chosenFullArr = $chosenArr;
             foreach ($chosenArr as $key => $val) {
                 $chosenArr[$key] = substr($val, 0, 15);
             }
@@ -113,7 +114,7 @@ class FlexHomeController extends PublicController
 
         $categories = $categoryRepository->pluck('re_categories.name', 're_categories.id');
 
-        return Theme::scope('real-estate.properties', compact('properties', 'categories','chosenArr','parent_id','chosenFullArr','cities'))
+        return Theme::scope('real-estate.properties', compact('properties', 'categories', 'chosenArr', 'parent_id', 'chosenFullArr', 'cities'))
             ->render();
     }
 
@@ -129,58 +130,60 @@ class FlexHomeController extends PublicController
          }*/  //check this aswell
 
         $properties = [];
-        $links=[];
+        $links = [];
         switch ($request->input('type')) {
             case 'related':
                 $properties = app(PropertyInterface::class)
-                    ->getRelatedProperties($request,
-                        (int)theme_option('number_of_related_properties', 8));
+                    ->getRelatedProperties(
+                        $request,
+                        (int) theme_option('number_of_related_properties', 8)
+                    );
                 break;
             case 'rent':
                 $properties = app(PropertyInterface::class)->getPropertiesByConditions(
                     [
-                        're_properties.is_featured'       => true,
-                        're_properties.type'              => PropertyTypeEnum::RENT,
+                        're_properties.is_featured' => true,
+                        're_properties.type' => PropertyTypeEnum::RENT,
                         ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::NOT_AVAILABLE]],
                         're_properties.moderation_status' => ModerationStatusEnum::APPROVED,
                     ],
-                    (int)theme_option('number_of_properties_for_sale', 8),
+                    (int) theme_option('number_of_properties_for_sale', 8),
                     ['currency']
                 );
                 break;
             case 'sale':
                 $properties = app(PropertyInterface::class)->getPropertiesByConditions(
                     [
-                        're_properties.is_featured'       => true,
-                        're_properties.type'              => PropertyTypeEnum::SALE,
+                        're_properties.is_featured' => true,
+                        're_properties.type' => PropertyTypeEnum::SALE,
                         ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::NOT_AVAILABLE]],
                         're_properties.moderation_status' => ModerationStatusEnum::APPROVED,
                     ],
-                    (int)theme_option('number_of_properties_for_sale', 8),
+                    (int) theme_option('number_of_properties_for_sale', 8),
                     ['currency']
                 );
                 break;
             case 'project-properties-for-sell':
                 $properties = app(PropertyInterface::class)->getPropertiesByConditions(
                     [
-                        're_properties.project_id'        => $request->input('project_id'),
-                        're_properties.type'              => PropertyTypeEnum::SALE,
+                        're_properties.project_id' => $request->input('project_id'),
+                        're_properties.type' => PropertyTypeEnum::SALE,
                         ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::NOT_AVAILABLE]],
                         're_properties.moderation_status' => ModerationStatusEnum::APPROVED,
                     ],
-                    (int)theme_option('number_of_properties_for_sale', 8),
+                    (int) theme_option('number_of_properties_for_sale', 8),
                     ['currency']
                 );
                 break;
             case 'project-properties-for-rent':
                 $properties = app(PropertyInterface::class)->getPropertiesByConditions(
                     [
-                        're_properties.project_id'        => $request->input('project_id'),
-                        're_properties.type'              => PropertyTypeEnum::RENT,
+                        're_properties.project_id' => $request->input('project_id'),
+                        're_properties.type' => PropertyTypeEnum::RENT,
                         ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::NOT_AVAILABLE]],
                         're_properties.moderation_status' => ModerationStatusEnum::APPROVED,
                     ],
-                    (int)theme_option('number_of_properties_for_sale', 8),
+                    (int) theme_option('number_of_properties_for_sale', 8),
                     ['currency']
                 );
                 break;
@@ -204,19 +207,21 @@ class FlexHomeController extends PublicController
                  break;*/
                 unset($request['type']);
                 //assigning property_type attribute to type
-                $request['type']=$request['property_type'];
+                $request['type'] = $request['property_type'];
                 unset($request['property_type']);
-                $filters=$request->input();
+                $filters = $request->input();
                 $params = [
                     'paginate' => [
-                        'per_page'      => $request->input('per_page') ? (int)$request->input('per_page') : (int)theme_option('number_of_properties_per_page',
-                            10),
+                        'per_page' => $request->input('per_page') ? (int) $request->input('per_page') : (int) theme_option(
+                            'number_of_properties_per_page',
+                            10
+                        ),
                         'current_paged' => $request->input('page', 1),
                     ],
                     'order_by' => ['re_properties.created_at' => 'DESC'],
                 ];
-//                dd($filters);
-                $properties = app(PropertyInterface::class)->getPropertiesByMap($filters,$params);
+                //                dd($filters);
+                $properties = app(PropertyInterface::class)->getPropertiesByMap($filters, $params);
                 break;
         }
 
@@ -266,12 +271,12 @@ class FlexHomeController extends PublicController
 
         $properties = $propertyRepository->advancedGet([
             'condition' => [
-                'author_id'   => $account->id,
+                'author_id' => $account->id,
                 'author_type' => Account::class,
             ],
-            'paginate'  => [
-                'per_page'      => 12,
-                'current_paged' => (int)$request->input('page'),
+            'paginate' => [
+                'per_page' => 12,
+                'current_paged' => (int) $request->input('page'),
             ],
         ]);
 
@@ -294,12 +299,12 @@ class FlexHomeController extends PublicController
 
         $properties = $propertyRepository->advancedGet([
             'condition' => [
-                'author_id'   => $account->id,
+                'author_id' => $account->id,
                 'author_type' => Account::class,
             ],
-            'paginate'  => [
-                'per_page'      => 12,
-                'current_paged' => (int)$request->input('page'),
+            'paginate' => [
+                'per_page' => 12,
+                'current_paged' => (int) $request->input('page'),
             ],
         ]);
 
@@ -359,12 +364,12 @@ class FlexHomeController extends PublicController
                 'condition' => [
                     ['re_properties.id', 'IN', $arrValue],
                 ],
-                'order_by'  => [
+                'order_by' => [
                     're_properties.id' => 'DESC',
                 ],
-                'paginate'  => [
-                    'per_page'      => (int)theme_option('number_of_properties_per_page', 12),
-                    'current_paged' => (int)$request->input('page', 1),
+                'paginate' => [
+                    'per_page' => (int) theme_option('number_of_properties_per_page', 12),
+                    'current_paged' => (int) $request->input('page', 1),
                 ],
             ]);
         }
@@ -379,33 +384,36 @@ class FlexHomeController extends PublicController
     {
         return view('welcom');
     }
-    public function getAgentList( AccountInterface $accountRepository,
-                                  PropertyInterface $propertyRepository )
-    {
-        $agents= $accountRepository->agents();
-        return Theme::scope('real-estate.agent_list',compact('agents'))->render();
+    public function getAgentList(
+        AccountInterface $accountRepository,
+        PropertyInterface $propertyRepository
+    ) {
+        $agents = $accountRepository->agents();
+        return Theme::scope('real-estate.agent_list', compact('agents'))->render();
     }
-    public function agent_search(AccountInterface $accountRepository,
-                                 PropertyInterface $propertyRepository )
-    {
-        $agents= $accountRepository->agents();
-        return Theme::scope('real-estate.agent-search',compact('agents'))->render();
+    public function agent_search(
+        AccountInterface $accountRepository,
+        PropertyInterface $propertyRepository
+    ) {
+        $agents = $accountRepository->agents();
+        return Theme::scope('real-estate.agent-search', compact('agents'))->render();
     }
-    function agent_search_post(Request $request,AccountInterface $accountRepository)
+    function agent_search_post(Request $request, AccountInterface $accountRepository)
     {
-        $list =Account::where('confirmed_at','!=',null);
-        $first_name=$request['first_name'];
-        $last_name=$request['last_name'];
-        $location=$request['location'];
-        if($first_name!="")
-            $list =$list->where('first_name', 'LIKE', '%' . $first_name . '%');
-        if($last_name!="")
-            $list =$list->where('last_name', 'LIKE', '%' . $last_name . '%');
-        $agents=$list->get();
-        return Theme::scope('real-estate.agent-search-detail',compact('agents'))->render();
+        $list = Account::where('confirmed_at', '!=', null);
+        $first_name = $request['first_name'];
+        $last_name = $request['last_name'];
+        $location = $request['location'];
+        if ($first_name != "")
+            $list = $list->where('first_name', 'LIKE', '%' . $first_name . '%');
+        if ($last_name != "")
+            $list = $list->where('last_name', 'LIKE', '%' . $last_name . '%');
+        $agents = $list->get();
+        return Theme::scope('real-estate.agent-search-detail', compact('agents'))->render();
 
     }
-    public function excerpt($title, $cutOffLength) {
+    public function excerpt($title, $cutOffLength)
+    {
 
         $charAtPosition = "";
         $titleLength = strlen($title);
@@ -419,36 +427,34 @@ class FlexHomeController extends PublicController
 
     }
 
-    public function getCityAreaListByCity(Request $request, CityAreaInterface $cityAreaRepository,BaseHttpResponse $response)
+    public function getCityAreaListByCity(Request $request, CityAreaInterface $cityAreaRepository, BaseHttpResponse $response)
     {
+
         if (!$request->ajax()) {
             abort(404);
         }
 
         $city_id = $request->input('city_id');
 
-
-        $cityAreas = $cityAreaRepository->getModel()
-            ->where(function (Builder $query) use ($city_id) {
-                return $query
-                    ->where('city_id', '=',  $city_id);
-            })
-            ->get(['city_area.*']);
-
-        foreach ($cityAreas as $key => &$value){
-//            $this->excerpt($areas->city_area_name,3);
-            //print_r($this->excerpt($areas->city_area_name,3));
-            $value->city_area_name = strlen($value->city_area_name) >25  ? substr($value->city_area_name,0,25)." ..." : $value->city_area_name;
+        if ($city_id == 0) {
+            $cityAreas = $cityAreaRepository->getModel()->get(['city_area.*']);
+        } else {
+            $cityAreas = $cityAreaRepository->getModel()
+                ->where(function (Builder $query) use ($city_id) {
+                    return $query
+                        ->where('city_id', '=', $city_id);
+                })
+                ->get(['city_area.*']);
         }
 
-
-//        excerpt($cityAreas,5);
+        foreach ($cityAreas as $key => &$value) {
+            $value->city_area_name = strlen($value->city_area_name) > 25 ? substr($value->city_area_name, 0, 25) . " ..." : $value->city_area_name;
+        }
 
         return $response->setData($cityAreas);
-
     }
 
-    public function getSearchAreaList(Request $request, PropertyInterface $propertyRepository,ProjectInterface  $projectRepository,BaseHttpResponse $response)
+    public function getSearchAreaList(Request $request, PropertyInterface $propertyRepository, ProjectInterface $projectRepository, BaseHttpResponse $response)
     {
         if (!$request->ajax()) {
             abort(404);
@@ -478,8 +484,7 @@ class FlexHomeController extends PublicController
 
         });
         $list_data= $list->get(['areas.name as area_name','cities.name as city_name'])->toArray();*/
-        if($type=="project")
-        {
+        if ($type == "project") {
             $list = $projectRepository->getModel()
                 ->join('cities', 'cities.id', '=', 'city_id')
                 ->where('cities.status', BaseStatusEnum::PUBLISHED);
@@ -504,7 +509,7 @@ class FlexHomeController extends PublicController
                     ->where('location', 'LIKE', '%' . $keyword . '%');
 
             });
-            if ($category_id!== null) {
+            if ($category_id !== null) {
                 $list = $list->where('re_projects.category_id', $category_id);
             }
 
@@ -516,14 +521,12 @@ class FlexHomeController extends PublicController
                     dd($query);*/
             //  $data = array_column($list_data, 'area_name');
             echo json_encode($list_data);
-        }
-        else
-        {
+        } else {
             $list = $propertyRepository->getModel()
                 ->join('cities', 'cities.id', '=', 'city_id')
                 ->where('cities.status', BaseStatusEnum::PUBLISHED);
-            $list = $list->where('type',$type);
-            $list=$list->where('expire_date','>',date('Y-m-d'))->orwhere('never_expired',1);
+            $list = $list->where('type', $type);
+            $list = $list->where('expire_date', '>', date('Y-m-d'))->orwhere('never_expired', 1);
 
             if ($city_id) {
                 $list = $list->where('city_id', $city_id);
@@ -540,7 +543,7 @@ class FlexHomeController extends PublicController
                     ->where('location', 'LIKE', '%' . $keyword . '%');
 
             });
-            if ($category_id!== null) {
+            if ($category_id !== null) {
                 $list = $list->where('re_properties.category_id', $category_id);
             }
 
@@ -555,17 +558,19 @@ class FlexHomeController extends PublicController
     }
     public function ajaxGetProjects(Request $request, BaseHttpResponse $response)
     {
-        $filters=$request->input();
+        $filters = $request->input();
         $params = [
             'paginate' => [
-                'per_page'      => $request->input('per_page') ? (int)$request->input('per_page') : (int)theme_option('number_of_projects_per_page',
-                    12),
+                'per_page' => $request->input('per_page') ? (int) $request->input('per_page') : (int) theme_option(
+                    'number_of_projects_per_page',
+                    12
+                ),
                 'current_paged' => $request->input('page', 1),
             ],
             'order_by' => ['re_projects.created_at' => 'DESC'],
         ];
 
-        $project = app(ProjectInterface::class)->getProjectsMaps($filters,$params);
+        $project = app(ProjectInterface::class)->getProjectsMaps($filters, $params);
         return $response
             ->setData(ProjectResource::collection($project))
             ->toApiResponse();
