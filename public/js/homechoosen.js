@@ -5,11 +5,11 @@ $(document).ready(function () {
     let cityAreaArray = [];
     $('#city_id').select2()
         .on("select2:select", e => {
-            const event = new Event("change", {bubbles: true, cancelable: true});
+            const event = new Event("change", { bubbles: true, cancelable: true });
             e.params.data.element.parentElement.dispatchEvent(event);
         })
         .on("select2:unselect", e => {
-            const event = new Event("change", {bubbles: true, cancelable: true});
+            const event = new Event("change", { bubbles: true, cancelable: true });
             e.params.data.element.parentElement.dispatchEvent(event);
         });
 
@@ -37,7 +37,6 @@ $(document).ready(function () {
     if (url.indexOf("city_id") < 0) {
         waitForEl('#city-name-from-map', mapCityCallback, 10);
     } else {
-
         $.ajax({
             type: 'get',
             url: 'ajax/get-city-areas',
@@ -47,12 +46,6 @@ $(document).ready(function () {
                 city_id: $('#city_id').val()
             },
             success: function (response) {
-                /*  $('#autocomplete-ajax').val('');
-                  $('#autocomplete-ajax').autocomplete('clear');
-                  $('#chipContainer .chip').children('.chip-close').each(function () {
-                      $(this).click();
-                  });
-                  showHideChips(true)*/
                 cityAreaArray = response.data;
             }
         });
@@ -63,7 +56,6 @@ $(document).ready(function () {
         $('#city_id').val(val).trigger('change.select2');
         $('#city_id').trigger('change');
         $("#city_id")[0].dispatchEvent(new Event('change'));
-        //$('#city_id').change();
     }
 
     $('#city_id').on('select2:opening', function (e) {
@@ -108,12 +100,12 @@ $(document).ready(function () {
 
     // Initialize ajax autocomplete:
     $('#autocomplete-ajax').autocomplete({
-        lookup: function (query, done) {
 
+        lookup: function (query, done) {
             var result = {
                 suggestions: $.map(cityAreaArray, function (dataItem) {
                     if (dataItem.city_area_name.toLowerCase().indexOf(query.toLowerCase()) !== -1) {
-                        return {value: dataItem.city_area_name, data: dataItem.id};
+                        return { value: dataItem.city_area_name, data: dataItem.id };
                     }
                 })
             };
@@ -122,10 +114,10 @@ $(document).ready(function () {
         showNoSuggestionNotice: true,
         noSuggestionNotice: 'Sorry, no matching results',
         onSearchStart: function (params) {
-            // $(".spinner-border").show();
+            $(".spinner-border").show();
         },
         onSearchComplete: function (query, suggestions) {
-            // $(".spinner-border").hide();
+            $(".spinner-border").hide();
         },
         onSelect: function (suggestion) {
             addChip(suggestion);
@@ -135,14 +127,14 @@ $(document).ready(function () {
             $('#autocomplete-ajax-x').val(hint);
         },
         onInvalidateSelection: function () {
-            // $(".spinner-border").hide();
-        }/*,
+            $(".spinner-border").hide();
+        },
         search: function (e, u) {
             $(".spinner-border").show();
         },
         response: function (e, u) {
             $(".spinner-border").hide();
-        }*/
+        }
     });
 
     function addChip(chipContent) {
@@ -216,7 +208,7 @@ $(document).ready(function () {
         }
     });
 
-    observer.observe(document.querySelector("#chipContainer"), {subtree: false, childList: true});
+    observer.observe(document.querySelector("#chipContainer"), { subtree: false, childList: true });
 
     function setLabel() {
         $('#chipViewMore').children(".chip-content").html(chipArray.length - 1 + ' More+');
@@ -233,7 +225,6 @@ $(document).ready(function () {
         var jsonObject = JSON.parse(value)
         jsonObject['data'] = jsonObject['id'];
         delete jsonObject['id'];
-        console.log(jsonObject);
         addChip(jsonObject);
     });
 
