@@ -145,21 +145,25 @@ class GeneralPropertyController extends Controller
      */
     public function create(FormBuilder $formBuilder)
     {
+        if (!auth('member')->user()) {
+            return redirect()->route('member.login');
+        } else {
+            if (auth('member')->user()->credits > 0) {
+                return redirect()->route('public.member.properties.create');
+            } else {
+                return redirect()->route('public.member.packages');
+            }
+        }
 
-        /*
-         if (!auth('account')->user()->canPost()) {
-            // abort(403);
-         }*/
+        // SeoHelper::setTitle(__('Add a property'));
 
-        SeoHelper::setTitle(__('Add a property'));
-
-     return $formBuilder->create(GeneralPropertyForm::class)->renderForm();
+        // return $formBuilder->create(GeneralPropertyForm::class)->renderForm();
         /*$generalPropertyForm = $formBuilder->create(GeneralPropertyForm::class)->renderForm();
         if (view()->exists(Theme::getThemeNamespace() . '::views.real-estate.add_property')) {
             return Theme::scope('real-estate.add_property', compact('generalPropertyForm'))->render();
         }*/
 
-   }
+    }
 
     /**
      * @param PropertyRequest $request
@@ -168,24 +172,14 @@ class GeneralPropertyController extends Controller
      * @param SaveFacilitiesService $saveFacilitiesService
      * @return BaseHttpResponse
      */
-    public function store(PropertyRequest $request, BaseHttpResponse $response, AccountInterface $accountRepository, SaveFacilitiesService $saveFacilitiesService,MemberInterface $memberRepository)
+    public function store(PropertyRequest $request, BaseHttpResponse $response, AccountInterface $accountRepository, SaveFacilitiesService $saveFacilitiesService, MemberInterface $memberRepository)
     {
-
-        /*if (!auth('member')->user()->canPost()) {
-             abort(403);
-         }*/
-
         $request->merge(['expire_date' => now()->addDays(config('plugins.real-estate.real-estate.property_expired_after_x_days'))]);
-        /////adding new user here //////
-        // $agent_id=null;
-        $agent_id=$request['agent_list']?$request['agent_list']:null;
-        $member_id=null;
-        $is_already_member=false;
-        if($request['member_status']=="new_user")
-        {
+        $agent_id = $request['agent_list'] ? $request['agent_list'] : null;
+        $member_id = null;
+        $is_already_member = false;
+        if ($request['member_status'] == "new_user") {
             $validator = Validator::make($request->all(), [
-
-                //new member register validation
                 'full_name' => 'required|string|min:3|max:100|regex:^[a-zA-Z]{3,}(?: [a-zA-Z]+){0,2}$^',
                 'new_email' => 'required|email|string',
                 'mobile_number' => 'required|min:11|numeric|regex:^[0][\d]{3}[\d]{7}$^',
@@ -194,81 +188,47 @@ class GeneralPropertyController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return response()->json(['error'=>$validator->errors()->all(),'message'=>'Invalid data format']);
-            }
-            elseif(Member::where('email',$request['new_email'])->first()){
-                $is_already_member=true;
-                $error=array('status'=>false,'message'=>'Email already exists.');
-                echo json_encode($error);die;
-            }
-            else{
-                    //Hash::make($request->new_password)
-                $arr=array('full_name'=>$request['full_name'],'email'=>$request['new_email'],'mobile_no'=>$request['mobile_number'],'password'=>Hash::make($request['new_password']));
+                return response()->json(['error' => $validator->errors()->all(), 'message' => 'Invalid data format']);
+            } elseif (Member::where('email', $request['new_email'])->first()) {
+                $is_already_member = true;
+                $error = array('status' => false, 'message' => 'Email already exists.');
+                echo json_encode($error);
+                die;
+            } else {
+                $arr = array('full_name' => $request['full_name'], 'email' => $request['new_email'], 'mobile_no' => $request['mobile_number'], 'password' => Hash::make($request['new_password']));
 
             }
-        }
-        else{
+        } else {
             $validator = Validator::make($request->all(), [
-                //upper fields validation --- required
-
                 'email' => 'required|email|string',
                 'password' => 'required|min:6',
             ]);
 
             if ($validator->fails()) {
-                return response()->json(['error'=>$validator->errors()->all(),'message'=>'Invalid data format']);
+                return response()->json(['error' => $validator->errors()->all(), 'message' => 'Invalid data format']);
             }
 
-            $existing_email = Member::where('email',$request['email'])->first();
-            // print_r($data);exit;
-            if(($existing_email) &&  (Hash::check( $request['password'],$existing_email->password))==true )
-            {
-                $member_id=$existing_email->id;
-                $is_already_member=true;
-            }
-            /*//
-            $arr=array('email'=>$request['email'],'password'=>hash($request['password'])); //hash match will add
-           if ($member=Member::where($arr)->first()) {
+            $existing_email = Member::where('email', $request['email'])->first();
+            if (($existing_email) && (Hash::check($request['password'], $existing_email->password)) == true) {
+                $member_id = $existing_email->id;
+                $is_already_member = true;
+            } else {
+                $existing_email = array('status' => false, 'message' => 'Invalid email or password');
+                echo json_encode($existing_email);
+                die;
 
-
-
-            }*/
-            else {
-                $existing_email = array('status'=>false,'message'=>'Invalid email or password');
-                echo json_encode($existing_email);die;
-                /* return $response
-                ->setPreviousUrl(route('general-add-property'))
-                ->setNextUrl(route('general-add-property'))
-                     ->setMessage("Invalid Credentials");
-                 exit;die;*/
             }
 
-            // echo 'here';exit;
-            /* $credentials = $request->only('email', 'password');
-            // print_r($credentials);exit;
-             if (Auth::guard('member')->attempt($credentials)) {
-
-                 return redirect()->intended('home');
-             }*/
-
-
-            //dd($insert_id);exit; working for login to add and redirect after login
         }
-        /**
-         * @var Property $property
-         */
-        $jsonArr=array();
 
-        //run actions with files
+        $jsonArr = array();
 
-        if($request->hasFile('documents'))
-        {
+        if ($request->hasFile('documents')) {
             $files = $request->file('documents');
-            // print_r($_FILES);exit;
-            $i=0;
+            $i = 0;
             foreach ($files as $key => $file) {
-                $document_id=$request['document_ids'][$key];
-                $name = $document_id.'-document-'.time().uniqid().'.'.$file->extension();
+                $document_id = $request['document_ids'][$key];
+                $name = $document_id . '-document-' . time() . uniqid() . '.' . $file->extension();
                 $file->storeAs('Documents', $name);
                 $jsonArr[$i]['id'] = $document_id;
                 $jsonArr[$i]['path'] = 'Documents/' . $name;
@@ -277,33 +237,32 @@ class GeneralPropertyController extends Controller
             }
         }
         $status = 'selling';
-        if($request['type'] == "rent")
+        if ($request['type'] == "rent")
             $status = 'renting';
         else
             $status = 'selling';
 
-        $request['documents']=json_encode($jsonArr);
-        $area_value=$request['square'];
-        $area_units=$request['area_units'];
+        $request['documents'] = json_encode($jsonArr);
+        $area_value = $request['square'];
+        $area_units = $request['area_units'];
         unset($request['square']);
-        $sqFeet=getSqFeet($area_value,$area_units);
-        $request['square']=$sqFeet;
-       // echo   $request['square'];exit;
-        if ($request && $request['images']){
+        $sqFeet = getSqFeet($area_value, $area_units);
+        $request['square'] = $sqFeet;
+        if ($request && $request['images']) {
             $property = $this->propertyRepository->createOrUpdate(array_merge($request->input(), [
-                'author_id'   =>$agent_id, //auth('account')->user()->getAuthIdentifier()
-                'member_id' =>$member_id,
-                'status' =>$status,
-                'author_type' => $agent_id?Account::class:Member::class,
+                'author_id' => $agent_id,
+                'member_id' => $member_id,
+                'status' => $status,
+                'author_type' => $agent_id ? Account::class : Member::class,
             ]));
-            if ($member_id != null){
-                $is_already_member=true;
-            }else{
-                $member_id=Member::create($arr)->id;
-                $is_already_member=false;
+            if ($member_id != null) {
+                $is_already_member = true;
+            } else {
+                $member_id = Member::create($arr)->id;
+                $is_already_member = false;
             }
         }
-        // dd($property);
+
         if ($property) {
             $property->features()->sync($request->input('features', []));
 
@@ -312,75 +271,53 @@ class GeneralPropertyController extends Controller
 
         event(new CreatedContentEvent(PROPERTY_MODULE_SCREEN_NAME, $request, $property));
 
-
-        if($request['member_status']=="new_user")
-        {
-            $arr=array('email'=>$request['new_email']);
+        if ($request['member_status'] == "new_user") {
+            $arr = array('email' => $request['new_email']);
             $data_new = Member::where($arr)->first();
-            // dd($request->new_password);exit;
             if (Auth::guard('member')->attempt(['email' => $data_new->email, 'password' => $request->new_password]/*, $request->get('remember')*/)) {
 
-                if($property)
-                {
+                if ($property) {
                     $this->memberLogRepository->createOrUpdate([
-                        'action'         => 'new_member_create_property',
+                        'action' => 'new_member_create_property',
                         'reference_name' => $property->name,
-                        'reference_url'  => route('general-add-property'),
+                        'reference_url' => route('general-add-property'),
                     ]);
 
                     $member = $memberRepository->findOrFail(auth('member')->user()->getAuthIdentifier());
                     $member->credits--;
                     $member->save();
-
-
-
-
-
-                    $data = array('route_name' => 'member.dashboard', 'status' =>true, 'message' => 'Property Added Successfully!');
+                    $data = array('route_name' => 'member.dashboard', 'status' => true, 'message' => 'Property Added Successfully!');
                     echo json_encode($data);
                     $response->setMessage(trans('core/base::notices.create_success_message'));
                 }
-            }
-            else{
-                $data=array('status'=>false,'message'=>'unable to add property.');
-                echo  json_encode($data);
+            } else {
+                $data = array('status' => false, 'message' => 'unable to add property.');
+                echo json_encode($data);
                 $response->setMessage(trans('core/base::notices.create_success_message'));
             }
-        }
-        else
-        {
-
+        } else {
             if (Auth::guard('member')->attempt(['email' => $request->email, 'password' => $request->password]/*, $request->get('remember')*/)) {
-
-
-                if($property)
-                {
+                if ($property) {
                     $this->memberLogRepository->createOrUpdate([
-                        'action'         => 'new_member_create_property',
+                        'action' => 'new_member_create_property',
                         'reference_name' => $property->name,
-                        'reference_url'  => route('public.member.properties.edit', $property->id),
+                        'reference_url' => route('public.member.properties.edit', $property->id),
                     ]);
 
                     $member = $memberRepository->findOrFail(auth('member')->user()->getAuthIdentifier());
                     $member->credits--;
                     $member->save();
-                    $data = array('route_name' => 'member.dashboard', 'status' =>true, 'message' => 'Property Added Successfully!');
+                    $data = array('route_name' => 'member.dashboard', 'status' => true, 'message' => 'Property Added Successfully!');
                     echo json_encode($data);
                     $response->setMessage(trans('core/base::notices.create_success_message'));
                 }
-            }
-            else{
-                $data=array('status'=>false,'message'=>'unable to add property.');
-                echo  json_encode($data);
+            } else {
+                $data = array('status' => false, 'message' => 'unable to add property.');
+                echo json_encode($data);
                 $response->setMessage(trans('core/base::notices.create_success_message'));
             }
         }
 
-
-        /*return $response
-            ->setPreviousUrl(route('general-add-property'))
-            ->setNextUrl(route('general-add-property'))
-            ->setMessage(trans('core/base::notices.create_success_message'));*/
     }
 
     /**
@@ -394,8 +331,8 @@ class GeneralPropertyController extends Controller
     public function edit($id, FormBuilder $formBuilder, Request $request)
     {
         $property = $this->propertyRepository->getFirstBy([
-            'id'          => $id,
-            'member_id'   => auth('member')->user()->getAuthIdentifier()
+            'id' => $id,
+            'member_id' => auth('member')->user()->getAuthIdentifier()
             // 'author_type' => Member::class,
         ]);
 
@@ -423,8 +360,8 @@ class GeneralPropertyController extends Controller
     public function update($id, PropertyRequest $request, BaseHttpResponse $response, SaveFacilitiesService $saveFacilitiesService)
     {
         $property = $this->propertyRepository->getFirstBy([
-            'id'          => $id,
-            'member_id'   => auth('member')->user()->getAuthIdentifier()
+            'id' => $id,
+            'member_id' => auth('member')->user()->getAuthIdentifier()
             // 'author_type' => Member::class,
         ]);
 
@@ -433,28 +370,27 @@ class GeneralPropertyController extends Controller
         }
         //dd($request);exit;
 
-        $old_category_id=$property->category_id;
-        $old_documents=json_decode($property->documents);
+        $old_category_id = $property->category_id;
+        $old_documents = json_decode($property->documents);
         $property->fill($request->except(['expire_date']));
-        $area_value=$request['square'];
-        $area_units=$request['area_units'];
-        $old_arr=(array)$old_documents;
-        $jsonArr=array();
+        $area_value = $request['square'];
+        $area_units = $request['area_units'];
+        $old_arr = (array) $old_documents;
+        $jsonArr = array();
 
-        $ids= array_column($old_arr, 'id');
-        if($request->hasFile('documents'))
-        {
+        $ids = array_column($old_arr, 'id');
+        if ($request->hasFile('documents')) {
             $files = $request->file('documents');
-            $i=0;
+            $i = 0;
 
             foreach ($files as $key => $file) {
                 //$key;
-                $document_id=$request['document_ids'][$key];
-                $array_index = array_search($document_id,$ids);
+                $document_id = $request['document_ids'][$key];
+                $array_index = array_search($document_id, $ids);
 
 
-                if($array_index!="") {
-                    $path=$old_arr[$array_index]->path;
+                if ($array_index != "") {
+                    $path = $old_arr[$array_index]->path;
                     if (Storage::exists($path)) {
                         Storage::delete($path);
                         unset($old_arr[$array_index]);
@@ -463,9 +399,9 @@ class GeneralPropertyController extends Controller
                 //}
 
                 /*$name = $ids[$key] . time() . uniqid().'.'.$file->extension();*/
-                $name = $document_id.'-document-'.time().uniqid().'.'.$file->extension();
+                $name = $document_id . '-document-' . time() . uniqid() . '.' . $file->extension();
                 $file->storeAs('Documents', $name);
-                $jsonArr[$i]['id'] =$document_id;
+                $jsonArr[$i]['id'] = $document_id;
                 $jsonArr[$i]['path'] = 'Documents/' . $name;
                 $i++;
 
@@ -474,32 +410,29 @@ class GeneralPropertyController extends Controller
 
 
         }
-        if($old_category_id==$request['category_id'])
-        {
+        if ($old_category_id == $request['category_id']) {
             $update_arr = array_merge($old_arr, $jsonArr);
             $keys = array_column($update_arr, 'id');
             array_multisort($keys, SORT_ASC, $update_arr);
-        }
-        else
-        {
+        } else {
             //updating checklist to empty
-            $arr = array('document_checklist' =>'','is_verify'=>0);
-            $resupdate= table_properties_check_lists::where('property_id',$id)->update($arr);
-            $update_arr =$jsonArr;
+            $arr = array('document_checklist' => '', 'is_verify' => 0);
+            $resupdate = table_properties_check_lists::where('property_id', $id)->update($arr);
+            $update_arr = $jsonArr;
             $keys = array_column($update_arr, 'id');
             array_multisort($keys, SORT_ASC, $update_arr);
         }
         $status = 'selling';
-        if($request['type'] == "rent")
+        if ($request['type'] == "rent")
             $status = 'renting';
         else
             $status = 'selling';
 
-        $property->status=$status;
-        $property->documents=json_encode($update_arr);
+        $property->status = $status;
+        $property->documents = json_encode($update_arr);
         unset($request['square']);
-        $sqFeet=getSqFeet($area_value,$area_units);
-        $property->square=$sqFeet;
+        $sqFeet = getSqFeet($area_value, $area_units);
+        $property->square = $sqFeet;
         $this->propertyRepository->createOrUpdate($property);
 
         $property->features()->sync($request->input('features', []));
@@ -509,9 +442,9 @@ class GeneralPropertyController extends Controller
         event(new UpdatedContentEvent(PROPERTY_MODULE_SCREEN_NAME, $request, $property));
 
         $this->memberLogRepository->createOrUpdate([
-            'action'         => 'update_property',
+            'action' => 'update_property',
             'reference_name' => $property->name,
-            'reference_url'  => route('public.member.properties.edit', $property->id),
+            'reference_url' => route('public.member.properties.edit', $property->id),
         ]);
 
         return $response
@@ -529,8 +462,8 @@ class GeneralPropertyController extends Controller
     public function destroy($id, BaseHttpResponse $response)
     {
         $property = $this->propertyRepository->getFirstBy([
-            'id'          => $id,
-            'member_id'   => auth('member')->user()->getAuthIdentifier()
+            'id' => $id,
+            'member_id' => auth('member')->user()->getAuthIdentifier()
             // 'author_type' => Member::class,
         ]);
 
@@ -541,7 +474,7 @@ class GeneralPropertyController extends Controller
         $this->propertyRepository->delete($property);
 
         $this->memberLogRepository->createOrUpdate([
-            'action'         => 'delete_property',
+            'action' => 'delete_property',
             'reference_name' => $property->name,
         ]);
 
@@ -571,7 +504,8 @@ class GeneralPropertyController extends Controller
 
         return $response->setMessage(__('Renew property successfully'));
     }
-    public function login(){
+    public function login()
+    {
         SeoHelper::setTitle(trans('plugins/real-estate::account.login'));
 
         if (view()->exists(Theme::getThemeNamespace() . '::views.real-estate.member.auth.login')) {
@@ -583,7 +517,8 @@ class GeneralPropertyController extends Controller
         //return view('plugins/real-estate::member.auth.login');
 
     }
-    public function  attemptLogin(Request $request){
+    public function attemptLogin(Request $request)
+    {
         /*$this->validate($request, [
             'email'   => 'required|email',
             'password' => 'required|min:6'
@@ -597,10 +532,12 @@ class GeneralPropertyController extends Controller
             return redirect('/member/dashboard');
         }
         return back()->withErrors(['Invalid email or password'])->withInput();
-            /*->withInput($request->only('email', 'remember'))->with('error' , 'Wrong email or password')*/;
+        /*->withInput($request->only('email', 'remember'))->with('error' , 'Wrong email or password')*/
+        ;
 
     }
-    public  function register(){
+    public function register()
+    {
         SeoHelper::setTitle(trans('plugins/real-estate::account.register'));
 
         if (view()->exists(Theme::getThemeNamespace() . '::views.real-estate.member.auth.register')) {
@@ -623,14 +560,12 @@ class GeneralPropertyController extends Controller
         // if ($validator->fails()) {
         //     return response()->json(['error'=>$validator->errors()->all()]);
         // }
-        if ($validator->fails())
-        {
+        if ($validator->fails()) {
             return redirect()->back()->withErrors($validator->errors())->withInput();
         }
-        if(Member::where('email',$request['email'])->first()){
-            return redirect()->back()->with(array('error_msg'=>'Email already exists.'));
-        }
-        else{
+        if (Member::where('email', $request['email'])->first()) {
+            return redirect()->back()->with(array('error_msg' => 'Email already exists.'));
+        } else {
             $member = Member::create([
                 'full_name' => $request['full_name'],
                 'email' => $request['email'],
@@ -640,10 +575,11 @@ class GeneralPropertyController extends Controller
 
         }
 
-        return redirect()->intended('member-login')->with(array('success_msg'=>'Registered Success!'));
+        return redirect()->intended('member-login')->with(array('success_msg' => 'Registered Success!'));
     }
 
-    public  function dashboard(){
+    public function dashboard()
+    {
         $user = auth('member')->user();
         //dd($user->properties());
         // exit;
@@ -659,7 +595,7 @@ class GeneralPropertyController extends Controller
     {
 
         SeoHelper::setTitle(__('Properties'));
-     /*   Assets::addScriptsDirectly('/js/real-member-user.js');*/
+        /*   Assets::addScriptsDirectly('/js/real-member-user.js');*/
         return $propertyTable->render('plugins/real-estate::member.table.base');
     }
     public function create_property(FormBuilder $formBuilder)
@@ -674,7 +610,7 @@ class GeneralPropertyController extends Controller
         return $formBuilder->create(MemberPropertyForm::class)->renderForm();
     }
 
-    public function save_property(PropertyRequest $request, BaseHttpResponse $response, AccountInterface $accountRepository, SaveFacilitiesService $saveFacilitiesService,MemberInterface $memberRepository)
+    public function save_property(PropertyRequest $request, BaseHttpResponse $response, AccountInterface $accountRepository, SaveFacilitiesService $saveFacilitiesService, MemberInterface $memberRepository)
     {
 
         if (!auth('member')->user()->canPost()) {
@@ -687,18 +623,17 @@ class GeneralPropertyController extends Controller
         /**
          * @var Property $property
          */
-        $jsonArr=array();
+        $jsonArr = array();
 
         //run actions with files
 
-        if($request->hasFile('documents'))
-        {
+        if ($request->hasFile('documents')) {
             $files = $request->file('documents');
             // print_r($_FILES);exit;
-            $i=0;
+            $i = 0;
             foreach ($files as $key => $file) {
-                $document_id=$request['document_ids'][$key];
-                $name = $document_id.'-document-'.time().uniqid().'.'.$file->extension();
+                $document_id = $request['document_ids'][$key];
+                $name = $document_id . '-document-' . time() . uniqid() . '.' . $file->extension();
                 $file->storeAs('Documents', $name);
                 $jsonArr[$i]['id'] = $document_id;
                 $jsonArr[$i]['path'] = 'Documents/' . $name;
@@ -707,26 +642,26 @@ class GeneralPropertyController extends Controller
             }
         }
 
-        $request['documents']=json_encode($jsonArr);
-        $area_value=$request['square'];
-        $area_units=$request['area_units'];
+        $request['documents'] = json_encode($jsonArr);
+        $area_value = $request['square'];
+        $area_units = $request['area_units'];
         unset($request['square']);
-        $sqFeet=getSqFeet($area_value,$area_units);
-        $request['square']=$sqFeet;
+        $sqFeet = getSqFeet($area_value, $area_units);
+        $request['square'] = $sqFeet;
         // $agent_id=null;
         // $agent_id=$request['agent_list']?$request['agent_list']:null;
-        $agent_id=$request['author_id'];
+        $agent_id = $request['author_id'];
         $status = 'selling';
-        if($request['type'] == "rent")
+        if ($request['type'] == "rent")
             $status = 'renting';
         else
             $status = 'selling';
 
         $property = $this->propertyRepository->createOrUpdate(array_merge($request->input(), [
-            'author_id'   =>$agent_id,
-            'member_id'   =>auth('member')->user()->getAuthIdentifier(),
-            'status'   =>$status,
-            'author_type' =>  $agent_id > 0?Account::class:Member::class
+            'author_id' => $agent_id,
+            'member_id' => auth('member')->user()->getAuthIdentifier(),
+            'status' => $status,
+            'author_type' => $agent_id > 0 ? Account::class : Member::class
         ]));
         // dd($property);
         if ($property) {
@@ -738,9 +673,9 @@ class GeneralPropertyController extends Controller
         event(new CreatedContentEvent(PROPERTY_MODULE_SCREEN_NAME, $request, $property));
 
         $this->memberLogRepository->createOrUpdate([
-            'action'         => 'create_property',
+            'action' => 'create_property',
             'reference_name' => $property->name,
-            'reference_url'  => route('public.member.properties.edit', $property->id),
+            'reference_url' => route('public.member.properties.edit', $property->id),
         ]);
 
         $member = $memberRepository->findOrFail(auth('member')->user()->getAuthIdentifier());
@@ -757,8 +692,8 @@ class GeneralPropertyController extends Controller
     {
 
         $property = $this->propertyRepository->getFirstBy([
-            'id'          => $id,
-            'member_id'   => auth('member')->user()->getAuthIdentifier()
+            'id' => $id,
+            'member_id' => auth('member')->user()->getAuthIdentifier()
             //'author_type' => Account::class,
         ]);
 
@@ -777,8 +712,8 @@ class GeneralPropertyController extends Controller
     public function update_property($id, PropertyRequest $request, BaseHttpResponse $response, SaveFacilitiesService $saveFacilitiesService)
     {
         $property = $this->propertyRepository->getFirstBy([
-            'id'          => $id,
-            'member_id'   => auth('member')->user()->getAuthIdentifier()
+            'id' => $id,
+            'member_id' => auth('member')->user()->getAuthIdentifier()
             //'author_type' => Account::class,
         ]);
 
@@ -786,25 +721,24 @@ class GeneralPropertyController extends Controller
             abort(404);
         }
         //dd($request);exit;
-        $old_category_id=$property->category_id;
-        $old_documents=json_decode($property->documents);
+        $old_category_id = $property->category_id;
+        $old_documents = json_decode($property->documents);
 
         $property->fill($request->except(['expire_date']));
-        $old_arr=(array)$old_documents;
-        $jsonArr=array();
+        $old_arr = (array) $old_documents;
+        $jsonArr = array();
 
-        $ids= array_column($old_arr, 'id');
-        if($request->hasFile('documents'))
-        {
+        $ids = array_column($old_arr, 'id');
+        if ($request->hasFile('documents')) {
             $files = $request->file('documents');
-            $i=0;
+            $i = 0;
 
             foreach ($files as $key => $file) {
                 //$key;
-                $document_id=$request['document_ids'][$key];
-                $array_index = array_search($document_id,$ids);
-                if($array_index!="") {
-                    $path=$old_arr[$array_index]->path;
+                $document_id = $request['document_ids'][$key];
+                $array_index = array_search($document_id, $ids);
+                if ($array_index != "") {
+                    $path = $old_arr[$array_index]->path;
                     if (Storage::exists($path)) {
                         Storage::delete($path);
                         unset($old_arr[$array_index]);
@@ -813,9 +747,9 @@ class GeneralPropertyController extends Controller
                 //}
 
                 /*$name = $ids[$key] . time() . uniqid().'.'.$file->extension();*/
-                $name = $document_id.'-document-'.time().uniqid().'.'.$file->extension();
+                $name = $document_id . '-document-' . time() . uniqid() . '.' . $file->extension();
                 $file->storeAs('Documents', $name);
-                $jsonArr[$i]['id'] =$document_id;
+                $jsonArr[$i]['id'] = $document_id;
                 $jsonArr[$i]['path'] = 'Documents/' . $name;
                 $i++;
 
@@ -824,39 +758,36 @@ class GeneralPropertyController extends Controller
 
 
         }
-        if($old_category_id==$request['category_id'])
-        {
+        if ($old_category_id == $request['category_id']) {
             $update_arr = array_merge($old_arr, $jsonArr);
             $keys = array_column($update_arr, 'id');
             array_multisort($keys, SORT_ASC, $update_arr);
-        }
-        else
-        {
+        } else {
             //updating checklist to empty
-            $arr = array('document_checklist' =>'','is_verify'=>0);
-            $resupdate= table_properties_check_lists::where('property_id',$id)->update($arr);
-            $update_arr =$jsonArr;
+            $arr = array('document_checklist' => '', 'is_verify' => 0);
+            $resupdate = table_properties_check_lists::where('property_id', $id)->update($arr);
+            $update_arr = $jsonArr;
             $keys = array_column($update_arr, 'id');
             array_multisort($keys, SORT_ASC, $update_arr);
         }
-        $property->documents=json_encode($update_arr);
-        $area_value=$request['square'];
-        $area_units=$request['area_units'];
+        $property->documents = json_encode($update_arr);
+        $area_value = $request['square'];
+        $area_units = $request['area_units'];
         unset($request['square']);
-        $sqFeet=getSqFeet($area_value,$area_units);
-        $property->square=$sqFeet;
+        $sqFeet = getSqFeet($area_value, $area_units);
+        $property->square = $sqFeet;
         // $agent_id=null;
-        $agent_id=$request['author_id'];
-        $property->author_id=$agent_id;
-        $property->author_type=$agent_id > 0?Account::class:Member::class;
+        $agent_id = $request['author_id'];
+        $property->author_id = $agent_id;
+        $property->author_type = $agent_id > 0 ? Account::class : Member::class;
 
         $status = 'selling';
-        if($request['type'] == "rent")
+        if ($request['type'] == "rent")
             $status = 'renting';
         else
             $status = 'selling';
 
-        $property->status=$status;
+        $property->status = $status;
         $this->propertyRepository->createOrUpdate($property);
 
         $property->features()->sync($request->input('features', []));
@@ -866,9 +797,9 @@ class GeneralPropertyController extends Controller
         event(new UpdatedContentEvent(PROPERTY_MODULE_SCREEN_NAME, $request, $property));
 
         $this->memberLogRepository->createOrUpdate([
-            'action'         => 'update_property',
+            'action' => 'update_property',
             'reference_name' => $property->name,
-            'reference_url'  => route('public.member.properties.edit', $property->id),
+            'reference_url' => route('public.member.properties.edit', $property->id),
         ]);
 
         return $response
@@ -879,8 +810,8 @@ class GeneralPropertyController extends Controller
     public function delete_property($id, BaseHttpResponse $response)
     {
         $property = $this->propertyRepository->getFirstBy([
-            'id'          => $id,
-            'member_id'   => auth('member')->user()->getAuthIdentifier()
+            'id' => $id,
+            'member_id' => auth('member')->user()->getAuthIdentifier()
             //'author_type' => Account::class,
         ]);
 
@@ -891,13 +822,13 @@ class GeneralPropertyController extends Controller
         $this->propertyRepository->delete($property);
 
         $this->memberLogRepository->createOrUpdate([
-            'action'         => 'delete_property',
+            'action' => 'delete_property',
             'reference_name' => $property->name,
         ]);
 
         return $response->setMessage(__('Delete property successfully!'));
     }
-    public function logout(Request $request,BaseHttpResponse $response)
+    public function logout(Request $request, BaseHttpResponse $response)
     {
         do_action(AUTH_ACTION_AFTER_LOGOUT_SYSTEM, $request, $request->user('member'));
         Auth::guard('member')->logout();
@@ -918,42 +849,51 @@ class GeneralPropertyController extends Controller
     }
     public function term_conditions()
     {
-        $res=Page::where('id',5)->get(); //for terms & conditons
+        $res = Page::where('id', 5)->get(); //for terms & conditons
         /*$returnHTML = Theme::scope('real-estate.member.wanted',$data)->render();*/
-        return response()->json(array('success' => true, 'html'=>$res[0]->content));
+        return response()->json(array('success' => true, 'html' => $res[0]->content));
     }
-    public function wanted(){
+    public function wanted()
+    {
         SeoHelper::setTitle(trans('plugins/real-estate::wanted.name'));
 
-        $categories = $this->categoryRepository->allBy(['status' => BaseStatusEnum::PUBLISHED,'parent_id'=>0],[],
-            ['id', 'parent_id', 'name']);
-        $html=' <ul class="col m-0 parent-category">';
-        $subcategory='';
-        foreach ($categories as $key=>$val) {
-            if($key==0)
-                $html.='<div class="col-md-1" > <li  data-id='.$val->id.' data-category_name="'.$val->name.'"  style="cursor:pointer" class="label-primary p-category">
+        $categories = $this->categoryRepository->allBy(
+            ['status' => BaseStatusEnum::PUBLISHED, 'parent_id' => 0],
+            [],
+            ['id', 'parent_id', 'name']
+        );
+        $html = ' <ul class="col m-0 parent-category">';
+        $subcategory = '';
+        foreach ($categories as $key => $val) {
+            if ($key == 0)
+                $html .= '<div class="col-md-1" > <li  data-id=' . $val->id . ' data-category_name="' . $val->name . '"  style="cursor:pointer" class="label-primary p-category">
 
- '.$val->name.'</li></div>';
-
+ ' . $val->name . '</li></div>';
             else
-                $html.='<div class="col-md-1" > <li  data-category_name="'.$val->name.'"  data-id='.$val->id.' style="cursor:pointer" class="label-secondary p-category">'.$val->name.'</li></div>';
+                $html .= '<div class="col-md-1" > <li  data-category_name="' . $val->name . '"  data-id=' . $val->id . ' style="cursor:pointer" class="label-secondary p-category">' . $val->name . '</li></div>';
 
             // create hiddenly list here of each categories
-            $subcategory.='<div class="offset-md-1 col-md-6 p'.$val->id.'" style="display:none"><ul class="sub-category">';
-            $sub_categories = $this->categoryRepository->allBy(['status' => BaseStatusEnum::PUBLISHED,'parent_id'=>$val->id],[],
-                ['id', 'parent_id', 'name']);
+            $subcategory .= '<div class="offset-md-1 col-md-6 p' . $val->id . '" style="display:none"><ul class="sub-category">';
+            $sub_categories = $this->categoryRepository->allBy(
+                ['status' => BaseStatusEnum::PUBLISHED, 'parent_id' => $val->id],
+                [],
+                ['id', 'parent_id', 'name']
+            );
 
 
-            foreach ($sub_categories as $key1=>$val1) {
+            foreach ($sub_categories as $key1 => $val1) {
 
-                $subcategory.= '<li class="label-sub-category p-subcategory"   data-parent-name="'.$val->name.'"  data-id='.$val1->id.' data-category_name="'.$val1->name.'"  style="cursor:pointer" >'.$val1->name.'</li>';
+                $subcategory .= '<li class="label-sub-category p-subcategory"   data-parent-name="' . $val->name . '"  data-id=' . $val1->id . ' data-category_name="' . $val1->name . '"  style="cursor:pointer" >' . $val1->name . '</li>';
             }
-            $subcategory.='</ul></div>';
+            $subcategory .= '</ul></div>';
 
         }
-        $html.='</ul>';
-        $cities = $this->cityRepository->allBy(['status' => BaseStatusEnum::PUBLISHED], ['state', 'country'],
-            ['cities.name', 'cities.state_id', 'cities.country_id', 'cities.id']);
+        $html .= '</ul>';
+        $cities = $this->cityRepository->allBy(
+            ['status' => BaseStatusEnum::PUBLISHED],
+            ['state', 'country'],
+            ['cities.name', 'cities.state_id', 'cities.country_id', 'cities.id']
+        );
 
 
         $cityChoices = [];
@@ -965,14 +905,14 @@ class GeneralPropertyController extends Controller
 
             $cityChoices[$city->id] = $city->name . ($city->state->name ? ' (' . $city->state->name . ')' : '');
         }
-        $data=array('html'=>$html,'sub_category'=>$subcategory,'city'=>$cityChoices);
+        $data = array('html' => $html, 'sub_category' => $subcategory, 'city' => $cityChoices);
         // print_r($cityChoices);exit;
         if (view()->exists(Theme::getThemeNamespace() . '::views.real-estate.member.wanted')) {
 
-            return Theme::scope('real-estate.member.wanted',$data)->render();
+            return Theme::scope('real-estate.member.wanted', $data)->render();
         }
 
-        return view('plugins/real-estate::member.wanted',$data);
+        return view('plugins/real-estate::member.wanted', $data);
     }
     public function getSettings()
     {
@@ -985,9 +925,9 @@ class GeneralPropertyController extends Controller
     public function postSettings(MemberSettingRequest $request, BaseHttpResponse $response)
     {
 
-        Member::where('id',auth('member')->user()->getAuthIdentifier())
+        Member::where('id', auth('member')->user()->getAuthIdentifier())
 
-            ->update($request->except('email','_token'));
+            ->update($request->except('email', '_token'));
         /*$this->activityLogRepository->createOrUpdate(['action' => 'update_setting']);*/
         return $response
             ->setNextUrl(route('member.settings'))
@@ -1002,7 +942,7 @@ class GeneralPropertyController extends Controller
     public function postSecurity(UpdatePasswordRequest $request, BaseHttpResponse $response)
     {
 
-        Member::where('id',auth('member')->user()->getAuthIdentifier())
+        Member::where('id', auth('member')->user()->getAuthIdentifier())
             ->update(['password' => bcrypt($request->input('password'))]);
         /*$this->activityLogRepository->createOrUpdate(['action' => 'update_security']);*/
         return $response
@@ -1021,21 +961,25 @@ class GeneralPropertyController extends Controller
     }
     public function ajaxGetPackages(PackageInterface $packageRepository, BaseHttpResponse $response)
     {
-        $member = $this->memberRepository->findOrFail(auth('member')->user()->getAuthIdentifier(),
-            ['packages']);
+        $member = $this->memberRepository->findOrFail(
+            auth('member')->user()->getAuthIdentifier(),
+            ['packages']
+        );
 
         $packages = $packageRepository->getModel()
             ->where('status', BaseStatusEnum::PUBLISHED)
             ->get();
 
         $packages = $packages->filter(function ($package) use ($member) {
-            return $package->account_limit === null || $member->packages->where('id',
-                    $package->id)->count() < $package->account_limit;
+            return $package->account_limit === null || $member->packages->where(
+                'id',
+                $package->id
+            )->count() < $package->account_limit;
         });
 
         return $response->setData([
             'packages' => PackageResource::collection($packages),
-            'account'  => new MemberResource($member),
+            'account' => new MemberResource($member),
         ]);
     }
     public function ajaxGetTransactions(TransactionInterface $transactionRepository, BaseHttpResponse $response)
@@ -1044,12 +988,12 @@ class GeneralPropertyController extends Controller
             'condition' => [
                 'account_id' => auth('member')->user()->id,
             ],
-            'paginate'  => [
-                'per_page'      => 10,
+            'paginate' => [
+                'per_page' => 10,
                 'current_paged' => 1,
             ],
-            'order_by'  => ['created_at' => 'DESC'],
-            'with'      => ['payment', 'user'],
+            'order_by' => ['created_at' => 'DESC'],
+            'with' => ['payment', 'user'],
         ]);
 
         return $response->setData(TransactionResource::collection($transactions))->toApiResponse();
@@ -1064,8 +1008,12 @@ class GeneralPropertyController extends Controller
         // print_r($package);exit;die;
         $member = $this->memberRepository->findOrFail(auth('member')->user()->getAuthIdentifier());
 
-        if ($package->account_limit && $member->packages()->where('package_id',
-                $package->id)->count() >= $package->account_limit) {
+        if (
+            $package->account_limit && $member->packages()->where(
+                'package_id',
+                $package->id
+            )->count() >= $package->account_limit
+        ) {
             abort(403);
         }
 
@@ -1095,9 +1043,9 @@ class GeneralPropertyController extends Controller
         }
 
         $transactionRepository->createOrUpdate([
-            'user_id'    => 0,
+            'user_id' => 0,
             'account_id' => auth('member')->user()->getAuthIdentifier(),
-            'credits'    => $package->number_of_listings,
+            'credits' => $package->number_of_listings,
             'payment_id' => $payment ? $payment->id : null,
         ]);
 
@@ -1106,17 +1054,16 @@ class GeneralPropertyController extends Controller
     public function getSubscribePackage($id, PackageInterface $packageRepository)
     {
         $package = $packageRepository->findOrFail($id);
-        $total_price=$package->price;
-        $voucher=false;
-        if(session('discount'))
-        {
-            $package->price=$total_price-session('discount');
+        $total_price = $package->price;
+        $voucher = false;
+        if (session('discount')) {
+            $package->price = $total_price - session('discount');
         }
 
 
         SeoHelper::setTitle(trans('plugins/real-estate::package.subscribe_package', ['name' => $package->name]));
         //return Theme::scope('real-estate.member.wanted',$data)->render();
-        return view('plugins/real-estate::member.checkout', compact('package','voucher','total_price'));
+        return view('plugins/real-estate::member.checkout', compact('package', 'voucher', 'total_price'));
     }
     public function getPackageSubscribeCallback(
         $packageId,
@@ -1131,7 +1078,7 @@ class GeneralPropertyController extends Controller
 
         if ($request->input('type') == PaymentMethodEnum::PAYPAL) {
             $validator = Validator::make($request->input(), [
-                'amount'   => 'required|numeric',
+                'amount' => 'required|numeric',
                 'currency' => 'required',
             ]);
 
@@ -1172,52 +1119,49 @@ class GeneralPropertyController extends Controller
         Assets::addScriptsDirectly('js/app.js');
         return $response->setData(ActivityLogResource::collection($activities))->toApiResponse();
     }
-    public function checkout($id,Request  $request)
+    public function checkout($id, Request $request)
     {
-        $package=Package::findOrFail($id);
-        $total_price=$package->price;
-        $voucher=false;
-        return Theme::scope('real-estate.member.checkout',compact('package','total_price','voucher'))->render();
+        $package = Package::findOrFail($id);
+        $total_price = $package->price;
+        $voucher = false;
+        return Theme::scope('real-estate.member.checkout', compact('package', 'total_price', 'voucher'))->render();
         // return view('checkout',compact('package','total_price','voucher'));
     }
-    public function postcheckout(Request  $request,MemberInterface $memberRepository)
+    public function postcheckout(Request $request, MemberInterface $memberRepository)
     {
-        $package=Package::findOrFail($request->id);
-        $total_price=$package->price;
-        $voucher=false;
-        if(isset($request->voucher))
-        {
-       // echo $request->voucher;exit;
-            try{
-                $voucher=auth('member')->user()->redeemCode($request->voucher);
+        $package = Package::findOrFail($request->id);
+        $total_price = $package->price;
+        $voucher = false;
+        if (isset($request->voucher)) {
+            // echo $request->voucher;exit;
+            try {
+                $voucher = auth('member')->user()->redeemCode($request->voucher);
                 $member = $memberRepository->findOrFail(auth('member')->user()->getAuthIdentifier());
                 $member->credits++;
                 $member->save();
-                $total_price=round($total_price*(1-$voucher->data->get('discount_percent')/100),2);
+                $total_price = round($total_price * (1 - $voucher->data->get('discount_percent') / 100), 2);
 
-            }
-            catch (\Exception $ex)
-            {
-                session()->flash('error',$ex->getMessage());
+            } catch (\Exception $ex) {
+                session()->flash('error', $ex->getMessage());
             }
         }
-        return Theme::scope('real-estate.member.checkout',compact('package','total_price','voucher'))->render();
+        return Theme::scope('real-estate.member.checkout', compact('package', 'total_price', 'voucher'))->render();
 
         // return view('checkout',compact('package','total_price','voucher'));
     }
-    public function discountPackage (Request  $request,MemberInterface $memberRepository,BaseHttpResponse $response)
+    public function discountPackage(Request $request, MemberInterface $memberRepository, BaseHttpResponse $response)
     {
-        $package=Package::findOrFail($request->id);
-        $total_price=$package->price;
-        $voucher=false;
-        if(isset($request->voucher)) {
+        $package = Package::findOrFail($request->id);
+        $total_price = $package->price;
+        $voucher = false;
+        if (isset($request->voucher)) {
             $ceck = Voucher::where('code', $request->voucher)->where('model_id', $request->id)->get();
 
             if (count($ceck) > 0) {
                 try {
 
                     $voucher = auth('member')->user()->redeemCode($request->voucher);
-                   // dd($voucher);exit;
+                    // dd($voucher);exit;
                     $member = $memberRepository->findOrFail(auth('member')->user()->getAuthIdentifier());
                     $discount_price = round($total_price * ($voucher->data->get('discount_percent') / 100), 2);
                     // echo $total_price.$discount_price;exit;
@@ -1225,106 +1169,100 @@ class GeneralPropertyController extends Controller
                         //echo ('public.member.packages');exit;die;
                         $member->credits++;
                         $member->save();
-                        $arr=array('status'=>true,'message'=>'Discount Applied Success','url'=>route('public.member.packages'));
+                        $arr = array('status' => true, 'message' => 'Discount Applied Success', 'url' => route('public.member.packages'));
                         echo json_encode($arr);
-                       /* return $response
-                            ->setNextUrl(route('public.member.packages'))
-                            ->setMessage(trans('plugins/real-estate::package.add_credit_success'));*/
+                        /* return $response
+                             ->setNextUrl(route('public.member.packages'))
+                             ->setMessage(trans('plugins/real-estate::package.add_credit_success'));*/
                     } else {
-                       // session('discount',$discount_price);
-                        session(['discount' => $discount_price,'discount_percent' =>$voucher->data->get('discount_percent')]);
-                        session()->flash('success','Discount Applied Success');
-                        $arr=array('status'=>true,'message'=>'Discount Applied Success','url'=>route('public.member.package.subscribe', $package->id),'data'=>array('discount' => $discount_price,'discount_percent' =>$voucher->data->get('discount_percent')));
+                        // session('discount',$discount_price);
+                        session(['discount' => $discount_price, 'discount_percent' => $voucher->data->get('discount_percent')]);
+                        session()->flash('success', 'Discount Applied Success');
+                        $arr = array('status' => true, 'message' => 'Discount Applied Success', 'url' => route('public.member.package.subscribe', $package->id), 'data' => array('discount' => $discount_price, 'discount_percent' => $voucher->data->get('discount_percent')));
                         echo json_encode($arr);
-                       /* return $response
-                            ->setNextUrl(route('public.member.package.subscribe', $package->id));*/
+                        /* return $response
+                             ->setNextUrl(route('public.member.package.subscribe', $package->id));*/
                     }
 
                 } catch (\Exception $ex) {
                     session()->flash('error', $ex->getMessage());
-                    $arr=array('status'=>false,'message'=>$ex->getMessage(),'url'=>route('public.member.package.subscribe', $package->id));
+                    $arr = array('status' => false, 'message' => $ex->getMessage(), 'url' => route('public.member.package.subscribe', $package->id));
                     echo json_encode($arr);
                     /*return $response
                         ->setNextUrl(route('public.member.package.subscribe', $package->id));*/
                 }
             } else {
-                session()->flash('error','This Code is invalid for this package');
-                $arr=array('status'=>false,'message'=>'This Code is invalid for this package','url'=>route('public.member.package.subscribe', $package->id));
+                session()->flash('error', 'This Code is invalid for this package');
+                $arr = array('status' => false, 'message' => 'This Code is invalid for this package', 'url' => route('public.member.package.subscribe', $package->id));
                 echo json_encode($arr);
                 /*return $response
                     ->setNextUrl(route('public.member.package.subscribe', $package->id));*/
 
             }
+        } else {
+            $arr = array('status' => false, 'message' => 'No voucher code add', 'url' => route('public.member.package.subscribe', $package->id));
+            echo json_encode($arr);
+            /*return $response
+                ->setNextUrl(route('public.member.package.subscribe', $package->id));*/
         }
-        else
-            {
-                $arr=array('status'=>false,'message'=>'No voucher code add','url'=>route('public.member.package.subscribe', $package->id));
-                echo json_encode($arr);
-                /*return $response
-                    ->setNextUrl(route('public.member.package.subscribe', $package->id));*/
+    }
+    /*    ->setMessage(trans('plugins/real-estate::package.add_credit_success')*/
+    // return Theme::scope('real-estate.member.checkout',compact('package','total_price','voucher'))->render();
+    // return view('checkout',compact('package','total_price','voucher'));
+    public function rateSave(Request $request)
+    {
+        try {
+            $request['user_id'] = auth('member')->user()->getAuthIdentifier();
+            $rate = Rating::where('user_id', $request['user_id'])->where('agent_id', $request['agent_id'])->where('property_id', $request['property_id'])->get();
+            if (count($rate) > 0) {
+
+                $data = array('status' => false, 'message' => 'Already added!');
+                echo json_encode($data);
+            } else {
+                $res = Rating::create($request->input());
+
+                $data = array('status' => true, 'message' => 'Rating Added Successfully!');
+                echo json_encode($data);
             }
-        }
-        /*    ->setMessage(trans('plugins/real-estate::package.add_credit_success')*/
-       // return Theme::scope('real-estate.member.checkout',compact('package','total_price','voucher'))->render();
-        // return view('checkout',compact('package','total_price','voucher'));
-public function rateSave(Request  $request)
-{
-   try {
-       $request['user_id'] = auth('member')->user()->getAuthIdentifier();
-       $rate=Rating::where('user_id',$request['user_id'])->where('agent_id',$request['agent_id'])->where('property_id',$request['property_id'])->get();
-       if(count($rate) > 0){
 
-           $data = array('status' => false, 'message' => 'Already added!');
-           echo json_encode($data);
-       }
-       else {
-           $res = Rating::create($request->input());
-
-           $data = array('status' => true, 'message' => 'Rating Added Successfully!');
-           echo json_encode($data);
-       }
-
-   }
-    catch (Exception \Exception $ex){
-        $data = array('status' => false, 'message' =>$ex->getMessage());
-        echo json_encode($data);
-    }
-}
-    public function getAgent(Request  $request,AccountInterface $accountRepository)
-    {
-         $id=$_GET['id'];
-
-        try {
-
-            $account = $accountRepository->findOrFail($id);
-            $account->url= $account->avatar_url;
-            $res = array('status' => true, 'data'=>$account, 'message' => 'Agent  Successfully!');
-            echo json_encode($res);
-
-        }
-        catch (Exception \Exception $ex){
-            $data = array('status' => false, 'message' =>$ex->getMessage());
-            echo json_encode($res);
-        }
-    }
-    public function getAgentFro(Request  $request,AccountInterface $accountRepository)
-    {
-        $id=$_GET['id'];
-
-        try {
-
-            $account = $accountRepository->findOrFail($id);
-            $account->url= $account->avatar_url;
-            $res = array('status' => true, 'data'=>$account, 'message' => 'Agent  Successfully!');
-            echo json_encode($res);
-
-        }
-        catch (Exception \Exception $ex){
-            $data = array('status' => false, 'message' =>$ex->getMessage());
+        } catch (Exception\Exception $ex) {
+            $data = array('status' => false, 'message' => $ex->getMessage());
             echo json_encode($data);
         }
     }
-    public function area_unit_update( SettingStore $settingStore)
+    public function getAgent(Request $request, AccountInterface $accountRepository)
+    {
+        $id = $_GET['id'];
+
+        try {
+
+            $account = $accountRepository->findOrFail($id);
+            $account->url = $account->avatar_url;
+            $res = array('status' => true, 'data' => $account, 'message' => 'Agent  Successfully!');
+            echo json_encode($res);
+
+        } catch (Exception\Exception $ex) {
+            $data = array('status' => false, 'message' => $ex->getMessage());
+            echo json_encode($res);
+        }
+    }
+    public function getAgentFro(Request $request, AccountInterface $accountRepository)
+    {
+        $id = $_GET['id'];
+
+        try {
+
+            $account = $accountRepository->findOrFail($id);
+            $account->url = $account->avatar_url;
+            $res = array('status' => true, 'data' => $account, 'message' => 'Agent  Successfully!');
+            echo json_encode($res);
+
+        } catch (Exception\Exception $ex) {
+            $data = array('status' => false, 'message' => $ex->getMessage());
+            echo json_encode($data);
+        }
+    }
+    public function area_unit_update(SettingStore $settingStore)
     {
 
         try {
@@ -1333,13 +1271,12 @@ public function rateSave(Request  $request)
             $settingStore->save();
             $res = array('status' => true, 'message' => 'Area unit update  Success');
             echo json_encode($res);
-        }
-        catch (Exception \Exception $ex){
-            $data = array('status' => false, 'message' =>$ex->getMessage());
+        } catch (Exception\Exception $ex) {
+            $data = array('status' => false, 'message' => $ex->getMessage());
             echo json_encode($data);
         }
     }
-    public function currency_unit_update( SettingStore $settingStore)
+    public function currency_unit_update(SettingStore $settingStore)
     {
 
         try {
@@ -1347,14 +1284,13 @@ public function rateSave(Request  $request)
             $settingStore->set('currencies_is_default', $currency_unit);
             $settingStore->save();
             //set all 0 first..
-            Currency::where('is_default', '=',1)->update(['is_default' =>0]);
+            Currency::where('is_default', '=', 1)->update(['is_default' => 0]);
             //update defaulr currency
-            Currency::where('order',$currency_unit)->update(['is_default' =>1]);
+            Currency::where('order', $currency_unit)->update(['is_default' => 1]);
             $res = array('status' => true, 'message' => 'currency unit update Success');
             echo json_encode($res);
-        }
-        catch (Exception \Exception $ex){
-            $data = array('status' => false, 'message' =>$ex->getMessage());
+        } catch (Exception\Exception $ex) {
+            $data = array('status' => false, 'message' => $ex->getMessage());
             echo json_encode($data);
         }
     }
@@ -1400,7 +1336,7 @@ public function rateSave(Request  $request)
             // We are in chunk mode, lets send the current progress
             $handler = $save->handler();
             return response()->json([
-                'done'   => $handler->getPercentageDone(),
+                'done' => $handler->getPercentageDone(),
                 'status' => true,
             ]);
         } catch (Exception $exception) {
