@@ -839,7 +839,7 @@ $(document).ready(function () {
                     checklist = response.data[0];
 
                     if (checklist.is_verify == 1 && author_id != "") {
-                        console.log('VErified')
+                        console.log('verified')
                         $("#btn_verify").text('Verified');
                         $(".moderation_status").removeClass('d-none');
                     } else {
@@ -851,7 +851,6 @@ $(document).ready(function () {
                                 var index = parsedarr.indexOf(val);
                                 if (index > -1) {
                                     $(this).prop("checked", true);
-
                                 }
                                 else {
                                     $(this).prop("checked", false);
@@ -886,14 +885,17 @@ $(document).ready(function () {
         property_id = $("input[name='property_id']").val();
 
         $("#verify_checklist").click(function () {
+            console.log('in click event');
             //ajax to update subscription
             var data = [];
             $('.checklist:checked').each(function () {
-
                 data.push($(this).val());
             });
 
+            console.log('data', data);
+
             if (data != "") {
+                console.log('data is present');
                 $("#checklist_dp").addClass('d-none');
                 $.ajax({
                     url: "/api/v1/update-checklist",
@@ -905,11 +907,12 @@ $(document).ready(function () {
                         category_id: $("input[name='category_id']").val()
                     },
                     success: function (response) {
+                        console.log('response', response);
                         if (response.status) {
                             //alert("Checklist updated successfully!");
                             toastr.success('Document Checklist Updated successfully!', 'success', { iconClass: "toast-custom" });
                             if (response.approved && author_id != "") {
-
+                                console.log('in success');
                                 $(".moderation_status").removeClass('d-none');
                             }
 
