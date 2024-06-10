@@ -22,11 +22,12 @@ class Member extends Authenticatable
         'email',
         'mobile_no',
         'password',
-        'credits'
+        'credits',
+        'forgot_password_token',
+        'forgot_password_expiry'
     ];
     public function properties()
     {
-       // return $this->morphMany(Property::class, 'member_id');
        return  $this->hasMany(Property::class, 'member_id', 'id');
     }
     public function avatar()

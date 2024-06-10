@@ -51,9 +51,9 @@
                                     </div>-->
                                 </div>
                                 <div class="col-md-6 text-md-center">
-<!--                                    <a href="{{ route('public.account.password.request') }}">
+                                   <a href="{{ route('public.account.password.request') }}">
                                         {{ trans('plugins/real-estate::dashboard.forgot-password-cta') }}
-                                    </a>-->
+                                    </a>
                                 </div>
                             </div>
                         </div>

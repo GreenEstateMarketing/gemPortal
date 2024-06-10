@@ -16,7 +16,7 @@ return [
         'password_confirmation' => 'Password confirmation',
         'change_password'       => 'Change password?',
     ],
-    'forgot_password'            => 'Forgot password',
+    'forgot_password'            => 'Forgot Password',
     'login'                      => 'Login',
     'buy_credits'                => 'Buy credits',
     'credits'                    => 'credits',
