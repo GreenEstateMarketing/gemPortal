@@ -909,6 +909,7 @@ $(document).ready(function () {
                     success: function (response) {
                         console.log('response', response);
                         if (response.status) {
+                            console.log('autor id', author_id)
                             //alert("Checklist updated successfully!");
                             toastr.success('Document Checklist Updated successfully!', 'success', { iconClass: "toast-custom" });
                             if (response.approved && author_id != "") {
