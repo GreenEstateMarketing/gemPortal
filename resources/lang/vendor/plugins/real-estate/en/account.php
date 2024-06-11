@@ -15,6 +15,7 @@ return [
         'password'              => 'Password',
         'password_confirmation' => 'Password confirmation',
         'change_password'       => 'Change password?',
+        'location'              => 'Agent Location'
     ],
     'forgot_password'            => 'Forgot password',
     'login'                      => 'Login',
@@ -33,4 +34,5 @@ return [
     'phone'                      => 'Phone',
     'phone_placeholder'          => 'Phone',
     'email_placeholder'          => 'Ex: example@gmail.com',
+    
 ];

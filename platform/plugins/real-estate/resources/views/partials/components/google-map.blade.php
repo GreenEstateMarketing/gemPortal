@@ -26,7 +26,6 @@
     var global_arr=[];var counter=0;var di=0;var map;var bermudaTriangle=[];var count_shapes=0;var random;
 
     navigator.geolocation.getCurrentPosition(function (position) {
-
         let coords = position.coords;
         lat = coords.latitude;
         lng = coords.longitude;

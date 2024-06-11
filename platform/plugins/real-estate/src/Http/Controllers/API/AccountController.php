@@ -80,8 +80,10 @@ class AccountController extends Controller
 
             $file = RvMedia::handleUpload($request->file('avatar'), 0, 'accounts');
             if (Arr::get($file, 'error') !== true) {
-                $user = $this->accountRepository->createOrUpdate(['avatar' => $file['data']->url],
-                    ['id' => $request->user()->getKey()]);
+                $user = $this->accountRepository->createOrUpdate(
+                    ['avatar' => $file['data']->url],
+                    ['id' => $request->user()->getKey()]
+                );
             }
 
             return $response
@@ -120,13 +122,13 @@ class AccountController extends Controller
         $userId = $request->user()->getKey();
 
         $validator = Validator::make($request->input(), [
-            'first_name'  => 'required|max:120|min:2',
-            'last_name'   => 'required|max:120|min:2',
-            'phone'       => 'required|max:15|min:8',
-            'dob'         => 'required|max:15|min:8',
-            'gender'      => 'nullable',
+            'first_name' => 'required|max:120|min:2',
+            'last_name' => 'required|max:120|min:2',
+            'phone' => 'required|max:15|min:8',
+            'dob' => 'required|max:15|min:8',
+            'gender' => 'nullable',
             'description' => 'nullable',
-            'email'       => 'nullable|max:60|min:6|email|unique:re_accounts,email,' . $userId,
+            'email' => 'nullable|max:60|min:6|email|unique:re_accounts,email,' . $userId,
         ]);
 
         if ($validator->fails()) {
@@ -183,46 +185,45 @@ class AccountController extends Controller
 
         return $response->setMessage(trans('core/acl::users.password_update_success'));
     }
-    public function agent_list(Request $request){
-       $lat= $request->latitude;
-       $lng=$request->longitude;
-       $po="'".'POINT('.$lat.' '.$lng.')'."'";
-       //SELECT ST_Within(ST_GEOMFROMTEXT('POINT($lat $lng)'),agent_area) as ceck,id FROM `re_accounts` WHERE id=33
-        $col='*,ST_Within(ST_GEOMFROMTEXT('.$po.'),agent_area) as ceck,id';
-        $w='ST_Within(ST_GEOMFROMTEXT('.$po.',4326),agent_area)=1';
-        $res=Account::select(['re_accounts.id','first_name','last_name','rating'])->leftJoin('ratings', 're_accounts.id', '=', 'ratings.agent_id')->whereNotNull('confirmed_at')->whereRaw($w)->orderBy('rating', 'DESC')->get();
-       foreach ($res as $k=>$val)
-        {
-       // echo $k;
-        $res[$k]->img_src =$val->getAvatarUrlAttribute();
+    public function agent_list(Request $request)
+    {
+        $lat = $request->latitude;
+        $lng = $request->longitude;
+        $po = "'" . 'POINT(' . $lat . ' ' . $lng . ')' . "'";
+        //SELECT ST_Within(ST_GEOMFROMTEXT('POINT($lat $lng)'),agent_area) as ceck,id FROM `re_accounts` WHERE id=33
+        $col = '*,ST_Within(ST_GEOMFROMTEXT(' . $po . '),agent_area) as ceck,id';
+        $w = 'ST_Within(ST_GEOMFROMTEXT(' . $po . ',4326),agent_area)=1';
+        $res = Account::select(['re_accounts.id', 'first_name', 'last_name', 'rating'])->leftJoin('ratings', 're_accounts.id', '=', 'ratings.agent_id')->whereNotNull('confirmed_at')->whereRaw($w)->orderBy('rating', 'DESC')->get();
+        foreach ($res as $k => $val) {
+            $res[$k]->img_src = $val->getAvatarUrlAttribute();
         }
         echo json_encode($res);
     }
-    public function agent_data(Request $request){
-        $id=$request->id;
-        $res=Account::where('confirmed_at','!=',null)->where('id',$id)->get();
-        $res[0]->avatar_url=$res[0]->getAvatarUrlAttribute();
+    public function agent_data(Request $request)
+    {
+        $id = $request->id;
+        $res = Account::where('confirmed_at', '!=', null)->where('id', $id)->get();
+        $res[0]->avatar_url = $res[0]->getAvatarUrlAttribute();
         unset($res[0]->agent_area);
         echo json_encode($res[0]);
     }
-    public function getTemplate(Request $request){
-        $id=$request->category_id;
-        $res=description_template::where('status','=','1')->where('category_id',$id)->first();
-        if($res)
-        {
-            $arr=array('status'=>true,'html'=>$res);
+    public function getTemplate(Request $request)
+    {
+        $id = $request->category_id;
+        $res = description_template::where('status', '=', '1')->where('category_id', $id)->first();
+        if ($res) {
+            $arr = array('status' => true, 'html' => $res);
+        } else {
+            $arr = array('status' => false, 'html' => $res);
         }
-        else
-        {
-            $arr=array('status'=>false,'html'=>$res);
-        }
-       echo json_encode($arr);
+        echo json_encode($arr);
     }
-    public function area_units(Request $request){
-        $area=$request->area;
-        $unit=$request->unit;
-        $res=getLandAreaUnits($area,$unit);
-        $arr=array('status'=>true,'html'=>$res);
+    public function area_units(Request $request)
+    {
+        $area = $request->area;
+        $unit = $request->unit;
+        $res = getLandAreaUnits($area, $unit);
+        $arr = array('status' => true, 'html' => $res);
         echo json_encode($arr);
     }
 

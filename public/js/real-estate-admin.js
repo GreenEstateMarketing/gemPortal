@@ -91,7 +91,6 @@ $(window).on("load", function () {
             data: {
                 longitude: longitude,
                 latitude: latitude
-
             },
             async: false,
             success: function (response) {
@@ -912,7 +911,7 @@ $(document).ready(function () {
                             console.log('autor id', author_id)
                             //alert("Checklist updated successfully!");
                             toastr.success('Document Checklist Updated successfully!', 'success', { iconClass: "toast-custom" });
-                            if (response.approved && author_id != "") {
+                            if (response.approved) {
                                 console.log('in success');
                                 $(".moderation_status").removeClass('d-none');
                             }
