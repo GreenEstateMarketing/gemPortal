@@ -18,9 +18,9 @@ Route::group(['namespace' => 'Botble\ACL\Http\Controllers', 'middleware' => ['we
                 ->name('access.password.email');
 
             Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])
-                ->name('password.reset');
+                ->name('access.password.reset');
             Route::post('password/reset', [ResetPasswordController::class, 'reset'])
-                ->name('password.reset.post');
+                ->name('access.password.reset.post');
         });
 
         Route::group(['middleware' => 'auth'], function () {

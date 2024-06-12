@@ -4,17 +4,19 @@ namespace Botble\RealEstate\Models;
 
 use App\Models\Rating;
 use Botble\Media\Models\MediaFile;
+use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Botble\RealEstate\Notifications\ResetPasswordNotification;
+
 //use BeyondCode\Vouchers\Traits\CanRedeemVouchers;
 class Member extends Authenticatable
 {
-    use Notifiable;
-//    use CanRedeemVouchers;
-    protected $table='members';
+    use Notifiable, CanResetPassword;
+    protected $table = 'members';
     protected $guard = 'member';
     use HasFactory;
     protected $fillable = [
@@ -23,12 +25,11 @@ class Member extends Authenticatable
         'mobile_no',
         'password',
         'credits',
-        'forgot_password_token',
-        'forgot_password_expiry'
+        'remember_token'
     ];
     public function properties()
     {
-       return  $this->hasMany(Property::class, 'member_id', 'id');
+        return $this->hasMany(Property::class, 'member_id', 'id');
     }
     public function avatar()
     {
@@ -49,6 +50,11 @@ class Member extends Authenticatable
     public function ratings()
     {
         return $this->hasMany(Rating::class);
+    }
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 
 }

@@ -31,7 +31,7 @@ class ForgotPasswordController extends Controller
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
     public function showLinkRequestForm()
-    {
+    { 
         SeoHelper::setTitle(trans('plugins/real-estate::account.forgot_password'));
 
         if (view()->exists(Theme::getThemeNamespace() . '::views.real-estate.account.auth.passwords.email')) {
@@ -65,4 +65,6 @@ class ForgotPasswordController extends Controller
     {
         return Password::broker('members');
     }
+
+
 }

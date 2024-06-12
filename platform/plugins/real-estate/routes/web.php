@@ -278,20 +278,19 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                     Route::get(
                         'password/request',
                         'ForgotPasswordController@showLinkRequestForm'
-                    )
-                        ->name('password.request');
+                    )->name('password.request');
                     Route::post(
                         'password/email',
                         'ForgotPasswordController@sendResetLinkEmail'
-                    )
-                        ->name('password.email');
+                    )->name('password.email');
+                    
                     Route::post('password/reset', 'ResetPasswordController@reset')
                         ->name('password.update');
+
                     Route::get(
                         'password/reset/{token}',
                         'ResetPasswordController@showResetForm'
-                    )
-                        ->name('password.reset');
+                    )->name('password.reset');
                 });
 
                 Route::group([

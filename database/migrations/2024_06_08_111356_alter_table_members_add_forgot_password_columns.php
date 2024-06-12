@@ -14,8 +14,7 @@ class AlterTableMembersAddForgotPasswordColumns extends Migration
     public function up()
     {
         Schema::table('members', function (Blueprint $table) {
-            $table->string('forgot_password_token')->nullable();
-            $table->string('forgot_password_expiry')->nullable();
+            $table->rememberToken();
         });
     }
 
@@ -27,8 +26,7 @@ class AlterTableMembersAddForgotPasswordColumns extends Migration
     public function down()
     {
         Schema::table('members', function (Blueprint $table) {
-            $table->dropColumn('forgot_password_token');
-            $table->dropColumn('forgot_password_expiry');
+            $table->dropColumn('remember_token');
         });
     }
 }

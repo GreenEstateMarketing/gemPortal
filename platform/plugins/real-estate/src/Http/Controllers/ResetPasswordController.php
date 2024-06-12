@@ -4,10 +4,13 @@ namespace Botble\RealEstate\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Botble\ACL\Traits\ResetsPasswords;
+use Botble\RealEstate\Models\Member;
+use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use SeoHelper;
+use Illuminate\Support\Str;
 use Theme;
 
 class ResetPasswordController extends Controller
@@ -64,6 +67,37 @@ class ResetPasswordController extends Controller
         return view('plugins/real-estate::account.auth.passwords.reset', ['token' => $token, 'email' => $request->email]);
     }
 
+    public function reset(Request $request)
+    {
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|min:6|confirmed',
+        ]);
+
+        // dd($request->only('email', 'password', 'password_confirmation', 'token'));
+
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function (Member $member, string $password) {
+                dd($member);
+                $member->forceFill([
+                    'password' => Hash::make($password)
+                ])->setRememberToken(Str::random(60));
+     
+                $member->save();
+     
+                event(new PasswordReset($member));
+            }
+        );
+
+        dd($status);
+
+        return $status === Password::PASSWORD_RESET
+                ? redirect()->route('member-login')->with('status', __($status))
+                : back()->withErrors(['email' => [__($status)]]);
+    }
+
     /**
      * Get the broker to be used during password reset.
      *
@@ -71,7 +105,7 @@ class ResetPasswordController extends Controller
      */
     public function broker()
     {
-        return Password::broker('accounts');
+        return Password::broker('members');
     }
 
     /**
@@ -81,6 +115,6 @@ class ResetPasswordController extends Controller
      */
     protected function guard()
     {
-        return auth('account');
+        return auth('member');
     }
 }
