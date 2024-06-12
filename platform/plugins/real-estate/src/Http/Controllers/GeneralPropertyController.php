@@ -1005,7 +1005,6 @@ class GeneralPropertyController extends Controller
         TransactionInterface $transactionRepository
     ) {
         $package = $packageRepository->findOrFail($request->input('id'));
-        // print_r($package);exit;die;
         $member = $this->memberRepository->findOrFail(auth('member')->user()->getAuthIdentifier());
 
         if (
@@ -1018,8 +1017,11 @@ class GeneralPropertyController extends Controller
         }
 
         if ($package->price) {
+            dd('Coming in to package with price');
             return $response->setData(['next_page' => route('public.member.package.subscribe', $package->id)]);
         }
+
+        dd('No Price');
 
         $this->savePayment($package, null, $transactionRepository, true);
 
@@ -1102,8 +1104,6 @@ class GeneralPropertyController extends Controller
                 ->setNextUrl(route('public.member.packages'))
                 ->setMessage($payPalService->getErrorMessage());
         }
-
-        dd('yeah it is coming outside');
 
         $this->savePayment($package, $request->input('charge_id'), $transactionRepository);
 
