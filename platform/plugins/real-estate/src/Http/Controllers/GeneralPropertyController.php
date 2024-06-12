@@ -1016,7 +1016,7 @@ class GeneralPropertyController extends Controller
             abort(403);
         }
 
-        if ($package->price) {
+        if ($package->price > 0) {
             dd('Coming in to package with price');
             return $response->setData(['next_page' => route('public.member.package.subscribe', $package->id)]);
         }
