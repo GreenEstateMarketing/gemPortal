@@ -75,26 +75,21 @@ class ResetPasswordController extends Controller
             'password' => 'required|min:6|confirmed',
         ]);
 
-        // dd($request->only('email', 'password', 'password_confirmation', 'token'));
-
-        $status = Password::reset(
+        $status = Password::broker('members')->reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function (Member $member, string $password) {
-                dd($member);
                 $member->forceFill([
                     'password' => Hash::make($password)
                 ])->setRememberToken(Str::random(60));
-     
+         
                 $member->save();
-     
+         
                 event(new PasswordReset($member));
             }
         );
 
-        dd($status);
-
         return $status === Password::PASSWORD_RESET
-                ? redirect()->route('member-login')->with('status', __($status))
+                ? redirect()->route('member.login')->with('status', __($status))
                 : back()->withErrors(['email' => [__($status)]]);
     }
 
