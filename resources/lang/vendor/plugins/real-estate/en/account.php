@@ -17,7 +17,7 @@ return [
         'change_password'       => 'Change password?',
         'location'              => 'Agent Location'
     ],
-    'forgot_password'            => 'Forgot password',
+    'forgot_password'            => 'Forgot Password',
     'login'                      => 'Login',
     'buy_credits'                => 'Buy credits',
     'credits'                    => 'credits',

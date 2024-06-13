@@ -94,7 +94,7 @@ trait SendsPasswordResetEmails
     {
         if ($request->wantsJson()) {
             throw ValidationException::withMessages([
-                'email' => [trans($response)],
+                'email' => ['lkdjafhlasdkjfhalkdjhflakjdshflkd'],
             ]);
         }
 
