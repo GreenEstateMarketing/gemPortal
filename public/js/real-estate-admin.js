@@ -906,13 +906,10 @@ $(document).ready(function () {
                         category_id: $("input[name='category_id']").val()
                     },
                     success: function (response) {
-                        console.log('response', response);
                         if (response.status) {
-                            console.log('autor id', author_id)
                             //alert("Checklist updated successfully!");
                             toastr.success('Document Checklist Updated successfully!', 'success', { iconClass: "toast-custom" });
-                            if (response.approved) {
-                                console.log('in success');
+                            if (response.approved && author_id != "") {
                                 $(".moderation_status").removeClass('d-none');
                             }
 
