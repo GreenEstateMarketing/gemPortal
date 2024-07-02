@@ -78,6 +78,7 @@ class PublicController extends Controller
                 }
 
             }
+            
             $consultEntry = new Consult();
             $consultEntry->name = $request->input('name');
             if ($request->input('type') == 'project'){
@@ -89,7 +90,7 @@ class PublicController extends Controller
             $consultEntry->email = $request->input('email');
             $consultEntry->content = $request->input('content');
             $consultEntry->interest = $request->input('interest');
-            $consultEntry->save();
+            $consultEntry->save();            
 
 //            $consult->fill([
 //                $request->input('name')
