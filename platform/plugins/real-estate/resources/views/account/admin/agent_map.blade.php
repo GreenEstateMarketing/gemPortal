@@ -30,6 +30,7 @@
     </script>
 
 <script>
+    let coordArray = []
     function initMap() {
         // Get the user's current location
         if (navigator.geolocation) {
@@ -103,8 +104,9 @@
                         const shapeBlob = new Blob([JSON.stringify(shapeData)], { type: "application/json" });
 
                         if (shapeData) {
-                            let inJson = JSON.stringify(shapeData.coordinates, null, 1)
-                            console.log(inJson)
+                            let coords = shapeData.coordinates;
+                            coordArray.push(coords);
+                            let inJson = JSON.stringify(coordArray, null, 1)
                             $('input[name="agent_area"]').val(inJson);
                         }
                     });

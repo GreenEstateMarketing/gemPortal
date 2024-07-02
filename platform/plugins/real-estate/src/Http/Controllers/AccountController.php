@@ -206,18 +206,12 @@ class AccountController extends BaseController
             $i = 0;
             $data_map = json_decode($request['agent_area']);
 
-            $newArray = [];
-            foreach ($data_map as $item) {
-                $newArray[] = [$item];
-            }
-
-            $data_map = $newArray;
-
             $total_ar = count($data_map);
-            if ($total_ar == 1)
+            if ($total_ar == 1){
                 $po = 'POLYGON((';
-            else
+            } else {
                 $kp = 'MultiPolygon((';
+            }                
 
             $ap = 'ST_GeomFromText(';
             $mo = '';
