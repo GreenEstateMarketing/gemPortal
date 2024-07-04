@@ -63,7 +63,6 @@ class LoginController extends Controller
          SeoHelper::setTitle(trans('plugins/real-estate::account.login'));
 
         if (view()->exists(Theme::getThemeNamespace() . '::views.real-estate.account.auth.login')) {
-
             return Theme::scope('real-estate.account.auth.login')->render();
         }
 

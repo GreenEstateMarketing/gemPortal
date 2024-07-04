@@ -4,6 +4,7 @@ namespace Botble\RealEstate\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Botble\ACL\Traits\ResetsPasswords;
+use Botble\RealEstate\Models\Account;
 use Botble\RealEstate\Models\Member;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\Request;
@@ -75,22 +76,50 @@ class ResetPasswordController extends Controller
             'password' => 'required|min:6|confirmed',
         ]);
 
-        $status = Password::broker('members')->reset(
-            $request->only('email', 'password', 'password_confirmation', 'token'),
-            function (Member $member, string $password) {
-                $member->forceFill([
-                    'password' => Hash::make($password)
-                ])->setRememberToken(Str::random(60));
-         
-                $member->save();
-         
-                event(new PasswordReset($member));
-            }
-        );
+        $type = null;
+        $email = $request->get('email');
+        $agent = Account::where('email', $email)->first();
+        if ($agent) {
+            $type = 'agent';
+        }
 
-        return $status === Password::PASSWORD_RESET
+        if ($type == 'agent') {
+            $status = Password::broker('accounts')->reset(
+                $request->only('email', 'password', 'password_confirmation', 'token'),
+                function (Account $account, string $password) {
+                    $account->forceFill([
+                        'password' => Hash::make($password)
+                    ])->setRememberToken(Str::random(60));
+
+                    $account->save();
+
+                    event(new PasswordReset($account));
+                }
+            );
+
+            return $status === Password::PASSWORD_RESET
+                ? redirect('/login')->with('status', __($status))
+                : back()->withErrors(['email' => [__($status)]]);
+        } else {
+            $status = Password::broker('members')->reset(
+                $request->only('email', 'password', 'password_confirmation', 'token'),
+                function (Member $member, string $password) {
+                    $member->forceFill([
+                        'password' => Hash::make($password)
+                    ])->setRememberToken(Str::random(60));
+
+                    $member->save();
+
+                    event(new PasswordReset($member));
+                }
+            );
+
+            return $status === Password::PASSWORD_RESET
                 ? redirect()->route('member.login')->with('status', __($status))
                 : back()->withErrors(['email' => [__($status)]]);
+        }
+
+
     }
 
     /**
@@ -98,7 +127,7 @@ class ResetPasswordController extends Controller
      *
      * @return \Illuminate\Contracts\Auth\PasswordBroker
      */
-    public function broker()
+    public function broker($type)
     {
         return Password::broker('members');
     }

@@ -1,5 +1,6 @@
 <?php
 
+use Botble\RealEstate\Models\Account;
 use Botble\RealEstate\Models\Member;
 
 return [
@@ -50,7 +51,7 @@ return [
         'member' => [
             'driver' => 'session',
             'provider' => 'members'
-        ]
+        ],
     ],
 
     /*
@@ -78,6 +79,10 @@ return [
         'members' => [
             'driver' => 'eloquent',
             'model' => Member::class,
+        ],
+        'accounts' => [
+            'driver' => 'eloquent',
+            'model' => Account::class
         ]
 
 
@@ -115,6 +120,12 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+        'accounts' => [
+            'provider' => 'accounts',
+            'table' => 'password_resets',
+            'expire' => 60,
+            'throttle' => 60,
+        ]
     ],
 
     /*

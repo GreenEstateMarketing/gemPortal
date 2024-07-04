@@ -7,15 +7,16 @@
                     <br>
                     <form method="POST" action="{{ route('public.account.password.email') }}">
                         @csrf
+                        <input type="hidden" name="type" value="{{ $type }}">
                         <div class="form-group">
                             <input id="email" type="email"
-                                   class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}"
-                                   name="email" value="{{ old('email') }}" required
-                                   placeholder="{{ trans('plugins/real-estate::dashboard.email') }}">
+                                class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="email"
+                                value="{{ old('email') }}" required
+                                placeholder="{{ trans('plugins/real-estate::dashboard.email') }}">
                             @if ($errors->has('email'))
                                 <span class="invalid-feedback">
                                     <strong>{{ $errors->first('email') }}</strong>
-                                    </span>
+                                </span>
                             @endif
                         </div>
                         <div class="form-group mb-0">
@@ -24,7 +25,7 @@
                             </button>
                             <div class="text-center">
                                 <a href="{{ route('public.account.login') }}"
-                                   class="btn btn-link">{{ trans('plugins/real-estate::dashboard.back-to-login') }}</a>
+                                    class="btn btn-link">{{ trans('plugins/real-estate::dashboard.back-to-login') }}</a>
                             </div>
                         </div>
                     </form>
