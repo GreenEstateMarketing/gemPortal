@@ -107,6 +107,7 @@
                             let coords = shapeData.coordinates;
                             coordArray.push(coords);
                             let inJson = JSON.stringify(coordArray, null, 1)
+                            console.log('JSON CORRDS: ', inJson);
                             $('input[name="agent_area"]').val(inJson);
                         }
                     });

@@ -667,7 +667,6 @@ $(document).ready(function () {
             success: function (response) {
                 if (response.status) {
                     $.each(response.data.documents, function (key, value) {
-                        console.log('VALUE', value);
                         //  alert(response.data.document_images[key].id);
                         var doc_image = '<input type="hidden" data-src="">';
                         var doc_image_status = 0;
@@ -834,15 +833,12 @@ $(document).ready(function () {
                 let subcategory = $('ul.sub-category li.label-primary').attr('data-category_name').trim();
 
                 if (response.status) {
-                    console.log('response succ')
                     checklist = response.data[0];
 
                     if (checklist.is_verify == 1 && author_id != "") {
-                        console.log('verified')
                         $("#btn_verify").text('Verified');
                         $(".moderation_status").removeClass('d-none');
                     } else {
-                        console.log('Not VErified')
                         if (checklist.document_checklist != "") {
                             parsedarr = JSON.parse(checklist.document_checklist);
                             $("input[name='verify_document[]']").each(function () {
@@ -884,17 +880,13 @@ $(document).ready(function () {
         property_id = $("input[name='property_id']").val();
 
         $("#verify_checklist").click(function () {
-            console.log('in click event');
             //ajax to update subscription
             var data = [];
             $('.checklist:checked').each(function () {
                 data.push($(this).val());
             });
 
-            console.log('data', data);
-
             if (data != "") {
-                console.log('data is present');
                 $("#checklist_dp").addClass('d-none');
                 $.ajax({
                     url: "/api/v1/update-checklist",
