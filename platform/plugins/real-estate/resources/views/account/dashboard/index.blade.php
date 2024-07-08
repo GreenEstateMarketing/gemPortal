@@ -9,7 +9,7 @@
               <div class="container ">
                   @if (!auth('account')->user()->canPost())
                   <div class="alert alert-warning">{{ trans('plugins/real-estate::package.add_credit_warning') }}
-                      <a href="{{ route('public.member.packages') }}">{{ trans('plugins/real-estate::package.add_credit') }}</a>
+                      <a href="{{ route('public.account.packages') }}">{{ trans('plugins/real-estate::package.add_credit') }}</a>
                   </div>
                   @endif
 

@@ -145,13 +145,19 @@ class GeneralPropertyController extends Controller
      */
     public function create(FormBuilder $formBuilder)
     {
-        if (!auth('member')->user()) {
+        if (!auth('member')->user() && !auth('account')->user()) {
             return redirect()->route('member.login');
-        } else {
+        } else if(auth('member')->user() && !auth('account')->user()) {
             if (auth('member')->user()->credits > 0) {
                 return redirect()->route('public.member.properties.create');
             } else {
                 return redirect()->route('public.member.packages');
+            }
+        } else if(!auth('member')->user() && auth('account')->user()) {
+            if (auth('account')->user()->credits > 0) {
+                return redirect()->route('public.account.properties.create');
+            } else {
+                return redirect()->route('public.account.packages');
             }
         }
 

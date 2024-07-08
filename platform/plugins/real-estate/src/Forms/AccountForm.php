@@ -55,7 +55,7 @@ class AccountForm extends FormAbstract
             ])
             ->add('phone', 'text', [
                 'label' => trans('plugins/real-estate::account.phone'),
-                'label_attr' => ['class' => 'control-label'],
+                'label_attr' => ['class' => 'control-label required'],
                 'attr' => [
                     'placeholder' => trans('plugins/real-estate::account.phone_placeholder'),
                     'data-counter' => 20,
