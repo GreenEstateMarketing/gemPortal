@@ -192,12 +192,24 @@ class Account extends Authenticatable
     }
     public function getPolygon(){
         $res= $this->selectRaw('ST_AsGeoJson(agent_area) as poly_coord')->where('id','=',auth('account')->user()->id)->get();
-        dd($res[0]->poly_coord);
+        $swapped = $this->swapCoordinates($res[0]->poly_coord);
         return $res[0]->poly_coord;
     }
     public function no_of_listings($id)
     {
         return $this->morphMany(Property::class, 'author')->count('id');
+    }
+
+    private function swapCoordinates($geoJson) {
+        $data = json_decode($geoJson, true);
+        if ($data['type'] === 'Polygon' || $data['type'] === 'MultiPolygon') {
+            foreach ($data['coordinates'] as &$polygon) {
+                foreach ($polygon as &$ring) {
+                    $ring = array_reverse($ring);
+                }
+            }
+        }
+        return json_encode($data);
     }
 
 
