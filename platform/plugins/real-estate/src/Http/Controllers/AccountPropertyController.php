@@ -112,18 +112,17 @@ class AccountPropertyController extends Controller
         /**
          * @var Property $property
          */
-        $jsonArr=array();
+        $jsonArr = array();
 
         //run actions with files
 
-        if($request->hasFile('documents'))
-        {
+        if ($request->hasFile('documents')) {
             $files = $request->file('documents');
             // print_r($_FILES);exit;
-            $i=0;
+            $i = 0;
             foreach ($files as $key => $file) {
-                $document_id=$request['document_ids'][$key];
-                $name = $document_id.'-document-'.time().uniqid().'.'.$file->extension();
+                $document_id = $request['document_ids'][$key];
+                $name = $document_id . '-document-' . time() . uniqid() . '.' . $file->extension();
                 $file->storeAs('Documents', $name);
                 $jsonArr[$i]['id'] = $document_id;
                 $jsonArr[$i]['path'] = 'Documents/' . $name;
@@ -132,14 +131,14 @@ class AccountPropertyController extends Controller
             }
         }
 
-        $request['documents']=json_encode($jsonArr);
-        $area_value=$request['square'];
-        $area_units=$request['area_units'];
+        $request['documents'] = json_encode($jsonArr);
+        $area_value = $request['square'];
+        $area_units = $request['area_units'];
         unset($request['square']);
-        $sqFeet=getSqFeet($area_value,$area_units);
-        $request['square']=$sqFeet;
+        $sqFeet = getSqFeet($area_value, $area_units);
+        $request['square'] = $sqFeet;
         $property = $this->propertyRepository->createOrUpdate(array_merge($request->input(), [
-            'author_id'   => auth('account')->user()->getAuthIdentifier(),
+            'author_id' => auth('account')->user()->getAuthIdentifier(),
             'author_type' => Account::class,
         ]));
 
@@ -152,9 +151,9 @@ class AccountPropertyController extends Controller
         event(new CreatedContentEvent(PROPERTY_MODULE_SCREEN_NAME, $request, $property));
 
         $this->activityLogRepository->createOrUpdate([
-            'action'         => 'create_property',
+            'action' => 'create_property',
             'reference_name' => $property->name,
-            'reference_url'  => route('public.account.properties.edit', $property->id),
+            'reference_url' => route('public.account.properties.edit', $property->id),
         ]);
 
         $account = $accountRepository->findOrFail(auth('account')->user()->getAuthIdentifier());
@@ -178,8 +177,8 @@ class AccountPropertyController extends Controller
     public function edit($id, FormBuilder $formBuilder, Request $request)
     {
         $property = $this->propertyRepository->getFirstBy([
-            'id'          => $id,
-            'author_id'   => auth('account')->user()->getAuthIdentifier(),
+            'id' => $id,
+            'author_id' => auth('account')->user()->getAuthIdentifier(),
             'author_type' => Account::class,
         ]);
 
@@ -207,38 +206,36 @@ class AccountPropertyController extends Controller
     public function update($id, PropertyRequest $request, BaseHttpResponse $response, SaveFacilitiesService $saveFacilitiesService)
     {
         $property = $this->propertyRepository->getFirstBy([
-            'id'          => $id,
-            'author_id'   => auth('account')->user()->getAuthIdentifier(),
+            'id' => $id,
+            'author_id' => auth('account')->user()->getAuthIdentifier(),
             'author_type' => Account::class,
         ]);
 
         if (!$property) {
             abort(404);
         }
-        //dd($request);exit;
 
-        $old_documents=json_decode($property->documents);
-        $old_category_id=$property->category_id;
+        $old_documents = json_decode($property->documents);
+        $old_category_id = $property->category_id;
         $property->fill($request->except(['expire_date']));
-        $area_value=$request['square'];
-        $area_units=$request['area_units'];
-        $old_arr=(array)$old_documents;
-        $jsonArr=array();
+        $area_value = $request['square'];
+        $area_units = $request['area_units'];
+        $old_arr = (array) $old_documents;
+        $jsonArr = array();
 
-        $ids= array_column($old_arr, 'id');
-        if($request->hasFile('documents'))
-        {
+        $ids = array_column($old_arr, 'id');
+        if ($request->hasFile('documents')) {
             $files = $request->file('documents');
-            $i=0;
+            $i = 0;
 
             foreach ($files as $key => $file) {
                 //$key;
-                $document_id=$request['document_ids'][$key];
-                $array_index = array_search(2,$ids);
-               // echo $array_index;exit;
-                $path=$old_arr[$array_index]->path;
+                $document_id = $request['document_ids'][$key];
+                $array_index = array_search(2, $ids);
+                // echo $array_index;exit;
+                $path = $old_arr[$array_index]->path;
 
-                if($array_index>=0) {
+                if ($array_index >= 0) {
                     if (Storage::exists($path)) {
                         Storage::delete($path);
                         unset($old_arr[$array_index]);
@@ -247,9 +244,9 @@ class AccountPropertyController extends Controller
                 //}
 
                 /*$name = $ids[$key] . time() . uniqid().'.'.$file->extension();*/
-                $name = $document_id.'-document-'.time().uniqid().'.'.$file->extension();
+                $name = $document_id . '-document-' . time() . uniqid() . '.' . $file->extension();
                 $file->storeAs('Documents', $name);
-                $jsonArr[$i]['id'] =$document_id;
+                $jsonArr[$i]['id'] = $document_id;
                 $jsonArr[$i]['path'] = 'Documents/' . $name;
                 $i++;
 
@@ -258,25 +255,22 @@ class AccountPropertyController extends Controller
 
 
         }
-        if($old_category_id==$request['category_id'])
-        {
+        if ($old_category_id == $request['category_id']) {
             $update_arr = array_merge($old_arr, $jsonArr);
             $keys = array_column($update_arr, 'id');
             array_multisort($keys, SORT_ASC, $update_arr);
-        }
-        else
-        {
+        } else {
             //updating checklist to empty
-            $arr = array('document_checklist' =>'','is_verify'=>0);
-            $resupdate= table_properties_check_lists::where('property_id',$id)->update($arr);
-            $update_arr =$jsonArr;
+            $arr = array('document_checklist' => '', 'is_verify' => 0);
+            $resupdate = table_properties_check_lists::where('property_id', $id)->update($arr);
+            $update_arr = $jsonArr;
             $keys = array_column($update_arr, 'id');
             array_multisort($keys, SORT_ASC, $update_arr);
         }
-        $property->documents=json_encode($update_arr);
+        $property->documents = json_encode($update_arr);
         unset($request['square']);
-        $sqFeet=getSqFeet($area_value,$area_units);
-        $property->square=$sqFeet;
+        $sqFeet = getSqFeet($area_value, $area_units);
+        $property->square = $sqFeet;
         $this->propertyRepository->createOrUpdate($property);
 
         $property->features()->sync($request->input('features', []));
@@ -286,9 +280,9 @@ class AccountPropertyController extends Controller
         event(new UpdatedContentEvent(PROPERTY_MODULE_SCREEN_NAME, $request, $property));
 
         $this->activityLogRepository->createOrUpdate([
-            'action'         => 'update_property',
+            'action' => 'update_property',
             'reference_name' => $property->name,
-            'reference_url'  => route('public.account.properties.edit', $property->id),
+            'reference_url' => route('public.account.properties.edit', $property->id),
         ]);
 
         return $response
@@ -306,8 +300,8 @@ class AccountPropertyController extends Controller
     public function destroy($id, BaseHttpResponse $response)
     {
         $property = $this->propertyRepository->getFirstBy([
-            'id'          => $id,
-            'author_id'   => auth('account')->user()->getAuthIdentifier(),
+            'id' => $id,
+            'author_id' => auth('account')->user()->getAuthIdentifier(),
             'author_type' => Account::class,
         ]);
 
@@ -318,7 +312,7 @@ class AccountPropertyController extends Controller
         $this->propertyRepository->delete($property);
 
         $this->activityLogRepository->createOrUpdate([
-            'action'         => 'delete_property',
+            'action' => 'delete_property',
             'reference_name' => $property->name,
         ]);
 

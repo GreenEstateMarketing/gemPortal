@@ -207,11 +207,11 @@ class AccountController extends BaseController
             $data_map = json_decode($request['agent_area']);
 
             $total_ar = count($data_map);
-            if ($total_ar == 1){
+            if ($total_ar == 1) {
                 $po = 'POLYGON((';
             } else {
                 $kp = 'MultiPolygon((';
-            }                
+            }
 
             $ap = 'ST_GeomFromText(';
             $mo = '';
@@ -262,12 +262,14 @@ class AccountController extends BaseController
             }
         }
 
-        // dd($ap);
-
         $account = Account::find($id);
         $account->update($request->except('agent_area', 'password'));
-        if ($request['agent_area'] != "")
+        if ($request['agent_area'] != "") {
             $account->agent_area = \DB::raw($ap);
+        } else {
+            $account->agent_area = null;
+        }
+
         if ($request->input('is_change_password') == 1) {
 
             $data = $request->input();
