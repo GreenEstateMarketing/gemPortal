@@ -37,7 +37,7 @@ return [
         'latitude' => 'Latitude',
         'longitude' => 'Longitude',
         'document1' => 'Completion Letter',
-        'document2' => 'Allotment Letterrrrrrrrrrr',
+        'document2' => 'Allotment Letter',
         'document3' => 'Possession Letter',
         'contact_form' => 'Contact Details',
         'agent_list' => 'Agents'

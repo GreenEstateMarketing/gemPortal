@@ -623,7 +623,7 @@ class GeneralPropertyController extends Controller
             abort(403);
         }
 
-        //dd($request);exit;
+        // dd($request->all());
         $request->merge(['expire_date' => now()->addDays(config('plugins.real-estate.real-estate.property_expired_after_x_days'))]);
 
         /**
@@ -635,11 +635,10 @@ class GeneralPropertyController extends Controller
 
         if ($request->hasFile('documents')) {
             $files = $request->file('documents');
-            // print_r($_FILES);exit;
             $i = 0;
             foreach ($files as $key => $file) {
                 $document_id = $request['document_ids'][$key];
-                $name = $document_id . '-document-' . time() . uniqid() . '.' . $file->extension();
+                $name = $document_id . '-document-' . time() . uniqid() . '.' . $file->getClientOriginalExtension();
                 $file->storeAs('Documents', $name);
                 $jsonArr[$i]['id'] = $document_id;
                 $jsonArr[$i]['path'] = 'Documents/' . $name;
@@ -740,7 +739,6 @@ class GeneralPropertyController extends Controller
             $i = 0;
 
             foreach ($files as $key => $file) {
-                //$key;
                 $document_id = $request['document_ids'][$key];
                 $array_index = array_search($document_id, $ids);
                 if ($array_index != "") {
@@ -750,10 +748,8 @@ class GeneralPropertyController extends Controller
                         unset($old_arr[$array_index]);
                     }
                 }
-                //}
-
-                /*$name = $ids[$key] . time() . uniqid().'.'.$file->extension();*/
-                $name = $document_id . '-document-' . time() . uniqid() . '.' . $file->extension();
+                
+                $name = $document_id . '-document-' . time() . uniqid() . '.' . $file->getClientOriginalExtension();
                 $file->storeAs('Documents', $name);
                 $jsonArr[$i]['id'] = $document_id;
                 $jsonArr[$i]['path'] = 'Documents/' . $name;

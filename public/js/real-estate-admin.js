@@ -26,7 +26,6 @@ $(window).on("load", function () {
                     );
 
                 });
-                // $('#location_id').prop("selectedIndex", -1);
             }
         });
     });
@@ -52,36 +51,11 @@ $(window).on("load", function () {
 
     });
 
-
     $(".showInfoArea").mouseleave(function () {
         $(".infoTitle").addClass('d-none');
     });
+
     function agent_list() {
-        /*   var latitude=  $("#latitude").val();
-           var longitude=  $("#longitude").val();
-           $.ajax({
-               url: "/api/v1/agent-list",
-               type: "get",
-               dataType: 'json',
-               data: {
-                   longitude:longitude,
-                   latitude:latitude
-   
-               },
-               success: function (response) {
-                   $("#author_id").empty();
-                   $("#author_id").append('<option value="">Select</option>');
-   
-   
-                   $.each(response, function (key, value) {
-                       if(value.rating)
-                           $("#author_id").append('<option value='+value.id+'>'+value.first_name+' ('+value.rating+')</option>');
-                       else
-                           $("#author_id").append('<option value='+value.id+'>'+value.first_name+'</option>');
-                   });
-   
-               },
-           });*/
         var latitude = $("#latitude").val();
         var longitude = $("#longitude").val();
         $.ajax({
@@ -103,7 +77,6 @@ $(window).on("load", function () {
                 $("#dropdown-menu-checklist").append('<input type="text" placeholder="Search.." class="form-control" id="myInputchecklist" onKeyUp="filterFunctionCheck()">');
                 if (response.length > 0) {
                     $.each(response, function (key, value) {
-
                         if (value.rating) {
                             $("#dropdown-menu-admin").append('<li class="dropdown-item" data-agent-id="' + value.id + '"><img src="' + value.img_src.encoded + '" width="50px" height="50px" class="br-100 v-mid mr-2">  ' + value.first_name + '' + value.last_name + ' (' + value.rating + '<i class="fa fa-star" style="color:#f3a54a" aria-hidden="true"></i>)</li>');
                             $("#dropdown-menu-checklist").append('<li class="dropdown-item" data-agent-id="' + value.id + '"><img src="' + value.img_src.encoded + '" width="50px" height="50px" class="br-100 v-mid mr-2">  ' + value.first_name + '' + value.last_name + ' (' + value.rating + '<i class="fa fa-star" style="color:#f3a54a" aria-hidden="true"></i>)</li>');
@@ -113,10 +86,6 @@ $(window).on("load", function () {
                             $("#dropdown-menu-checklist").append('<li class="dropdown-item" data-agent-id="' + value.id + '"><img src="' + value.img_src.encoded + '" width="50px" height="50px" class="br-100 v-mid mr-2">  ' + value.first_name + '' + value.last_name + '</li>');
 
                         }
-                        //       $("#agent_list").append('  <img src="/themes/real-scout/images/team01.jpeg" class="br-100 v-mid mr-1" style="width: 30px;"><option value='+value.id+'>'+value.first_name+' ('+value.rating+')</option>');
-                        // else
-                        //     $("#agent_list").append(' <img src="/themes/real-scout/images/team01.jpeg" class="br-100 v-mid mr-1" style="width: 30px;"><option value='+value.id+'>'+value.first_name+'</option>');
-
                     });
                 }
                 else {
@@ -136,15 +105,11 @@ $(window).on("load", function () {
     property_id = $("input[name='property_id']").val();
     category_id = $("input[name='category_id']").val();
     if (property_id == "") {
-        $(".p-category").first().trigger("click");
-        //  $('ul.sub-category li:first').trigger('click');
-
+        $(".p-category").first().trigger("click")
 
         var myObject = { '$a': 'number_bedroom', '$b': 'number_bathroom', '$c': 'square', '$d': 'type', '$e': 'area_units', '$f': 'category_name', '$g': 'number_floor' };
         //   setTemplateVariables(myObject);
-    }
-    else {
-
+    } else {
         $(".p-subcategory").each(function () {
             $(this).removeClass('label-secondary').addClass('label-sub-category');
             if ($(this).attr('data-id') == category_id) {
@@ -322,6 +287,22 @@ $(window).ready(function () {
 
 });
 $(document).ready(function () {
+    $(document).on('click', '[data-id="sale"]', function () {
+        console.log('sale clicked');
+        $("li.p-subcategory.label-primary").each(function () {
+            if ($(this).find("span i").length > 0) {
+                $(this).click();
+            }
+        });
+    });
+    $(document).on('click', '[data-id="rent"]', function () {
+        console.log('rent clicked');
+        $("li.p-subcategory.label-primary").each(function () {
+            if ($(this).find("span i").length > 0) {
+                $(this).click();
+            }
+        });
+    });
     function temp_list() {
         /*   var latitude=  $("#latitude").val();
            var longitude=  $("#longitude").val();
@@ -671,24 +652,22 @@ $(document).ready(function () {
                         var doc_image = '<input type="hidden" data-src="">';
                         var doc_image_status = 0;
                         if (response.data.document_images) {
-                            /*if (response.data.document_images[key])
-                            {
-                                var path = response.data.document_images[key].path;
-                                var id=response.data.document_images[key].id;
-                                if(value.document_id==id)
-                                {
-                                    doc_image = '<br><a target="_blank" href="/storage/' + path + '"><img src="/storage/' + path + '"  class="image-box-wrapper mb-2" width="50%" style="height:50%"></a><input type="hidden" data-src="/storage/' + path + '">';
-                                    doc_image_status = 1;
-                                }
-                            }*/
-
-
                         }
+
+                        //check if it is rent as for rent the checked is not required
+                        var isRent = $('.btn.type_rent.label-primary').first().val();
                         if (value.required) {
-                            span = '<span class="red"> *</span>';
-                            requiredcheck = "required";
-                        } else
+                            if (isRent) {
+                                requiredcheck = "";
+                            } else {
+                                span = '<span class="red"> *</span>';
+                                requiredcheck = "required";
+                            }
+
+                        } else {
                             requiredcheck = "";
+                        }
+
                         ///soft delete check
                         if (property_id == "" && value.documents.is_delete == 0) {
                             if (response.data.document_images) {
@@ -697,7 +676,8 @@ $(document).ready(function () {
                                 doc_image = '<br><a target="_blank" href="/storage/' + path + '"><img src="/storage/' + path + '"  class="image-box-wrapper mb-2" width="50%" style="height:50%"></a><input type="hidden" data-src="/storage/' + path + '">';
 
                             }
-                            $(".document-row").append('<div class="col-md-4"><label class="control-label ' + requiredcheck + '">' + value.documents.name + '</label><input type="hidden" name="document_ids[]" value=' + value.document_id + '>' + doc_image + '<input type="file"  name="documents[]" class="form-control" data-document-id="' + value.document_id + '" data-required="' + requiredcheck + '"   ' + requiredcheck + '></div>');
+
+                            $(".document-row").append('<div class="col-md-4 testsets"><label class="control-label ' + requiredcheck + '">' + value.documents.name + '</label><input type="hidden" name="document_ids[]" value=' + value.document_id + '>' + doc_image + '<input type="file"  name="documents[]" class="form-control" data-document-id="' + value.document_id + '" data-required="' + requiredcheck + '"   ' + requiredcheck + '></div>');
 
                             //checklists add
 
