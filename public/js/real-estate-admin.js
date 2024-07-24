@@ -673,7 +673,7 @@ $(document).ready(function () {
                             if (response.data.document_images) {
                                 doc_image_status = 1;
                                 var path = response.data.document_images[key].path;
-                                doc_image = '<br><a target="_blank" href="/storage/' + path + '"><img src="/storage/' + path + '"  class="image-box-wrapper mb-2" width="50%" style="height:50%"></a><input type="hidden" data-src="/storage/' + path + '">';
+                                doc_image = '<br><a target="_blank" class="thisisthetest" href="/storage/' + path + '"><img src="/storage/' + path + '"  class="image-box-wrapper mb-2" width="50%" style="height:50%"></a><input type="hidden" data-src="/storage/' + path + '">';
 
                             }
 
@@ -692,7 +692,7 @@ $(document).ready(function () {
                                 var path = response.data.document_images[key].path;
                                 var id = response.data.document_images[key].id;
                                 /*if(id==value.id)*/
-                                doc_image = '<br><a target="_blank" href="/storage/' + path + '"><img src="/storage/' + path + '"  class="image-box-wrapper mb-2" width="50%" style="height:50%"></a><input type="hidden" data-src="/storage/' + path + '">';
+                                doc_image = '<br><a target="_blank" href="/storage/' + path + '">' + path + '</a><input type="hidden" data-src="/storage/' + path + '">';
 
                             }
                             /*if(response.data.document_images)
