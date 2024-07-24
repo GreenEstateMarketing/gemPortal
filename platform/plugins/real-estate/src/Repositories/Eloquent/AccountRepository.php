@@ -28,13 +28,28 @@ class AccountRepository extends RepositoriesAbstract implements AccountInterface
 
         return $username;
     }
-    public function  agents()
+    public function agents()
     {
-       $res= $this->model->where('confirmed_at','!=',null)->get();
-       return $res;
+        $res = $this->model->where('confirmed_at', '!=', null)->get();
+        return $res;
     }
-    function getPolygon($id){
-        $res= $this->model->selectRaw('ST_AsGeoJson(agent_area) as poly_coord')->where('id','=',$id)->get();
-        return $res[0]->poly_coord;
+    function getPolygon($id)
+    {
+        $res = $this->model->selectRaw('ST_AsGeoJson(agent_area) as poly_coord')->where('id', '=', $id)->get();
+        $swapped = $this->swapCoordinates($res[0]->poly_coord);
+        return $swapped;
+    }
+
+    private function swapCoordinates($geoJson)
+    {
+        $data = json_decode($geoJson, true);
+        if ($data['type'] === 'Polygon' || $data['type'] === 'MultiPolygon') {
+            foreach ($data['coordinates'] as &$polygon) {
+                foreach ($polygon as &$ring) {
+                    $ring = array_reverse($ring);
+                }
+            }
+        }
+        return json_encode($data);
     }
 }

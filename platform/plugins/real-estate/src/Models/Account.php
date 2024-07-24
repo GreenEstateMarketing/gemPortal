@@ -139,7 +139,7 @@ class Account extends Authenticatable
     {
         return $this->credits > 0;
     }
-    public function getConsults($property_id='')
+    public function getConsults($property_id = '')
     {
         $select = [
             're_consults.id',
@@ -150,14 +150,13 @@ class Account extends Authenticatable
             're_consults.status',
         ];
 
-        $query=Consult::select($select)->Join('re_properties', 're_consults.property_id', '=', 're_properties.id')->where('re_properties.author_id',auth('account')->user()->id)->where('re_consults.status','unread');
-        if($property_id!='')
-        {
-            $query->where('property_id',$property_id);
+        $query = Consult::select($select)->Join('re_properties', 're_consults.property_id', '=', 're_properties.id')->where('re_properties.author_id', auth('account')->user()->id)->where('re_consults.status', 'unread');
+        if ($property_id != '') {
+            $query->where('property_id', $property_id);
         }
-        $count=$query->count();
-        if($count<=0)
-            $count='';
+        $count = $query->count();
+        if ($count <= 0)
+            $count = '';
         return $count; //need to implement query here // account properties to where with consults table count
     }
 
@@ -185,13 +184,15 @@ class Account extends Authenticatable
     {
         return $this->belongsToMany(Package::class, 're_account_packages', 'account_id', 'package_id');
     }
-    public function posts() {
+    public function posts()
+    {
 
-        return $this->hasMany(Property::class,'author_id');
+        return $this->hasMany(Property::class, 'author_id');
 
     }
-    public function getPolygon(){
-        $res= $this->selectRaw('ST_AsGeoJson(agent_area) as poly_coord')->where('id','=',auth('account')->user()->id)->get();
+    public function getPolygon()
+    {
+        $res = $this->selectRaw('ST_AsGeoJson(agent_area) as poly_coord')->where('id', '=', auth('account')->user()->id)->get();
         $swapped = $this->swapCoordinates($res[0]->poly_coord);
         return $swapped;
     }
@@ -200,7 +201,8 @@ class Account extends Authenticatable
         return $this->morphMany(Property::class, 'author')->count('id');
     }
 
-    private function swapCoordinates($geoJson) {
+    private function swapCoordinates($geoJson)
+    {
         $data = json_decode($geoJson, true);
         if ($data['type'] === 'Polygon' || $data['type'] === 'MultiPolygon') {
             foreach ($data['coordinates'] as &$polygon) {
