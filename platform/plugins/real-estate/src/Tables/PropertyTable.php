@@ -117,7 +117,11 @@ class PropertyTable extends TableAbstract
             're_properties.created_at',
         ];
 
-        $query = $model->select($select);
+        $query = $model
+            ->select($select)
+            ->where([
+                're_properties.is_deleted'  => 0
+            ]);
 
         return $this->applyScopes(apply_filters(BASE_FILTER_TABLE_QUERY, $query, $model, $select));
     }
