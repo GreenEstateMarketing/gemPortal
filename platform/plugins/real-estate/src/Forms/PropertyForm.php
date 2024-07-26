@@ -415,10 +415,9 @@ class PropertyForm extends FormAbstract
             ])
             ->add('reject_reason', 'textarea', [
                 'label' => trans('core/base::forms.reject_reason'),
-                'label_attr' => ['class' => 'control-label'],
+                'label_attr' => ['class' => 'control-label required'],
                 'attr' => [
                     'rows' => 4,
-
                     'data-counter' => 350,
                 ],
                 'wrapper' => [

@@ -22,15 +22,15 @@ class PropertyRequest extends Request
             'number_bedroom'    => 'numeric|min:0|max:10000|nullable',
             'number_bathroom'   => 'numeric|min:0|max:10000|nullable',
             'number_floor'      => 'numeric|min:0|max:10000|nullable',
-            'square'        =>'required|min:0|max:99999999',
-            'price'           => 'required|min:0|max:999999999999999',
+            'square'            =>'required|min:0|max:99999999',
+            'price'             => 'required|min:0|max:999999999999999',
             'city_id'           => 'required|not_in:0',
             'city_area_id'      => 'required|not_in:0',
             'location'          => 'required|string',
             'images'            => ['required'],
             'status'            => Rule::in(PropertyStatusEnum::values()),
             'moderation_status' => Rule::in(ModerationStatusEnum::values()),
-
+            'reject_reason'     => 'required_if:moderation_status,rejected'
         ];
     }
     public function messages()
@@ -38,6 +38,7 @@ class PropertyRequest extends Request
         return [
             'city_id.not_in' => 'Choose city from list',
             'city_area_id.not_in'  => 'Choose city area from list',
+            'reject_reason.required_if' => 'Please enter reject reason'
         ];
     }
 
