@@ -97,6 +97,7 @@ class AccountPropertyTable extends PropertyTable
             ->where([
                 're_properties.author_id'   => auth('account')->user()->getAuthIdentifier(),
                 're_properties.author_type' => Account::class,
+                're_properties.is_deleted'  => 0
             ]);
 
         return $this->applyScopes(apply_filters(BASE_FILTER_TABLE_QUERY, $query, $model, $select));

@@ -599,9 +599,7 @@ class GeneralPropertyController extends Controller
     }
     public function properties(MemberPropertyTable $propertyTable)
     {
-
         SeoHelper::setTitle(__('Properties'));
-        /*   Assets::addScriptsDirectly('/js/real-member-user.js');*/
         return $propertyTable->render('plugins/real-estate::member.table.base');
     }
     public function create_property(FormBuilder $formBuilder)

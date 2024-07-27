@@ -8,6 +8,7 @@ use Botble\RealEstate\Enums\PropertyTypeEnum;
 use Botble\RealEstate\Repositories\Interfaces\PropertyInterface;
 use Botble\Support\Repositories\Eloquent\RepositoriesAbstract;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use DB;
 
@@ -791,5 +792,11 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
         // $sql = sprintf($sql, ...$bindings);
         //echo $sql;exit;
         return $this->advancedGet($params);
+    }
+
+    public function delete(Model $model)
+    {
+        $model->is_deleted = 1;
+        $model->save();
     }
 }

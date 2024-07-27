@@ -81,7 +81,7 @@ class MemberPropertyTable extends PropertyTable
      */
     public function query()
     {
-       // echo "here";exit;
+        // echo "here";exit;
         $model = $this->repository->getModel();
         $select = [
             're_properties.id',
@@ -97,8 +97,9 @@ class MemberPropertyTable extends PropertyTable
         $query = $model
             ->select($select)
             ->where([
-                're_properties.member_id'   => auth('member')->user()->id,
-               // 're_properties.author_type' => Account::class,
+                're_properties.member_id' => auth('member')->user()->id,
+                're_properties.is_deleted' => 0
+                // 're_properties.author_type' => Account::class,
             ]);
         //print_r($query->toSql());exit;
         return $this->applyScopes(apply_filters(BASE_FILTER_TABLE_QUERY, $query, $model, $select));
@@ -126,7 +127,7 @@ class MemberPropertyTable extends PropertyTable
         Arr::forget($columns, 'author_id');
 
         $columns['expire_date'] = [
-            'name'  => 're_properties.expire_date',
+            'name' => 're_properties.expire_date',
             'title' => __('Expire date'),
             'width' => '150px',
         ];
