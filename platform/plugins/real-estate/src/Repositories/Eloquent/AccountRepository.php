@@ -31,7 +31,7 @@ class AccountRepository extends RepositoriesAbstract implements AccountInterface
     public function agents()
     {
         $res = $this->model->where('confirmed_at', '!=', null)->get();
-        return $res;
+        return $res; 
     }
     function getPolygon($id)
     {

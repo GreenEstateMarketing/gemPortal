@@ -194,7 +194,7 @@ class Account extends Authenticatable
     {
         $res = $this->selectRaw('ST_AsGeoJson(agent_area) as poly_coord')->where('id', '=', auth('account')->user()->id)->get();
         $swapped = $this->swapCoordinates($res[0]->poly_coord);
-        return $swapped;
+        return $swapped; 
     }
     public function no_of_listings($id)
     {
