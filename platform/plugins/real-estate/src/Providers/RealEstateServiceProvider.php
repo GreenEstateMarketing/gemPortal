@@ -324,6 +324,15 @@ class RealEstateServiceProvider extends ServiceProvider
                     'icon'        => 'fas fa-money-check-alt',
                     'url'         => route('package.index'),
                     'permissions' => ['package.index'],
+                ])
+                ->registerItem([
+                    'id'          => 'cms-plugins-property-documents',
+                    'priority'    => 24,
+                    'parent_id'   => null,
+                    'name'        => 'Property Documents',
+                    'icon'        => 'fas fa-money-check-alt',
+                    'url'         => route('documents.index'),
+                    'permissions' => ['documents.index'],
                 ]);
 
         });

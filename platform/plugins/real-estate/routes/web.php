@@ -33,6 +33,10 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
             ]);
         });
 
+        Route::group(['prefix' => 'documents', 'as' => 'documents.'], function() {
+            Route::resource('', 'DocumentController');
+        });
+
         Route::group(['prefix' => 'projects', 'as' => 'project.'], function () {
             Route::resource('', 'ProjectController')
                 ->parameters(['' => 'project']);
