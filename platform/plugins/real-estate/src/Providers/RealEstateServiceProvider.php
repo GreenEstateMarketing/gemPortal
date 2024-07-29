@@ -12,6 +12,7 @@ use Botble\RealEstate\Http\Middleware\RedirectIfNotAccount;
 use Botble\RealEstate\Models\Account;
 use Botble\RealEstate\Models\AccountActivityLog;
 use Botble\RealEstate\Models\Category;
+use Botble\RealEstate\Models\CategoryDocument;
 use Botble\RealEstate\Models\Consult;
 use Botble\RealEstate\Models\Currency;
 use Botble\RealEstate\Models\Document;
@@ -28,6 +29,7 @@ use Botble\RealEstate\Models\Wanted;
 use Botble\RealEstate\Repositories\Caches\AccountActivityLogCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\AccountCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\CategoryCacheDecorator;
+use Botble\RealEstate\Repositories\Caches\CategoryDocumentCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\DocumentCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\MemberActivityLogCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\MemberCacheDecorator;
@@ -44,6 +46,7 @@ use Botble\RealEstate\Repositories\Caches\PropertyCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\TransactionCacheDecorator;
 use Botble\RealEstate\Repositories\Eloquent\AccountActivityLogRepository;
 use Botble\RealEstate\Repositories\Eloquent\AccountRepository;
+use Botble\RealEstate\Repositories\Eloquent\CategoryDocumentRepository;
 use Botble\RealEstate\Repositories\Eloquent\CategoryRepository;
 use Botble\RealEstate\Repositories\Eloquent\ConsultRepository;
 use Botble\RealEstate\Repositories\Eloquent\CurrencyRepository;
@@ -61,6 +64,7 @@ use Botble\RealEstate\Repositories\Eloquent\VoucherRepository;
 use Botble\RealEstate\Repositories\Eloquent\WantedRepository;
 use Botble\RealEstate\Repositories\Interfaces\AccountActivityLogInterface;
 use Botble\RealEstate\Repositories\Interfaces\AccountInterface;
+use Botble\RealEstate\Repositories\Interfaces\CategoryDocumentInterface;
 use Botble\RealEstate\Repositories\Interfaces\CategoryInterface;
 use Botble\RealEstate\Repositories\Interfaces\ConsultInterface;
 use Botble\RealEstate\Repositories\Interfaces\CurrencyInterface;
@@ -150,21 +154,21 @@ class RealEstateServiceProvider extends ServiceProvider
         });
 
         config([
-            'auth.guards.account'     => [
-                'driver'   => 'session',
+            'auth.guards.account' => [
+                'driver' => 'session',
                 'provider' => 'accounts',
             ],
             'auth.providers.accounts' => [
                 'driver' => 'eloquent',
-                'model'  => Account::class,
+                'model' => Account::class,
             ],
             'auth.passwords.accounts' => [
                 'provider' => 'accounts',
-                'table'    => 're_account_password_resets',
-                'expire'   => 60,
+                'table' => 're_account_password_resets',
+                'expire' => 60,
             ],
             'auth.guards.account-api' => [
-                'driver'   => 'passport',
+                'driver' => 'passport',
                 'provider' => 'accounts',
             ]/*,
             'auth.guards.member'     => [
@@ -181,7 +185,7 @@ class RealEstateServiceProvider extends ServiceProvider
 
         $router->aliasMiddleware('account', RedirectIfNotAccount::class);
         $router->aliasMiddleware('account.guest', RedirectIfAccount::class);
-     //   $router->aliasMiddleware('member.guest', RedirectIfMember::class);
+        //   $router->aliasMiddleware('member.guest', RedirectIfMember::class);
 
         $this->app->bind(AccountInterface::class, function () {
             return new AccountCacheDecorator(new AccountRepository(new Account));
@@ -203,6 +207,12 @@ class RealEstateServiceProvider extends ServiceProvider
         $this->app->bind(DocumentInterface::class, function () {
             return new DocumentCacheDecorator(
                 new DocumentRepository(new Document())
+            );
+        });
+
+        $this->app->bind(CategoryDocumentInterface::class, function () {
+            return new CategoryDocumentCacheDecorator(
+                new CategoryDocumentRepository(new CategoryDocument())
             );
         });
 
@@ -239,111 +249,127 @@ class RealEstateServiceProvider extends ServiceProvider
         Event::listen(RouteMatched::class, function () {
             dashboard_menu()
                 ->registerItem([
-                    'id'          => 'cms-plugins-real-estate',
-                    'priority'    => 5,
-                    'parent_id'   => null,
-                    'name'        => 'plugins/real-estate::real-estate.name',
-                    'icon'        => 'fa fa-bed',
+                    'id' => 'cms-plugins-real-estate',
+                    'priority' => 5,
+                    'parent_id' => null,
+                    'name' => 'plugins/real-estate::real-estate.name',
+                    'icon' => 'fa fa-bed',
                     'permissions' => ['projects.index'],
                 ])
                 ->registerItem([
-                    'id'          => 'cms-plugins-property',
-                    'priority'    => 0,
-                    'parent_id'   => 'cms-plugins-real-estate',
-                    'name'        => 'plugins/real-estate::property.name',
-                    'icon'        => null,
-                    'url'         => route('property.index'),
+                    'id' => 'cms-plugins-property',
+                    'priority' => 0,
+                    'parent_id' => 'cms-plugins-real-estate',
+                    'name' => 'plugins/real-estate::property.name',
+                    'icon' => null,
+                    'url' => route('property.index'),
                     'permissions' => ['property.index'],
                 ])
                 ->registerItem([
-                    'id'          => 'cms-plugins-project',
-                    'priority'    => 1,
-                    'parent_id'   => 'cms-plugins-real-estate',
-                    'name'        => 'plugins/real-estate::project.name',
-                    'icon'        => null,
-                    'url'         => route('project.index'),
+                    'id' => 'cms-plugins-project',
+                    'priority' => 1,
+                    'parent_id' => 'cms-plugins-real-estate',
+                    'name' => 'plugins/real-estate::project.name',
+                    'icon' => null,
+                    'url' => route('project.index'),
                     'permissions' => ['project.index'],
                 ])
                 ->registerItem([
-                    'id'          => 'cms-plugins-re-feature',
-                    'priority'    => 2,
-                    'parent_id'   => 'cms-plugins-real-estate',
-                    'name'        => 'plugins/real-estate::feature.name',
-                    'icon'        => null,
-                    'url'         => route('property_feature.index'),
+                    'id' => 'cms-plugins-re-feature',
+                    'priority' => 2,
+                    'parent_id' => 'cms-plugins-real-estate',
+                    'name' => 'plugins/real-estate::feature.name',
+                    'icon' => null,
+                    'url' => route('property_feature.index'),
                     'permissions' => ['property_feature.index'],
                 ])
                 ->registerItem([
-                    'id'          => 'cms-plugins-facility',
-                    'priority'    => 3,
-                    'parent_id'   => 'cms-plugins-real-estate',
-                    'name'        => 'plugins/real-estate::facility.name',
-                    'icon'        => null,
-                    'url'         => route('facility.index'),
+                    'id' => 'cms-plugins-facility',
+                    'priority' => 3,
+                    'parent_id' => 'cms-plugins-real-estate',
+                    'name' => 'plugins/real-estate::facility.name',
+                    'icon' => null,
+                    'url' => route('facility.index'),
                     'permissions' => ['facility.index'],
                 ])
                 ->registerItem([
-                    'id'          => 'cms-plugins-investor',
-                    'priority'    => 3,
-                    'parent_id'   => 'cms-plugins-real-estate',
-                    'name'        => 'plugins/real-estate::investor.name',
-                    'icon'        => null,
-                    'url'         => route('investor.index'),
+                    'id' => 'cms-plugins-investor',
+                    'priority' => 3,
+                    'parent_id' => 'cms-plugins-real-estate',
+                    'name' => 'plugins/real-estate::investor.name',
+                    'icon' => null,
+                    'url' => route('investor.index'),
                     'permissions' => ['investor.index'],
                 ])
                 ->registerItem([
-                    'id'          => 'cms-plugins-real-estate-settings',
-                    'priority'    => 999,
-                    'parent_id'   => 'cms-plugins-real-estate',
-                    'name'        => 'plugins/real-estate::real-estate.settings',
-                    'icon'        => null,
-                    'url'         => route('real-estate.settings'),
+                    'id' => 'cms-plugins-real-estate-settings',
+                    'priority' => 999,
+                    'parent_id' => 'cms-plugins-real-estate',
+                    'name' => 'plugins/real-estate::real-estate.settings',
+                    'icon' => null,
+                    'url' => route('real-estate.settings'),
                     'permissions' => ['real-estate.settings'],
                 ])
                 ->registerItem([
-                    'id'          => 'cms-plugins-consult',
-                    'priority'    => 6,
-                    'parent_id'   => null,
-                    'name'        => 'plugins/real-estate::consult.name',
-                    'icon'        => 'fas fa-headset',
-                    'url'         => route('consult.index'),
+                    'id' => 'cms-plugins-consult',
+                    'priority' => 6,
+                    'parent_id' => null,
+                    'name' => 'plugins/real-estate::consult.name',
+                    'icon' => 'fas fa-headset',
+                    'url' => route('consult.index'),
                     'permissions' => ['consult.index'],
                 ])
                 ->registerItem([
-                    'id'          => 'cms-plugins-real-estate-category',
-                    'priority'    => 4,
-                    'parent_id'   => 'cms-plugins-real-estate',
-                    'name'        => 'plugins/real-estate::category.name',
-                    'icon'        => null,
-                    'url'         => route('property_category.index'),
+                    'id' => 'cms-plugins-real-estate-category',
+                    'priority' => 4,
+                    'parent_id' => 'cms-plugins-real-estate',
+                    'name' => 'plugins/real-estate::category.name',
+                    'icon' => null,
+                    'url' => route('property_category.index'),
                     'permissions' => ['property_category.index'],
                 ])
                 ->registerItem([
-                    'id'          => 'cms-plugins-real-estate-account',
-                    'priority'    => 22,
-                    'parent_id'   => null,
-                    'name'        => 'plugins/real-estate::account.name',
-                    'icon'        => 'fa fa-users',
-                    'url'         => route('account.index'),
+                    'id' => 'cms-plugins-real-estate-account',
+                    'priority' => 22,
+                    'parent_id' => null,
+                    'name' => 'plugins/real-estate::account.name',
+                    'icon' => 'fa fa-users',
+                    'url' => route('account.index'),
                     'permissions' => ['account.index'],
                 ])
                 ->registerItem([
-                    'id'          => 'cms-plugins-package',
-                    'priority'    => 23,
-                    'parent_id'   => null,
-                    'name'        => 'plugins/real-estate::package.name',
-                    'icon'        => 'fas fa-money-check-alt',
-                    'url'         => route('package.index'),
+                    'id' => 'cms-plugins-package',
+                    'priority' => 23,
+                    'parent_id' => null,
+                    'name' => 'plugins/real-estate::package.name',
+                    'icon' => 'fas fa-money-check-alt',
+                    'url' => route('package.index'),
                     'permissions' => ['package.index'],
                 ])
                 ->registerItem([
-                    'id'          => 'cms-plugins-property-documents',
-                    'priority'    => 24,
-                    'parent_id'   => null,
-                    'name'        => 'Property Documents',
-                    'icon'        => 'fas fa-money-check-alt',
-                    'url'         => route('document.index'),
+                    'id' => 'cms-plugins-property-documents',
+                    'priority' => 24,
+                    'parent_id' => null,
+                    'name' => 'Property Documents',
+                    'icon' => 'fas fa-file',
+                    'url' => route('document.index'),
                     'permissions' => ['document.index'],
+                ])
+                ->registerItem([
+                    'id' => 'cms-plugins-documents',
+                    'priority' => 25,
+                    'parent_id' => 'cms-plugins-property-documents',
+                    'name' => 'Documents',
+                    'url' => route('document.index'),
+                    'permissions' => ['document.index'],
+                ])
+                ->registerItem([
+                    'id' => 'cms-plugins-category-documents',
+                    'priority' => 26,
+                    'parent_id' => 'cms-plugins-property-documents',
+                    'name' => 'Category Documents',
+                    'url' => route('category-document.index'),
+                    'permissions' => ['category-document.index'],
                 ]);
 
         });

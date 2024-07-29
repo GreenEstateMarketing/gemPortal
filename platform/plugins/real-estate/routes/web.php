@@ -44,6 +44,17 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
             ]);
         });
 
+        Route::group(['prefix' => 'category-documents', 'as' => 'category-document.'], function () {
+            Route::resource('', 'CategoryDocumentController')
+                ->parameters(['' => 'category-document']);
+
+            Route::delete('items/destroy', [
+                'as' => 'deletes',
+                'uses' => 'CategoryDocumentController@deletes',
+                'permission' => 'document.destroy',
+            ]);
+        });
+
         Route::group(['prefix' => 'projects', 'as' => 'project.'], function () {
             Route::resource('', 'ProjectController')
                 ->parameters(['' => 'project']);

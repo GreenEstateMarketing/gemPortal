@@ -44,4 +44,9 @@ class Category extends BaseModel
     {
         return $this->hasMany(Property::class);
     }
+
+    public function documents()
+    {
+        return $this->belongsToMany(Document::class, 'category_documents', 'category_id', 'document_id');
+    }
 }
