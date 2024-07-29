@@ -122,7 +122,7 @@ class DocumentController extends BaseController
         foreach ($ids as $id) {
             $document = $this->documentRepo->findOrFail($id);
             $this->documentRepo->delete($document);
-            event(new DeletedContentEvent(PACKAGE_MODULE_SCREEN_NAME, $request, $document));
+            event(new DeletedContentEvent(DOCUMENT_MODULE_SCREEN_NAME, $request, $document));
         }
 
         return $response->setMessage(trans('core/base::notices.delete_success_message'));

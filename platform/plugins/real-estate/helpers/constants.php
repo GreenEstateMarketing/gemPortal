@@ -52,3 +52,7 @@ if (!defined('DOCUMENT_MODULE_SCREEN_NAME')) {
     define('DOCUMENT_MODULE_SCREEN_NAME', 'document');
 }
 
+if (!defined('CATEGORY_DOCUMENT_MODULE_SCREEN_NAME')) {
+    define('CATEGORY_DOCUMENT_MODULE_SCREEN_NAME', 'category-document');
+}
+

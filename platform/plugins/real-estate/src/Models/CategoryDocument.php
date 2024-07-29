@@ -10,7 +10,8 @@ class CategoryDocument extends BaseModel
 
     protected $fillable = [
         'category_id',
-        'document_id'
+        'document_id',
+        'required'
     ];
 
     public function category()

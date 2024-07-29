@@ -4,7 +4,6 @@ namespace Botble\RealEstate\Tables;
 
 use Botble\RealEstate\Models\Document;
 use Botble\RealEstate\Repositories\Interfaces\CategoryDocumentInterface;
-use Botble\RealEstate\Repositories\Interfaces\DocumentInterface;
 use Botble\Table\Abstracts\TableAbstract;
 use Illuminate\Contracts\Routing\UrlGenerator;
 use Yajra\DataTables\DataTables;
@@ -39,6 +38,9 @@ class CategoryDocumentTable extends TableAbstract
             ->editColumn('document_id', function ($item) {
                 return $item->document->name;
             })
+            ->editColumn('required', function ($item) {
+                return $item->required;
+            })
             ->editColumn('checkbox', function ($item) {
                 return $this->getCheckbox($item->id);
             })
@@ -61,6 +63,7 @@ class CategoryDocumentTable extends TableAbstract
             'category_documents.id',
             'category_documents.category_id',
             'category_documents.document_id',
+            'category_documents.required',
             'category_documents.created_at'
         ];
 
@@ -85,6 +88,11 @@ class CategoryDocumentTable extends TableAbstract
             'document_id' => [
                 'name' => 'category_documents.document_id',
                 'title' => 'Document',
+                'width' => '100px',
+            ],
+            'required' => [
+                'name' => 'category_documents.required',
+                'title' => 'Required',
                 'width' => '100px',
             ],
             'created_at' => [
