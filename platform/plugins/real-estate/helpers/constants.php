@@ -48,3 +48,7 @@ if (!defined('PACKAGE_MODULE_SCREEN_NAME')) {
     define('PACKAGE_MODULE_SCREEN_NAME', 'package');
 }
 
+if (!defined('DOCUMENT_MODULE_SCREEN_NAME')) {
+    define('DOCUMENT_MODULE_SCREEN_NAME', 'document');
+}
+

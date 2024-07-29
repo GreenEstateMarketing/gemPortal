@@ -33,17 +33,16 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
             ]);
         });
 
-        Route::group(['prefix' => 'documents', 'as' => 'document.'], function() {
-            Route::resource('', 'DocumentController');
+        Route::group(['prefix' => 'documents', 'as' => 'document.'], function () {
+            Route::resource('', 'DocumentController')
+                ->parameters(['' => 'document']);
 
-            Route::delete('destroy', [
-                'as' => 'destroy',
-                'uses' => 'DocumentController@destroy',
+            Route::delete('items/destroy', [
+                'as' => 'deletes',
+                'uses' => 'DocumentController@deletes',
                 'permission' => 'document.destroy',
             ]);
         });
-
-
 
         Route::group(['prefix' => 'projects', 'as' => 'project.'], function () {
             Route::resource('', 'ProjectController')
@@ -295,7 +294,7 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                         'password/email',
                         'ForgotPasswordController@sendResetLinkEmail'
                     )->name('password.email');
-                    
+
                     Route::post('password/reset', 'ResetPasswordController@reset')
                         ->name('password.update');
 

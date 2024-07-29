@@ -47,5 +47,7 @@ return [
     'basic_info_title'        => 'Basic information',
     'parent_id_check'         =>'Is Parent?',
     'parent_category'         => 'Parent Category',
-    'category_placeholder'        => 'Select'
+    'category_placeholder'    => 'Select',
+    'type'                    => 'Type',
+    'type_placeholder'        => 'Type'
 ];

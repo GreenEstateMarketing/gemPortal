@@ -106,7 +106,7 @@ class DocumentTable extends TableAbstract
 
     public function bulkActions(): array
     {
-        return $this->addDeleteAction(route('document.destroy'), 'document.destroy', parent::bulkActions());
+        return $this->addDeleteAction(route('document.deletes'), 'document.destroy', parent::bulkActions());
     }
 
     public function getBulkChanges(): array

@@ -3,14 +3,13 @@
 namespace Botble\RealEstate\Http\Controllers;
 
 use Botble\Base\Events\BeforeEditContentEvent;
-use Botble\RealEstate\Http\Requests\PackageRequest;
-use Botble\RealEstate\Repositories\Interfaces\PackageInterface;
+use Botble\RealEstate\Forms\DocumentForm;
+use Botble\RealEstate\Http\Requests\DocumentRequest;
 use Botble\Base\Http\Controllers\BaseController;
 use Botble\RealEstate\Repositories\Interfaces\DocumentInterface;
 use Botble\RealEstate\Tables\DocumentTable;
 use Illuminate\Http\Request;
 use Exception;
-use Botble\RealEstate\Tables\PackageTable;
 use Botble\Base\Events\CreatedContentEvent;
 use Botble\Base\Events\DeletedContentEvent;
 use Botble\Base\Events\UpdatedContentEvent;
@@ -25,7 +24,6 @@ class DocumentController extends BaseController
     protected $documentRepo;
 
     /**
-     * PackageController constructor.
      * @param DocumentInterface $documentRepo
      */
     public function __construct(DocumentInterface $documentRepo)
@@ -46,25 +44,21 @@ class DocumentController extends BaseController
      */
     public function create(FormBuilder $formBuilder)
     {
-//        page_title()->setTitle(trans('plugins/real-estate::package.create'));
-//
-//        return $formBuilder->create(PackageForm::class)->renderForm();
+        page_title()->setTitle(trans('plugins/real-estate::document.create'));
+
+        return $formBuilder->create(DocumentForm::class)->renderForm();
     }
 
-    /**
-     * @param PackageRequest $request
-     * @return BaseHttpResponse
-     */
-    public function store(PackageRequest $request, BaseHttpResponse $response)
+    public function store(DocumentRequest $request, BaseHttpResponse $response)
     {
-//        $package = $this->packageRepository->createOrUpdate($request->input());
-//
-//        event(new CreatedContentEvent(PACKAGE_MODULE_SCREEN_NAME, $request, $package));
-//
-//        return $response
-//            ->setPreviousUrl(route('package.index'))
-//            ->setNextUrl(route('package.edit', $package->id))
-//            ->setMessage(trans('core/base::notices.create_success_message'));
+        $document = $this->documentRepo->createOrUpdate($request->input());
+
+        event(new CreatedContentEvent(DOCUMENT_MODULE_SCREEN_NAME, $request, $document));
+
+        return $response
+            ->setPreviousUrl(route('document.index'))
+            ->setNextUrl(route('document.edit', $document->id))
+            ->setMessage(trans('core/base::notices.create_success_message'));
     }
 
     /**
@@ -75,54 +69,62 @@ class DocumentController extends BaseController
      */
     public function edit($id, FormBuilder $formBuilder, Request $request)
     {
-//        $package = $this->packageRepository->findOrFail($id);
-//
-//        event(new BeforeEditContentEvent($request, $package));
-//
-//        page_title()->setTitle(trans('plugins/real-estate::package.edit') . ' "' . $package->name . '"');
-//
-//        return $formBuilder->create(PackageForm::class, ['model' => $package])->renderForm();
+        $document = $this->documentRepo->findOrFail($id);
+
+        event(new BeforeEditContentEvent($request, $document));
+
+        page_title()->setTitle(trans('plugins/real-estate::document.edit') . ' "' . $document->name . '"');
+
+        return $formBuilder->create(DocumentForm::class, ['model' => $document])->renderForm();
     }
 
-    /**
-     * @param $id
-     * @param PackageRequest $request
-     * @return BaseHttpResponse
-     */
-    public function update($id, PackageRequest $request, BaseHttpResponse $response)
+    public function update($id, DocumentRequest $request, BaseHttpResponse $response)
     {
-//        $package = $this->packageRepository->findOrFail($id);
-//
-//        $package->fill($request->input());
-//
-//        $this->packageRepository->createOrUpdate($package);
-//
-//        event(new UpdatedContentEvent(PACKAGE_MODULE_SCREEN_NAME, $request, $package));
-//
-//        return $response
-//            ->setPreviousUrl(route('package.index'))
-//            ->setMessage(trans('core/base::notices.update_success_message'));
+        $document = $this->documentRepo->findOrFail($id);
+
+        $document->fill($request->input());
+
+        $this->documentRepo->createOrUpdate($document);
+
+        event(new UpdatedContentEvent(DOCUMENT_MODULE_SCREEN_NAME, $request, $document));
+
+        return $response
+            ->setPreviousUrl(route('document.index'))
+            ->setMessage(trans('core/base::notices.update_success_message'));
     }
 
-    /**
-     * @param $id
-     * @param Request $request
-     * @return BaseHttpResponse
-     */
     public function destroy(Request $request, $id, BaseHttpResponse $response)
     {
-//        try {
-//            $package = $this->packageRepository->findOrFail($id);
-//
-//            $this->packageRepository->delete($package);
-//
-//            event(new DeletedContentEvent(PACKAGE_MODULE_SCREEN_NAME, $request, $package));
-//
-//            return $response->setMessage(trans('core/base::notices.delete_success_message'));
-//        } catch (Exception $exception) {
-//            return $response
-//                ->setError()
-//                ->setMessage(trans('core/base::notices.cannot_delete'));
-//        }
+        try {
+            $document = $this->documentRepo->findOrFail($id);
+
+            $this->documentRepo->delete($document);
+
+            event(new DeletedContentEvent(DOCUMENT_MODULE_SCREEN_NAME, $request, $document));
+
+            return $response->setMessage(trans('core/base::notices.delete_success_message'));
+        } catch (Exception $exception) {
+            return $response
+                ->setError()
+                ->setMessage(trans('core/base::notices.cannot_delete'));
+        }
+    }
+
+    public function deletes(Request $request, BaseHttpResponse $response)
+    {
+        $ids = $request->input('ids');
+        if (empty($ids)) {
+            return $response
+                ->setError()
+                ->setMessage(trans('core/base::notices.no_select'));
+        }
+
+        foreach ($ids as $id) {
+            $document = $this->documentRepo->findOrFail($id);
+            $this->documentRepo->delete($document);
+            event(new DeletedContentEvent(PACKAGE_MODULE_SCREEN_NAME, $request, $document));
+        }
+
+        return $response->setMessage(trans('core/base::notices.delete_success_message'));
     }
 }
