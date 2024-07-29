@@ -14,6 +14,7 @@ use Botble\RealEstate\Models\AccountActivityLog;
 use Botble\RealEstate\Models\Category;
 use Botble\RealEstate\Models\Consult;
 use Botble\RealEstate\Models\Currency;
+use Botble\RealEstate\Models\Document;
 use Botble\RealEstate\Models\Facility;
 use Botble\RealEstate\Models\Feature;
 use Botble\RealEstate\Models\Investor;
@@ -27,6 +28,7 @@ use Botble\RealEstate\Models\Wanted;
 use Botble\RealEstate\Repositories\Caches\AccountActivityLogCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\AccountCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\CategoryCacheDecorator;
+use Botble\RealEstate\Repositories\Caches\DocumentCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\MemberActivityLogCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\MemberCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\VoucherCacheDecorator;
@@ -45,6 +47,7 @@ use Botble\RealEstate\Repositories\Eloquent\AccountRepository;
 use Botble\RealEstate\Repositories\Eloquent\CategoryRepository;
 use Botble\RealEstate\Repositories\Eloquent\ConsultRepository;
 use Botble\RealEstate\Repositories\Eloquent\CurrencyRepository;
+use Botble\RealEstate\Repositories\Eloquent\DocumentRepository;
 use Botble\RealEstate\Repositories\Eloquent\FacilityRepository;
 use Botble\RealEstate\Repositories\Eloquent\FeatureRepository;
 use Botble\RealEstate\Repositories\Eloquent\InvestorRepository;
@@ -61,6 +64,7 @@ use Botble\RealEstate\Repositories\Interfaces\AccountInterface;
 use Botble\RealEstate\Repositories\Interfaces\CategoryInterface;
 use Botble\RealEstate\Repositories\Interfaces\ConsultInterface;
 use Botble\RealEstate\Repositories\Interfaces\CurrencyInterface;
+use Botble\RealEstate\Repositories\Interfaces\DocumentInterface;
 use Botble\RealEstate\Repositories\Interfaces\FacilityInterface;
 use Botble\RealEstate\Repositories\Interfaces\FeatureInterface;
 use Botble\RealEstate\Repositories\Interfaces\InvestorInterface;
@@ -195,6 +199,13 @@ class RealEstateServiceProvider extends ServiceProvider
                 new PackageRepository(new Package)
             );
         });
+
+        $this->app->bind(DocumentInterface::class, function () {
+            return new DocumentCacheDecorator(
+                new DocumentRepository(new Document())
+            );
+        });
+
         $this->app->bind(VoucherInterface::class, function () {
             return new VoucherCacheDecorator(
                 new VoucherRepository(new Voucher)
@@ -331,8 +342,8 @@ class RealEstateServiceProvider extends ServiceProvider
                     'parent_id'   => null,
                     'name'        => 'Property Documents',
                     'icon'        => 'fas fa-money-check-alt',
-                    'url'         => route('documents.index'),
-                    'permissions' => ['documents.index'],
+                    'url'         => route('document.index'),
+                    'permissions' => ['document.index'],
                 ]);
 
         });

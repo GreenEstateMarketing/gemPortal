@@ -60,4 +60,5 @@ return [
     'image'                   => 'Image',
     'bulk_changes'            => 'Bulk changes',
     'submit'                  => 'Submit',
+    'type'                    => 'Type'
 ];
