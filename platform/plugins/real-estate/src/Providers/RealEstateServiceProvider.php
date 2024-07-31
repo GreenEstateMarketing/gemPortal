@@ -24,6 +24,7 @@ use Botble\RealEstate\Models\Package;
 use BeyondCode\Vouchers\Models\Voucher;
 use Botble\RealEstate\Models\Project;
 use Botble\RealEstate\Models\Property;
+use Botble\RealEstate\Models\Template;
 use Botble\RealEstate\Models\Transaction;
 use Botble\RealEstate\Models\Wanted;
 use Botble\RealEstate\Repositories\Caches\AccountActivityLogCacheDecorator;
@@ -33,6 +34,7 @@ use Botble\RealEstate\Repositories\Caches\CategoryDocumentCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\DocumentCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\MemberActivityLogCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\MemberCacheDecorator;
+use Botble\RealEstate\Repositories\Caches\TemplateCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\VoucherCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\WantedCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\ConsultCacheDecorator;
@@ -59,6 +61,7 @@ use Botble\RealEstate\Repositories\Eloquent\MemberRepository;
 use Botble\RealEstate\Repositories\Eloquent\PackageRepository;
 use Botble\RealEstate\Repositories\Eloquent\ProjectRepository;
 use Botble\RealEstate\Repositories\Eloquent\PropertyRepository;
+use Botble\RealEstate\Repositories\Eloquent\TemplateRepository;
 use Botble\RealEstate\Repositories\Eloquent\TransactionRepository;
 use Botble\RealEstate\Repositories\Eloquent\VoucherRepository;
 use Botble\RealEstate\Repositories\Eloquent\WantedRepository;
@@ -77,6 +80,7 @@ use Botble\RealEstate\Repositories\Interfaces\MemberInterface;
 use Botble\RealEstate\Repositories\Interfaces\PackageInterface;
 use Botble\RealEstate\Repositories\Interfaces\ProjectInterface;
 use Botble\RealEstate\Repositories\Interfaces\PropertyInterface;
+use Botble\RealEstate\Repositories\Interfaces\TemplateInterface;
 use Botble\RealEstate\Repositories\Interfaces\TransactionInterface;
 use Botble\RealEstate\Repositories\Interfaces\VoucherInterface;
 use Botble\RealEstate\Repositories\Interfaces\WantedInterface;
@@ -213,6 +217,12 @@ class RealEstateServiceProvider extends ServiceProvider
         $this->app->bind(CategoryDocumentInterface::class, function () {
             return new CategoryDocumentCacheDecorator(
                 new CategoryDocumentRepository(new CategoryDocument())
+            );
+        });
+
+        $this->app->bind(TemplateInterface::class, function () {
+            return new TemplateCacheDecorator(
+                new TemplateRepository(new Template())
             );
         });
 
@@ -370,6 +380,15 @@ class RealEstateServiceProvider extends ServiceProvider
                     'name' => 'Category Documents',
                     'url' => route('category-document.index'),
                     'permissions' => ['category-document.index'],
+                ])
+                ->registerItem([
+                    'id' => 'cms-plugins-description-templates',
+                    'priority' => 27,
+                    'parent_id' => null,
+                    'name' => 'Description Templates',
+                    'icon' => 'fas fa-file-alt',
+                    'url' => route('template.index'),
+                    'permissions' => ['template.index'],
                 ]);
 
         });
