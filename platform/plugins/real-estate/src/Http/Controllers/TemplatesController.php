@@ -2,7 +2,12 @@
 
 namespace Botble\RealEstate\Http\Controllers;
 
+use Botble\Base\Events\BeforeEditContentEvent;
+use Botble\Base\Events\CreatedContentEvent;
+use Botble\Base\Events\DeletedContentEvent;
+use Botble\Base\Events\UpdatedContentEvent;
 use Botble\Base\Http\Controllers\BaseController;
+use Botble\RealEstate\Forms\TemplateForm;
 use Botble\RealEstate\Http\Requests\TemplateRequest;
 use Botble\RealEstate\Repositories\Interfaces\TemplateInterface;
 use Botble\Base\Forms\FormBuilder;
@@ -38,21 +43,21 @@ class TemplatesController extends BaseController
      */
     public function create(FormBuilder $formBuilder)
     {
-//        page_title()->setTitle(trans('plugins/real-estate::document.create'));
-//
-//        return $formBuilder->create(DocumentForm::class)->renderForm();
+        page_title()->setTitle(trans('plugins/real-estate::template.create'));
+
+        return $formBuilder->create(TemplateForm::class)->renderForm();
     }
 
     public function store(TemplateRequest $request, BaseHttpResponse $response)
     {
-//        $document = $this->documentRepo->createOrUpdate($request->input());
-//
-//        event(new CreatedContentEvent(DOCUMENT_MODULE_SCREEN_NAME, $request, $document));
-//
-//        return $response
-//            ->setPreviousUrl(route('document.index'))
-//            ->setNextUrl(route('document.edit', $document->id))
-//            ->setMessage(trans('core/base::notices.create_success_message'));
+        $template = $this->templateRepo->createOrUpdate($request->input());
+
+        event(new CreatedContentEvent(DESCRIPTION_TEMPLATE_MODULE_SCREEN_NAME, $request, $template));
+
+        return $response
+            ->setPreviousUrl(route('template.index'))
+            ->setNextUrl(route('template.edit', $template->id))
+            ->setMessage(trans('core/base::notices.create_success_message'));
     }
 
     /**
@@ -63,62 +68,62 @@ class TemplatesController extends BaseController
      */
     public function edit($id, FormBuilder $formBuilder, Request $request)
     {
-//        $document = $this->documentRepo->findOrFail($id);
-//
-//        event(new BeforeEditContentEvent($request, $document));
-//
-//        page_title()->setTitle(trans('plugins/real-estate::document.edit') . ' "' . $document->name . '"');
-//
-//        return $formBuilder->create(DocumentForm::class, ['model' => $document])->renderForm();
+        $template = $this->templateRepo->findOrFail($id);
+
+        event(new BeforeEditContentEvent($request, $template));
+
+        page_title()->setTitle(trans('plugins/real-estate::template.edit') . ' "' . $template->name . '"');
+
+        return $formBuilder->create(TemplateForm::class, ['model' => $template])->renderForm();
     }
 
     public function update($id, TemplateRequest $request, BaseHttpResponse $response)
     {
-//        $document = $this->documentRepo->findOrFail($id);
-//
-//        $document->fill($request->input());
-//
-//        $this->documentRepo->createOrUpdate($document);
-//
-//        event(new UpdatedContentEvent(DOCUMENT_MODULE_SCREEN_NAME, $request, $document));
-//
-//        return $response
-//            ->setPreviousUrl(route('document.index'))
-//            ->setMessage(trans('core/base::notices.update_success_message'));
+        $template = $this->templateRepo->findOrFail($id);
+
+        $template->fill($request->input());
+
+        $this->templateRepo->createOrUpdate($template);
+
+        event(new UpdatedContentEvent(DESCRIPTION_TEMPLATE_MODULE_SCREEN_NAME, $request, $template));
+
+        return $response
+            ->setPreviousUrl(route('template.index'))
+            ->setMessage(trans('core/base::notices.update_success_message'));
     }
 
     public function destroy(Request $request, $id, BaseHttpResponse $response)
     {
-//        try {
-//            $document = $this->documentRepo->findOrFail($id);
-//
-//            $this->documentRepo->delete($document);
-//
-//            event(new DeletedContentEvent(DOCUMENT_MODULE_SCREEN_NAME, $request, $document));
-//
-//            return $response->setMessage(trans('core/base::notices.delete_success_message'));
-//        } catch (Exception $exception) {
-//            return $response
-//                ->setError()
-//                ->setMessage(trans('core/base::notices.cannot_delete'));
-//        }
+        try {
+            $template = $this->templateRepo->findOrFail($id);
+
+            $this->templateRepo->delete($template);
+
+            event(new DeletedContentEvent(DESCRIPTION_TEMPLATE_MODULE_SCREEN_NAME, $request, $template));
+
+            return $response->setMessage(trans('core/base::notices.delete_success_message'));
+        } catch (Exception $exception) {
+            return $response
+                ->setError()
+                ->setMessage(trans('core/base::notices.cannot_delete'));
+        }
     }
 
     public function deletes(Request $request, BaseHttpResponse $response)
     {
-//        $ids = $request->input('ids');
-//        if (empty($ids)) {
-//            return $response
-//                ->setError()
-//                ->setMessage(trans('core/base::notices.no_select'));
-//        }
-//
-//        foreach ($ids as $id) {
-//            $document = $this->documentRepo->findOrFail($id);
-//            $this->documentRepo->delete($document);
-//            event(new DeletedContentEvent(DOCUMENT_MODULE_SCREEN_NAME, $request, $document));
-//        }
-//
-//        return $response->setMessage(trans('core/base::notices.delete_success_message'));
+        $ids = $request->input('ids');
+        if (empty($ids)) {
+            return $response
+                ->setError()
+                ->setMessage(trans('core/base::notices.no_select'));
+        }
+
+        foreach ($ids as $id) {
+            $template = $this->templateRepo->findOrFail($id);
+            $this->templateRepo->delete($template);
+            event(new DeletedContentEvent(DESCRIPTION_TEMPLATE_MODULE_SCREEN_NAME, $request, $template));
+        }
+
+        return $response->setMessage(trans('core/base::notices.delete_success_message'));
     }
 }

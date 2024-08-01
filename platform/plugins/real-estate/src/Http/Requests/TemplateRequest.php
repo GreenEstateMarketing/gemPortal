@@ -2,7 +2,10 @@
 
 namespace Botble\RealEstate\Http\Requests;
 
-class TemplateRequest
+use Botble\Support\Http\Requests\Request;
+use Illuminate\Validation\Rule;
+
+class TemplateRequest extends Request
 {
     public function rules()
     {
@@ -11,7 +14,17 @@ class TemplateRequest
             'detail' => 'required',
             'type' => 'required',
             'status' => 'required',
-            'category_id' => 'required'
+            'category_id' => [
+                'required',
+                Rule::unique('description_template')->ignore($this->route('template')),
+            ],
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'category_id.unique' => 'Record exists for this category.',
         ];
     }
 }

@@ -56,3 +56,7 @@ if (!defined('CATEGORY_DOCUMENT_MODULE_SCREEN_NAME')) {
     define('CATEGORY_DOCUMENT_MODULE_SCREEN_NAME', 'category-document');
 }
 
+if (!defined('DESCRIPTION_TEMPLATE_MODULE_SCREEN_NAME')) {
+    define('DESCRIPTION_TEMPLATE_MODULE_SCREEN_NAME', 'description-template');
+}
+

@@ -45,10 +45,10 @@ class TemplateTable extends TableAbstract
                 return $item->detail;
             })
             ->editColumn('status', function ($item) {
-                return $item->status;
+                return $item->status ? 'Published': 'Not Published';
             })
             ->editColumn('category_id', function ($item) {
-                return $item->category;
+                return $item->category->name;
             })
             ->editColumn('created_at', function ($item) {
                 return \BaseHelper::formatDate($item->created_at);
@@ -93,11 +93,11 @@ class TemplateTable extends TableAbstract
                 'title' => trans('core/base::tables.name'),
                 'class' => 'text-left',
             ],
-            'detail' => [
-                'name' => 'description_template.detail',
-                'title' => 'detail',
-                'class' => 'text-left',
-            ],
+//            'detail' => [
+//                'name' => 'description_template.detail',
+//                'title' => 'detail',
+//                'class' => 'text-left',
+//            ],
             'type' => [
                 'name' => 'description_template.type',
                 'title' => 'type',

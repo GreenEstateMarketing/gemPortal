@@ -49,4 +49,9 @@ class Category extends BaseModel
     {
         return $this->belongsToMany(Document::class, 'category_documents', 'category_id', 'document_id');
     }
+
+    public function template()
+    {
+        return $this->hasOne(Template::class, 'category_id');
+    }
 }
