@@ -42,12 +42,12 @@ class DocumentTable extends TableAbstract
             ->editColumn('checkbox', function ($item) {
                 return $this->getCheckbox($item->id);
             })
+            ->editColumn('type', function ($item) {
+                return $item->type;
+            })
             ->editColumn('created_at', function ($item) {
                 return \BaseHelper::formatDate($item->created_at);
             });
-//            ->editColumn('type', function ($item) {
-//                return $item->type;
-//            });
 
         return apply_filters(BASE_FILTER_GET_LIST_DATA, $data, $this->repository->getModel())
             ->addColumn('operations', function ($item) {
@@ -63,7 +63,8 @@ class DocumentTable extends TableAbstract
         $select = [
             'documents.id',
             'documents.name',
-            'documents.created_at'
+            'documents.created_at',
+            'documents.type'
         ];
 
         $query = $model->select($select);
@@ -84,11 +85,11 @@ class DocumentTable extends TableAbstract
                 'title' => trans('core/base::tables.name'),
                 'class' => 'text-left',
             ],
-//            'type' => [
-//                'name' => 'documents.type',
-//                'title' => trans('core/base::tables.type'),
-//                'width' => '100px',
-//            ],
+            'type' => [
+                'name' => 'documents.type',
+                'title' => trans('core/base::tables.type'),
+                'width' => '100px',
+            ],
             'created_at' => [
                 'name' => 'documents.created_at',
                 'title' => trans('core/base::tables.created_at'),

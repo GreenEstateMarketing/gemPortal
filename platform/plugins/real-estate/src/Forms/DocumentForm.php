@@ -21,6 +21,14 @@ class DocumentForm extends FormAbstract
 
     public function buildForm()
     {
+        $types = [
+            '.pdf' => 'PDF',
+            '.doc' => 'DOC',
+            '.jpeg' => 'JPEG',
+            '.docx' => 'DOCX',
+            '.png' => 'PNG',
+            '.jpg' => 'JPG'
+        ];
 
         Assets::addScripts(['input-mask']);
 
@@ -35,13 +43,16 @@ class DocumentForm extends FormAbstract
                     'placeholder' => trans('core/base::forms.name_placeholder'),
                     'data-counter' => 120,
                 ],
-            ])->add('type', 'text', [
+            ])->add('type', 'customSelect', [
                 'label' => trans('core/base::forms.type'),
                 'label_attr' => ['class' => 'control-label required'],
-                'attr' => [
-                    'placeholder' => trans('core/base::forms.type_placeholder'),
-                    'data-counter' => 120,
+                'wrapper' => [
+                    'class' => 'form-group col-md-6',
                 ],
+                'attr' => [
+                    'class' => 'form-control select-full',
+                ],
+                'choices' => $types,
             ]);
     }
 }
