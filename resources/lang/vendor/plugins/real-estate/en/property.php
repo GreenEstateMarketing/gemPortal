@@ -44,12 +44,13 @@ return [
     ],
     'statuses' => [
         'not_available' => 'Not available',
-        'pre_sale' => 'Preparing selling',
+        'pre_sale' => 'Preparing sellingzz',
         'selling' => 'Selling',
         'sold' => 'Sold',
         'renting' => 'Renting',
         'rented' => 'Rented',
         'building' => 'Building',
+        'closed' => 'Closed',
     ],
     'types' => [
         'sale' => 'Sale',
@@ -65,6 +66,7 @@ return [
         'pending' => 'Pending',
         'approved' => 'Approved',
         'rejected' => 'Rejected',
+        'closed' => 'Closed'
     ],
     'renew_notice' => 'Renew automatically (you will be charged again in :days days)?',
     'distance_key' => 'Distance  Between Key Facilities',

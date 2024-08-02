@@ -13,6 +13,7 @@ use Html;
  * @method static PropertyStatusEnum RENTING()
  * @method static PropertyStatusEnum RENTED()
  * @method static PropertyStatusEnum BUILDING()
+ * * @method static PropertyStatusEnum CLOSED()
  */
 class PropertyStatusEnum extends Enum
 {
@@ -23,6 +24,7 @@ class PropertyStatusEnum extends Enum
     public const RENTING = 'renting';
     public const RENTED = 'rented';
     public const BUILDING = 'building';
+    public const CLOSED = 'closed';
 
     /**
      * @var string
@@ -55,6 +57,9 @@ class PropertyStatusEnum extends Enum
                     ->toHtml();
             case self::BUILDING:
                 return Html::tag('span', self::BUILDING()->label(), ['class' => 'label-info status-label'])
+                    ->toHtml();
+            case self::CLOSED:
+                return Html::tag('span', self::CLOSED()->label(), ['class' => 'label-secondary status-label'])
                     ->toHtml();
             default:
                 return null;

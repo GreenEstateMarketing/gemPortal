@@ -12,6 +12,7 @@ use Botble\Base\Events\UpdatedContentEvent;
 use Botble\Base\Forms\FormBuilder;
 use Botble\Base\Http\Controllers\BaseController;
 use Botble\Base\Http\Responses\BaseHttpResponse;
+use Botble\RealEstate\Enums\ModerationStatusEnum;
 use Botble\RealEstate\Forms\PropertyForm;
 use Botble\RealEstate\Http\Requests\PropertyRequest;
 use Botble\RealEstate\Repositories\Interfaces\ProjectInterface;
@@ -21,6 +22,7 @@ use Botble\RealEstate\Services\SaveFacilitiesService;
 use Botble\RealEstate\Tables\PropertyTable;
 use Botble\RealEstate\Models\Account;
 use Botble\RealEstate\Models\Category;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Http\JsonResponse;
@@ -59,9 +61,10 @@ class PropertyController extends BaseController
      */
     public function __construct(
         PropertyInterface $propertyRepository,
-        ProjectInterface $projectRepository,
-        FeatureInterface $featureRepository
-    ) {
+        ProjectInterface  $projectRepository,
+        FeatureInterface  $featureRepository
+    )
+    {
         $this->propertyRepository = $propertyRepository;
         $this->projectRepository = $projectRepository;
         $this->featureRepository = $featureRepository;
@@ -87,7 +90,7 @@ class PropertyController extends BaseController
     {
         page_title()->setTitle(trans('plugins/real-estate::property.create'));
         //
-       // dd($res);
+        // dd($res);
 
 
         return $formBuilder->create(PropertyForm::class)->renderForm();
@@ -104,25 +107,24 @@ class PropertyController extends BaseController
     {
         $request->merge([
             'expire_date' => now()->addDays(config('plugins.real-estate.real-estate.property_expired_after_x_days')),
-            'images'      => json_encode($request->input('images', [])),
-           'author_type' => Account::class
+            'images' => json_encode($request->input('images', [])),
+            'author_type' => Account::class
 
         ]);
 
         $property = $this->propertyRepository->getModel();
 
-        $jsonArr=array();
+        $jsonArr = array();
 
-            //run actions with files
+        //run actions with files
 
-        if($request->hasFile('documents'))
-        {
+        if ($request->hasFile('documents')) {
             $files = $request->file('documents');
-           // print_r($_FILES);exit;
-            $i=0;
+            // print_r($_FILES);exit;
+            $i = 0;
             foreach ($files as $key => $file) {
-                $document_id=$request['document_ids'][$key];
-                $name = $document_id.'-document-'.time().uniqid().'.'.$file->extension();
+                $document_id = $request['document_ids'][$key];
+                $name = $document_id . '-document-' . time() . uniqid() . '.' . $file->extension();
                 $file->storeAs('Documents', $name);
                 $jsonArr[$i]['id'] = $key;
                 $jsonArr[$i]['path'] = 'Documents/' . $name;
@@ -132,22 +134,22 @@ class PropertyController extends BaseController
         }
 
         $status = 'selling';
-        if($request['type'] == "rent")
+        if ($request['type'] == "rent")
             $status = 'renting';
         else
             $status = 'selling';
-        $request['documents']=json_encode($jsonArr);
-        $area_value=$request['square'];
-        $area_units=$request['area_units'];
+        $request['documents'] = json_encode($jsonArr);
+        $area_value = $request['square'];
+        $area_units = $request['area_units'];
         unset($request['square']);
-        $sqFeet=getSqFeet($area_value,$area_units);
+        $sqFeet = getSqFeet($area_value, $area_units);
         $property = $property->fill($request->input());
         $property->moderation_status = $request->input('moderation_status');
         $property->latitude = $request->input('latitude');
         $property->longitude = $request->input('longitude');
         $property->never_expired = $request->input('never_expired');
-        $property->square=$sqFeet;
-        $property->status=$status;
+        $property->square = $sqFeet;
+        $property->status = $status;
         $property->save();
 
         event(new CreatedContentEvent(PROPERTY_MODULE_SCREEN_NAME, $request, $property));
@@ -174,11 +176,11 @@ class PropertyController extends BaseController
     {
         $property = $this->propertyRepository->findOrFail($id, ['features', 'author']);
         // echo '<pre>';
-        
-    //    $property->setAttribute('parent_id');
-       
+
+        //    $property->setAttribute('parent_id');
+
         // exit;
-        $parent_cat = Category::select('parent_id')->where('id',$property->category_id)->first();
+        $parent_cat = Category::select('parent_id')->where('id', $property->category_id)->first();
         // print_r($parent_id->parent_id);exit;
         $property->setAttribute('parent_id', $parent_cat->parent_id);
         // print_r($property->getAttributes();exit;
@@ -202,31 +204,30 @@ class PropertyController extends BaseController
     public function update($id, PropertyRequest $request, BaseHttpResponse $response, SaveFacilitiesService $saveFacilitiesService)
     {
         $property = $this->propertyRepository->findOrFail($id);
-        $old_category_id=$property->category_id;
-        $old_documents=json_decode($property->documents);
-        $property->fill($request->except(['expire_date','square']));
-        $area_value=$request['square'];
-        $area_units=$request['area_units'];
-        $sqFeet=getSqFeet($area_value,$area_units);
+        $old_category_id = $property->category_id;
+        $old_documents = json_decode($property->documents);
+        $property->fill($request->except(['expire_date', 'square']));
+        $area_value = $request['square'];
+        $area_units = $request['area_units'];
+        $sqFeet = getSqFeet($area_value, $area_units);
         $property->author_type = Account::class;
         $property->images = json_encode($request->input('images', []));
-        $old_arr=(array)$old_documents;
-        $jsonArr=array();
+        $old_arr = (array)$old_documents;
+        $jsonArr = array();
 
-        $ids= array_column($old_arr, 'id');
-        if($request->hasFile('documents'))
-        {
+        $ids = array_column($old_arr, 'id');
+        if ($request->hasFile('documents')) {
             $files = $request->file('documents');
-            $i=0;
+            $i = 0;
 
             foreach ($files as $key => $file) {
                 //$key;
-                $document_id=$request['document_ids'][$key];
-                $array_index = array_search($document_id,$ids);
-               // echo $array_index;exit;
-                if($array_index!="") {
-                    $path=$old_arr[$array_index]->path;
-                        if (Storage::exists($path)) {
+                $document_id = $request['document_ids'][$key];
+                $array_index = array_search($document_id, $ids);
+                // echo $array_index;exit;
+                if ($array_index != "") {
+                    $path = $old_arr[$array_index]->path;
+                    if (Storage::exists($path)) {
                         Storage::delete($path);
                         unset($old_arr[$array_index]);
                     }
@@ -234,44 +235,45 @@ class PropertyController extends BaseController
                 //}
 
                 /*$name = $ids[$key] . time() . uniqid().'.'.$file->extension();*/
-                $name = $document_id.'-document-'.time().uniqid().'.'.$file->extension();
+                $name = $document_id . '-document-' . time() . uniqid() . '.' . $file->extension();
                 $file->storeAs('Documents', $name);
-                $jsonArr[$i]['id'] =$document_id;
+                $jsonArr[$i]['id'] = $document_id;
                 $jsonArr[$i]['path'] = 'Documents/' . $name;
                 $i++;
 
             }
 
 
-
         }
-        if($old_category_id==$request['category_id'])
-        {
+        if ($old_category_id == $request['category_id']) {
             $update_arr = array_merge($old_arr, $jsonArr);
             $keys = array_column($update_arr, 'id');
             array_multisort($keys, SORT_ASC, $update_arr);
-        }
-        else
-        {
+        } else {
             //updating checklist to empty
-            $arr = array('document_checklist' =>'','is_verify'=>0);
-            $resupdate= table_properties_check_lists::where('property_id',$id)->update($arr);
-            $update_arr =$jsonArr;
+            $arr = array('document_checklist' => '', 'is_verify' => 0);
+            $resupdate = table_properties_check_lists::where('property_id', $id)->update($arr);
+            $update_arr = $jsonArr;
             $keys = array_column($update_arr, 'id');
             array_multisort($keys, SORT_ASC, $update_arr);
         }
-        $property->documents=json_encode($update_arr);
+        $property->documents = json_encode($update_arr);
         //$property->moderation_status = $request->input('moderation_status');
         ///if all checklist checked  then approved other wise pending
         $property->moderation_status = $request->input('moderation_status');
+        if ($request->input('moderation_status') == ModerationStatusEnum::APPROVED) {
+            if(!$property->date_published) {
+                $property->date_published = Carbon::now();
+            }
+        }
         $property->never_expired = $request->input('never_expired');
-        $property->square=$sqFeet;
+        $property->square = $sqFeet;
         $status = 'selling';
-        if($request['type'] == "rent")
+        if ($request['type'] == "rent")
             $status = 'renting';
         else
             $status = 'selling';
-        
+
         $property->status = $status;
         $this->propertyRepository->createOrUpdate($property);
 
@@ -335,7 +337,8 @@ class PropertyController extends BaseController
 
         return $response->setMessage(trans('core/base::notices.delete_success_message'));
     }
-    public function  agent_search()
+
+    public function agent_search()
     {
 
         /* if (view()->exists(Theme::getThemeNamespace() . '::views.real-estate.agent-search')) {

@@ -9,12 +9,14 @@ use Html;
  * @method static ModerationStatusEnum PENDING()
  * @method static ModerationStatusEnum APPROVED()
  * @method static ModerationStatusEnum REJECTED()
+ * @method static ModerationStatusEnum CLOSED()
  */
 class ModerationStatusEnum extends Enum
 {
     public const PENDING = 'pending';
     public const APPROVED = 'approved';
     public const REJECTED = 'rejected';
+    public const CLOSED = 'closed';
 
     /**
      * @var string
@@ -35,6 +37,9 @@ class ModerationStatusEnum extends Enum
                     ->toHtml();
             case self::REJECTED:
                 return Html::tag('span', self::REJECTED()->label(), ['class' => 'label-danger status-label'])
+                    ->toHtml();
+            case self::CLOSED:
+                return Html::tag('span', self::CLOSED()->label(), ['class' => 'label-secondary status-label'])
                     ->toHtml();
             default:
                 return null;
