@@ -43,13 +43,16 @@ class AccountRepository extends RepositoriesAbstract implements AccountInterface
     private function swapCoordinates($geoJson)
     {
         $data = json_decode($geoJson, true);
-        if ($data['type'] === 'Polygon' || $data['type'] === 'MultiPolygon') {
-            foreach ($data['coordinates'] as &$polygon) {
-                foreach ($polygon as &$ring) {
-                    $ring = array_reverse($ring);
+        if($data) {
+            if ($data['type'] === 'Polygon' || $data['type'] === 'MultiPolygon') {
+                foreach ($data['coordinates'] as &$polygon) {
+                    foreach ($polygon as &$ring) {
+                        $ring = array_reverse($ring);
+                    }
                 }
             }
+            return json_encode($data);
         }
-        return json_encode($data);
+        
     }
 }

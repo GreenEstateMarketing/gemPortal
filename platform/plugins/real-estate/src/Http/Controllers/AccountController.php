@@ -266,8 +266,6 @@ class AccountController extends BaseController
         $account->update($request->except('agent_area', 'password'));
         if ($request['agent_area'] != "") {
             $account->agent_area = \DB::raw($ap);
-        } else {
-            $account->agent_area = null;
         }
 
         if ($request->input('is_change_password') == 1) {
