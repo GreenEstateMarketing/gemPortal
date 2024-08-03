@@ -398,3 +398,7 @@ select option:hover{
 .type_rent{
     width: 100% !important;
 }
+
+.is_deleted{
+    background-color: #b7aeae !important;
+}

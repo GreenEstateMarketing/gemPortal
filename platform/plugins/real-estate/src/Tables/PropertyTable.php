@@ -62,6 +62,9 @@ class PropertyTable extends TableAbstract
     {
         $data = $this->table
             ->eloquent($this->query())
+            ->setRowClass(function($item) {
+                return $item->is_deleted ? 'is_deleted' : '';
+            })
             ->editColumn('name', function ($item) {
                 return Html::link(route('property.edit', $item->id), $item->name);
             })
@@ -75,8 +78,11 @@ class PropertyTable extends TableAbstract
                     return RvMedia::getImageUrl($item->image, 'thumb', false, RvMedia::getDefaultImage());
                 }
 
-                return Html::image(RvMedia::getImageUrl($item->image, 'thumb', false, RvMedia::getDefaultImage()),
-                    $item->name, ['width' => 50]);
+                return Html::image(
+                    RvMedia::getImageUrl($item->image, 'thumb', false, RvMedia::getDefaultImage()),
+                    $item->name,
+                    ['width' => 50]
+                );
             })
             ->editColumn('checkbox', function ($item) {
                 return $this->getCheckbox($item->id);
@@ -115,13 +121,11 @@ class PropertyTable extends TableAbstract
             're_properties.status',
             're_properties.moderation_status',
             're_properties.created_at',
+            're_properties.is_deleted'
         ];
 
         $query = $model
-            ->select($select)
-            ->where([
-                're_properties.is_deleted'  => 0
-            ]);
+            ->select($select);
 
         return $this->applyScopes(apply_filters(BASE_FILTER_TABLE_QUERY, $query, $model, $select));
     }
@@ -133,37 +137,37 @@ class PropertyTable extends TableAbstract
     public function columns()
     {
         return [
-            'id'                => [
-                'name'  => 're_properties.id',
+            'id' => [
+                'name' => 're_properties.id',
                 'title' => trans('core/base::tables.id'),
                 'width' => '20px',
             ],
-            'image'             => [
-                'name'       => 're_properties.image',
-                'title'      => trans('core/base::tables.image'),
-                'width'      => '60px',
-                'class'      => 'no-sort',
-                'orderable'  => false,
+            'image' => [
+                'name' => 're_properties.image',
+                'title' => trans('core/base::tables.image'),
+                'width' => '60px',
+                'class' => 'no-sort',
+                'orderable' => false,
                 'searchable' => false,
             ],
-            'name'              => [
-                'name'  => 're_properties.name',
+            'name' => [
+                'name' => 're_properties.name',
                 'title' => trans('core/base::tables.name'),
                 'class' => 'text-left',
             ],
-            'created_at'        => [
-                'name'  => 're_properties.created_at',
+            'created_at' => [
+                'name' => 're_properties.created_at',
                 'title' => trans('core/base::tables.created_at'),
                 'width' => '100px',
                 'class' => 'text-left',
             ],
-            'status'            => [
-                'name'  => 're_properties.status',
+            'status' => [
+                'name' => 're_properties.status',
                 'title' => trans('core/base::tables.status'),
                 'width' => '100px',
             ],
             'moderation_status' => [
-                'name'  => 're_properties.moderation_status',
+                'name' => 're_properties.moderation_status',
                 'title' => trans('plugins/real-estate::property.moderation_status'),
                 'width' => '150px',
             ],
@@ -198,26 +202,26 @@ class PropertyTable extends TableAbstract
     public function getBulkChanges(): array
     {
         return [
-            're_properties.name'              => [
-                'title'    => trans('core/base::tables.name'),
-                'type'     => 'text',
+            're_properties.name' => [
+                'title' => trans('core/base::tables.name'),
+                'type' => 'text',
                 'validate' => 'required|max:120',
             ],
-            're_properties.status'            => [
-                'title'    => trans('core/base::tables.status'),
-                'type'     => 'select',
-                'choices'  => PropertyStatusEnum::labels(),
+            're_properties.status' => [
+                'title' => trans('core/base::tables.status'),
+                'type' => 'select',
+                'choices' => PropertyStatusEnum::labels(),
                 'validate' => 'required|' . Rule::in(PropertyStatusEnum::values()),
             ],
             're_properties.moderation_status' => [
-                'title'    => trans('plugins/real-estate::property.moderation_status'),
-                'type'     => 'select',
-                'choices'  => ModerationStatusEnum::labels(),
+                'title' => trans('plugins/real-estate::property.moderation_status'),
+                'type' => 'select',
+                'choices' => ModerationStatusEnum::labels(),
                 'validate' => 'required|in:' . implode(',', ModerationStatusEnum::values()),
             ],
-            're_properties.created_at'        => [
+            're_properties.created_at' => [
                 'title' => trans('core/base::tables.created_at'),
-                'type'  => 'date',
+                'type' => 'date',
             ],
         ];
     }
