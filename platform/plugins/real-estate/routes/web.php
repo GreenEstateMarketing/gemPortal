@@ -494,7 +494,6 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
         Route::post('/comment/admin/store', 'CommentController@adminStore')->name('comment.add.admin');
         Route::post('/reply/admin/store', 'CommentController@adminReplyStore')->name('reply.add.admin');
         Route::get('member/agent', [
-
             'uses' => 'GeneralPropertyController@getAgent',
         ]);
         Route::get('ajax/area_unit_update', [

@@ -624,9 +624,7 @@
         e.stopPropagation();
         console.log('this is clicked');
         if($(this).parent().hasClass("price-min-ul")) {
-
             $('[data-dropdown-id="price-min"]').val($(this).attr('data-value'));
-
             $('[data-dropdown-id="price-min"]').change();
             $(".price-min-ul li").removeClass("category-li-item-active");
             $(this).addClass('category-li-item-active');
@@ -665,7 +663,6 @@
 
     //for max and min area units
     $(".units-range li").click(function(e){
-        // alert("here");
         e.stopPropagation();
         console.log('units range item is clicked');
         if($(this).parent().hasClass("unit-min-ul")) {
@@ -676,7 +673,7 @@
             $(".unit-min-ul li").removeClass("category-li-item-active");
             $(this).addClass('category-li-item-active');
             $('.min_unit_text').html($(this).attr('data-value'));
-            $('#min-max-price-range').show();
+            $('#min-max-unit-range').show();
             console.log('units range min item is clicked');
         }
         else
@@ -687,8 +684,8 @@
 
             $('[data-dropdown-id="unit-max"]').change();
             $('.max_unit_text').html($(this).attr('data-value'));
-            $('#min-max-price-range').show();
-            console.log('units range max item is clicked');
+            $('#min-max-unit-range').show();
+            console.log('units range max item is clicked this one');
         }
         /* $("#input_max_price")[0].dispatchEvent(new Event('change'));
          $("#input_min_price")[0].dispatchEvent(new Event('change'));*/

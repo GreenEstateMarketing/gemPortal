@@ -2814,7 +2814,7 @@ header{
 .row.second-row {
     margin-top: 15px;
 }
-.price-from-to{
+.price-from-to, .unit-from-to{
     position: relative;
     top: -28px;
     padding-left: 13px;

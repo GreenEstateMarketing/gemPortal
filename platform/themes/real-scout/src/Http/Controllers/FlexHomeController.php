@@ -125,10 +125,7 @@ class FlexHomeController extends PublicController
      */
     public function ajaxGetProperties(Request $request, BaseHttpResponse $response)
     {
-        /* if (!$request->ajax() || !$request->wantsJson()) {
-             abort(404);
-         }*/  //check this aswell
-
+        //This is the flex controller
         $properties = [];
         $links = [];
         switch ($request->input('type')) {
@@ -189,24 +186,7 @@ class FlexHomeController extends PublicController
                 break;
             case 'mapsearch':
                 unset($request['type']);
-                //assigning property_type attribute to type
-                /*  $request['type']=$request['property_type'];
-                  unset($request['property_type']);*/
-                /* $filters=$request->input();
-                 $params = [
-                     'paginate' => [
-                         'per_page'      => $request->input('per_page') ? (int)$request->input('per_page') : (int)theme_option('number_of_properties_per_page',
-                             10),
-                         'current_paged' => $request->input('page', 1),
-                     ],
-                     'order_by' => ['re_properties.created_at' => 'DESC'],
-                 ];
-
-                 $properties = app(PropertyInterface::class)->getPropertiesByMap($filters,$params);
-                 print_r($properties);exit;
-                 break;*/
-                unset($request['type']);
-                //assigning property_type attribute to type
+                
                 $request['type'] = $request['property_type'];
                 unset($request['property_type']);
                 $filters = $request->input();
@@ -220,7 +200,6 @@ class FlexHomeController extends PublicController
                     ],
                     'order_by' => ['re_properties.created_at' => 'DESC'],
                 ];
-                //                dd($filters);
                 $properties = app(PropertyInterface::class)->getPropertiesByMap($filters, $params);
                 break;
         }

@@ -31,18 +31,18 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
                 ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::NOT_AVAILABLE]],
                 're_properties.moderation_status' => ModerationStatusEnum::APPROVED,
             ],
-            'order_by'  => [
+            'order_by' => [
                 're_properties.created_at' => 'DESC',
             ],
-            'take'      => $limit,
-            'paginate'  => [
-                'per_page'      => 12,
+            'take' => $limit,
+            'paginate' => [
+                'per_page' => 12,
                 'current_paged' => 1,
             ],
-            'select'    => [
+            'select' => [
                 're_properties.*',
             ],
-            'with'      => [],
+            'with' => [],
         ];
 
         return $this->advancedGet($params);
@@ -54,27 +54,27 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
     public function getProperties($filters = [], $params = [])
     {
         $filters = array_merge([
-            'keyword'     => null,
-            'type'        => null,
-            'bedroom'     => null,
-            'bathroom'    => null,
-            'floor'       => null,
-            'min_square'  => null,
-            'max_square'  => null,
-            'min_price'   => null,
-            'max_price'   => null,
-            'project'     => null,
+            'keyword' => null,
+            'type' => null,
+            'bedroom' => null,
+            'bathroom' => null,
+            'floor' => null,
+            'min_square' => null,
+            'max_square' => null,
+            'min_price' => null,
+            'max_price' => null,
+            'project' => null,
             'category_id' => null,
-            'city_id'     => null,
-            'city'        => null,
-            'location'    => null,
-            'sort_by'     => null,
-            'latitude'    => null,
-            'longitude'   => null,
-            'latLngs-1'   =>null,
-            'latLngs-2'   =>null,
-            'latLngs-3'   =>null,
-            'latLngs-4'   =>null,
+            'city_id' => null,
+            'city' => null,
+            'location' => null,
+            'sort_by' => null,
+            'latitude' => null,
+            'longitude' => null,
+            'latLngs-1' => null,
+            'latLngs-2' => null,
+            'latLngs-3' => null,
+            'latLngs-4' => null,
         ], $filters);
 
         switch ($filters['sort_by']) {
@@ -120,18 +120,18 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
                 ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::NOT_AVAILABLE]],
                 're_properties.moderation_status' => ModerationStatusEnum::APPROVED,
             ],
-            'order_by'  => [
+            'order_by' => [
                 're_properties.created_at' => 'DESC',
             ],
-            'take'      => null,
-            'paginate'  => [
-                'per_page'      => 10,
+            'take' => null,
+            'paginate' => [
+                'per_page' => 10,
                 'current_paged' => 1,
             ],
-            'select'    => [
+            'select' => [
                 're_properties.*',
             ],
-            'with'      => [],
+            'with' => [],
         ], $params);
 
         $params['order_by'] = $orderBy;
@@ -170,7 +170,7 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
                 $cityAreasChild = DB::select($cityAreasChild);
 
                 $cityAreasChild = implode(',', array_column($cityAreasChild, 'id'));
-                $cityAreasChild = explode(',',$cityAreasChild);
+                $cityAreasChild = explode(',', $cityAreasChild);
 
                 $this->model = $this->model
                     ->whereIn('re_properties.city_area_id', $cityAreasChild);
@@ -198,13 +198,13 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
                     }
                 }*/
             } /*else {
-                $this->model = $this->model
-                    ->where(function (Builder $query) use ($filters) {
-                        return $query
-                            ->where('re_properties.name', 'LIKE', '%' . $filters['keyword'] . '%')
-                            ->orWhere('re_properties.location', 'LIKE', '%' . $filters['keyword'] . '%');
-                    });
-            }*/
+               $this->model = $this->model
+                   ->where(function (Builder $query) use ($filters) {
+                       return $query
+                           ->where('re_properties.name', 'LIKE', '%' . $filters['keyword'] . '%')
+                           ->orWhere('re_properties.location', 'LIKE', '%' . $filters['keyword'] . '%');
+                   });
+           }*/
 
 
         }
@@ -302,10 +302,10 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
                     if ($longitude !== null) {
                         $query = $query->where('re_properties.longitude', '=', $longitude);
                     }
-                     return $query;
+                    return $query;
                 });
         }
-        if ($filters['latLngs-1'] !== null && $filters['latLngs-2'] !== null && $filters['latLngs-3'] !== null && $filters['latLngs-4'] !== null ) {
+        if ($filters['latLngs-1'] !== null && $filters['latLngs-2'] !== null && $filters['latLngs-3'] !== null && $filters['latLngs-4'] !== null) {
             $this->model = $this->model
                 ->where(function ($query) use ($filters) {
 
@@ -313,20 +313,20 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
                     $latLngs2 = Arr::get($filters, 'latLngs-2');
                     $latLngs3 = Arr::get($filters, 'latLngs-3');
                     $latLngs4 = Arr::get($filters, 'latLngs-4');
-                    $latLngs1=explode(',',$latLngs1);
-                    $latLngs2=explode(',',$latLngs2);
-                    $latLngs3=explode(',',$latLngs3);
-                    $latLngs4=explode(',',$latLngs4);
+                    $latLngs1 = explode(',', $latLngs1);
+                    $latLngs2 = explode(',', $latLngs2);
+                    $latLngs3 = explode(',', $latLngs3);
+                    $latLngs4 = explode(',', $latLngs4);
                     /**
                      * @var Builder $query
                      */
-                    if ($latLngs1 !== null && $latLngs2!=null && $latLngs3!=null && $latLngs4!=null) {
-                        $latitude[0]=$latLngs1[0];
-                        $latitude[1]=$latLngs2[0];
-                        $longitude[0]=$latLngs1[1];
-                        $longitude[1]=$latLngs4[1];
-                        $query = $query->whereBetween('re_properties.latitude',$latitude);
-                        $query = $query->whereBetween('re_properties.longitude',$longitude);
+                    if ($latLngs1 !== null && $latLngs2 != null && $latLngs3 != null && $latLngs4 != null) {
+                        $latitude[0] = $latLngs1[0];
+                        $latitude[1] = $latLngs2[0];
+                        $longitude[0] = $latLngs1[1];
+                        $longitude[1] = $latLngs4[1];
+                        $query = $query->whereBetween('re_properties.latitude', $latitude);
+                        $query = $query->whereBetween('re_properties.longitude', $longitude);
                         /*$bindings = $query->getBindings();
                         $sql = str_replace('?', '%s', $query->toSql());
                         $sql = sprintf($sql, ...$bindings);
@@ -348,16 +348,14 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
         }
 
         if ($filters['category_id'] !== null) {
-           $parent_category= app(\Botble\RealEstate\Repositories\Interfaces\CategoryInterface::class)->select(['re_categories.id'])->where('parent_id',$filters['category_id'])->get()->toArray();
-           $sub_id=array_column($parent_category,'id');
-            if(!empty($parent_category))
-           {
-               $sub_id[]=$filters['category_id'];
-               $this->model = $this->model->whereIn('re_properties.category_id',$sub_id);
-           }
-           else {
-               $this->model = $this->model->where('re_properties.category_id',$filters['category_id']);
-           }
+            $parent_category = app(\Botble\RealEstate\Repositories\Interfaces\CategoryInterface::class)->select(['re_categories.id'])->where('parent_id', $filters['category_id'])->get()->toArray();
+            $sub_id = array_column($parent_category, 'id');
+            if (!empty($parent_category)) {
+                $sub_id[] = $filters['category_id'];
+                $this->model = $this->model->whereIn('re_properties.category_id', $sub_id);
+            } else {
+                $this->model = $this->model->where('re_properties.category_id', $filters['category_id']);
+            }
         }
 
         if ($filters['city_id']) {
@@ -374,7 +372,7 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
                     ->where('cities.name', 'LIKE', '%' . $filters['location'] . '%');
             }
         }
-       return $this->advancedGet($params);
+        return $this->advancedGet($params);
     }
 
     /**
@@ -384,11 +382,11 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
     {
         $params = [
             'condition' => [
-                're_properties.id'                => $propertyId,
+                're_properties.id' => $propertyId,
                 're_properties.moderation_status' => ModerationStatusEnum::APPROVED,
             ],
-            'with'      => $with,
-            'take'      => 1,
+            'with' => $with,
+            'take' => 1,
         ];
 
         $this->model = $this->originalModel;
@@ -409,41 +407,37 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
 
         $params = [
             'condition' => $condition,
-            'with'      => $with,
-            'take'      => $limit,
-            'order_by'  => ['re_properties.created_at' => 'DESC'],
+            'with' => $with,
+            'take' => $limit,
+            'order_by' => ['re_properties.created_at' => 'DESC'],
         ];
 
         return $this->advancedGet($params);
     }
     public function getPropertiesByMap($filters = [], $params = [])
     {
-
         $filters = array_merge([
-            'keyword'     => null,
-            'type'        => null,
-            'bedroom'     => null,
-            'bathroom'    => null,
-            'floor'       => null,
-            'min_square'  => null,
-            'max_square'  => null,
-            'unit'        => null,
-            'min_price'   => null,
-            'max_price'   => null,
-            'project'     => null,
+            'keyword' => null,
+            'type' => null,
+            'bedroom' => null,
+            'bathroom' => null,
+            'floor' => null,
+            'min_square' => null,
+            'max_square' => null,
+            'unit' => null,
+            'min_price' => null,
+            'max_price' => null,
+            'project' => null,
             'category_id' => null,
-            'city_id'     => null,
-            'city'        => null,
-            'location'    => null,
-            'sort_by'     => null,
-            'latitude'    => null,
-            'longitude'   => null,
-            'points'      => null,
-            /*'latLnull,
-            'latLngs-4'   =>ngs-1'   =>null,
-            'latLngs-2'   =>null,
-            'latLngs-3'   =>null,*/
+            'city_id' => null,
+            'city' => null,
+            'location' => null,
+            'sort_by' => null,
+            'latitude' => null,
+            'longitude' => null,
+            'points' => null,
         ], $filters);
+
         switch ($filters['sort_by']) {
             case 'date_asc':
                 $orderBy = [
@@ -487,18 +481,18 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
                 ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::NOT_AVAILABLE]],
                 're_properties.moderation_status' => ModerationStatusEnum::APPROVED,
             ],
-            'order_by'  => [
+            'order_by' => [
                 're_properties.created_at' => 'DESC',
             ],
-            'take'      => null,
-            'paginate'  => [
-                'per_page'      => 10,
+            'take' => null,
+            'paginate' => [
+                'per_page' => 10,
                 'current_paged' => 1,
             ],
-            'select'    => [
+            'select' => [
                 're_properties.*',
             ],
-            'with'      => [],
+            'with' => [],
         ], $params);
 
         $params['order_by'] = $orderBy;
@@ -508,9 +502,9 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
         $this->model = $this->model->notExpired();
 
         if ($filters['keyword'] !== null) {
-            //$areaData = explode(',',$filters['keyword']);
-            $areaData=$filters['keyword'];
-            //print_r($areaData);exit;
+
+            $areaData = $filters['keyword'];
+
             if (count($areaData) >= 1) {
 
                 $areaData = implode(',', $areaData);
@@ -537,7 +531,7 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
                 $cityAreasChild = DB::select($cityAreasChild);
 
                 $cityAreasChild = implode(',', array_column($cityAreasChild, 'id'));
-                $cityAreasChild = explode(',',$cityAreasChild);
+                $cityAreasChild = explode(',', $cityAreasChild);
 
                 $this->model = $this->model
                     ->whereIn('re_properties.city_area_id', $cityAreasChild);
@@ -565,13 +559,13 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
                     }
                 }*/
             } /*else {
-                $this->model = $this->model
-                    ->where(function (Builder $query) use ($filters) {
-                        return $query
-                            ->where('re_properties.name', 'LIKE', '%' . $filters['keyword'] . '%')
-                            ->orWhere('re_properties.location', 'LIKE', '%' . $filters['keyword'] . '%');
-                    });
-            }*/
+               $this->model = $this->model
+                   ->where(function (Builder $query) use ($filters) {
+                       return $query
+                           ->where('re_properties.name', 'LIKE', '%' . $filters['keyword'] . '%')
+                           ->orWhere('re_properties.location', 'LIKE', '%' . $filters['keyword'] . '%');
+                   });
+           }*/
 
 
         }
@@ -612,7 +606,7 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
 
         //changing min and max square values according to square feet
         if ($filters['min_square'] !== null || $filters['max_square'] !== null || $filters['unit'] !== null) {
-            switch($filters['unit']){
+            switch ($filters['unit']) {
                 case 'ft²':
                     $filters['min_square'] = $filters['min_square'];
                     $filters['max_square'] = $filters['max_square'];
@@ -637,19 +631,19 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
 
             $this->model = $this->model
                 ->where(function ($query) use ($filters) {
-//                    $minSquare = Arr::get($filters, 'min_square');
+                    //                    $minSquare = Arr::get($filters, 'min_square');
 //                    $maxSquare = Arr::get($filters, 'max_square');
                     /**
                      * @var \Illuminate\Database\Query\Builder $query
                      */
                     if ($filters['min_square'] > 0) {
-                        $query = $query->where('re_properties.square', '>=', (int)$filters['min_square']);
+                        $query = $query->where('re_properties.square', '>=', (int) $filters['min_square']);
                     }
 
                     if ($filters['max_square'] > 0) {
 
-                        $query = $query->where('re_properties.square', '<=', (int)$filters['max_square']);
-//                        dd($query->get());
+                        $query = $query->where('re_properties.square', '<=', (int) $filters['max_square']);
+                        //                        dd($query->get());
                     }
 
 
@@ -716,7 +710,7 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
                     return $query;
                 });
         }
-        if ($filters['points'] !== null  ) {
+        if ($filters['points'] !== null) {
             $this->model = $this->model
                 ->where(function ($query) use ($filters) {
 
@@ -760,15 +754,13 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
         }
 
         if ($filters['category_id'] !== null) {
-            $parent_category= app(\Botble\RealEstate\Repositories\Interfaces\CategoryInterface::class)->select(['re_categories.id'])->where('parent_id',$filters['category_id'])->get()->toArray();
-            $sub_id=array_column($parent_category,'id');
-            if(!empty($parent_category))
-            {
-                $sub_id[]=$filters['category_id'];
-                $this->model = $this->model->whereIn('re_properties.category_id',$sub_id);
-            }
-            else {
-                $this->model = $this->model->where('re_properties.category_id',$filters['category_id']);
+            $parent_category = app(\Botble\RealEstate\Repositories\Interfaces\CategoryInterface::class)->select(['re_categories.id'])->where('parent_id', $filters['category_id'])->get()->toArray();
+            $sub_id = array_column($parent_category, 'id');
+            if (!empty($parent_category)) {
+                $sub_id[] = $filters['category_id'];
+                $this->model = $this->model->whereIn('re_properties.category_id', $sub_id);
+            } else {
+                $this->model = $this->model->where('re_properties.category_id', $filters['category_id']);
             }
         }
 
