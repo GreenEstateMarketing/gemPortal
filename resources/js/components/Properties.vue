@@ -1,31 +1,32 @@
 <template>
     <div class="Properties search-component">
         <!-- Change Area unit modal-->
-<div class="modal" id="area_modal" tabindex="-2">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Change Area Unit</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <select class="form-control" id="area_units-val" @change="selectedUnit($event)">
-                    <option value="m²">Square Meter</option>
-                    <option value="ft²" selected>Square Feet</option>
-                    <option value="yards">Yards</option>
-                    <option value="marla">Marla</option>
-                    <option value="kanal">Kanal</option>
-                </select>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
-                <button type="button" data-dismiss="modal" id="save-changes" class="btn btn-primary btn-sm" style="height:31px;">Save changes</button>
+        <div class="modal" id="area_modal" tabindex="-2">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Change Area Unit</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <select class="form-control" id="area_units-val" @change="selectedUnit($event)">
+                            <option value="m²">Square Meter</option>
+                            <option value="ft²" selected>Square Feet</option>
+                            <option value="yards">Yards</option>
+                            <option value="marla">Marla</option>
+                            <option value="kanal">Kanal</option>
+                        </select>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">Close</button>
+                        <button type="button" data-dismiss="modal" id="save-changes" class="btn btn-primary btn-sm"
+                            style="height:31px;">Save changes</button>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
 
         <!-- The Modal -->
 
@@ -76,13 +77,13 @@
                                                                     <option value="10000000">10,000,000</option>
                                                                 </select>
                                                             </div>-->
-                                    <div class="price-dropdown pl-auto  col-md-6 mt-3 border-0">
+                                <div class="price-dropdown pl-auto  col-md-6 mt-3 border-0">
                                     <label>Price</label>
                                     <div class="price-placeholder">
                                         <a class="form-control-2 dropdown-toggle border-0 text-left" href="#"
-                                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Price <span
-                                            class="currency">({{ current_currency }})</span><strong
-                                            class="caret"></strong>
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Price
+                                            <span class="currency">({{ current_currency }})</span><strong
+                                                class="caret"></strong>
                                         </a>
                                         <div class="row  price-from-to-vue modalclass p-0">
                                             <div class="col-md-5"><span class="min_price_text">0</span></div>
@@ -93,16 +94,16 @@
                                             <div class="row justify-content-center">
                                                 <div class="col-6">
                                                     <input class="form-control price-label filter-input"
-                                                           style="border:1px solid #a0a0a0 !important" name="min_price"
-                                                           v-model="min_price" placeholder="Min"
-                                                           data-dropdown-id="price-min"  value=""/>
+                                                        style="border:1px solid #a0a0a0 !important" name="min_price"
+                                                        v-model="min_price" placeholder="Min"
+                                                        data-dropdown-id="price-min" value="" />
                                                 </div>
 
                                                 <div class="col-6">
                                                     <input class="form-control price-label filter-input"
-                                                           style="border:1px solid #a0a0a0 !important" name="max_price"
-                                                           v-model="max_price" placeholder="Max"
-                                                           data-dropdown-id="price-max"  value=""/>
+                                                        style="border:1px solid #a0a0a0 !important" name="max_price"
+                                                        v-model="max_price" placeholder="Max"
+                                                        data-dropdown-id="price-max" value="" />
                                                 </div>
                                             </div>
                                             <div class="clearfix"></div>
@@ -113,7 +114,7 @@
 
 
                                                         <li class="price-li-item" :data-value="index"
-                                                            v-for="(item,index)  in price_list">{{ item }}
+                                                            v-for="(item, index)  in price_list">{{ item }}
                                                         </li>
 
                                                     </ul>
@@ -125,46 +126,50 @@
                                                         style="width: 250px;height:150px; overflow-y: auto;overflow-x:hidden;margin-left: 1rem; cursor:pointer">
 
                                                         <li class="price-li-item" :data-value="index"
-                                                            v-for="(item,index)  in price_list">{{ item }}
+                                                            v-for="(item, index)  in price_list">{{ item }}
                                                         </li>
 
 
                                                     </ul>
                                                 </div>
                                             </div>
-                                            <button type="button" class="btn btn-primary btn-reset-price"  style="margin: 10px; height: 35px !important;">Reset</button>
-                                        </div>
+                                            <button type="button" class="btn btn-primary btn-reset-price"
+                                                @click="resetPriceFilters"
+                                                style="margin: 10px; height: 35px !important;">Reset</button>
                                         </div>
                                     </div>
+                                </div>
 
 
-                                    <!--                        </div>
+                                <!--                        </div>
                                                             <div class="row mt-3">-->
-                                    <div class="col-md-6 mt-3" v-if="parent_id==1 || ( parent_id==0 && category_id==1)">
-                                        <label class="mx-left">Beds</label>
-                                        <select name="bedroom" v-model="bedroom"
-                                                class="form-control select-bedroom filter-input">
-                                            <option value="">Any</option>
-                                            <option value="1">1 room</option>
-                                            <option value="2">2 rooms</option>
-                                            <option value="3">3 rooms</option>
-                                            <option value="4">4 rooms</option>
-                                            <option value="5">5+ rooms</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-6 mt-3" v-if="parent_id==1 || ( parent_id==0 && category_id==1)">
-                                        <label class="mx-left">Baths</label>
-                                        <select name="bathroom" v-model="bathroom" class="form-control filter-input">
-                                            <option value="">Any</option>
-                                            <option value="1">1 room</option>
-                                            <option value="2">2 rooms</option>
-                                            <option value="3">3 rooms</option>
-                                            <option value="4">4 rooms</option>
-                                            <option value="5">5+ rooms</option>
-                                        </select>
-                                    </div>
-                                    <!-- <div class="col-md-6 mt-3"> -->
-                                        <!-- <label class="mx-left">Land Area</label>
+                                <div class="col-md-6 mt-3"
+                                    v-if="parent_id == 1 || (parent_id == 0 && category_id == 1)">
+                                    <label class="mx-left">Beds</label>
+                                    <select name="bedroom" v-model="bedroom"
+                                        class="form-control select-bedroom filter-input">
+                                        <option value="">Any</option>
+                                        <option value="1">1 room</option>
+                                        <option value="2">2 rooms</option>
+                                        <option value="3">3 rooms</option>
+                                        <option value="4">4 rooms</option>
+                                        <option value="5">5+ rooms</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mt-3"
+                                    v-if="parent_id == 1 || (parent_id == 0 && category_id == 1)">
+                                    <label class="mx-left">Baths</label>
+                                    <select name="bathroom" v-model="bathroom" class="form-control filter-input">
+                                        <option value="">Any</option>
+                                        <option value="1">1 room</option>
+                                        <option value="2">2 rooms</option>
+                                        <option value="3">3 rooms</option>
+                                        <option value="4">4 rooms</option>
+                                        <option value="5">5+ rooms</option>
+                                    </select>
+                                </div>
+                                <!-- <div class="col-md-6 mt-3"> -->
+                                <!-- <label class="mx-left">Land Area</label>
                                         <select name="square" v-model="square" class="form-control filter-input">
                                             <option value="">Any</option>
                                             <option value="5000">5,000</option>
@@ -175,43 +180,44 @@
                                             <option value="10000">10000</option>
                                         </select> -->
 
-                                    <!-- </div> -->
-                                    <div class="price-dropdown pl-auto  col-md-6 mt-3 border-0">
+                                <!-- </div> -->
+                                <div class="price-dropdown pl-auto  col-md-6 mt-3 border-0">
                                     <label>Area</label>
                                     <div class="price-placeholder">
                                         <a class="form-control-2 dropdown-toggle border-0 text-left" href="#"
-                                           data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Units <span
-                                            class="currency">{{ current_unit ? current_unit : "(Square feet)" }}</span><strong
-                                            class="caret"></strong>
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Unit
+                                            <span class="currency">{{ current_unit ? current_unit : "(Square feet)"
+                                                }}</span><strong class="caret"></strong>
                                         </a>
                                         <div class="row  price-from-to-vue modalclass p-0">
-                                            <div class="col-md-5"><span class="min_unit_text" style="margin-right: 4rem !important;">0</span></div>
+                                            <div class="col-md-5"><span class="min_unit_text"
+                                                    style="margin-right: 4rem !important;">{{ this.min_unit }}</span></div>
                                             <div class="col-md-2 price_to_text">to</div>
-                                            <div class="col-md-5"><span class="max_unit_text">Any</span></div>
+                                            <div class="col-md-5"><span class="max_unit_text">{{ this.max_unit }}</span></div>
                                         </div>
                                         <div class="dropdown-menu dropdown-menu-2" style="padding:10px;width:100%">
                                             <div class="row">
                                                 <div class="col-md-12">
-                                                    <small style="color:#363666;text-decoration:underline;margin-left:5px;margin-bottom:5px;"><a href="#" class="area-unit" id="changeAreaUnitlabel"
-                                                   data-toggle="modal"
-                                                   data-target="#area_modal">Change Area Unit</a></small>
+                                                    <small
+                                                        style="color:#363666;text-decoration:underline;margin-left:5px;margin-bottom:5px;"><a
+                                                            href="#" class="area-unit" id="changeAreaUnitlabel"
+                                                            data-toggle="modal" data-target="#area_modal">Change Area
+                                                            Unit</a></small>
                                                 </div>
                                             </div>
                                             <div class="row justify-content-center">
                                                 <div class="col-6">
                                                     <input class="form-control price-label filter-input"
-                                                            id="input_min_unit"
-                                                           style="border:1px solid #a0a0a0 !important" name="min_unit"
-                                                           v-model="min_unit" placeholder="Min"
-                                                           data-dropdown-id="unit-min" value=""/>
+                                                        id="input_min_unit" style="border:1px solid #a0a0a0 !important"
+                                                        name="min_unit" v-model="min_unit" placeholder="Min"
+                                                        data-dropdown-id="unit-min" value="" />
                                                 </div>
 
                                                 <div class="col-6">
                                                     <input class="form-control price-label filter-input"
-                                                            id="input_max_unit"
-                                                           style="border:1px solid #a0a0a0 !important" name="max_unit"
-                                                           v-model="max_unit" placeholder="Max"
-                                                           data-dropdown-id="unit-max" value=""/>
+                                                        id="input_max_unit" style="border:1px solid #a0a0a0 !important"
+                                                        name="max_unit" v-model="max_unit" placeholder="Max"
+                                                        data-dropdown-id="unit-max" value="" />
                                                 </div>
                                             </div>
                                             <div class="clearfix"></div>
@@ -222,7 +228,7 @@
 
 
                                                         <li class="unit-li-item" :data-value="units.key"
-                                                            v-for="units  in area_units">{{ units.value }}
+                                                            v-for="units in area_units">{{ units.value }}
                                                         </li>
 
                                                     </ul>
@@ -233,19 +239,21 @@
                                                         style="width: 250px;height:150px; overflow-y: auto;overflow-x:hidden;margin-left: 1rem; cursor:pointer">
 
                                                         <li class="unit-li-item" :data-value="units.key"
-                                                            v-for="units  in area_units">{{ units.value }}
+                                                            v-for="units in area_units">{{ units.value }}
                                                         </li>
 
 
                                                     </ul>
                                                 </div>
                                             </div>
-                                            <button type="button" class="btn btn-primary btn-reset-unit" style="margin: 10px; height: 35px !important;">Reset</button>
-                                        </div>
+                                            <button type="button" class="btn btn-primary btn-reset-unit"
+                                                @click="resetUnitFilters"
+                                                style="margin: 10px; height: 35px !important;">Reset</button>
                                         </div>
                                     </div>
-
                                 </div>
+
+                            </div>
                         </center>
                     </div>
                     <div class="modal-footer">
@@ -265,19 +273,17 @@
                         <div id="parentChipContainer" class="parent-chip-container mr-0">
                             <div id="chipContainer">
                                 <div class="position-relative input-field-container"
-                                     style="max-height: 32px;max-width: 60%;">
+                                    style="max-height: 32px;max-width: 60%;">
                                     <!--                                <div class="spinner-border spinner-border-sm float-right" role="status"
                                                                          style="display:none">
                                                                         <span class="sr-only">Loading...</span>
                                                                     </div>-->
                                     <input placeholder="Keyword" class="form-control projects-keyword" type="text"
-                                           name=""
-                                           id="autocomplete-ajax"
-                                           style="position: absolute; z-index: 2; background: transparent; width: auto !important;"/>
+                                        name="" id="autocomplete-ajax"
+                                        style="position: absolute; z-index: 2; background: transparent; width: auto !important;" />
                                     <input class="form-control projects-keyword" type="text" name=""
-                                           id="autocomplete-ajax-x"
-                                           disabled="disabled"
-                                           style="color: #CCC; background: transparent; z-index: 1;"/>
+                                        id="autocomplete-ajax-x" disabled="disabled"
+                                        style="color: #CCC; background: transparent; z-index: 1;" />
                                 </div>
                                 <div id="chipViewMore" class="chip" style="display:none">
                                     <div class="chip-content"></div>
@@ -289,11 +295,11 @@
                     <div class="col-md-auto">
                         <div class="" style="background-color: white;height:100%">
                             <input id="city-name-from-map" type="hidden" class="select-city-state form-control"
-                                   autocomplete="off"/>
+                                autocomplete="off" />
                             <select class="form-control getlocation" v-model="city_id" id='city_id' name="city_id"
-                                    style="visibility: hidden">
+                                style="visibility: hidden">
                                 <option value="">Select city...</option>
-                                <option v-for="(city,index) in cities" :key="index" :value="city.id">
+                                <option v-for="(city, index) in cities" :key="index" :value="city.id">
                                     {{ city.name }}
                                 </option>
                             </select>
@@ -301,15 +307,14 @@
 
                     </div>
                     <div class="col-md-auto">
-                        <div class="price-dropdown layout-col ml-0"  style="font-weight: 400 !important;">
+                        <div class="price-dropdown layout-col ml-0" style="font-weight: 400 !important;">
                             <div class="dropdown input-group">
                                 <!--                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                             Dropdown button
                                                         </button>-->
                                 <a class="form-control-2 dropdown-toggle border-0 text-left" href="#"
-                                   data-toggle="dropdown"
-                                   aria-haspopup="true" aria-expanded="false">Price <span
-                                    class="currency">({{ current_currency }})</span><strong class="caret"></strong>
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Price <span
+                                        class="currency">({{ current_currency }})</span><strong class="caret"></strong>
                                 </a>
                                 <!--<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                     <a class="dropdown-item" href="#">Action</a>
@@ -331,18 +336,16 @@
                                     <div class="row justify-content-center">
                                         <div class="col-6">
                                             <input class="form-control price-label filter-input"
-                                                   style="border:1px solid #a0a0a0 !important" name="min_price"
-                                                   id="input_min_price"
-                                                   v-model="min_price" placeholder="Min"
-                                                   data-dropdown-id="price-min"  value=""/>
+                                                style="border:1px solid #a0a0a0 !important" name="min_price"
+                                                id="input_min_price" v-model="min_price" placeholder="Min"
+                                                data-dropdown-id="price-min" value="" />
                                         </div>
 
                                         <div class="col-6">
                                             <input class="form-control price-label filter-input"
-                                                   style="border:1px solid #a0a0a0 !important" name="max_price"
-                                                   id="input_max_price"
-                                                   v-model="max_price" placeholder="Max"
-                                                   data-dropdown-id="price-max"  value=""/>
+                                                style="border:1px solid #a0a0a0 !important" name="max_price"
+                                                id="input_max_price" v-model="max_price" placeholder="Max"
+                                                data-dropdown-id="price-max" value="" />
                                         </div>
 
                                         <div class="clearfix"></div>
@@ -353,7 +356,7 @@
 
 
                                                     <li class="price-li-item" :data-value="index"
-                                                        v-for="(item,index)  in price_list">{{ item }}
+                                                        v-for="(item, index)  in price_list">{{ item }}
                                                     </li>
 
                                                 </ul>
@@ -364,7 +367,7 @@
                                                     style="width: 250px;height:150px; overflow-y: auto;overflow-x:hidden; cursor:pointer">
 
                                                     <li class="price-li-item" :data-value="index"
-                                                        v-for="(item,index)  in price_list">{{ item }}
+                                                        v-for="(item, index)  in price_list">{{ item }}
                                                     </li>
                                                 </ul>
                                             </div>
@@ -372,7 +375,9 @@
 
                                     </div>
 
-                                    <button type="button" class="btn btn-primary btn-reset-price" style="margin: 10px; height: 35px !important;">Reset</button>
+                                    <button type="button" class="btn btn-primary btn-reset-price"
+                                        @click="resetPriceFilters"
+                                        style="margin: 10px; height: 35px !important;">Reset</button>
 
 
                                 </div>
@@ -386,7 +391,7 @@
                     <div class="col-md-auto">
                         <div class="filter-wrap align-self-center filter-btn">
                             <button class="btn btn-primary" data-toggle="modal" data-target="#filterModal"
-                                    type="button">
+                                type="button">
                                 Filter <i class="fa fa-list pl-2"></i></button>
 
                         </div>
@@ -512,7 +517,7 @@
                         <span class="ml-3 bold">Sort By</span>
 
                         <select @change="getProperties" v-model="sort_by" name="sort_by" id="sort_by"
-                                class="p-1 bg-white">
+                            class="p-1 bg-white">
                             <option value="default_sorting">Default</option>
                             <option value="date_asc">Oldest</option>
                             <option value="date_desc">Newest</option>
@@ -539,17 +544,19 @@
                         <div class="pl-0">
                             <div class="wishlist-wrap">
                                 <a href="#" :data-id="item.id" :title="__('I care about this property!!!')"
-                                   class="text-orange heart add-to-wishlist">
+                                    class="text-orange heart add-to-wishlist">
                                     <i class="far fa-heart"></i>
                                 </a>
                             </div>
                             <div class="d-flex justify-content-around ">
                                 <a :href="item.url"> <img :data-src="item.image" :src="item.image" :alt="item.name"
-                                                          class="thumb img-fluid img-size"></a>
+                                        class="thumb img-fluid img-size"></a>
 
                                 <div class="listing-type-side">
 
-                                    <a :href="item.url"><h6 class="mb-0">{{ item.name_short }}</h6></a>
+                                    <a :href="item.url">
+                                        <h6 class="mb-0">{{ item.name_short }}</h6>
+                                    </a>
                                     <p class="mb-0">{{ item.price }}</p>
                                     <p class="mb-0">{{ item.city }}</p>
                                     <p class="mb-0">{{ item.location }}</p>
@@ -563,18 +570,17 @@
                             </div>
                             <div v-if="item.category_parent_id == '1'">
                                 <div class="room-info mg-left pt-3"><i class="fa fa-bed fa-2x bed-icon pr-2"
-                                                                       aria-hidden="true"></i><b
-                                    class="bed-no pr-2">{{ item.number_bedroom }}</b><i
-                                    class="fa fa-bath fa-2x bath-icon pr-2" aria-hidden="true"></i><b
-                                    class="bed-no pr-2">{{ item.number_bathroom }}</b><i
-                                    class="fas fa-ruler-combined  fa-2x pr-2 square-icon" aria-hidden="true"></i><b
-                                    class="square-no pr-2">{{ item.square_text }}</b></div>
+                                        aria-hidden="true"></i><b class="bed-no pr-2">{{ item.number_bedroom }}</b><i
+                                        class="fa fa-bath fa-2x bath-icon pr-2" aria-hidden="true"></i><b
+                                        class="bed-no pr-2">{{ item.number_bathroom }}</b><i
+                                        class="fas fa-ruler-combined  fa-2x pr-2 square-icon" aria-hidden="true"></i><b
+                                        class="square-no pr-2">{{ item.square_text }}</b></div>
                             </div>
                             <div v-else>
                                 <div class="room-info mg-left pt-3"><i class="fas fa-ruler-combined  square-icon pr-2"
-                                                                       aria-hidden="true"></i><b class="square-no pr-2">{{
-                                        item.square_text
-                                    }}</b></div>
+                                        aria-hidden="true"></i><b class="square-no pr-2">{{
+                                            item.square_text
+                                        }}</b></div>
                             </div>
 
                         </div>
@@ -602,7 +608,7 @@
                             <div class="col-md-2"><label>Sort By:</label></div>
                             <div class="col-md-10">
                                 <select @change="getProperties" v-model="sort_by" style="width: 50% !important;"
-                                        name="sort_by" class="bg-white p-1 sort_by p-select-list form-control">
+                                    name="sort_by" class="bg-white p-1 sort_by p-select-list form-control">
                                     <option value="default_sorting">Default</option>
                                     <option value="date_asc">Oldest</option>
                                     <option value="date_desc">Newest</option>
@@ -628,7 +634,7 @@
                     <div class="hourseitem">
                         <div class="blii">
                             <div class="img"><img class="thumb" :data-src="item.image" :src="item.image"
-                                                  :alt="item.name">
+                                    :alt="item.name">
                             </div>
                             <a :href="item.url" class="linkdetail"></a>
                             <div class="media-count-wrapper">
@@ -638,7 +644,8 @@
                                 </div>
                             </div>
                             <div class="status"
-                                 v-html="$sanitize(item.status_html, {allowedTags: ['span'], allowedAttributes: {'span': ['class']}})"></div>
+                                v-html="$sanitize(item.status_html, { allowedTags: ['span'], allowedAttributes: { 'span': ['class'] } })">
+                            </div>
                             <ul class="item-price-wrap hide-on-list">
                                 <li class="h-type"><span>{{ item.category_name }}</span></li>
                                 <li class="item-price">{{ item.price }}</li>
@@ -652,7 +659,7 @@
                                 </div>
                                 <div class="col-md-2" style="position: static !important;">
                                     <a href="#" class="text-orange heart add-to-wishlist" :data-id="item.id"
-                                       :title="__('I care about this property!!!')"><i class="far fa-heart"></i></a>
+                                        :title="__('I care about this property!!!')"><i class="far fa-heart"></i></a>
                                 </div>
                             </div>
                             <p class="city"><i class="fas fa-map-marker-alt" style="opacity: 0.7"></i>&nbsp;
@@ -660,17 +667,16 @@
                             <p class="threemt bold500">
                             <div v-if="item.category_parent_id == '1'">
                                 <div class="room-info   pt-3"><i class="fa fa-bed fa-2x pr-2 bed-icon"
-                                                                 aria-hidden="true"></i><b
-                                    class="bed-no pr-2">{{ item.number_bedroom }}</b><i
-                                    class="fa fa-bath fa-2x pr-2 bath-icon" aria-hidden="true"></i><b
-                                    class="bed-no pr-2">{{ item.number_bathroom }}</b><i
-                                    class="fas fa-ruler-combined  pr-2 fa-2x square-icon" aria-hidden="true"></i><b
-                                    class="square-no pr-2">{{ item.square_text }}</b></div>
+                                        aria-hidden="true"></i><b class="bed-no pr-2">{{ item.number_bedroom }}</b><i
+                                        class="fa fa-bath fa-2x pr-2 bath-icon" aria-hidden="true"></i><b
+                                        class="bed-no pr-2">{{ item.number_bathroom }}</b><i
+                                        class="fas fa-ruler-combined  pr-2 fa-2x square-icon" aria-hidden="true"></i><b
+                                        class="square-no pr-2">{{ item.square_text }}</b></div>
                             </div>
                             <div v-else>
-                                <div class="room-info text-left pt-3"><i class="fas fa-ruler-combined fa-2x pr-2  square-icon"
-                                                                         aria-hidden="true"></i><b
-                                    class="square-no pr-2">{{ item.square_text }}</b></div>
+                                <div class="room-info text-left pt-3"><i
+                                        class="fas fa-ruler-combined fa-2x pr-2  square-icon" aria-hidden="true"></i><b
+                                        class="square-no pr-2">{{ item.square_text }}</b></div>
 
 
                             </div>
@@ -722,15 +728,15 @@ export default {
             map: "",
             unit: "",
             markerBounds: "",
-            current_unit: "",
+            current_unit: '(' + this.getParamByName('selected-unit') + ')',
             property_type: "",
 
             test: JSON.parse(this.chosenlist),
             options: [
 
-                {text: JSON.parse(this.chosenlist)[0], value: JSON.parse(this.chosenlist)[0]},
-                {text: JSON.parse(this.chosenlist)[1], value: JSON.parse(this.chosenlist)[1]},
-                {text: JSON.parse(this.chosenlist)[2], value: JSON.parse(this.chosenlist)[2]},
+                { text: JSON.parse(this.chosenlist)[0], value: JSON.parse(this.chosenlist)[0] },
+                { text: JSON.parse(this.chosenlist)[1], value: JSON.parse(this.chosenlist)[1] },
+                { text: JSON.parse(this.chosenlist)[2], value: JSON.parse(this.chosenlist)[2] },
 
                 /*{ text: 'Two', value: '7 Street 57, F-10 Markaz F 10/3 F-10, Islamabad, Islamabad Capital Territory, Pakistan' },
                 { text: 'Three', value: 'C' },
@@ -738,16 +744,16 @@ export default {
 
             ],
             area_units: [
-                {key: 450, value:450},
-                {key: 675, value:675},
-                {key: 1125, value:1125},
-                {key: 1800, value:1800},
-                {key: 2250, value:2250},
-                {key: 3375, value:3375},
-                {key: 4500, value:4500},
-                {key: 6750, value:6750},
-                {key: 9000, value:9000},
-                {key: 11250, value:11250}
+                { key: 450, value: 450 },
+                { key: 675, value: 675 },
+                { key: 1125, value: 1125 },
+                { key: 1800, value: 1800 },
+                { key: 2250, value: 2250 },
+                { key: 3375, value: 3375 },
+                { key: 4500, value: 4500 },
+                { key: 6750, value: 6750 },
+                { key: 9000, value: 9000 },
+                { key: 11250, value: 11250 }
             ]
         }
     },
@@ -758,6 +764,10 @@ export default {
         this.changeAreaUnit();
     },
     props: {
+        testProp: {
+            type: String,
+            default: 'This is default'
+        },
         url: {
             type: String,
             default: () => null,
@@ -780,25 +790,25 @@ export default {
             default: () => false
         },
         chosenlist:
-            {
-                type: []
-            },
+        {
+            type: []
+        },
         cities: {
             type: []
 
         },
         chosenfullist:
-            {
-                type: []
-            },
+        {
+            type: []
+        },
         price_list:
-            {
-                type: []
-            },
+        {
+            type: []
+        },
         current_currency:
-            {
-                type: ""
-            },
+        {
+            type: ""
+        },
         parent_id: {
             type: Number
         }
@@ -813,7 +823,6 @@ export default {
             this.price_list = JSON.parse(this.price_list);
             this.chosenlist = JSON.parse(this.chosenlist);
             this.cities = JSON.parse(this.cities);
-            console.log(this.chosenlist);
         },
         getLocationKeywordsArrayFromUrl: function (sParam = 'k[]') {
             let params = new URLSearchParams(window.location.search);
@@ -832,7 +841,6 @@ export default {
         },
         getProperties: function (e, page = 1) {
             var arr = $.parseJSON(this.chosenfullist);
-            console.log(arr);
             var max_price = $("input[name='max_price']").val();
             var min_price = $("input[name='min_price']").val();
             var max_unit = $("input[name='max_unit']").val();
@@ -847,18 +855,16 @@ export default {
                 this.max_unit = max_unit;
             if (min_unit != "")
                 this.min_unit = min_unit;
+
             let url = this.url + '?type=' + this.type;
             this.data = [];
             this.links = {};
             this.isLoading = true;
 
-            console.log("CATEGORY_ID : "+this.category_id)
-
             if (this.property_type != "") {
                 url += '?property_type=' + this.property_type;
 
             } else {
-                //  var url_location = new URL(location.href).searchParams.get('location')
                 var url_type = location.href;
                 var url_ty = url_type ? url_type.indexOf("type") : -1;
                 if (url_ty > 0) {
@@ -870,9 +876,6 @@ export default {
             if (page == '') {
                 page = 1;
             }
-            /*if (this.type) {
-                let url = this.url + '?type=' + this.type;
-            }*/
             if (this.property_id) {
                 url += '&property_id=' + this.property_id;
             }
@@ -984,22 +987,22 @@ export default {
                     this.max_price = url_ma;
                 }
             }*/
-            this.current_unit = this.current_unit ? this.current_unit:"(Square feet)";
-            this.unit = this.unit ? this.unit:'ft²';
+            this.current_unit = this.current_unit ? this.current_unit : "(Square feet)";
+            this.unit = this.unit ? this.unit : 'ft²';
 
-            if (this.current_unit == "(Square feet)" ) {
+            if (this.current_unit == "(Square feet)") {
                 url += '&unit=' + 'ft²';
             }
-            if (this.current_unit == "(Square meter)"){
+            if (this.current_unit == "(Square meter)") {
                 url += '&unit=' + 'm²';
             }
-            if (this.current_unit == "(Yards)"){
+            if (this.current_unit == "(Yards)") {
                 url += '&unit=' + 'yard';
             }
-            if (this.current_unit == "(Marla)"){
+            if (this.current_unit == "(Marla)") {
                 url += '&unit=' + 'marla';
             }
-            if(this.current_unit == "(Kanal)"){
+            if (this.current_unit == "(Kanal)") {
                 url += '&unit=' + 'kanal';
             }
 
@@ -1022,14 +1025,12 @@ export default {
             /*var id_search_hidden=$("#id_search_hidden").val();
             if(id_search_hidden!="")
             {
-                console.log(id_search_hidden);
                 //arr.push(id_search_hidden);
             }*/
 
             this.search_data_chosen = this.chosenlist;
             var searchLocations = [];
             try {
-                console.log(chipArray + ' this is chip array');
                 searchLocations = chipArray;
 
             } catch (e) {
@@ -1039,7 +1040,7 @@ export default {
             if (searchLocations.length > 0) {
 
                 $.each(searchLocations, function (index, val) {
-                    console.log(val + ' this is val');
+
                     var jsonObject;
                     try {
                         jsonObject = JSON.parse(val)
@@ -1066,8 +1067,7 @@ export default {
             if (this.sort_by) {
                 url += '&sort_by=' + this.sort_by;
             }
-            if(this.category_id)
-            {
+            if (this.category_id) {
                 url += '&category_id=' + this.category_id;
             }
             // else
@@ -1118,7 +1118,6 @@ export default {
             }*/
             axios.get(url)
                 .then(res => {
-                    console.log(res);
                     //alert(res.data.data);
                     if (res.data) {
                         $(".list_suggest").html(res.data.data);
@@ -1132,180 +1131,219 @@ export default {
             $(".filter-input").each(function () {
                 $(this).val('').change();
                 // for price range list
-                $('input[data-dropdown-id="price-max"]').attr("placeholder","Max");
-                $('input[data-dropdown-id="price-min"]').attr("placeholder","Min");
+                $('input[data-dropdown-id="price-max"]').attr("placeholder", "Max");
+                $('input[data-dropdown-id="price-min"]').attr("placeholder", "Min");
                 $('.min_price_text').html("0");
                 $('.max_price_text').html("Any");
                 $(".price-min-ul li").removeClass("category-li-item-active");
                 $(".price-max-ul li").removeClass("category-li-item-active");
                 // for units range list
-                $('[data-dropdown-id="unit-max"]').attr("placeholder","Max");
-                $('[data-dropdown-id="unit-min"]').attr("placeholder","Min");
+                $('[data-dropdown-id="unit-max"]').attr("placeholder", "Max");
+                $('[data-dropdown-id="unit-min"]').attr("placeholder", "Min");
                 $('.min_unit_text').html("0");
                 $('.max_unit_text').html("Any");
                 $(".unit-min-ul li").removeClass("category-li-item-active");
                 $(".unit-max-ul li").removeClass("category-li-item-active");
             });
+
+            this.bedroom = 'Any';
+            this.bathroom = 'Any';
+            this.min_price = 0;
+            this.max_price = 'Any';
+            this.min_unit = 0;
+            this.max_unit = 'Any';
+        },
+
+        resetPriceFilters: function () {
+            $('input[data-dropdown-id="price-max"]').attr("placeholder", "Max");
+            $('input[data-dropdown-id="price-min"]').attr("placeholder", "Min");
+            $('.min_price_text').html("0");
+            $('.max_price_text').html("Any");
+            $(".price-min-ul li").removeClass("category-li-item-active");
+            $(".price-max-ul li").removeClass("category-li-item-active");
+            this.min_price = 0;
+            this.max_price = 'Any';
+        },
+        resetUnitFilters: function () {
+            $('[data-dropdown-id="unit-max"]').attr("placeholder", "Max");
+            $('[data-dropdown-id="unit-min"]').attr("placeholder", "Min");
+            $('.min_unit_text').html("0");
+            $('.max_unit_text').html("Any");
+            $(".unit-min-ul li").removeClass("category-li-item-active");
+            $(".unit-max-ul li").removeClass("category-li-item-active");
+
+            this.min_unit = '0';
+            this.max_unit = 'Any';
         },
         // Iniitialize map without creating markers
         initMap: function () {
             var mapOptions =
-                {
-                    zoom: 6,
-                    center: {
-                        lat: 33.74928730,
-                        lng: 72.78111600
-                    }
-                };
+            {
+                zoom: 6,
+                center: {
+                    lat: 33.74928730,
+                    lng: 72.78111600
+                }
+            };
 
             this.map = new google.maps.Map(document.getElementById(this.mapName), mapOptions);
             this.markerBounds = new google.maps.LatLngBounds();
         },
         changeAreaUnit: function () {
-            $( ".area-unit" ).on('click',function() {
+            $(".area-unit").on('click', function () {
                 $("#filterModal").hide();
                 $("#filterModal").removeClass('fade');
             });
-            $( "#save-changes" ).on('click',function() {
+            $("#save-changes").on('click', function () {
                 $("#filterModal").show();
                 $("#filterModal").addClass('fade');
                 // remove previous values
                 $('[data-dropdown-id="unit-max"]').val("");
                 $('[data-dropdown-id="unit-min"]').val("");
-                $('[data-dropdown-id="unit-max"]').attr("placeholder","Max");
-                $('[data-dropdown-id="unit-min"]').attr("placeholder","Min");
+                $('[data-dropdown-id="unit-max"]').attr("placeholder", "Max");
+                $('[data-dropdown-id="unit-min"]').attr("placeholder", "Min");
                 $('.min_unit_text').html("0");
                 $('.max_unit_text').html("Any");
                 $(".unit-min-ul li").removeClass("category-li-item-active");
                 $(".unit-max-ul li").removeClass("category-li-item-active");
+
+                this.min_unit = '0';
+                this.max_unit = 'Any';
             });
         },
         selectedUnit(event) {
-            this.current_unit = "(Square feet)";
-            if(event.target.value == 'ft²'){
+            // this.current_unit = "(Square feet)";
+
+            let url = 'ajax/area_unit_update?area_unit=' + event.target.value;
+
+            axios.get(url).then(res => {
+                console.log('area unit updated system wide');
+            })
+
+            if (event.target.value == 'ft²') {
                 this.current_unit = "(Square feet)";
                 $.each(this.area_units, function (index, val) {
                     if (this.unit == 'marla') {
-                        val.value  = Math.ceil(val.value *  225);
+                        val.value = Math.ceil(val.value * 225);
                         val.key = val.value;
                         this.unit = event.target.value;
                     }
                     if (this.unit == 'm²') {
-                        val.value  = Math.ceil(val.value *  10.764);
+                        val.value = Math.ceil(val.value * 10.764);
                         val.key = val.value;
                         this.unit = event.target.value;
                     }
                     if (this.unit == 'yards') {
-                        val.value = Math.ceil(val.value *  9);
+                        val.value = Math.ceil(val.value * 9);
                         val.key = val.value;
                         this.unit = event.target.value;
                     }
 
                     if (this.unit == 'kanal') {
-                        val.value = Math.ceil(val.value *  4500);
+                        val.value = Math.ceil(val.value * 4500);
                         val.key = val.value;
                         this.unit = event.target.value;
                     }
 
                 });
             }
-            else if(event.target.value == 'm²'){
+            else if (event.target.value == 'm²') {
                 this.current_unit = "(Square meter)";
                 $.each(this.area_units, function (index, val) {
-                     if (this.unit == 'ft²' || this.unit == undefined) {
-                        val.value  = Math.ceil(val.value /  10.764);
+                    if (this.unit == 'ft²' || this.unit == undefined) {
+                        val.value = Math.ceil(val.value / 10.764);
                         val.key = val.value;
                         this.unit = event.target.value;
                     }
                     if (this.unit == 'marla') {
-                        val.value  = Math.ceil((val.value *  225) /  10.764);
+                        val.value = Math.ceil((val.value * 225) / 10.764);
                         val.key = val.value;
                         this.unit = event.target.value;
                     }
                     if (this.unit == 'yards') {
-                        val.value = Math.ceil((val.value *  9) /  10.764);
+                        val.value = Math.ceil((val.value * 9) / 10.764);
                         val.key = val.value;
                         this.unit = event.target.value;
                     }
 
                     if (this.unit == 'kanal') {
-                        val.value = Math.ceil((val.value *  4500) /  10.764);
+                        val.value = Math.ceil((val.value * 4500) / 10.764);
                         val.key = val.value;
                         this.unit = event.target.value;
                     }
                 });
-            }else if (event.target.value == 'marla') {
+            } else if (event.target.value == 'marla') {
                 this.current_unit = "(Marla)";
                 $.each(this.area_units, function (index, val) {
-                     if (this.unit == 'ft²' || this.unit == undefined) {
-                        val.value  = Math.ceil(val.value /  225);
+                    if (this.unit == 'ft²' || this.unit == undefined) {
+                        val.value = Math.ceil(val.value / 225);
                         val.key = val.value;
                         this.unit = event.target.value;
                     }
                     if (this.unit == 'm²') {
-                        val.value  = Math.ceil((val.value *  10.764) /  225);
+                        val.value = Math.ceil((val.value * 10.764) / 225);
                         val.key = val.value;
                         this.unit = event.target.value;
                     }
                     if (this.unit == 'yards') {
-                        val.value = Math.ceil((val.value *  9) /  225);
+                        val.value = Math.ceil((val.value * 9) / 225);
                         val.key = val.value;
                         this.unit = event.target.value;
                     }
 
                     if (this.unit == 'kanal') {
-                        val.value = Math.ceil((val.value *  4500) /  225);
+                        val.value = Math.ceil((val.value * 4500) / 225);
                         val.key = val.value;
                         this.unit = event.target.value;
                     }
                 });
-            }else if(event.target.value == 'yards'){
+            } else if (event.target.value == 'yards') {
                 this.current_unit = "(Yards)";
                 $.each(this.area_units, function (index, val) {
-                     if (this.unit == 'ft²' || this.unit == undefined) {
-                        val.value  = Math.ceil(val.value /  9);
+                    if (this.unit == 'ft²' || this.unit == undefined) {
+                        val.value = Math.ceil(val.value / 9);
                         val.key = val.value;
                         this.unit = event.target.value;
                     }
                     if (this.unit == 'm²') {
-                        val.value  = Math.ceil((val.value *  10.764) /  9);
+                        val.value = Math.ceil((val.value * 10.764) / 9);
                         val.key = val.value;
                         this.unit = event.target.value;
                     }
                     if (this.unit == 'marla') {
-                        val.value = Math.ceil((val.value *  225) /  9);
+                        val.value = Math.ceil((val.value * 225) / 9);
                         val.key = val.value;
                         this.unit = event.target.value;
                     }
 
                     if (this.unit == 'kanal') {
-                        val.value = Math.ceil((val.value *  4500) /  9);
+                        val.value = Math.ceil((val.value * 4500) / 9);
                         val.key = val.value;
                         this.unit = event.target.value;
                     }
                 });
             }
-            else if(event.target.value == 'kanal'){
+            else if (event.target.value == 'kanal') {
                 this.current_unit = "(Kanal)";
                 $.each(this.area_units, function (index, val) {
                     if (this.unit == 'ft²' || this.unit == undefined) {
-                        val.value  = val.value /  4500;
+                        val.value = val.value / 4500;
                         val.key = val.value;
                         this.unit = event.target.value;
                     }
                     if (this.unit == 'm²') {
-                        val.value  = Math.round((val.value *  10.764) /  4500);
+                        val.value = Math.round((val.value * 10.764) / 4500);
                         val.key = val.value;
                         this.unit = event.target.value;
                     }
                     if (this.unit == 'yards') {
-                        val.value = (val.value *  9) /  4500;
+                        val.value = (val.value * 9) / 4500;
                         val.key = val.value;
                         this.unit = event.target.value;
                     }
 
                     if (this.unit == 'marla') {
-                        val.value = (val.value *  225) /  4500;
+                        val.value = (val.value * 225) / 4500;
                         val.key = val.value;
                         this.unit = event.target.value;
                     }
@@ -1314,7 +1352,7 @@ export default {
 
 
             }
-            else{
+            else {
                 console.log("No unit selected");
             }
 
@@ -1323,13 +1361,13 @@ export default {
         insertMarkers: function () {
 
             var mapOptions =
-                {
-                    zoom: 8,
-                    center: {
-                        lat: 33.74928730,
-                        lng: 72.78111600
-                    }
-                };
+            {
+                zoom: 8,
+                center: {
+                    lat: 33.74928730,
+                    lng: 72.78111600
+                }
+            };
 
             var list_data = [];
 
@@ -1354,14 +1392,12 @@ export default {
                 };
                 i++;
             });
-            console.log(list_data);
 
             var latlngbounds = new google.maps.LatLngBounds();
             var currentInfoWindow = null;
             for (var i = 0; i < list_data.length; i++) {
 
                 var data = list_data[i];
-                //  console.log(data);
                 if (data.category_parent_id == 1)
                     var contentString = '<div class="infowindow-wrap"><div class="thumb img-fluid img-size pt-2"><a href="' + data.url + '"><img src="' + data.image + '"   style="width: 240px;"></a></div><div class="title-info pt-2"><a href="' + data.url + '"><b>' + data.name_short + '</b></a></div><div class="location-info pt-2"><a href="' + data.url + '"><b>' + data.location + '</b></a></div><div class="price-info pt-2"><b>' + data.price + '</b></div>  <div class="room-info  pt-3" ><i class="fa fa-bed fa-2x bed-icon pr-2" aria-hidden="true"></i><b class="bed-no pr-2">' + data.number_bedroom + '</b><i class="fa fa-bath fa-2x bath-icon pr-2" aria-hidden="true"></i><b class="bed-no pr-2">' + data.number_bathroom + '</b><i class="fas fa-ruler-combined  pr-2 fa-2x square-icon" aria-hidden="true"></i><b class="square-no pr-2">' + data.square_text + '</b></div></div>';
                 else
@@ -1406,7 +1442,7 @@ export default {
                  });*/
                 latlngbounds.extend(list_data[i].latlng);
             }
-            if ( list_data[i].latlng == ""){
+            if (list_data[i].latlng == "") {
                 list_data[i].latlng = new google.maps.LatLng(30.375320, 69.345116)
             }
             /*for (var i = 0; i < list_data.length; i++) {

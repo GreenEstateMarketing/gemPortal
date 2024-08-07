@@ -310,8 +310,6 @@
             $('#longitude').val(lng);
             latlng = new google.maps.LatLng(lat, lng);
             new google.maps.Geocoder().geocode({'latLng': latlng}, function (results, status) {
-
-                console.log(result, status);
                 if (status == google.maps.GeocoderStatus.OK) {
                     if (results[1]) {
                         var country = null, countryCode = null, city = null, cityAlt = null;
@@ -347,7 +345,7 @@
                             }
                         }
 
-                        console.log("City: " + city + ", City2: " + cityAlt + ", Country: " + country + ", Country Code: " + countryCode);
+                        
                         var url = window.location.href;
                         if (url.indexOf("location") > -1) {
                             if ($('.select-city-state').val() == "")
@@ -407,7 +405,6 @@
                 // $('#location_map').val(results[0].formatted_address);
                 $('#latitude').val(marker.getPosition().lat());
                 $('#longitude').val(marker.getPosition().lng());
-                console.log(results[0]);
                 infowindow.setContent(results[0].formatted_address);
                 infowindow.open(map, marker);
 
@@ -416,11 +413,11 @@
 
             //const input = document.getElementById("location_map");
             //const searchBox = new google.maps.places.SearchBox(input);
-            // console.log(searchBox.getPlaces());
+            // 
             // Bias the SearchBox results towards current map's viewport.
             /*map.addListener("bounds_changed", () => {
                 searchBox.setBounds(map.getBounds());
-                console.log(searchBox.getPlaces());
+                
             });*/
             //  let markers = [];
             /*searchBox.addListener("places_changed", () => {
@@ -438,7 +435,7 @@
                 const bounds = new google.maps.LatLngBounds();
                 places.forEach((place) => {
                     if (!place.geometry || !place.geometry.location) {
-                        console.log("Returned place contains no geometry");
+                        
                         return;
                     }
                     const icon = {
@@ -474,7 +471,6 @@
                     $('#latitude').val(marker.getPosition().lat());
                     $('#longitude').val(marker.getPosition().lng());
                     infowindow.setContent(results[0].formatted_address);
-                    console.log(results[0]);
                     infowindow.open(map, marker);
 
 

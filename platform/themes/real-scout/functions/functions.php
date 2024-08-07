@@ -757,6 +757,25 @@ function getDefaultAreaUnit(){
     return setting('real_estate_square_unit');
 }
 
+function getDefaultAreaByUnitForNextPage(){
+    $unit = setting('real_estate_square_unit');
+    
+    switch($unit){
+        case 'm²':
+            return 'Square meter';
+        case 'ft²':
+            return 'Square feet';
+        case 'marla':
+            return 'Marla';
+        case 'yards':
+            return 'Yards';
+        case 'kanal':
+            return 'Kanal';
+        default:
+            break;
+    }
+}
+
 function getAreaLists()
 {
     $current = setting('real_estate_square_unit');

@@ -217,7 +217,6 @@
         var txtKey = $('#txtkey');
         var homeTypeSearch = $('#hometypesearch');
         homeTypeSearch.find('a').on('click', function () {
-            console.log('yeah');
             $('.advanced-search-content').removeClass('active');
             $('.listsuggest').html('').hide();
             txtKey.val('');
@@ -351,7 +350,6 @@
         });
 
         $(document).on('click', '.advanced-search-toggler', function (event) {
-            console.log('yeahdsfadfadsf');
             event.preventDefault();
 
             if ($('#hometypesearch a.active').attr('rel') === 'project') {

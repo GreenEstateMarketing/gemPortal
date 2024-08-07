@@ -297,6 +297,7 @@
                                 <a href="javascript:void(0)" rel="rent" class="top-right-radius"
                                     data-url="{{ route('public.properties') }}">{{ __('Rent') }}</a>
                             </div>
+                            <input type="hidden" id="selected-unit" name="selected-unit" value="{{ getDefaultAreaByUnitForNextPage() }}" />
                             <div class="input-group input-group-lg">
                                 <input type="hidden" name="type" value="project" id="txttypesearch">
                                 <div class="input-group-prepend">

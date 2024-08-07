@@ -36,8 +36,8 @@
             <div class="col-lg-4 wow fadeInUp" data-wow-delay="0.05s">
                 @if (theme_option('logo'))
                     <a class="navbar-brand" href="{{ route('public.single') }}">
-                        <img src="{{ RvMedia::getImageUrl(theme_option('logo')) }}"
-                             class="logo" height="40" alt="{{ theme_option('site_name') }}">
+                        <img src="{{ RvMedia::getImageUrl(theme_option('logo')) }}" class="logo" height="40"
+                            alt="{{ theme_option('site_name') }}">
                     </a>
                 @endif
                 <p>GEM has been established in 2020 to
@@ -81,9 +81,9 @@
                 <!-- end contact-box -->
             </div>
             <!-- end col-4 -->
-            <div class="col-12"><span
-                    class="copyright">© {{ date('Y') }} {!! clean(theme_option('copyright')) !!}</span> <span
-                    class="creation">Site created by <a href="#">SwiftLogix</a></span></div>
+            <div class="col-12"><span class="copyright">© {{ date('Y') }}
+                    {!! clean(theme_option('copyright')) !!}</span> <span class="creation">Site created by <a
+                        href="#">SwiftLogix</a></span></div>
             <!-- end col-12 -->
         </div>
         <!-- end row -->
@@ -200,20 +200,14 @@
             $(".property-advanced-search :input").prop("disabled", true);
             $('div.property-advanced-search').find('select').hide();
             $(".project-advanced-search :input").prop("disabled", false);
-            // $('div.project-advanced-search').find('select').show();
-
         } else if (type == "sale") {
             $(".property-advanced-search :input").prop("disabled", false);
             $(".project-advanced-search :input").prop("disabled", true);
             $('div.property-advanced-search').find('select').show();
-
-            // $('div.project-advanced-search').find('select').hide();
         } else if (type == "rent") {
             $(".property-advanced-search :input").prop("disabled", false);
             $(".project-advanced-search :input").prop("disabled", true);
             $('div.project-advanced-search').find('select').show();
-
-
         } else {
         }
         var myForm = document.getElementById('frmhomesearch');
@@ -226,7 +220,6 @@
             hiddenInput.value = JSON.stringify(value);
             myForm.appendChild(hiddenInput);
         });
-        // return false;
     });
     $(".typesearch a").click(function () {
 
@@ -245,11 +238,11 @@
         $('.min_unit_text').html("0");
         $('.max_unit_text').html("Any");
     });
-    window.addEventListener( "pageshow", function ( event ) {
+    window.addEventListener("pageshow", function (event) {
         var historyTraversal = event.persisted ||
-            ( typeof window.performance != "undefined" &&
-                window.performance.navigation.type === 2 );
-        if ( historyTraversal ) {
+            (typeof window.performance != "undefined" &&
+                window.performance.navigation.type === 2);
+        if (historyTraversal) {
             // Handle page restore.
             window.location.reload();
         }
@@ -270,4 +263,5 @@
 
 {!! Theme::footer() !!}
 </body>
+
 </html>
