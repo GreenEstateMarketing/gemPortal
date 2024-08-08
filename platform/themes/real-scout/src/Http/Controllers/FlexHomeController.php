@@ -12,6 +12,7 @@ use Botble\RealEstate\Enums\ModerationStatusEnum;
 use Botble\RealEstate\Enums\PropertyStatusEnum;
 use Botble\RealEstate\Enums\PropertyTypeEnum;
 use Botble\RealEstate\Models\Account;
+use Botble\RealEstate\Models\Category;
 use Botble\RealEstate\Models\City;
 use Botble\RealEstate\Repositories\Interfaces\AccountInterface;
 use Botble\RealEstate\Repositories\Interfaces\CategoryInterface;
@@ -553,6 +554,17 @@ class FlexHomeController extends PublicController
         return $response
             ->setData(ProjectResource::collection($project))
             ->toApiResponse();
+    }
+
+    public function ajaxGetParentCategories(Request $request, BaseHttpResponse $response)
+    {
+        return Category::where('parent_id', '0')->pluck('name', 'id');
+    }
+
+    public function ajaxGetChildCategories(Request $request, BaseHttpResponse $response)
+    {
+        $id = $request->get('id');
+        return Category::where('parent_id', $id)->pluck('name', 'id');
     }
 
 }

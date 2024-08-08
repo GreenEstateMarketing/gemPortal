@@ -298,6 +298,8 @@
                                     data-url="{{ route('public.properties') }}">{{ __('Rent') }}</a>
                             </div>
                             <input type="hidden" id="selected-unit" name="selected-unit" value="{{ getDefaultAreaByUnitForNextPage() }}" />
+                            <!-- <input type="hidden" id="sub-cat" name="child_category_id" value="" >
+                            <input type="hidden" id="p-cat" name="p_category_id" value="" > -->
                             <div class="input-group input-group-lg">
                                 <input type="hidden" name="type" value="project" id="txttypesearch">
                                 <div class="input-group-prepend">
@@ -405,7 +407,7 @@
 
                                                             <a id="min-max-price-range"
                                                                 class="form-control price-select dropdown-toggle" href="#"
-                                                                data-toggle="dropdown">Price fdasfa<span
+                                                                data-toggle="dropdown">Price<span
                                                                     class="currency">{{CurrentCurrency()->title}}</span><strong
                                                                     class="caret"></strong>
 
@@ -872,7 +874,7 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <select class="form-control" id="area_units-val" onchange="selectedUnit(event)">
+                    <select class="form-control" id="area_units-val">
                         <option value="m²">Square Meter</option>
                         <option value="ft²" selected>Square Feet</option>
                         <option value="yards">Yards</option>

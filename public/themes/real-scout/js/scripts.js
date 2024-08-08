@@ -497,6 +497,8 @@
             });
             $(".p-category").click(function () {
                 var p_category = $(this).text();
+                var p_category_id = $(this).attr('data-id');
+                $('#p-cat').val(p_category_id);
                 if (p_category == "PLOTS" || p_category == "Plots" || p_category == "plot" || p_category == "PLOT") {
                     $(".bedrooms").addClass('d-none');
                     $(".bathrooms").addClass('d-none');
@@ -572,6 +574,8 @@
     $( ".pcateory_data" ).on( "click",".category-li-item", function( event ) {
         event.preventDefault();
         var sub_cat=$(this).text();
+        var sub_cat_id = $(this).attr('data-id');
+        $('#sub-cat').val(sub_cat_id);
         var parent_name=$(this).attr('parent-name');
         if(parent_name=="PLOTS" || parent_name == "PLOTS" || parent_name == "Plots" || parent_name == "plot" || parent_name == "PLOT" || parent_name=="COMMMERCIALS" || parent_name == "COMMERCIALS" || parent_name == "Commercials" || parent_name == "COMMERCIAL" || parent_name == "Commercials")
         {

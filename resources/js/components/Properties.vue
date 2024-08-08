@@ -41,17 +41,24 @@
                     <div class="modal-body">
                         <center>
                             <div class="row">
-                                <!--                            <div class="col-md-4">
-                                                                <label class="mx-left">Property Type</label>
-                                                                <select name="category_id"  v-model="category_id" id="category_id"  class="form-control filter-input">
-                                                                    <option value="">Any</option>
-                                                                    <option value="1">House</option>
-                                                                    <option value="2">Flat</option>
-                                                                    <option value="3">Room</option>
-                                                                    <option value="4">Upper Portion</option>
-                                                                    <option value="5">Lower Portion</option>
-                                                                </select>
-                                                            </div>-->
+                                <div class="col-md-6 pl-auto  col-md-6 mt-3 border-0">
+                                    <label class="mx-left">Property Type</label>
+                                    <select name="category_id" v-model="category_id"
+                                        class="form-control filter-input"
+                                        @change="getChildCategories($event.target.options[$event.target.selectedIndex].dataset.value)">
+                                        <option :key="index" :data-value="index" :value="index"
+                                            v-for="(item, index) in parent_categories">{{ item
+                                            }}</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 pl-auto  col-md-6 mt-3 border-0">
+                                    <label class="mx-left">Sub Type</label>
+                                    <select name="sub_category_id" v-model="child_category_id"
+                                        class="form-control filter-input">
+                                        <option :data-value="index" :value="index" v-for="(item, index) in child_categories">{{ item
+                                            }}</option>
+                                    </select>
+                                </div>
 
                                 <!--                            <div class="col-md-4">
                                                                 <label class="mx-left">Min Price</label>
@@ -191,9 +198,11 @@
                                         </a>
                                         <div class="row  price-from-to-vue modalclass p-0">
                                             <div class="col-md-5"><span class="min_unit_text"
-                                                    style="margin-right: 4rem !important;">{{ this.min_unit }}</span></div>
+                                                    style="margin-right: 4rem !important;">{{ this.min_unit }}</span>
+                                            </div>
                                             <div class="col-md-2 price_to_text">to</div>
-                                            <div class="col-md-5"><span class="max_unit_text">{{ this.max_unit }}</span></div>
+                                            <div class="col-md-5"><span class="max_unit_text">{{ this.max_unit }}</span>
+                                            </div>
                                         </div>
                                         <div class="dropdown-menu dropdown-menu-2" style="padding:10px;width:100%">
                                             <div class="row">
@@ -717,6 +726,7 @@ export default {
             max_unit: this.getParamByName("max_unit") ? this.getParamByName("max_unit") : "Any",
             sort_by: "default_sorting",
             category_id: new URL(location.href).searchParams.get("category_id"),
+            child_category_id: '',
             markers: [],
             search_data_chosen: [],
             // square: "",
@@ -730,6 +740,9 @@ export default {
             markerBounds: "",
             current_unit: '(' + this.getParamByName('selected-unit') + ')',
             property_type: "",
+            parent_categories: [],
+            selected_parent_category: '',
+            child_categories: [],
 
             test: JSON.parse(this.chosenlist),
             options: [
@@ -762,6 +775,7 @@ export default {
         this.getProperties();
         this.getParse();
         this.changeAreaUnit();
+        this.getParentCategories();
     },
     props: {
         testProp: {
@@ -815,7 +829,6 @@ export default {
     },
     methods: {
         openModal: function () {
-
             $(".modal").css('display', 'block !important');
         },
         getParse: function () {
@@ -838,6 +851,23 @@ export default {
             if (!results[2]) return '';
             return decodeURIComponent(results[2].replace(/\+/g, ' '));
 
+        },
+        getParentCategories: function () {
+            let url = 'ajax/get-parent-categories';
+            axios.get(url).then(res => {
+                this.parent_categories = res.data
+            })
+        },
+        getChildCategories: function (id) {
+            console.log('IN CHILD', id);
+            this.category_id = id;
+            this.child_categories = [];
+            this.child_category_id = '';
+            this.parent_id = id;
+            let url = 'ajax/get-child-categories?id=' + id;
+            axios.get(url).then(res => {
+                this.child_categories = res.data
+            })
         },
         getProperties: function (e, page = 1) {
             var arr = $.parseJSON(this.chosenfullist);
@@ -1067,20 +1097,12 @@ export default {
             if (this.sort_by) {
                 url += '&sort_by=' + this.sort_by;
             }
-            if (this.category_id) {
+
+            if (this.category_id && !this.child_category_id) {
                 url += '&category_id=' + this.category_id;
+            } else {
+                url += '&category_id=' + this.child_category_id;
             }
-            // else
-            // {
-            //     var url_location=location.href;
-            //     var url_k = url_location ? url_location.indexOf("category_id") : -1;
-            //     if (url_k > 0) {
-            //         var url_ka = new URL(location.href).searchParams.get("category_id");
-            //         url += '&category_id=' + url_ka;
-            //         this.category_id =url_ka;
-            //
-            //     }
-            // }
 
             axios.get(url, {
                 params: {
@@ -1152,6 +1174,9 @@ export default {
             this.max_price = 'Any';
             this.min_unit = 0;
             this.max_unit = 'Any';
+            this.parent_id = 1
+            this.category_id = ''
+            this.child_category_id = ''
         },
 
         resetPriceFilters: function () {
