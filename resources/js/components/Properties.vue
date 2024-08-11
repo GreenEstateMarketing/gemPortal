@@ -1431,7 +1431,7 @@ export default {
                 const infowindow = new google.maps.InfoWindow({
                     content: contentString,
                 });
-                var iconBase = '/themes/real-scout/images/generic.png';
+                var iconBase = '/themes/real-scout/images/generic-3.png';
 
                 var icon = {
                     url: iconBase, // url
