@@ -88,7 +88,7 @@ class MemberPropertyForm extends PropertyForm
              ])*/
             ->addAfter('description', 'images', 'multipleUpload', [
                 'label' => trans('plugins/real-estate::property.form.images'),
-                'label_attr' => ['class' => 'control-label'],
+                'label_attr' => ['class' => 'control-label test'],
             ]);
 
     }
