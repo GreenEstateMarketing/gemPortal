@@ -60,3 +60,7 @@ if (!defined('DESCRIPTION_TEMPLATE_MODULE_SCREEN_NAME')) {
     define('DESCRIPTION_TEMPLATE_MODULE_SCREEN_NAME', 'description-template');
 }
 
+if (!defined('WANTED_MODULE_SCREEN_NAME')) {
+    define('WANTED_MODULE_SCREEN_NAME', 'wanted');
+}
+

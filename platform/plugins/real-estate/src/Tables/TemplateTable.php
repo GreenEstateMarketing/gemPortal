@@ -8,6 +8,7 @@ use Botble\RealEstate\Repositories\Interfaces\TemplateInterface;
 use Botble\Table\Abstracts\TableAbstract;
 use Html;
 use Illuminate\Contracts\Routing\UrlGenerator;
+use Illuminate\Support\Facades\Log;
 use Yajra\DataTables\DataTables;
 
 class TemplateTable extends TableAbstract
@@ -45,10 +46,10 @@ class TemplateTable extends TableAbstract
                 return $item->detail;
             })
             ->editColumn('status', function ($item) {
-                return $item->status ? 'Published': 'Not Published';
+                return $item->status ? 'Published' : 'Not Published';
             })
             ->editColumn('category_id', function ($item) {
-                return $item->category->name;
+                return $item->category ? $item->category->name : '';
             })
             ->editColumn('created_at', function ($item) {
                 return \BaseHelper::formatDate($item->created_at);
@@ -93,7 +94,7 @@ class TemplateTable extends TableAbstract
                 'title' => trans('core/base::tables.name'),
                 'class' => 'text-left',
             ],
-//            'detail' => [
+            //            'detail' => [
 //                'name' => 'description_template.detail',
 //                'title' => 'detail',
 //                'class' => 'text-left',
@@ -137,33 +138,33 @@ class TemplateTable extends TableAbstract
     {
         return [
             'template.name' => [
-                'title'    => trans('core/base::tables.name'),
-                'type'     => 'text',
+                'title' => trans('core/base::tables.name'),
+                'type' => 'text',
                 'validate' => 'required|max:120',
             ],
             'template.detail' => [
-                'title'    => 'Detail',
-                'type'     => 'text',
+                'title' => 'Detail',
+                'type' => 'text',
                 'validate' => 'required|max:120',
             ],
             'template.type' => [
-                'title'    => 'Type',
-                'type'     => 'text',
+                'title' => 'Type',
+                'type' => 'text',
                 'validate' => 'required|max:120',
             ],
             'template.status' => [
-                'title'    => trans('core/base::tables.status'),
-                'type'     => 'text',
+                'title' => trans('core/base::tables.status'),
+                'type' => 'text',
                 'validate' => 'required|max:120',
             ],
             'template.category_id' => [
-                'title'    => 'Category',
-                'type'     => 'text',
+                'title' => 'Category',
+                'type' => 'text',
                 'validate' => 'required|max:120',
             ],
             'template.created_at' => [
                 'title' => trans('core/base::tables.created_at'),
-                'type'  => 'date',
+                'type' => 'date',
             ],
         ];
     }

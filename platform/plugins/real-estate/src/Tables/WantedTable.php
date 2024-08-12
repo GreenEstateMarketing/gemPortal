@@ -4,8 +4,6 @@ namespace Botble\RealEstate\Tables;
 
 use Auth;
 use BaseHelper;
-use Botble\Base\Enums\BaseStatusEnum;
-use Botble\RealEstate\Models\Wanted;
 use Botble\RealEstate\Repositories\Interfaces\WantedInterface;
 use Botble\Table\Abstracts\TableAbstract;
 use Html;
@@ -28,19 +26,13 @@ class WantedTable extends TableAbstract
      */
     protected $hasFilter = true;
 
-    /**
-     * CategoryTable constructor.
-     * @param DataTables $table
-     * @param UrlGenerator $urlDevTool
-     * @param CategoryInterface $categoryRepository
-     */
     public function __construct(DataTables $table, UrlGenerator $urlDevTool, WantedInterface $wantedRepository)
     {
         $this->repository = $wantedRepository;
-        $this->setOption('id', 'plugins-real-estate-categories');
+        $this->setOption('id', 'plugins-wanted');
         parent::__construct($table, $urlDevTool);
 
-        if (!Auth::user()->hasAnyPermission(['property_category.edit', 'property_category.destroy'])) {
+        if (!Auth::user()->hasAnyPermission(['wanted.edit', 'wanted.destroy'])) {
             $this->hasOperations = false;
             $this->hasActions = false;
         }
@@ -57,10 +49,10 @@ class WantedTable extends TableAbstract
         $data = $this->table
             ->eloquent($this->query())
             ->editColumn('name', function ($item) {
-                if (!Auth::user()->hasPermission('property_category.edit')) {
+                if (!Auth::user()->hasPermission('wanted.edit')) {
                     return $item->name;
                 }
-                return Html::link(route('wanted.view', $item->id), $item->name);
+                return Html::link(route('wanted.edit', $item->id), $item->name);
             })
             ->editColumn('checkbox', function ($item) {
                 return $this->getCheckbox($item->id);
@@ -68,13 +60,10 @@ class WantedTable extends TableAbstract
             ->editColumn('created_at', function ($item) {
                 return BaseHelper::formatDate($item->created_at);
             });
-            /*->editColumn('status', function ($item) {
-                return $item->status->toHtml();
-            });*/
 
         return apply_filters(BASE_FILTER_GET_LIST_DATA, $data, $this->repository->getModel())
             ->addColumn('operations', function ($item) {
-                return $this->getOperations('wanted.view', 'wanted.destroy', $item);
+                return $this->getOperations(null, 'wanted.destroy', $item);
             })
             ->escapeColumns([])
             ->make(true);
@@ -92,10 +81,11 @@ class WantedTable extends TableAbstract
         $select = [
             'wanted.id',
             'wanted.name',
+            'wanted.email',
+            'wanted.mobile_no',
             'wanted.created_at',
             'wanted.status',
             'wanted.type'
-
         ];
 
         $query = $model->select($select);
@@ -110,31 +100,31 @@ class WantedTable extends TableAbstract
     public function columns()
     {
         return [
-            'id'         => [
-                'name'  => 'wanted.id',
+            'id' => [
+                'name' => 'wanted.id',
                 'title' => trans('core/base::tables.id'),
                 'width' => '20px',
             ],
-            'name'       => [
-                'name'  => 'wanted.name',
+            'name' => [
+                'name' => 'wanted.name',
                 'title' => trans('core/base::tables.name'),
                 'class' => 'text-left',
             ],
-            'type'       => [
-                'name'  => 'wanted.type',
+            'type' => [
+                'name' => 'wanted.type',
                 'title' => trans('core/base::tables.type'),
                 'class' => 'text-left',
             ],
-           'created_at' => [
-                'name'  => 'wanted.created_at',
+            'email' => [
+                'name' => 'wanted.email',
+                'title' => trans('core/base::tables.email'),
+                'class' => 'text-left',
+            ],
+            'created_at' => [
+                'name' => 'wanted.created_at',
                 'title' => trans('core/base::tables.created_at'),
                 'width' => '100px',
                 'class' => 'text-left',
-            ],
-            'status'     => [
-                'name'  => 'wanted.status',
-                'title' => trans('core/base::tables.status'),
-                'width' => '100px',
             ],
         ];
     }
@@ -146,9 +136,9 @@ class WantedTable extends TableAbstract
      */
     public function buttons()
     {
-        $buttons = $this->addCreateButton(route('property_category.create'), 'property_category.create');
+        // $buttons = $this->addCreateButton(route('wanted.create'), 'wanted.create');
 
-        return apply_filters(BASE_FILTER_TABLE_BUTTONS, $buttons, Wanted::class);
+        // return apply_filters(BASE_FILTER_TABLE_BUTTONS, $buttons, Wanted::class);
     }
 
     /**
@@ -157,7 +147,29 @@ class WantedTable extends TableAbstract
      */
     public function bulkActions(): array
     {
-        return $this->addDeleteAction(route('property_category.deletes'), 'property_category.destroy', parent::bulkActions());
+        return $this->addDeleteAction(route('wanted.deletes'), 'wanted.destroy', parent::bulkActions());
+    }
+
+    public function getFilters(): array
+    {
+        return [
+            'wanted.name' => [
+                'title' => trans('core/base::tables.name'),
+                'type' => 'text',
+            ],
+            'wanted.email' => [
+                'title' => trans('core/base::tables.email'),
+                'type' => 'text',
+            ],
+            'wanted.type' => [
+                'title' => trans('core/base::tables.type'),
+                'type' => 'select',
+                'choices' => [
+                    'buy' => 'Buy',
+                    'rent' => 'Rent'
+                ],
+            ],
+        ];
     }
 
     /**
@@ -165,22 +177,8 @@ class WantedTable extends TableAbstract
      */
     public function getBulkChanges(): array
     {
-        return [
-            'wanted.name'       => [
-                'title'    => trans('core/base::tables.name'),
-                'type'     => 'text',
-                'validate' => 'required|max:120',
-            ],
-            'wanted.status'     => [
-                'title'    => trans('core/base::tables.status'),
-                'type'     => 'select',
-                'choices'  => BaseStatusEnum::labels(),
-                'validate' => 'required|in:' . implode(',', BaseStatusEnum::values()),
-            ],
-            'wanted.created_at' => [
-                'title' => trans('core/base::tables.created_at'),
-                'type'  => 'date',
-            ],
-        ];
+        return [];
     }
+
+   
 }

@@ -55,6 +55,17 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
             ]);
         });
 
+        Route::group(['prefix' => 'wanted', 'as' => 'wanted.'], function () {
+            Route::resource('', 'WantedController')
+                ->parameters(['' => 'wanted']);
+
+            Route::delete('items/destroy', [
+                'as' => 'deletes',
+                'uses' => 'WantedController@deletes',
+                'permission' => 'wanted.destroy',
+            ]);
+        });
+
         Route::group(['prefix' => 'category-documents', 'as' => 'category-document.'], function () {
             Route::resource('', 'CategoryDocumentController')
                 ->parameters(['' => 'category-document']);
@@ -128,24 +139,24 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
              'uses'       => 'AccountController@getList',
              'permission' => 'account.index',
          ]);*/
-        Route::group(['prefix' => 'wanted', 'as' => 'wanted.'], function () {
-            Route::get('/', [
-                'as' => 'list',
-                'uses' => 'WantedController@index',
-                /*'permission' => 'account.index',*/
-            ]);
-            Route::get('/view/{id}', [
-                'as' => 'view',
-                'uses' => 'WantedController@view',
-                /*'permission' => 'account.index',*/
-            ]);
-            Route::delete('/destroy/{id}', [
-                'as' => 'destroy',
-                'uses' => 'WantedController@destroy',
-                /*'permission' => 'account.index',*/
-            ]);
+        // Route::group(['prefix' => 'wanted', 'as' => 'wanted.'], function () {
+        //     Route::get('/', [
+        //         'as' => 'wanted.index',
+        //         'uses' => 'WantedController@index',
+        //         /*'permission' => 'account.index',*/
+        //     ]);
+        //     Route::get('/view/{id}', [
+        //         'as' => 'view',
+        //         'uses' => 'WantedController@view',
+        //         /*'permission' => 'account.index',*/
+        //     ]);
+        //     Route::delete('/destroy/{id}', [
+        //         'as' => 'destroy',
+        //         'uses' => 'WantedController@destroy',
+        //         /*'permission' => 'account.index',*/
+        //     ]);
 
-        });
+        // });
         //voucher manemnet
         Route::group(['prefix' => 'voucher', 'as' => 'voucher.'], function () {
             /*Route::get('/create/{id}', [
