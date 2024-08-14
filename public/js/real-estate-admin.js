@@ -288,7 +288,11 @@ $(window).ready(function () {
 });
 $(document).ready(function () {
     $(document).on('click', '[data-id="sale"]', function () {
-        console.log('sale clicked');
+        $('#proj-1').css('display', 'none');
+        $('#proj-2').css('display', 'none');
+        $('[data-id="project"]').removeClass('label-primary');
+        $('[data-id="project"]').addClass('label-secondary');
+        $('button[data-id="project"]').find('.tick-selected').empty();
         $("li.p-subcategory.label-primary").each(function () {
             if ($(this).find("span i").length > 0) {
                 $(this).click();
@@ -296,12 +300,34 @@ $(document).ready(function () {
         });
     });
     $(document).on('click', '[data-id="rent"]', function () {
-        console.log('rent clicked');
+        $('#proj-1').css('display', 'none');
+        $('#proj-2').css('display', 'none');
+        $('[data-id="project"]').removeClass('label-primary');
+        $('[data-id="project"]').addClass('label-secondary');
+        $('button[data-id="project"]').find('.tick-selected').empty();
         $("li.p-subcategory.label-primary").each(function () {
             if ($(this).find("span i").length > 0) {
                 $(this).click();
             }
         });
+    });
+    $(document).on('click', '[data-id="project"]', function () {
+        $('[data-id="project"]').removeClass('label-secondary');
+        $('[data-id="project"]').addClass('label-primary');
+        $('[data-id="sale"]').removeClass('label-primary');
+        $('[data-id="rent"]').removeClass('label-primary');
+        $('[data-id="sale"]').addClass('label-secondary');
+        $('[data-id="rent"]').addClass('label-secondary');
+
+        $('button[data-id="sale"]').find('.tick-selected').empty();
+        $('button[data-id="rent"]').find('.tick-selected').empty();
+
+        $('[data-id="project"]').html('<span class="tick-selected"><i class="fas fa-check"></i></span> Projects');
+
+        $('#proj-1').css('display', '');
+        $('#proj-2').css('display', '');
+
+        $('#type').val('project');
     });
     function temp_list() {
         /*   var latitude=  $("#latitude").val();

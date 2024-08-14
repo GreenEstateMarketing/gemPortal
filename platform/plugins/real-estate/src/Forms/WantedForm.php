@@ -97,6 +97,20 @@ class WantedForm extends FormAbstract
                     'readonly' => 'readonly'
                 ]
             ])
+            ->add('project_name', 'text', [
+                'label' => 'Project Name',
+                'label_attr' => ['class' => 'control-label'],
+                'attr' => [
+                    'readonly' => 'readonly'
+                ]
+            ])
+            ->add('amount', 'text', [
+                'label' => 'Amount',
+                'label_attr' => ['class' => 'control-label'],
+                'attr' => [
+                    'readonly' => 'readonly'
+                ]
+            ])
             ->add('comments', 'textarea', [
                 'label' => trans('plugins/real-estate::wanted.comments'),
                 'label_attr' => ['class' => 'control-label'],

@@ -34,6 +34,7 @@ use Botble\RealEstate\Repositories\Interfaces\CategoryInterface;
 use Botble\RealEstate\Repositories\Interfaces\MemberActivityLogInterface;
 use Botble\RealEstate\Repositories\Interfaces\MemberInterface;
 use Botble\RealEstate\Repositories\Interfaces\PackageInterface;
+use Botble\RealEstate\Repositories\Interfaces\ProjectInterface;
 use Botble\RealEstate\Repositories\Interfaces\TransactionInterface;
 use Botble\RealEstate\Tables\MemberPropertyTable;
 use Botble\Setting\Supports\SettingStore;
@@ -86,6 +87,8 @@ class GeneralPropertyController extends Controller
      */
     protected $propertyRepository;
 
+    protected $projectRepository;
+
     /**
      * @var AccountActivityLogInterface
      */
@@ -107,7 +110,8 @@ class GeneralPropertyController extends Controller
         CategoryInterface $categoryRepository,
         CityInterface $cityRepository,
         CityAreaInterface $cityAreaRepository,
-        MemberActivityLogInterface $memberActivityLogRepository
+        MemberActivityLogInterface $memberActivityLogRepository,
+        ProjectInterface $projectRepository
     ) {
         $this->memberRepository = $memberRepository;
         $this->propertyRepository = $propertyRepository;
@@ -116,6 +120,7 @@ class GeneralPropertyController extends Controller
         $this->categoryRepository = $categoryRepository;
         $this->activityLogRepository = $accountActivityLogRepository;
         $this->memberLogRepository = $memberActivityLogRepository;
+        $this->projectRepository = $projectRepository;
 
         Assets::setConfig($config->get('plugins.real-estate.assets'));
 
@@ -862,6 +867,7 @@ class GeneralPropertyController extends Controller
             [],
             ['id', 'parent_id', 'name']
         );
+
         $html = ' <ul class="col m-0 parent-category">';
         $subcategory = '';
         foreach ($categories as $key => $val) {
@@ -905,8 +911,19 @@ class GeneralPropertyController extends Controller
 
             $cityChoices[$city->id] = $city->name . ($city->state->name ? ' (' . $city->state->name . ')' : '');
         }
-        $data = array('html' => $html, 'sub_category' => $subcategory, 'city' => $cityChoices);
-        // print_r($cityChoices);exit;
+
+        $projects = $this->projectRepository->allBy([],[],
+            ['re_projects.name', 're_projects.id']
+        );
+
+        $projectChoices = [];
+
+        foreach ($projects as $project) {
+            $projectChoices[$project->id] = $project->name;
+        }
+
+        $data = array('html' => $html, 'sub_category' => $subcategory, 'city' => $cityChoices, 'projects' => $projectChoices);
+        
         if (view()->exists(Theme::getThemeNamespace() . '::views.real-estate.member.wanted')) {
 
             return Theme::scope('real-estate.member.wanted', $data)->render();

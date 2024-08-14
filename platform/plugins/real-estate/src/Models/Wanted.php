@@ -16,6 +16,8 @@ class Wanted extends Model
         'area',
         'mobile_no',
         'comments',
-        'category_id'
+        'category_id',
+        'amount',
+        'project_name'
     ];
 }

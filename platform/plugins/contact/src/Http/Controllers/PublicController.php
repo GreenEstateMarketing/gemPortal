@@ -67,7 +67,7 @@ class PublicController extends Controller
     public function postSendWanted(Request $request, BaseHttpResponse $response)
     {
         try {
-            $validator = Validator::make($request->all(),[
+            $validator = Validator::make($request->all(), [
                 'type' => 'required',
                 'category_id' => 'required',
                 'name' => 'required|string|min:3|max:100|regex:^[a-zA-Z]{3,}(?: [a-zA-Z]+){0,2}$^',
@@ -76,11 +76,17 @@ class PublicController extends Controller
                 'city_id' => 'required|not_in:0',
                 'city_area_id' => 'not_in:0',
                 'comments' => 'required|string|min:5|max:255',
-            ],[
+                'amount' => 'required_if:type,project',
+                'project_select' => 'required_if:type,project_without:new_project_value',
+                'new_project_value' => 'required_if:type,project_without:project_select',
+            ], [
                 'city_id.required' => 'City field is required',
                 'city_area_id.required' => 'City area field is required',
                 'city_id.not_in' => 'Choose city from list',
-                'city_area_id.not_in' => 'Choose city area from list'
+                'city_area_id.not_in' => 'Choose city area from list',
+                'amount.required_if' => 'Amount is required when type is project',
+                'project_select.required_if' => 'You must select a project or provide a new project value',
+                'new_project_value.required_if' => 'You must provide a new project value or select a project',
             ]);
 
 
@@ -92,6 +98,16 @@ class PublicController extends Controller
             $cityAreaId = $data['city_area_id'];
             unset($data['city_area_id']);
             $data['area'] = $cityAreaId;
+
+            if (isset($data['new_project']) && $data['new_project'] == 'on') {
+                $data['project_name'] = $data['new_project_value'];
+            } else {
+                $data['project_name'] = $data['project_select'];
+            }
+
+            unset($data['new_project']);
+            unset($data['new_project_value']);
+            unset($data['project_select']);
 
 
             $response = Wanted::create($data);
@@ -112,7 +128,7 @@ class PublicController extends Controller
 
             return response()->json(['success' => 'Your Wanted property details submit successfully!']);
         } catch (\Exception $e) {
-            return response()->json(['error'=> $e->getMessage()]);
+            return response()->json(['error' => $e->getMessage()]);
         }
     }
 }

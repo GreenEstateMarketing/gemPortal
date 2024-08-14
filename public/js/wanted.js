@@ -2,9 +2,19 @@
 
 
 $(document).ready(function () {
+    $('#new-project').change(function () {
+        if ($(this).is(':checked')) {
+            $('#new-project-value').removeAttr('disabled');
+        } else {
+            $('#new-project-value').val('')
+            $('#new-project-value').attr('disabled', 'disabled');
+        }
+    });
+
     $('#city_id').select2();
     $('#city_area_id').select2();
-    $('#mobile_no').keydown(function() {
+    $('#project-select').select2();
+    $('#mobile_no').keydown(function () {
 
         //allow  backspace, tab, ctrl+A, escape, carriage return
         if (event.keyCode == 8 || event.keyCode == 9 ||
@@ -17,89 +27,102 @@ $(document).ready(function () {
     });
     $("#contact").validate({
         rules: {
-            city_id : {
+            city_id: {
                 required: true,
             },
-            city_area_id : {
+            city_area_id: {
                 required: true,
             },
 
-            mobile_no:{
+            mobile_no: {
                 required: true,
             },
-            email : {
+            email: {
                 required: true,
-                email:true
+                email: true
             },
-            name : {
+            name: {
                 required: true,
             },
-            comments:{
-                required:true
+            comments: {
+                required: true
+            },
+            project_select: {
+                required: function (element) {
+                    return $("#project").hasClass("label-primary") && !$("#new-project-value").val();
+                }
+            },
+            new_project_value: {
+                required: function(element) {
+                    return !$("#project-select").val();
+                }
             }
         },
-        messages:{
-            name:'Name is required',
-            email:'Email is required',
-            mobile_no:'Mobile No. is required',
-            city_id:'Choose city from list',
-            city_area_id:'Choose city area from list',
-            comments:'Message is required',
+        messages: {
+            name: 'Name is required',
+            email: 'Email is required',
+            mobile_no: 'Mobile No. is required',
+            city_id: 'Choose city from list',
+            city_area_id: 'Choose city area from list',
+            comments: 'Message is required',
+            project_select: 'Project is required.',
+            amount: 'Amount is required.'
 
 
         },
-        invalidHandler: function(form, validator) {
+        invalidHandler: function (form, validator) {
             var errors = validator.numberOfInvalids();
             $(this).find(":input.error:first").focus();
 
         },
         errorPlacement: function (error, element) {
-            console.log('dd', element.attr("name"))
             if (element.attr("name") == "city_id") {
                 error.appendTo("#error_city");
-            } else if(element.attr("name") == "city_area_id") {
+            } else if (element.attr("name") == "city_area_id") {
                 error.appendTo("#error_city_area");
-            }else{
+            } else if (element.attr("name") == "project_select") {
+                error.appendTo("#error_project_select");
+            } else if (element.attr("name") == "amount") {
+                error.appendTo("#error_amount");
+            } else {
                 error.insertAfter(element)
             }
         },
-        submitHandler: function(form){
+        submitHandler: function (form) {
             $(".fa-spinner").removeClass('d-none');
             $.ajax({
                 url: form.action,
                 type: form.method,
                 data: $(form).serialize(),
-                dataType:'json',
-                success: function(response) {
+                dataType: 'json',
+                success: function (response) {
                     $(".fa-spinner").addClass('d-none');
 
-                    if($.isEmptyObject(response.error)){
+                    if ($.isEmptyObject(response.error)) {
                         console.log(response.success);
-                    }else{
+                    } else {
                         printErrorMsg(response.error);
                     }
 
-                    function printErrorMsg (msg) {
+                    function printErrorMsg(msg) {
                         $(".print-error-msg").find("ul").html('');
-                        $(".print-error-msg").css('display','block');
-                        $.each( msg, function( key, value ) {
-                            $(".print-error-msg").find("ul").append('<li>'+value+'</li>');
+                        $(".print-error-msg").css('display', 'block');
+                        $.each(msg, function (key, value) {
+                            $(".print-error-msg").find("ul").append('<li>' + value + '</li>');
                         });
                     }
 
-                    if(response.error)
-                    {
-                        $(".alert-success").css('display','none');
+                    if (response.error) {
+                        $(".alert-success").css('display', 'none');
                         // $(".validation-error").css('display','block');
                         // $(".validation-error span").text(response.message);
 
                     }
-                    else
-                    {
+                    else {
                         $('#contact').trigger("reset");
                         $(".close").trigger("click");
-                        $(".alert-success").css('display','block');
-                        $(".validation-error").css('display','none');
+                        $(".alert-success").css('display', 'block');
+                        $(".validation-error").css('display', 'none');
                         $(".alert-success span").text(response.success);
 
 
@@ -108,25 +131,23 @@ $(document).ready(function () {
             });
         }
     });
-$("#submit_Btn").click(function () {
-    if($("#contact").valid())
-    {
-        $("#contact").submit();
-    }
-    else
-    {
-        return false;
-    }
+    $("#submit_Btn").click(function () {
+        if ($("#contact").valid()) {
+            $("#contact").submit();
+        }
+        else {
+            return false;
+        }
 
-    setTimeout(function() {
-        $(".alert-success").hide();
-    }, 4000);
-    setTimeout(function() {
-        $(".alert-danger").hide();
-    }, 4000);
+        setTimeout(function () {
+            $(".alert-success").hide();
+        }, 4000);
+        setTimeout(function () {
+            $(".alert-danger").hide();
+        }, 4000);
 
 
-});
+    });
 
 
 
