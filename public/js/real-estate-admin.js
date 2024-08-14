@@ -322,7 +322,7 @@ $(document).ready(function () {
         $('button[data-id="sale"]').find('.tick-selected').empty();
         $('button[data-id="rent"]').find('.tick-selected').empty();
 
-        $('[data-id="project"]').html('<span class="tick-selected"><i class="fas fa-check"></i></span> Projects');
+        $('[data-id="project"]').html('<span class="tick-selected"><i class="fas fa-check"></i></span> Invest');
 
         $('#proj-1').css('display', '');
         $('#proj-2').css('display', '');
