@@ -315,7 +315,7 @@
                                                                                              style="display:none">
                                                                                             <span class="sr-only">Loading...</span>
                                                                                         </div>-->
-                                            <input placeholder="Keyword" class="form-control" type="text" name=""
+                                            <input placeholder="Location" class="form-control" type="text" name=""
                                                 id="autocomplete-ajax"
                                                 style="position: absolute; z-index: 2; background: transparent; width: auto" />
                                             <input class="form-control" type="text" name="" id="autocomplete-ajax-x"
