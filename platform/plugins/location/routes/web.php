@@ -47,6 +47,15 @@ Route::group(['namespace' => 'Botble\Location\Http\Controllers', 'middleware' =>
                 'permission' => 'city.index',
             ]);
         });
+
+        Route::group(['prefix' => 'cityareas', 'as' => 'cityarea.'], function () {
+            Route::resource('', 'CityAreaController')->parameters(['' => 'cityarea']);
+            Route::delete('items/destroy', [
+                'as'         => 'deletes',
+                'uses'       => 'CityAreaController@deletes',
+                'permission' => 'cityarea.destroy',
+            ]);
+        });
     });
 
 });

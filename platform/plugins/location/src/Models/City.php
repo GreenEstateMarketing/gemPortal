@@ -53,4 +53,9 @@ class City extends BaseModel
     {
         return $this->belongsTo(Country::class)->withDefault();
     }
+
+    public function cityAreas()
+    {
+        return $this->hasMany(CityArea::class);
+    }
 }

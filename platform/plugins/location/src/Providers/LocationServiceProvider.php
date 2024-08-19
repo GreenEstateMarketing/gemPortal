@@ -107,6 +107,15 @@ class LocationServiceProvider extends ServiceProvider
                     'icon'        => null,
                     'url'         => route('city.index'),
                     'permissions' => ['city.index'],
+                ])
+                ->registerItem([
+                    'id'          => 'cms-plugins-city-area',
+                    'priority'    => 3,
+                    'parent_id'   => 'cms-plugins-location',
+                    'name'        => 'plugins/location::cityarea.name',
+                    'icon'        => null,
+                    'url'         => route('cityarea.index'),
+                    'permissions' => ['cityarea.index'],
                 ]);
         });
     }
