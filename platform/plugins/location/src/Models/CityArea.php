@@ -32,20 +32,23 @@ class CityArea extends BaseModel
         'city_area_location',
     ];
 
-    /**
-     * The attributes that are spatial fields.
-     *
-     * @var array
-     */
     protected $spatialFields = [
         'city_area_location'
     ];
 
-    /**
-     * @var array
-     */
-    protected $casts = [
-        'status' => BaseStatusEnum::class,
-    ];
+    public function city()
+    {
+        return $this->belongsTo(City::class);
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(CityArea::class, 'parent_id');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(CityArea::class, 'parent_id');
+    }
 
 }
