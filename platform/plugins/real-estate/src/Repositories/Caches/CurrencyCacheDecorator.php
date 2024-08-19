@@ -14,4 +14,9 @@ class CurrencyCacheDecorator extends CacheAbstractDecorator implements CurrencyI
     {
         return $this->getDataIfExistCache(__FUNCTION__, func_get_args());
     }
+
+    public function markRestAsNotDefault($id)
+    {
+        return $this->getDataIfExistCache(__FUNCTION__, func_get_args());
+    }
 }

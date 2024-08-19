@@ -398,6 +398,15 @@ class RealEstateServiceProvider extends ServiceProvider
                     'icon' => 'fas fa-file-alt',
                     'url' => route('wanted.index'),
                     'permissions' => ['wanted.index'],
+                ])
+                ->registerItem([
+                    'id' => 'cms-plugins-currencies',
+                    'priority' => 28,
+                    'parent_id' => null,
+                    'name' => 'Currencies',
+                    'icon' => 'fab fa-gg',
+                    'url' => route('currencies.index'),
+                    'permissions' => ['currencies.index'],
                 ]);
 
         });

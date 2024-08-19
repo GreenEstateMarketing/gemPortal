@@ -77,6 +77,17 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
             ]);
         });
 
+        Route::group(['prefix' => 'currencies', 'as' => 'currencies.'], function () {
+            Route::resource('', 'CurrenciesController')
+                ->parameters(['' => 'currency']);
+
+            Route::delete('items/destroy', [
+                'as' => 'deletes',
+                'uses' => 'CurrenciesController@deletes',
+                'permission' => 'currencies.destroy',
+            ]);
+        });
+
         Route::group(['prefix' => 'projects', 'as' => 'project.'], function () {
             Route::resource('', 'ProjectController')
                 ->parameters(['' => 'project']);

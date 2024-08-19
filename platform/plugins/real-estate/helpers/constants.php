@@ -64,3 +64,7 @@ if (!defined('WANTED_MODULE_SCREEN_NAME')) {
     define('WANTED_MODULE_SCREEN_NAME', 'wanted');
 }
 
+if (!defined('CURRENCY_MODULE_SCREEN_NAME')) {
+    define('CURRENCY_MODULE_SCREEN_NAME', 'currencies');
+}
+

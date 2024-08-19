@@ -20,4 +20,9 @@ class CurrencyRepository extends RepositoriesAbstract implements CurrencyInterfa
 
         return $data;
     }
+
+    public function markRestAsNotDefault($id)
+    {
+        $this->model->where('id', '!=', $id)->update(['is_default' => '0']);
+    }
 }
