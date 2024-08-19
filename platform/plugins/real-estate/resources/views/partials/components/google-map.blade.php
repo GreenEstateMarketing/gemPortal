@@ -51,7 +51,7 @@
             };
 
             map = new google.maps.Map(document.getElementById("map"), mapOptions);
-            var iconBase = '/themes/real-scout/images/generic.png';
+            var iconBase = '/themes/real-scout/images/generic-3.png';
             var icon = {
                 url: iconBase,
                 scaledSize: new google.maps.Size(32, 37),
@@ -200,7 +200,7 @@
         }
 
         function handleMarkerOutsidePolygon() {
-            var iconBase = '/themes/real-scout/images/generic.png';
+            var iconBase = '/themes/real-scout/images/generic-3.png';
             var icon = {
                 url: iconBase,
                 scaledSize: new google.maps.Size(32, 37),
@@ -294,7 +294,7 @@
         if (agent_area_edit != "") {
             drawPolygonArea();
             marker.setMap(null);
-            var iconBase = '/themes/real-scout/images/generic.png';
+            var iconBase = '/themes/real-scout/images/generic-3.png';
             var icon = {
                 url: iconBase,
                 scaledSize: new google.maps.Size(32, 37),
