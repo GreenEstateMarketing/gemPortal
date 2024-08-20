@@ -43,8 +43,7 @@
                             <div class="row">
                                 <div class="col-md-6 pl-auto  col-md-6 mt-3 border-0">
                                     <label class="mx-left">Property Type</label>
-                                    <select name="category_id" v-model="category_id"
-                                        class="form-control filter-input"
+                                    <select name="category_id" v-model="category_id" class="form-control filter-input"
                                         @change="getChildCategories($event.target.options[$event.target.selectedIndex].dataset.value)">
                                         <option :key="index" :data-value="index" :value="index"
                                             v-for="(item, index) in parent_categories">{{ item
@@ -55,35 +54,11 @@
                                     <label class="mx-left">Sub Type</label>
                                     <select name="sub_category_id" v-model="child_category_id"
                                         class="form-control filter-input">
-                                        <option :data-value="index" :value="index" v-for="(item, index) in child_categories">{{ item
+                                        <option :data-value="index" :value="index"
+                                            v-for="(item, index) in child_categories">{{ item
                                             }}</option>
                                     </select>
                                 </div>
-
-                                <!--                            <div class="col-md-4">
-                                                                <label class="mx-left">Min Price</label>
-                                                                <select name="min_price" v-model="min_price"   class="form-control filter-input">
-                                                                    <option value="">Any</option>
-                                                                    <option value="5000000">5,000,000</option>
-                                                                    <option value="6000000">6,000,000</option>
-                                                                    <option value="7000000">7,000,000</option>
-                                                                    <option value="8000000">8,000,000</option>
-                                                                    <option value="9000000">9,000,000</option>
-                                                                    <option value="10000000">10,000,000</option>
-                                                                </select>
-                                                            </div>
-                                                            <div class="col-md-4">
-                                                                <label class="mx-left">Max Price</label>
-                                                                <select name="max_price" v-model="max_price"   class="form-control filter-input">
-                                                                    <option value="">Unlimited</option>
-                                                                    <option value="5000000">5,000,000</option>
-                                                                    <option value="6000000">6,000,000</option>
-                                                                    <option value="7000000">7,000,000</option>
-                                                                    <option value="8000000">8,000,000</option>
-                                                                    <option value="9000000">9,000,000</option>
-                                                                    <option value="10000000">10,000,000</option>
-                                                                </select>
-                                                            </div>-->
                                 <div class="price-dropdown pl-auto  col-md-6 mt-3 border-0">
                                     <label>Price</label>
                                     <div class="price-placeholder">
@@ -175,19 +150,6 @@
                                         <option value="5">5+ rooms</option>
                                     </select>
                                 </div>
-                                <!-- <div class="col-md-6 mt-3"> -->
-                                <!-- <label class="mx-left">Land Area</label>
-                                        <select name="square" v-model="square" class="form-control filter-input">
-                                            <option value="">Any</option>
-                                            <option value="5000">5,000</option>
-                                            <option value="6000">6000</option>
-                                            <option value="7000">7000</option>
-                                            <option value="8000">8000</option>
-                                            <option value="9000">9000</option>
-                                            <option value="10000">10000</option>
-                                        </select> -->
-
-                                <!-- </div> -->
                                 <div class="price-dropdown pl-auto  col-md-6 mt-3 border-0">
                                     <label>Area</label>
                                     <div class="price-placeholder">
@@ -275,19 +237,13 @@
         </div>
         <div class="search-background">
             <div class="container">
-                <!-- <form action="/properties" method="GET" id="frmhomesearch">-->
-
                 <div class="row no-gutters search-wrap justify-content-between">
                     <div class="col">
                         <div id="parentChipContainer" class="parent-chip-container mr-0">
                             <div id="chipContainer">
                                 <div class="position-relative input-field-container"
                                     style="max-height: 32px;max-width: 60%;">
-                                    <!--                                <div class="spinner-border spinner-border-sm float-right" role="status"
-                                                                         style="display:none">
-                                                                        <span class="sr-only">Loading...</span>
-                                                                    </div>-->
-                                    <input placeholder="Keyword" class="form-control projects-keyword" type="text"
+                                    <input placeholder="Location" class="form-control projects-keyword" type="text"
                                         name="" id="autocomplete-ajax"
                                         style="position: absolute; z-index: 2; background: transparent; width: auto !important;" />
                                     <input class="form-control projects-keyword" type="text" name=""
@@ -318,18 +274,10 @@
                     <div class="col-md-auto">
                         <div class="price-dropdown layout-col ml-0" style="font-weight: 400 !important;">
                             <div class="dropdown input-group">
-                                <!--                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                            Dropdown button
-                                                        </button>-->
                                 <a class="form-control-2 dropdown-toggle border-0 text-left" href="#"
                                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Price <span
                                         class="currency">({{ current_currency }})</span><strong class="caret"></strong>
                                 </a>
-                                <!--<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                    <a class="dropdown-item" href="#">Action</a>
-                                    <a class="dropdown-item" href="#">Another action</a>
-                                    <a class="dropdown-item" href="#">Something else here</a>
-                                </div>-->
                                 <div class="row  price-from-to-vue modalclass p-0">
                                     <div class="col-md-4">
                                         <span class="min_price_text">{{ min_price }}</span>
@@ -424,96 +372,6 @@
 
             </div>
         </div>
-        <!--<div class="modal bd-example-modal-lg" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-
-                    <div class="row mt-5">
-                        <div class="col-md-3">
-                            <label>Property Type</label>
-                            <select name="category_id"  v-model="category_id" id="category_id"  class="form-control">
-                                <option value="">Any</option>
-                                <option value="1">House</option>
-                                <option value="2">Flat</option>
-                                <option value="3">Room</option>
-                                <option value="4">Upper Portion</option>
-                                <option value="5">Lower Portion</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-3">
-                            <label>Min Price</label>
-                            <select name="min_price" v-model="min_price"   class="form-control">
-                                <option value="">Any</option>
-                                <option value="5000000">5,000,000</option>
-                                <option value="6000000">6,000,000</option>
-                                <option value="7000000">7,000,000</option>
-                                <option value="8000000">8,000,000</option>
-                                <option value="9000000">9,000,000</option>
-                                <option value="10000000">10,000,000</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label>Max Price</label>
-                            <select name="max_price" v-model="max_price"   class="form-control">
-                                <option value="">Unlimited</option>
-                                <option value="5000000">5,000,000</option>
-                                <option value="6000000">6,000,000</option>
-                                <option value="7000000">7,000,000</option>
-                                <option value="8000000">8,000,000</option>
-                                <option value="9000000">9,000,000</option>
-                                <option value="10000000">10,000,000</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row mt-5">
-                        <div class="col-md-3">
-                            <label>Beds</label>
-                            <select name="bedroom" v-model="bedroom" id="select-bedroom" class="form-control">
-                                <option value="">Any</option>
-                                <option value="1">1 room</option>
-                                <option value="2">2 rooms</option>
-                                <option value="3">3 rooms</option>
-                                <option value="4">4 rooms</option>
-                                <option value="5">5+ rooms</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label>Baths</label>
-                            <select name="bathroom"  v-model="bathroom"   class="form-control">
-                                <option value="">Any</option>
-                                <option value="1">1 room</option>
-                                <option value="2">2 rooms</option>
-                                <option value="3">3 rooms</option>
-                                <option value="4">4 rooms</option>
-                                <option value="5">5+ rooms</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label>Land Area</label>
-                            <select name="square" v-model="square"   class="form-control">
-                                <option value="">Any</option>
-                                <option value="5000">5,000</option>
-                                <option value="6000">6000</option>
-                                <option value="7000">7000</option>
-                                <option value="8000">8000</option>
-                                <option value="9000">9000</option>
-                                <option value="10000">10000</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-
-                        </div>
-                    </div>
-                    <div class="row mt-5 text-center">
-                        <div class="col-offset-2 col-md-3"><button type="button" class="btn btn-primary" >Reset</button></div>
-                        <div class="col-md-3">
-                            <button type="button" class="btn btn-info" @click="getProperties" >Search</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>-->
         <div class="layout-properties">
 
             <div class="properties_side_list">
@@ -569,11 +427,6 @@
                                     <p class="mb-0">{{ item.price }}</p>
                                     <p class="mb-0">{{ item.city }}</p>
                                     <p class="mb-0">{{ item.location }}</p>
-                                    <!--                                    <span data-toggle="tooltip" class="ml-1 d-inline" data-placement="top" :data-original-title="__('Number of rooms')" v-if="item.number_bedroom"> <img src="/themes/real-scout/images/bed.svg" alt="icon">{{ item.number_bedroom }} </span>
-                                                                      <span data-toggle="tooltip" class="ml-1 d-inline" data-placement="top" :data-original-title="__('Number of rest rooms')" v-if="item.number_bathroom">  <img src="/themes/real-scout/images/bath.svg" alt="icon"> {{ item.number_bathroom }}</span>
-                                                                      <span data-toggle="tooltip" class="ml-1 d-inline" data-placement="top" :data-original-title="__('Square')" v-if="item.square"> <img src="/themes/real-scout/images/area.svg" alt="icon">{{ item.square_text }}</span>-->
-
-
                                 </div>
 
                             </div>
@@ -689,10 +542,6 @@
 
 
                             </div>
-                            <!--                                <span data-toggle="tooltip" data-placement="top" :data-original-title="__('Number of rooms')" v-if="item.number_bedroom"> <img src="/themes/real-scout/images/bed.svg" alt="icon">{{ item.number_bedroom }} </span>
-                                                            <span data-toggle="tooltip" data-placement="top" :data-original-title="__('Number of rest rooms')" v-if="item.number_bathroom">  <img src="/themes/real-scout/images/bath.svg" alt="icon"> {{ item.number_bathroom }}</span>
-                                                            <span data-toggle="tooltip" data-placement="top" :data-original-title="__('Square')" v-if="item.square"> <img src="/themes/real-scout/images/area.svg" alt="icon">{{ item.square_text }} </span>-->
-
                         </div>
                     </div>
                 </div>
@@ -710,7 +559,6 @@ export default {
     data() {
         return {
             mapName: "property_search_map",
-
             // Create the estate object first, otherwise it will not be reactive
             estates: {},
             isLoading: true,
@@ -738,7 +586,7 @@ export default {
             map: "",
             unit: "",
             markerBounds: "",
-            current_unit: '(' + this.getParamByName('selected-unit') + ')',
+            current_unit: this.getParamByName('selected-unit') !== null ? '(' + this.getParamByName('selected-unit') + ')' : '(Square feet)',
             property_type: "",
             parent_categories: [],
             selected_parent_category: '',
@@ -750,10 +598,6 @@ export default {
                 { text: JSON.parse(this.chosenlist)[0], value: JSON.parse(this.chosenlist)[0] },
                 { text: JSON.parse(this.chosenlist)[1], value: JSON.parse(this.chosenlist)[1] },
                 { text: JSON.parse(this.chosenlist)[2], value: JSON.parse(this.chosenlist)[2] },
-
-                /*{ text: 'Two', value: '7 Street 57, F-10 Markaz F 10/3 F-10, Islamabad, Islamabad Capital Territory, Pakistan' },
-                { text: 'Three', value: 'C' },
-                { text: 'Any', value: ['A', 'B', 'C'] },*/
 
             ],
             area_units: [
@@ -772,9 +616,9 @@ export default {
     },
 
     mounted() {
+        this.changeAreaUnit();
         this.getProperties();
         this.getParse();
-        this.changeAreaUnit();
         this.getParentCategories();
     },
     props: {
@@ -832,7 +676,6 @@ export default {
             $(".modal").css('display', 'block !important');
         },
         getParse: function () {
-
             this.price_list = JSON.parse(this.price_list);
             this.chosenlist = JSON.parse(this.chosenlist);
             this.cities = JSON.parse(this.cities);
@@ -1215,6 +1058,16 @@ export default {
             this.markerBounds = new google.maps.LatLngBounds();
         },
         changeAreaUnit: function () {
+            if (this.current_unit === '(Square feet)') {
+                let area_unit = 'ft²';
+                let url = 'ajax/area_unit_update?area_unit=' + area_unit;
+
+                axios.get(url).then(res => {
+                    console.log('area unit updated system wide');
+                })
+            }
+
+
             $(".area-unit").on('click', function () {
                 $("#filterModal").hide();
                 $("#filterModal").removeClass('fade');
@@ -1237,8 +1090,6 @@ export default {
             });
         },
         selectedUnit(event) {
-            // this.current_unit = "(Square feet)";
-
             let url = 'ajax/area_unit_update?area_unit=' + event.target.value;
 
             axios.get(url).then(res => {

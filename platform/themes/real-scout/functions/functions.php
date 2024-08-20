@@ -571,7 +571,7 @@ function getPriceLists($multiples = '5', $limit = '11')
     $j = 0;
     for ($i = 5000000; $i <= 1000000000; $i = $i + 500000) {
         if ($j < $limit) {
-            $html .= '<li class="price-li-item" data-value="' . $i . '">' . number_format($i) . '</li>';
+            $html .= '<li class="price-li-item" data-value="' . $i . '">' . formatPrice($i) . '</li>';
         } else {
             break;
         }
@@ -580,6 +580,13 @@ function getPriceLists($multiples = '5', $limit = '11')
     }
     return $html;
 }
+
+function formatPrice($number) {
+    if ($number >= 1000000) {
+        return round($number / 1000000, 1) . 'M';
+    }
+    return number_format($number);
+}
 function getPrices($multiples = '5', $limit = '11')
 {
     $html = [];
@@ -587,7 +594,7 @@ function getPrices($multiples = '5', $limit = '11')
     for ($i = 5000000; $i <= 1000000000; $i = $i + 500000) {
         if ($j < $limit) {
             //$//aMemberships[] = array($aMemb['ID'] => $aMemb['Name']);
-            $html[$i] = number_format($i);
+            $html[$i] = formatPrice($i);
         } else {
             break;
         }
