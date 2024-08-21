@@ -27,7 +27,6 @@ class MemberPropertyForm extends PropertyForm
         foreach ($res as $gent) {
             $agents[$gent->id] = $gent->getFullName();
         }
-        // dd($agents);exit;
         Assets::addScriptsDirectly('vendor/core/core/base/libraries/tinymce/tinymce.min.js');
         Assets::addStyles(['datetimepicker'])
             ->addScripts(['input-mask'])

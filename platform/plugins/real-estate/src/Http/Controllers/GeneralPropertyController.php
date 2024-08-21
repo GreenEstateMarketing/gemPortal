@@ -609,7 +609,6 @@ class GeneralPropertyController extends Controller
     }
     public function create_property(FormBuilder $formBuilder)
     {
-
         if (!auth('member')->user()->canPost()) {
             abort(403);
         }
