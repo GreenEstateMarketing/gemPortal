@@ -496,6 +496,7 @@
                 $("#propertydropdownMenuLink").siblings(".category_id_text").html($(this).text());
             });
             $(".p-category").click(function () {
+                // this is the script js
                 var p_category = $(this).text();
                 var p_category_id = $(this).attr('data-id');
                 $('#p-cat').val(p_category_id);
@@ -503,15 +504,15 @@
                     $(".bedrooms").addClass('d-none');
                     $(".bathrooms").addClass('d-none');
                     $(".floors").addClass('d-none');
-                    $(".home-price-dp").addClass('d-none');
-                    $(".plot-price-dp").removeClass('d-none');
+                    // $(".home-price-dp").addClass('d-none');
+                    // $(".plot-price-dp").removeClass('d-none');
                     $(".commerical-floors").addClass('d-none');
                     $(".home-floors").addClass('d-none');
                 } else if (p_category == "COMMERCIALS" || p_category == "Commercials" || p_category == "COMMERCIAL" || p_category == "Commercials") {
                     $(".bedrooms").addClass('d-none');
                     $(".bathrooms").addClass('d-none');
-                    $(".home-price-dp").addClass('d-none');
-                    $(".plot-price-dp").removeClass('d-none');
+                    // $(".home-price-dp").addClass('d-none');
+                    // $(".plot-price-dp").removeClass('d-none');
                     $(".commerical-floors").removeClass('d-none');
                     $(".home-floors").addClass('d-none');
                 } else //HOME
