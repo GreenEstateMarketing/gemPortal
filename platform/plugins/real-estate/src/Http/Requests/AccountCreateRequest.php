@@ -3,6 +3,7 @@
 namespace Botble\RealEstate\Http\Requests;
 
 use Botble\Support\Http\Requests\Request;
+use Botble\RealEstate\Http\Requests\Rules\ImageDimension;
 
 class AccountCreateRequest extends Request
 {
@@ -21,6 +22,7 @@ class AccountCreateRequest extends Request
             'email'      => 'required|max:60|min:6|email|unique:re_accounts',
             'phone'   => 'min:11|numeric|regex:/[0][\d]{3}[\d]{7}$/',
             'password'   => 'required|min:6|confirmed',
+            'image_path' => [new ImageDimension(500, 500)]
         ];
     }
 }

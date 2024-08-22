@@ -8,7 +8,7 @@
                     {!! Form::open(Arr::except($formOptions, ['template'])) !!}
                 @endif-->
 <!--                        action="{{route('general-save-property')}}"-->
-                        <form method="POST" action="" class="custom_form" accept-charset="UTF-8" id="form_member" enctype="multipart/form-data" novalidate="novalidate">
+                        <form method="POST" action="" class="custom_form" accept-charset="UTF-8" id="form_member" enctype="multipart/form-data" novalidate="novalidate dafdasf">
                 @csrf
                             {{-- Hiding Language Notification --}}
                {{-- @php do_action(BASE_ACTION_TOP_FORM_CONTENT_NOTIFICATION, request(), $form->getModel()) @endphp --}}

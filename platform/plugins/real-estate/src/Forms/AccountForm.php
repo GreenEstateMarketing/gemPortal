@@ -98,6 +98,10 @@ class AccountForm extends FormAbstract
                     'class' => $this->formHelper->getConfig('defaults.wrapper_class') . ($this->getModel()->id ? ' hidden' : null),
                 ],
             ])
+            ->add('image_path', 'mediaImage', [
+                'label' => 'Profile Picture',
+                'label_attr' => ['class' => 'control-label form-control'],
+            ])
             ->add('agent_area', 'hidden', [
 
                 'value' => '', //($this->getModel()->id?$this->getModel()->agent_area:'')

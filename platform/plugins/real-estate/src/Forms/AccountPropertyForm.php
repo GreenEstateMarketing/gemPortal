@@ -68,27 +68,23 @@ class AccountPropertyForm extends PropertyForm
             ->remove('comments')
 
             ->modify('auto_renew', 'onOff', [
-                'label'         => trans('plugins/real-estate::property.renew_notice', ['days' => config('plugins.real-estate.real-estate.property_expired_after_x_days')]),
-                'label_attr'    => ['class' => 'control-label'],
+                'label' => trans('plugins/real-estate::property.renew_notice', ['days' => config('plugins.real-estate.real-estate.property_expired_after_x_days')]),
+                'label_attr' => ['class' => 'control-label'],
                 'default_value' => false,
-                'wrapper'       => [
+                'wrapper' => [
                     'class' => 'form-group col-md-6 auto-renew-form-group' . (!$this->getModel()->id || $this->getModel()->never_expired == true ? ' hidden' : null),
                 ],
             ], true)
             ->remove('author_id')
             ->remove('rowOpenagent')
 
-           /* ->addAfter('description', 'content', 'customEditor', [
-                'label'      => trans('core/base::forms.content'),
+            /* ->addAfter('description', 'content', 'customEditor', [
+                 'label'      => trans('core/base::forms.content'),
+                 'label_attr' => ['class' => 'control-label required'],
+             ])*/
+            ->addAfter('description', 'images', 'multipleUpload', [
+                'label' => trans('plugins/real-estate::property.form.images'),
                 'label_attr' => ['class' => 'control-label required'],
-            ])*/
-           ->addAfter('description', 'images', 'multipleUpload', [
-                'label'      => trans('plugins/real-estate::property.form.images'),
-                'label_attr' => ['class' => 'control-label required'],
-            ]) ;
-
-
-
-
+            ]);
     }
 }

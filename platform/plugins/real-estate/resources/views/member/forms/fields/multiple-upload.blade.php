@@ -6,12 +6,13 @@
 
     @if ($showLabel && $options['label'] !== false && $options['label_show'])
         {!! Form::customLabel($name, $options['label'], $options['label_attr']) !!}
+        <span class="alert alert-warning" style="border:none;background:#fff"><i class="fa  fa-exclamation-triangle"></i> Please upload no more than 20 images.</span>
     @endif
 
     @if ($showField)
         {!! Form::hidden($name, $options['value'] ? json_encode($options['value']) : null, $options['attr']) !!}
         <div id="multiple-upload" class="dropzone needsclick">
-            <div class="dz-message needsclick">
+            <div class="dz-message needsclick member">
                 <span class="plus-sign">+</span>
             </div>
         </div>

@@ -240,7 +240,7 @@
                                     <div class="col-md-4 pl-1">
                                         <button style="height: 35px;" type="button" id="project"
                                             class="btn d-block w-100 label-secondary type_project" data-id="project"
-                                            data-type-name="PROJECT" style="Width:100%" value="project">Invest
+                                            data-type-name="PROJECT" style="Width:100%" value="project">INVEST
                                         </button>
                                     </div>
                                 </div>

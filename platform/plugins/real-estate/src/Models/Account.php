@@ -43,9 +43,8 @@ class Account extends Authenticatable
         'gender',
         'credits',
         'agent_area',
-        'confirmed_at'
-
-
+        'confirmed_at',
+        'image_path'
     ];
 
     /**

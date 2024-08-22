@@ -3,6 +3,7 @@
 namespace Botble\RealEstate\Http\Requests;
 
 use Botble\Support\Http\Requests\Request;
+use Botble\RealEstate\Http\Requests\Rules\ImageDimension;
 
 class AccountEditRequest extends Request
 {
@@ -19,6 +20,7 @@ class AccountEditRequest extends Request
             'last_name'  => 'required|max:120|min:2',
             'username'   => 'required|max:60|min:2|unique:re_accounts,username,' . $this->route('account'),
             'email'      => 'required|max:60|min:6|email|unique:re_accounts,email,' . $this->route('account'),
+            'image_path' => [new ImageDimension(500, 500)]
         ];
 
         if ($this->input('is_change_password') == 1) {

@@ -192,7 +192,7 @@
                                                                          style="display:none">
                                                                         <span class="sr-only">Loading...</span>
                                                                     </div>-->
-                                    <input placeholder="Keyword" class="form-control projects-keyword" type="text" name=""
+                                    <input placeholder="Location" class="form-control projects-keyword" type="text" name=""
                                            id="autocomplete-ajax"
                                            style="position: absolute; z-index: 2; background: transparent; width: auto !important;"/>
                                     <input class="form-control projects-keyword" type="text" name=""

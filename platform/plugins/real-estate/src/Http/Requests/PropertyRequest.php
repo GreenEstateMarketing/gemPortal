@@ -27,7 +27,7 @@ class PropertyRequest extends Request
             'city_id'           => 'required|not_in:0',
             'city_area_id'      => 'required|not_in:0',
             'location'          => 'required|string',
-            'images'            => ['required'],
+            'images'            => 'required|max:20',
             'status'            => Rule::in(PropertyStatusEnum::values()),
             'moderation_status' => Rule::in(ModerationStatusEnum::values()),
             'reject_reason'     => 'required_if:moderation_status,rejected'
@@ -38,7 +38,8 @@ class PropertyRequest extends Request
         return [
             'city_id.not_in' => 'Choose city from list',
             'city_area_id.not_in'  => 'Choose city area from list',
-            'reject_reason.required_if' => 'Please enter reject reason'
+            'reject_reason.required_if' => 'Please enter reject reason',
+            'images.max' => 'Pleae upload no more than 20 images.'
         ];
     }
 

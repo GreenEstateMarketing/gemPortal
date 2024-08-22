@@ -83,7 +83,6 @@ class AccountPropertyController extends Controller
      */
     public function create(FormBuilder $formBuilder)
     {
-
         if (!auth('account')->user()->canPost()) {
             abort(403);
         }
