@@ -85,7 +85,7 @@ return [
     'back-to-login'              => 'Back to login page',
     'no_transactions'            => 'No transactions',
     'approved_properties'        => 'Approved properties',
-    'pending_approve_properties' => 'Pending approve properties',
+    'pending_approve_properties' => 'New Properties',
     'rejected_properties'        => 'Rejected properties',
     'your_credits'               => 'Your Credits',
     'credits'                    => 'credits',

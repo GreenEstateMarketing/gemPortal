@@ -592,14 +592,12 @@ class GeneralPropertyController extends Controller
     public function dashboard()
     {
         $user = auth('member')->user();
-        //dd($user->properties());
-        // exit;
+
         SeoHelper::setTitle(auth('member')->user()->full_name);
 
         Assets::addScriptsDirectly('vendor/core/plugins/real-estate/js/components.js');
 
         return view('plugins/real-estate::member.dashboard.index', compact('user'));
-        // return view('plugins/real-estate::member.dashboard.index');
 
     }
     public function properties(MemberPropertyTable $propertyTable)
