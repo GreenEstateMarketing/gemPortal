@@ -14,17 +14,18 @@
                 </div>
                 <div class="row">
                     <div class="col-lg-4 order-lg-12">
-                        <form id="avatar-upload-form" enctype="multipart/form-data" action="javascript:void(0)" onsubmit="return false">
+{{--                        <form id="avatar-upload-form" enctype="multipart/form-data" action="javascript:void(0)" onsubmit="return false">--}}
                             <div class="avatar-upload-container">
                                 <div class="form-group">
                                     <label for="account-avatar">{{ trans('plugins/real-estate::dashboard.profile-picture') }}</label>
                                     <div id="account-avatar">
                                         <div class="profile-image">
                                             <div class="avatar-view mt-card-avatar">
-                                                <img class="br2" src="{{ $user->avatar_url }}" style="width: 200px;">
-                                                <div class="mt-overlay br2">
-                                                    <span><i class="fa fa-edit"></i></span>
-                                                </div>
+                                                @if($user->image_path)
+                                                    <img class="br2" src="/storage/{{ $user->image_path }}" alt="Image">
+                                                @else
+                                                    <img class="br2" src="{{ $user->avatar_url }}" style="width: 200px;">
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -32,7 +33,7 @@
                                 <!-- Print messages -->
                                 <div id="print-msg" class="alert dn"></div>
                             </div>
-                        </form>
+{{--                        </form>--}}
                     </div>
                     <div class="col-lg-8 order-lg-0">
                         @if (session('status'))
@@ -108,7 +109,7 @@
         </div>
       </div>
     </div>
-    @include('plugins/real-estate::account.modals.avatar')
+{{--    @include('plugins/real-estate::account.modals.avatar')--}}
   </div>
 @endsection
 @push('scripts')

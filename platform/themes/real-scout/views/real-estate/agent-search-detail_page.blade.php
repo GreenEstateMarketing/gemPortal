@@ -14,7 +14,14 @@
             <div class="row m10">
                 <div class="col-md-6">
                     <div class="row">
-                        <div class="col-md-3">  <figure><img src="https://cdn.realtor.ca/individual/TS637438864200000000/highres/1135032.jpg" alt="Image"></figure>
+                        <div class="col-md-3">
+                            <figure>
+                                @if($account->image_path)
+                                    <img src="/storage/{{ $account->image_path }}" alt="Image">
+                                @else
+                                    <img src="{{ $account->avatar_url }}" alt="Image">
+                                @endif
+                            </figure>
                         </div>
                         <div class="col-md-9">
                             <label>{{ $account->getFullName() }}</label><br>
