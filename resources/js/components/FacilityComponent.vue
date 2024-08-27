@@ -44,6 +44,7 @@ export default {
         };
     },
     mounted() {
+      console.log(this.facilities);
         if (this.selected_facilities.length) {
             this.items = [];
             for (const item of this.selected_facilities) {

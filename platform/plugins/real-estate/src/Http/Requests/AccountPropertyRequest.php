@@ -3,10 +3,9 @@
 namespace Botble\RealEstate\Http\Requests;
 
 use Botble\RealEstate\Enums\PropertyStatusEnum;
-use Botble\RealEstate\Http\Requests\PropertyRequest as BaseRequest;
 use Illuminate\Validation\Rule;
 
-class PropertyRequest
+class AccountPropertyRequest extends PropertyRequest
 {
 
     /**

@@ -237,7 +237,6 @@ class PropertyForm extends FormAbstract
         $features = $this->featureRepository->allBy([], [], ['re_features.id', 're_features.name']);
 
         $facilities = $this->facilityRepository->allBy([], [], ['re_facilities.id', 're_facilities.name']);
-        // print_r($facilities);exit;die;
         $selectedFacilities = [];
         if ($this->getModel()) {
             $selectedFacilities = $this->getModel()->facilities()->select('re_facilities.id', 'distance')->get();

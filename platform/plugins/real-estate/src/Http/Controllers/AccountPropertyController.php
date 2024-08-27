@@ -101,7 +101,6 @@ class AccountPropertyController extends Controller
      */
     public function store(PropertyRequest $request, BaseHttpResponse $response, AccountInterface $accountRepository, SaveFacilitiesService $saveFacilitiesService)
     {
-
         if (!auth('account')->user()->canPost()) {
             abort(403);
         }

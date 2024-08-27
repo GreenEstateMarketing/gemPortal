@@ -49,6 +49,12 @@ class AccountPropertyForm extends PropertyForm
             $this->formHelper->addCustomField('customfile3', CustomFileField3::class);
         }
 
+        $facilities = $this->facilityRepository->allBy([], [], ['re_facilities.id', 're_facilities.name']);
+        $selectedFacilities = [];
+        if ($this->getModel()) {
+            $selectedFacilities = $this->getModel()->facilities()->select('re_facilities.id', 'distance')->get();
+        }
+
 
         $this
             ->setupModel(new Property)

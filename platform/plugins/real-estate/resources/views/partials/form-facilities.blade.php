@@ -5,10 +5,6 @@
 @endpush
 
 <div id="app">
-
-
-
-        <facility :selected_facilities="{{ json_encode($selectedFacilities) }}" :facilities="{{ json_encode($facilities) }}"></facility>
-
-
+    <facility :selected_facilities="{{ json_encode($selectedFacilities) }}"
+              :facilities="{{ json_encode($facilities) }}"></facility>
 </div>
