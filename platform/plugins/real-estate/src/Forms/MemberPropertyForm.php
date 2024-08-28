@@ -14,7 +14,6 @@ use Botble\RealEstate\Http\Requests\PropertyRequest;
 
 class MemberPropertyForm extends PropertyForm
 {
-
     /**
      * @return mixed|void
      * @throws \Throwable
@@ -81,10 +80,6 @@ class MemberPropertyForm extends PropertyForm
                 ],
             ], true)
             ->remove('author_id')
-            /* ->addAfter('description', 'content', 'customEditor', [
-                 'label'      => trans('core/base::forms.content'),
-                 'label_attr' => ['class' => 'control-label required'],
-             ])*/
             ->addAfter('description', 'images', 'multipleUpload', [
                 'label' => trans('plugins/real-estate::property.form.images'),
                 'label_attr' => ['class' => 'control-label required'],

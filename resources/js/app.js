@@ -25,10 +25,6 @@ Vue.component('related',related);
 Vue.prototype.__ = (key) => {
     return window.trans[key] !== 'undefined' ? window.trans[key] : key;
 };
-
-
-
-
 Vue.prototype.$sanitize = sanitizeHTML;
 const app = new Vue({
     el: '#app'

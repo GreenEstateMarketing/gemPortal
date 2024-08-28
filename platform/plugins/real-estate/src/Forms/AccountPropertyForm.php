@@ -49,17 +49,11 @@ class AccountPropertyForm extends PropertyForm
             $this->formHelper->addCustomField('customfile3', CustomFileField3::class);
         }
 
-        $facilities = $this->facilityRepository->allBy([], [], ['re_facilities.id', 're_facilities.name']);
-        $selectedFacilities = [];
-        if ($this->getModel()) {
-            $selectedFacilities = $this->getModel()->facilities()->select('re_facilities.id', 'distance')->get();
-        }
-
-
         $this
             ->setupModel(new Property)
             ->setFormOption('template', 'plugins/real-estate::account.forms.base')
             ->setFormOption('enctype', 'multipart/form-data')
+            ->setFormOption('class', 'custom_form')
             ->setValidatorClass(PropertyRequest::class)
             ->setActionButtons(view('plugins/real-estate::account.forms.actions')->render())
             ->remove('is_featured')
@@ -72,7 +66,6 @@ class AccountPropertyForm extends PropertyForm
             ->remove('never_expired')
             ->remove('btn_verify')
             ->remove('comments')
-
             ->modify('auto_renew', 'onOff', [
                 'label' => trans('plugins/real-estate::property.renew_notice', ['days' => config('plugins.real-estate.real-estate.property_expired_after_x_days')]),
                 'label_attr' => ['class' => 'control-label'],
@@ -83,11 +76,6 @@ class AccountPropertyForm extends PropertyForm
             ], true)
             ->remove('author_id')
             ->remove('rowOpenagent')
-
-            /* ->addAfter('description', 'content', 'customEditor', [
-                 'label'      => trans('core/base::forms.content'),
-                 'label_attr' => ['class' => 'control-label required'],
-             ])*/
             ->addAfter('description', 'images', 'multipleUpload', [
                 'label' => trans('plugins/real-estate::property.form.images'),
                 'label_attr' => ['class' => 'control-label required'],

@@ -112,7 +112,6 @@ class PropertyForm extends FormAbstract
                 'vendor/core/plugins/real-estate/js/components.js',
                 '/js/toast.min.js',
                 '/js/real-estate-admin.js'
-
             ])
 
             ->addStylesDirectly('vendor/core/plugins/real-estate/css/real-estate.css')
@@ -132,10 +131,9 @@ class PropertyForm extends FormAbstract
         );
         $areaUnits = array('ft²' => 'Square Feet', 'm²' => 'Square Meter', 'yards' => 'Yards', 'marla' => 'Marla', 'kanal' => 'Kanal');
         $res_data = description_template::where('status', 1)->first();
-        //print_r($res_data->id);exit;
+
         $properties = $this->getModel();
-        // dd($properties);
-        // $this->getModel()->description=
+
         $cityChoices = [];
         $cityAreaChoices = [];
         //for getting published cities
@@ -151,8 +149,6 @@ class PropertyForm extends FormAbstract
 
             $cityAreaChoices[$area->id] = $area->city_area_name;
         }
-        //   print_r($cities);
-        // print_r($cityChoices);exit;die;
         $categories = $this->categoryRepository->allBy(
             ['status' => BaseStatusEnum::PUBLISHED, 'parent_id' => 0],
             [],
@@ -161,8 +157,6 @@ class PropertyForm extends FormAbstract
         $html = '<div class="col-md-6">  <ul class="parent-category">';
         $subcategory = '';
         $firstSelected = '';
-        $label_primary = '';
-        $label_sub_category = '';
         if ($this->getModel()) {
             $label_primary = 'label-secondary';
             $label_sub_category = 'label-sub-category';
@@ -211,18 +205,17 @@ class PropertyForm extends FormAbstract
          **
          */
 
-        // $type='';
         $sale_btn = '';
         $rent_btn = '';
         if ($this->getModel()) {
             if ($this->getModel()->type == 'rent') {
                 $sale_btn = '<div class="col-md"><button type="button" class="btn label-secondary type_sale" data-id="sale"  data-type-name="SALE" style="Width:100%" value="sale">SALE</button></div>';
                 $rent_btn = '<div class="col-md"><button type="button" class="btn label-primary type_rent" data-id="rent"  data-type-name="RENT" style="Width:100%" value="rent"><span class="tick-selected"><i class="fas fa-check"></i></span>   RENT</button></div>';
-                //    $type .= $sale_btn + $rent_btn;
+
             } else {
                 $sale_btn = '<div class="col-md"><button type="button" class="btn label-primary type_sale" data-id="sale"  data-type-name="SALE" style="Width:100%" value="sale"><span class="tick-selected"><i class="fas fa-check"></i></span>  SALE</button></div>';
                 $rent_btn = '<div class="col-md"><button type="button" class="btn label-secondary type_rent" data-id="rent"  data-type-name="RENT" style="Width:100%" value="rent">RENT</button></div>';
-                //    $type .= $sale_btn + $rent_btn;
+
             }
         } else {
             $sale_btn = '<div class="col-md"><button type="button" class="btn label-primary type_sale" data-id="sale"  data-type-name="SALE" style="Width:100%" value="sale"><span class="tick-selected"><i class="fas fa-check"></i></span>  SALE</button></div>';
@@ -237,11 +230,11 @@ class PropertyForm extends FormAbstract
         $features = $this->featureRepository->allBy([], [], ['re_features.id', 're_features.name']);
 
         $facilities = $this->facilityRepository->allBy([], [], ['re_facilities.id', 're_facilities.name']);
+
         $selectedFacilities = [];
         if ($this->getModel()) {
             $selectedFacilities = $this->getModel()->facilities()->select('re_facilities.id', 'distance')->get();
         }
-
 
         $this
             ->setupModel(new Property)
@@ -296,14 +289,6 @@ class PropertyForm extends FormAbstract
                     'html' => $html
                 ]
             )
-            /* ->add('category_id', 'customSelect', [
-                 'label'      => trans('plugins/real-estate::property.form.category'),
-                 'label_attr' => ['class' => 'control-label'],
-                 'attr'       => [
-                     'class' => 'form-control select-search-full',
-                 ],
-                 'choices'    => $categories,
-             ])*/
             ->add('rowCloseCategory', 'html', [
                 'html' => '</div>',
             ])
@@ -321,15 +306,6 @@ class PropertyForm extends FormAbstract
                                                         </div>'
                 ]
             )
-
-            /* ->add('category_id', 'customSelect', [
-                 'label'      => trans('plugins/real-estate::property.form.category'),
-                 'label_attr' => ['class' => 'control-label'],
-                 'attr'       => [
-                     'class' => 'form-control select-search-full',
-                 ],
-                 'choices'    => $categories,
-             ])*/
             ->add('rowCloseCategory1', 'html', [
                 'html' => '</div>',
             ])
@@ -347,20 +323,6 @@ class PropertyForm extends FormAbstract
                     'class' => 'form-group col-md-6',
                 ],
             ])
-            /*
-             ->add('city_id', 'customSelect', [
-                            'label'      => trans('plugins/real-estate::property.form.city'),
-                            'label_attr' => ['class' => 'control-label'],
-                            'wrapper'    => [
-                                'class' => 'form-group col-md-3',
-
-                            ],
-                            'attr'       => [
-                                'class' => 'form-control select-search-full',
-                            ],
-                            'choices'    => $cityChoices,
-                        ])
-            */
             ->add('project_id', 'customSelect', [
                 'label' => trans('plugins/real-estate::property.form.project'),
                 'label_attr' => ['class' => 'control-label'],
@@ -430,7 +392,6 @@ class PropertyForm extends FormAbstract
                 'attr' => [
                     'rows' => 4,
                     'placeholder' => trans('core/base::forms.description_placeholder'),
-                    /*  'data-counter' => 350,*/
                     'readonly' => true
 
                 ]
@@ -484,14 +445,6 @@ class PropertyForm extends FormAbstract
             ->add('rowCloseverify', 'html', [
                 'html' => '</div>',
             ])
-            /* ->add('content', 'editor', [
-                 'label'      => trans('core/base::forms.content'),
-                 'label_attr' => ['class' => 'control-label required'],
-                 'attr'       => [
-                     'rows'            => 4,
-                     'with-short-code' => true,
-                 ],
-             ])*/
             ->add('images[]', 'mediaImages', [
                 'label' => trans('plugins/real-estate::property.form.images'),
                 'label_attr' => ['class' => 'control-label required'],
@@ -651,26 +604,6 @@ class PropertyForm extends FormAbstract
             ->add('rowOpenagent', 'html', [
                 'html' => view('plugins/real-estate::partials.agent_list'),
             ])
-            /* ->add('author_id', 'customSelect', [
-                 'label'      => trans('plugins/real-estate::property.account'),
-                 'label_attr' => [
-                     'class' => 'control-label',
-                 ],
-                 'wrapper'    => [
-                     'class' => 'form-group period-form-group col-md-3',
-                 ],
-                 'attr'       => [
-                     'id'       => 'author_id',
-                     'data-url' => route('account.list'),
-                 ],
-                 'choices'    => $this->getModel()->author_id ?
-                     [
-                         $this->model->author->id => $this->model->author->getFullName(),
-                     ]
-                     :
-                     ['' => trans('plugins/real-estate::property.select_account')],
-             ])*/
-
             ->add('never_expired', 'onOff', [
                 'label' => trans('plugins/real-estate::property.never_expired'),
                 'label_attr' => ['class' => 'control-label'],
@@ -758,13 +691,7 @@ class PropertyForm extends FormAbstract
                         compact('facilities', 'selectedFacilities')
                     ),
                     'priority' => 0,
-                ]/*,
-               'comments' => [
-                   'title'    => trans('plugins/real-estate::property.comment'),
-                   'content'  => view('plugins/real-estate::partials.comment',
-                       compact('properties')),
-                   'priority' => 0,
-               ]*/
+                ]
             ])
             // view('plugins/real-estate::partials.checklist_modal'),
             ->add('rowOpenmodal', 'html', [
