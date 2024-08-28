@@ -50,9 +50,11 @@ class AccountPropertyForm extends PropertyForm
         }
 
         $show = true;
-        if (!$this->getModel()->member_id) {
-            if ($this->getModel()->author_id == auth('account')->user()->id) {
-                $show = false;
+        if ($this->getModel()) {
+            if (!$this->getModel()->member_id) {
+                if ($this->getModel()->author_id == auth('account')->user()->id) {
+                    $show = false;
+                }
             }
         }
 
@@ -89,8 +91,8 @@ class AccountPropertyForm extends PropertyForm
             ]);
 
         if (!$show) {
-            $this->remove('SellerInfo')
-                ->remove('rowOpenSellerInfo')
+            $this->remove('rowOpenSellerInfo')
+                ->remove('SellerInfo')
                 ->remove('rowCloseSellerInfo');
         }
     }

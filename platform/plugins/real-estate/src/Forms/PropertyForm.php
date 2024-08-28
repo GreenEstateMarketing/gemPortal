@@ -235,7 +235,7 @@ class PropertyForm extends FormAbstract
             $selectedFacilities = $this->getModel()->facilities()->select('re_facilities.id', 'distance')->get();
         }
 
-        $sellerType = $this->getModel()->member_id ? 'Member' : 'Agent';
+        $sellerType = $this->getModel() ? $this->getModel()->member_id ? 'Member' : 'Agent' : 'None';
 
         $sellerName = 'Not Available';
         $sellerEmail = 'Not Available';
@@ -245,8 +245,8 @@ class PropertyForm extends FormAbstract
             $sellerName = $this->getModel()->member->full_name;
             $sellerEmail = $this->getModel()->member->email;
             $sellerPhone = $this->getModel()->member->mobile_no;
-        } else {
-            if($this->getModel()->user) {
+        } else if ($sellerType == 'Agent') {
+            if ($this->getModel()->user) {
                 $sellerName = $this->getModel()->user->first_name . ' ' . $this->getModel()->user->last_name;
                 $sellerEmail = $this->getModel()->user->email;
                 $sellerPhone = $this->getModel()->user->phone;
@@ -268,7 +268,7 @@ class PropertyForm extends FormAbstract
                 'SellerInfo',
                 'html',
                 [
-                    'html' => '<div class="col-md-3 col-lg-3"><div class="row"><div class="col-lg-3 col-md-3">Type:</div><div class="col-lg-9 col-md-9 bold h5">' . $sellerType . '</div></div></div> <div class="col-md-2 col-lg-2"><div class="row"><div class="col-lg-3 col-md-3">Name:</div><div class="col-lg-9 col-md-9 bold h5">' . $sellerName . '</div></div></div> <div class="col-md-4 col-lg-4"><div class="row"><div class="col-lg-3 col-md-3">Email:</div><div class="col-lg-9 col-md-9 bold h5">' . $sellerEmail . '</div></div></div> <div class="col-md-3 col-lg-3 "><div class="row"><div class="col-lg-3 col-md-3">Phone:</div><div class="col-lg-9 col-md-9 bold h5">' . $sellerPhone . '</div></div></div>'
+                    'html' => '<div class="col-md-3 col-lg-3"><div class="row"><div class="col-lg-3 col-md-3">Type:</div><div class="col-lg-9 col-md-9 bold">' . $sellerType . '</div></div></div> <div class="col-md-2 col-lg-2"><div class="row"><div class="col-lg-3 col-md-3">Name:</div><div class="col-lg-9 col-md-9 bold">' . $sellerName . '</div></div></div> <div class="col-md-4 col-lg-4"><div class="row"><div class="col-lg-3 col-md-3">Email:</div><div class="col-lg-9 col-md-9 bold"><a href="mailto:' . $sellerEmail . '">' . $sellerEmail . '</a></div></div></div> <div class="col-md-3 col-lg-3 "><div class="row"><div class="col-lg-3 col-md-3">Phone:</div><div class="col-lg-9 col-md-9 bold"> <a target="_blank" href="https://wa.me/+92' . ltrim($sellerPhone, '0') . '">' . $sellerPhone . '</a></div></div></div>'
                 ]
             )
             ->add('rowCloseSellerInfo', 'html', [
@@ -712,18 +712,10 @@ class PropertyForm extends FormAbstract
                 'html' => '</div>',
             ]);
 
-
-        /*  ->add('status', 'customSelect', [
-              'label'      => trans('core/base::tables.status'),
-              'label_attr' => ['class' => 'control-label required'],
-              'attr'       => [
-                  'class' => 'form-control select-search-full',
-              ],
-              'choices'    => PropertyStatusEnum::labels(),
-          ])*/
-
-
-        //
-
+        if ($sellerType == 'None') {
+            $this->remove('rowOpenSellerInfo')
+                ->remove('SellerInfo')
+                ->remove('rowCloseSellerInfo');
+        }
     }
 }
