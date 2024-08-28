@@ -63,6 +63,9 @@ class AccountPropertyTable extends PropertyTable
             })
             ->editColumn('moderation_status', function ($item) {
                 return $item->moderation_status->toHtml();
+            })
+            ->editColumn('seller', function ($item) {
+                return $item->member ? $item->member->full_name : null;
             });
 
         return apply_filters(BASE_FILTER_GET_LIST_DATA, $data, $this->repository->getModel())
@@ -90,6 +93,7 @@ class AccountPropertyTable extends PropertyTable
             're_properties.status',
             're_properties.moderation_status',
             're_properties.expire_date',
+            're_properties.member_id'
         ];
 
         $query = $model
@@ -127,6 +131,12 @@ class AccountPropertyTable extends PropertyTable
         $columns['expire_date'] = [
             'name'  => 're_properties.expire_date',
             'title' => __('Expire date'),
+            'width' => '150px',
+        ];
+
+        $columns['seller'] = [
+            'name'  => 're_properties.member_id',
+            'title' => __('Seller'),
             'width' => '150px',
         ];
 

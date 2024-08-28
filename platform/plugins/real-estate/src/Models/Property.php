@@ -68,10 +68,10 @@ class Property extends BaseModel
      * @var array
      */
     protected $casts = [
-        'status'            => PropertyStatusEnum::class,
+        'status' => PropertyStatusEnum::class,
         'moderation_status' => ModerationStatusEnum::class,
-        'type'              => PropertyTypeEnum::class,
-        'period'            => PropertyPeriodEnum::class,
+        'type' => PropertyTypeEnum::class,
+        'period' => PropertyPeriodEnum::class,
     ];
 
     /**
@@ -137,7 +137,7 @@ class Property extends BaseModel
      */
     public function getSquareTextAttribute()
     {
-        return getDefaultAreaByUnit($this->square,setting('real_estate_square_unit', 'm²')) . ' '. setting('real_estate_square_unit', 'm²');
+        return getDefaultAreaByUnit($this->square, setting('real_estate_square_unit', 'm²')) . ' ' . setting('real_estate_square_unit', 'm²');
     }
 
     /**
@@ -203,21 +203,29 @@ class Property extends BaseModel
                 ->where('never_expired', false);
         });
     }
+
     public function user()
     {
-        return $this->belongsTo(Account::class);
+        return $this->belongsTo(Account::class, 'author_id');
     }
 
     public function comments()
     {
         return $this->morphMany(Comment::class, 'commentable')->whereNull('parent_id');
     }
+
     public function ratings()
     {
         return $this->hasMany(Rating::class);
     }
+
     public function getTemplate()
     {
-        return description_template::where('status',1)->first();
+        return description_template::where('status', 1)->first();
+    }
+
+    public function member()
+    {
+        return $this->belongsTo(Member::class);
     }
 }

@@ -80,14 +80,15 @@ class PropertyForm extends FormAbstract
      */
     public function __construct(
         PropertyInterface $propertyRepository,
-        ProjectInterface $projectRepository,
-        FeatureInterface $featureRepository,
+        ProjectInterface  $projectRepository,
+        FeatureInterface  $featureRepository,
         CurrencyInterface $currencyRepository,
-        CityInterface $cityRepository,
+        CityInterface     $cityRepository,
         CityAreaInterface $cityAreaRepository,
         CategoryInterface $categoryRepository,
         FacilityInterface $facilityRepository
-    ) {
+    )
+    {
         parent::__construct();
         $this->propertyRepository = $propertyRepository;
         $this->projectRepository = $projectRepository;
@@ -113,7 +114,6 @@ class PropertyForm extends FormAbstract
                 '/js/toast.min.js',
                 '/js/real-estate-admin.js'
             ])
-
             ->addStylesDirectly('vendor/core/plugins/real-estate/css/real-estate.css')
             ->addStylesDirectly('/css/real-estate-admin.css')
             ->addStylesDirectly('/css/toast.css');
@@ -146,7 +146,6 @@ class PropertyForm extends FormAbstract
 
         //for getting city areas for selected cities
         foreach ($cityareas as $area) {
-
             $cityAreaChoices[$area->id] = $area->city_area_name;
         }
         $categories = $this->categoryRepository->allBy(
@@ -236,13 +235,45 @@ class PropertyForm extends FormAbstract
             $selectedFacilities = $this->getModel()->facilities()->select('re_facilities.id', 'distance')->get();
         }
 
+        $sellerType = $this->getModel()->member_id ? 'Member' : 'Agent';
+
+        $sellerName = 'Not Available';
+        $sellerEmail = 'Not Available';
+        $sellerPhone = 'Not Available';
+
+        if ($sellerType == 'Member') {
+            $sellerName = $this->getModel()->member->full_name;
+            $sellerEmail = $this->getModel()->member->email;
+            $sellerPhone = $this->getModel()->member->mobile_no;
+        } else {
+            if($this->getModel()->user) {
+                $sellerName = $this->getModel()->user->first_name . ' ' . $this->getModel()->user->last_name;
+                $sellerEmail = $this->getModel()->user->email;
+                $sellerPhone = $this->getModel()->user->phone;
+            }
+        }
+
         $this
             ->setupModel(new Property)
             ->setValidatorClass(PropertyRequest::class)
             ->withCustomFields()
             ->addCustomField('location', LocationField::class)
             ->addCustomField('mediafile1', MediaFileField1::class)
-
+            ->add('rowOpenSellerInfo', 'html', [
+                'html' => '<div class="row mb-5 pt-5 pb-5 align-items-center" style="background: #f3a54a;
+    color: #fff;
+    border-radius: 11%;">',
+            ])
+            ->add(
+                'SellerInfo',
+                'html',
+                [
+                    'html' => '<div class="col-md-3 col-lg-3"><div class="row"><div class="col-lg-3 col-md-3">Type:</div><div class="col-lg-9 col-md-9 bold h5">' . $sellerType . '</div></div></div> <div class="col-md-2 col-lg-2"><div class="row"><div class="col-lg-3 col-md-3">Name:</div><div class="col-lg-9 col-md-9 bold h5">' . $sellerName . '</div></div></div> <div class="col-md-4 col-lg-4"><div class="row"><div class="col-lg-3 col-md-3">Email:</div><div class="col-lg-9 col-md-9 bold h5">' . $sellerEmail . '</div></div></div> <div class="col-md-3 col-lg-3 "><div class="row"><div class="col-lg-3 col-md-3">Phone:</div><div class="col-lg-9 col-md-9 bold h5">' . $sellerPhone . '</div></div></div>'
+                ]
+            )
+            ->add('rowCloseSellerInfo', 'html', [
+                'html' => '</div>',
+            ])
             ->add('rowOpenType', 'html', [
                 'html' => '<div class="row mb-2 align-items-center">',
             ])
@@ -253,7 +284,6 @@ class PropertyForm extends FormAbstract
                     'html' => '<div class="col-md-1 control-label ">Type</div>'
                 ]
             )
-
             ->add(
                 'type_sale',
                 'html',
@@ -281,7 +311,6 @@ class PropertyForm extends FormAbstract
                     'html' => '<div class="col-md-1 control-label ">Category</div>'
                 ]
             )
-
             ->add(
                 'type_category_list',
                 'html',
@@ -370,7 +399,6 @@ class PropertyForm extends FormAbstract
                 ],
                 'choices' => ModerationStatusEnum::labels(),
             ])
-
             ->add('rowClosetitle', 'html', [
                 'html' => '</div>',
             ])
@@ -385,7 +413,6 @@ class PropertyForm extends FormAbstract
                     'class' => 'd-none',
                 ],
             ])
-
             ->add('description', 'textarea', [
                 'label' => trans('core/base::forms.description'),
                 'label_attr' => ['class' => 'control-label'],
@@ -396,12 +423,9 @@ class PropertyForm extends FormAbstract
 
                 ]
             ])
-
             ->add('rowOpendocument', 'html', [
                 'html' => '<div class="row mb-2 mt-3 document-row">',
             ])
-
-
             ->add('rowClosedocument', 'html', [
                 'html' => '</div>',
             ])
@@ -432,7 +456,6 @@ class PropertyForm extends FormAbstract
                 ],
                 'values' => '',
             ])
-
             ->add('rowOpenverify', 'html', [
                 'html' => '<div class="row mb-2 mt-3">',
             ])
@@ -453,8 +476,6 @@ class PropertyForm extends FormAbstract
                     'required' => true,
                 ],
             ])
-
-
             ->add('location', 'location', [
                 'label' => trans('plugins/real-estate::property.form.location'),
                 'label_attr' => ['class' => 'control-label required'],
@@ -463,8 +484,6 @@ class PropertyForm extends FormAbstract
                     'data-counter' => 300,
                 ],
             ])
-
-
             ->add('rowOpenLoc', 'html', [
                 'html' => '<div class="row">',
             ])
@@ -527,7 +546,6 @@ class PropertyForm extends FormAbstract
                     'placeholder' => trans('plugins/real-estate::property.form.number_floor'),
                 ],
             ])
-
             ->add('rowClose1', 'html', [
                 'html' => '</div>',
             ])
@@ -558,7 +576,6 @@ class PropertyForm extends FormAbstract
                     'required' => true
                 ],
             ])
-
             ->add('price', 'text', [
                 'label' => trans('plugins/real-estate::property.form.price'),
                 'label_attr' => ['class' => 'control-label required'],
@@ -594,7 +611,6 @@ class PropertyForm extends FormAbstract
                 ],
                 'choices' => PropertyPeriodEnum::labels(),
             ])
-
             ->add('rowClose2', 'html', [
                 'html' => '</div>',
             ])
@@ -618,8 +634,6 @@ class PropertyForm extends FormAbstract
                 'id' => 'property_id'
 
             ])
-
-
             ->add('moderation_status_hidden', 'hidden', [
 
                 'value' => $this->model->moderation_status ?: "",
@@ -632,7 +646,6 @@ class PropertyForm extends FormAbstract
                 'id' => 'author_id_hidden' //id is not updating*
 
             ])
-
             ->add('document1_id_hidden', 'hidden', [
 
                 'value' => $this->model->document1,
@@ -651,7 +664,6 @@ class PropertyForm extends FormAbstract
                 'id' => 'document3_id_hidden' //id is not updating*
 
             ])
-
             ->add('is_featured', 'onOff', [
                 'label' => trans('core/base::forms.is_featured'),
                 'label_attr' => ['class' => 'control-label'],
@@ -674,7 +686,6 @@ class PropertyForm extends FormAbstract
             ->add('rowCloseaccount', 'html', [
                 'html' => '</div>',
             ])
-
             ->addMetaBoxes([
                 'features' => [
                     'title' => trans('plugins/real-estate::property.form.features'),

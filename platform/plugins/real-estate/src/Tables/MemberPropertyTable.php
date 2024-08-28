@@ -92,6 +92,7 @@ class MemberPropertyTable extends PropertyTable
             're_properties.moderation_status',
             're_properties.expire_date',
             're_properties.author_id',
+            're_properties.member_id'
         ];
 
         $query = $model
@@ -99,9 +100,7 @@ class MemberPropertyTable extends PropertyTable
             ->where([
                 're_properties.member_id' => auth('member')->user()->id,
                 're_properties.is_deleted' => 0
-                // 're_properties.author_type' => Account::class,
             ]);
-        //print_r($query->toSql());exit;
         return $this->applyScopes(apply_filters(BASE_FILTER_TABLE_QUERY, $query, $model, $select));
     }
 

@@ -49,6 +49,13 @@ class AccountPropertyForm extends PropertyForm
             $this->formHelper->addCustomField('customfile3', CustomFileField3::class);
         }
 
+        $show = true;
+        if (!$this->getModel()->member_id) {
+            if ($this->getModel()->author_id == auth('account')->user()->id) {
+                $show = false;
+            }
+        }
+
         $this
             ->setupModel(new Property)
             ->setFormOption('template', 'plugins/real-estate::account.forms.base')
@@ -80,5 +87,11 @@ class AccountPropertyForm extends PropertyForm
                 'label' => trans('plugins/real-estate::property.form.images'),
                 'label_attr' => ['class' => 'control-label required'],
             ]);
+
+        if (!$show) {
+            $this->remove('SellerInfo')
+                ->remove('rowOpenSellerInfo')
+                ->remove('rowCloseSellerInfo');
+        }
     }
 }
