@@ -15,3 +15,76 @@ $(document).ready(function() {
         }
     });
 });
+
+$(document).ready(function () {
+    let areaUnitBefore = $('#area_units').val();
+    $('#area_units').change(function () {
+            let areaUnit = $(this).val();
+
+            console.log()
+
+            let unitValue = $('#square').val();
+
+            if (!unitValue) {
+                unitValue = 0;
+            }
+
+            if (areaUnitBefore === 'ft²') {
+                if (areaUnit === 'm²') {
+                    $('#square').val(unitValue * 0.092903);
+                } else if (areaUnit === 'yards') {
+                    $('#square').val(unitValue / 9);
+                } else if (areaUnit === 'marla') {
+                    $('#square').val(unitValue / 272.25);
+                } else if (areaUnit === 'kanal') {
+                    $('#square').val(unitValue / 5445);
+                }
+            }
+            if (areaUnitBefore === 'm²') {
+                if (areaUnit === 'ft²') {
+                    $('#square').val(unitValue * 10.7639);
+                } else if (areaUnit === 'yards') {
+                    $('#square').val(unitValue * 1.19599);
+                } else if (areaUnit === 'marla') {
+                    $('#square').val(unitValue * 10.7639 / 272.25);
+                } else if (areaUnit === 'kanal') {
+                    $('#square').val(unitValue * 10.7639 / 5445);
+                }
+            }
+            if (areaUnitBefore === 'yards') {
+                if (areaUnit === 'ft²') {
+                    $('#square').val(unitValue * 9);
+                } else if (areaUnit === 'm²') {
+                    $('#square').val(unitValue * 0.836127);
+                } else if (areaUnit === 'marla') {
+                    $('#square').val(unitValue / 30.25);
+                } else if (areaUnit === 'kanal') {
+                    $('#square').val(unitValue / 605);
+                }
+            }
+            if (areaUnitBefore === 'marla') {
+                if (areaUnit === 'ft²') {
+                    $('#square').val(unitValue * 272.25);
+                } else if (areaUnit === 'm²') {
+                    $('#square').val(unitValue * 272.25 * 0.092903);
+                } else if (areaUnit === 'yards') {
+                    $('#square').val(unitValue * 30.25);
+                } else if (areaUnit === 'kanal') {
+                    $('#square').val(unitValue / 20);
+                }
+            }
+            if (areaUnitBefore === 'kanal') {
+                if (areaUnit === 'ft²') {
+                    $('#square').val(unitValue * 5445);
+                } else if (areaUnit === 'm²') {
+                    $('#square').val(unitValue * 5445 * 0.092903);
+                } else if (areaUnit === 'yards') {
+                    $('#square').val(unitValue * 5445 / 9);
+                } else if (areaUnit === 'marla') {
+                    $('#square').val(unitValue * 20);
+                }
+            }
+            areaUnitBefore = areaUnit;
+        }
+    )
+})
