@@ -21,8 +21,6 @@ $(document).ready(function () {
     $('#area_units').change(function () {
             let areaUnit = $(this).val();
 
-            console.log()
-
             let unitValue = $('#square').val();
 
             if (!unitValue) {
@@ -87,4 +85,8 @@ $(document).ready(function () {
             areaUnitBefore = areaUnit;
         }
     )
+})
+
+$(document).ready(function () {
+    console.log('YEAH', $('#images').val());
 })

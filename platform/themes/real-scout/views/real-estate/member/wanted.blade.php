@@ -224,20 +224,20 @@
 
                             <div class="col-md-11">
                                 <div class="row">
-                                    <div class="col-md-4 pr-1">
+                                    <div class="col-md-4">
                                         <button style="height: 35px;" type="button"
                                             class="btn d-block w-100 label-primary type_sale" data-id="sale"
                                             data-type-name="BUY" style="Width:10rem" value="buy">
                                             <span class="tick-selected"><i class="fas fa-check"></i></span> BUY
                                         </button>
                                     </div>
-                                    <div class="col-md-4 pl-1">
+                                    <div class="col-md-4">
                                         <button style="height: 35px;" type="button"
                                             class="btn d-block w-100 label-secondary type_rent" data-id="rent"
                                             data-type-name="RENT" style="Width:100%" value="rent">RENT
                                         </button>
                                     </div>
-                                    <div class="col-md-4 pl-1">
+                                    <div class="col-md-4">
                                         <button style="height: 35px;" type="button" id="project"
                                             class="btn d-block w-100 label-secondary type_project" data-id="project"
                                             data-type-name="PROJECT" style="Width:100%" value="project">INVEST

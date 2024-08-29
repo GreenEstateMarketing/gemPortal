@@ -153,7 +153,7 @@
                                                     <div class="row">
                                                         @foreach($property->facilities as $facility)
                                                             <div class="col-sm-4">
-                                                                <p><i class="@if ($facility->icon) {{ $facility->icon }} @else fas fa-check @endif text-brown text0i"></i>  {{ $facility->name }} - {{ $facility->pivot->distance }}</p>
+                                                                <p><i class="@if ($facility->icon) {{ $facility->icon }} @else fas fa-check @endif text-brown text0i"></i>  {{ $facility->name }} - {{ $facility->pivot->distance }} Km</p>
                                                             </div>
                                                         @endforeach
                                                     </div>

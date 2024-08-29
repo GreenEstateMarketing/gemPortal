@@ -16,8 +16,11 @@ class ValidImageCount implements Rule
 
     public function passes($attribute, $value)
     {
-        $images = explode(',', $value);
-        $count = count($images);
+        if(!is_array($value)) {
+            $value = explode(',', $value);
+        }
+
+        $count = count($value);
 
         return $count >= $this->min && $count <= $this->max;
     }
