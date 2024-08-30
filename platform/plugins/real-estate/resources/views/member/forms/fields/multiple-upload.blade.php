@@ -6,7 +6,7 @@
 
     @if ($showLabel && $options['label'] !== false && $options['label_show'])
         {!! Form::customLabel($name, $options['label'], $options['label_attr']) !!}
-        <span class="alert alert-warning" style="border:none;background:#fff"><i class="fa  fa-exclamation-triangle"></i> Please upload no more than 20 images.</span>
+        <span id="image-warning" class="alert alert-warning" style="border:none;background:#fff"><i class="fa  fa-exclamation-triangle"></i> Please upload no more than 20 images.</span>
     @endif
 
     @if ($showField)

@@ -1,5 +1,5 @@
-$(document).ready(function() {
-    $(document).on("change", "#type", function(e) {
+$(document).ready(function () {
+    $(document).on("change", "#type", function (e) {
         if ($(e.currentTarget).val() === "rent") {
             $("#period").closest(".period-form-group").removeClass("hidden").fadeIn();
         } else {
@@ -7,7 +7,7 @@ $(document).ready(function() {
         }
     });
 
-    $(document).on("change", "#never_expired", function(e) {
+    $(document).on("change", "#never_expired", function (e) {
         if ($(e.currentTarget).is(":checked") === true) {
             $("#auto_renew").closest(".auto-renew-form-group").addClass("hidden").fadeOut();
         } else {
@@ -88,5 +88,33 @@ $(document).ready(function () {
 })
 
 $(document).ready(function () {
-    console.log('YEAH', $('#images').val());
-})
+    function checkImageCount() {
+        console.log('YEAH');
+        var images = $('#images').val();
+        var imageArray = images ? images.split(',') : [];
+
+        console.log('imageArray.length', imageArray.length);
+
+        if (imageArray.length > 20) {
+            $('.btn-set button').prop('disabled', true);
+            $('#image-warning').css('color', '#f00');
+        } else {
+            $('.btn-set button').prop('disabled', false);
+            $('#image-warning').css('color', '#856404');
+        }
+    }
+
+    var observer = new MutationObserver(function (mutations) {
+        mutations.forEach(function (mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
+                checkImageCount();
+            }
+        });
+    });
+
+    observer.observe(document.getElementById('images'), {
+        attributes: true
+    });
+
+    checkImageCount();
+});
