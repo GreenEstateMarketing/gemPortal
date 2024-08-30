@@ -112,7 +112,8 @@ class PropertyForm extends FormAbstract
                 'vendor/core/plugins/real-estate/js/real-estate.js',
                 'vendor/core/plugins/real-estate/js/components.js',
                 '/js/toast.min.js',
-                '/js/real-estate-admin.js'
+                '/js/real-estate-admin.js',
+                '/js/app.js'
             ])
             ->addStylesDirectly('vendor/core/plugins/real-estate/css/real-estate.css')
             ->addStylesDirectly('/css/real-estate-admin.css')
@@ -228,11 +229,11 @@ class PropertyForm extends FormAbstract
 
         $features = $this->featureRepository->allBy([], [], ['re_features.id', 're_features.name']);
 
-        $facilities = $this->facilityRepository->allBy([], [], ['re_facilities.id', 're_facilities.name']);
+        $facilities = $this->facilityRepository->allBy([], [], ['re_facilities.id', 're_facilities.name'])->toArray();
 
         $selectedFacilities = [];
         if ($this->getModel()) {
-            $selectedFacilities = $this->getModel()->facilities()->select('re_facilities.id', 'distance')->get();
+            $selectedFacilities = $this->getModel()->facilities()->select('re_facilities.id', 'distance')->get()->toArray();
         }
 
         $sellerType = $this->getModel() ? $this->getModel()->member_id ? 'Member' : 'Agent' : 'None';
