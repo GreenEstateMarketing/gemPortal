@@ -89,9 +89,6 @@ class PropertyController extends BaseController
     public function create(FormBuilder $formBuilder)
     {
         page_title()->setTitle(trans('plugins/real-estate::property.create'));
-        //
-        // dd($res);
-
 
         return $formBuilder->create(PropertyForm::class)->renderForm();
     }
@@ -175,17 +172,9 @@ class PropertyController extends BaseController
     public function edit($id, Request $request, FormBuilder $formBuilder)
     {
         $property = $this->propertyRepository->findOrFail($id, ['features', 'author']);
-        // echo '<pre>';
 
-        //    $property->setAttribute('parent_id');
-
-        // exit;
         $parent_cat = Category::select('parent_id')->where('id', $property->category_id)->first();
-        // print_r($parent_id->parent_id);exit;
         $property->setAttribute('parent_id', $parent_cat->parent_id);
-        // print_r($property->getAttributes();exit;
-        // $property .= $parent_id;
-        // dd($parent_id);
         page_title()->setTitle(trans('plugins/real-estate::property.edit') . ' "' . $property->name . '"');
 
         event(new BeforeEditContentEvent($request, $property));

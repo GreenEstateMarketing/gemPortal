@@ -80,15 +80,14 @@ class PropertyForm extends FormAbstract
      */
     public function __construct(
         PropertyInterface $propertyRepository,
-        ProjectInterface  $projectRepository,
-        FeatureInterface  $featureRepository,
+        ProjectInterface $projectRepository,
+        FeatureInterface $featureRepository,
         CurrencyInterface $currencyRepository,
-        CityInterface     $cityRepository,
+        CityInterface $cityRepository,
         CityAreaInterface $cityAreaRepository,
         CategoryInterface $categoryRepository,
         FacilityInterface $facilityRepository
-    )
-    {
+    ) {
         parent::__construct();
         $this->propertyRepository = $propertyRepository;
         $this->projectRepository = $projectRepository;
@@ -254,6 +253,9 @@ class PropertyForm extends FormAbstract
             }
         }
 
+        $moderationStatuses = ModerationStatusEnum::labels();
+        $selectedModerationStatus = $this->model->moderation_status ? $this->model->moderation_status->getValue() : '';
+
         $this
             ->setupModel(new Property)
             ->setValidatorClass(PropertyRequest::class)
@@ -387,18 +389,6 @@ class PropertyForm extends FormAbstract
                     'class' => 'form-control select-search-full',
                 ],
                 'choices' => [trans('plugins/real-estate::property.select_city_area')] + $cityAreaChoices,
-            ])
-            ->add('moderation_status', 'customSelect', [
-                'label' => trans('plugins/real-estate::property.moderation_status'),
-                'label_attr' => ['class' => 'control-label required'],
-                'attr' => [
-                    'class' => 'form-control select-full',
-                ],
-                'wrapper' => [
-                    'class' => 'form-group col-md-3  moderation_status d-none',
-
-                ],
-                'choices' => ModerationStatusEnum::labels(),
             ])
             ->add('rowClosetitle', 'html', [
                 'html' => '</div>',
@@ -641,6 +631,10 @@ class PropertyForm extends FormAbstract
 
 
             ])
+            ->add('moderation_status', 'hidden', [
+                'value' => "",
+                'id' => 'moderation-status'
+            ])
             ->add('author_id_hidden', 'hidden', [
 
                 'value' => $this->model->author_id,
@@ -694,7 +688,7 @@ class PropertyForm extends FormAbstract
                         'plugins/real-estate::partials.form-features',
                         compact('selectedFeatures', 'features')
                     )->render(),
-                    'priority' => 1,
+                    'priority' => 2,
                 ],
                 'facilities' => [
                     'title' => trans('plugins/real-estate::property.distance_key'),
@@ -702,16 +696,39 @@ class PropertyForm extends FormAbstract
                         'plugins/real-estate::partials.form-facilities',
                         compact('facilities', 'selectedFacilities')
                     ),
-                    'priority' => 0,
+                    'priority' => 1,
+                ],
+                'moderation_status' => [
+                    'title' => trans('plugins/real-estate::property.moderation_status'),
+                    'content' => view(
+                        'plugins/real-estate::partials.moderation-status',
+                        compact('moderationStatuses', 'selectedModerationStatus')
+                    ),
+                    'priority' => 3,
+                    'attributes' => [
+                        'style' => 'background:#f0f0f0'
+                    ],
                 ]
             ])
-            // view('plugins/real-estate::partials.checklist_modal'),
             ->add('rowOpenmodal', 'html', [
                 'html' => view('plugins/real-estate::partials.checklist_modal'),
             ])
             ->add('rowClosemodal', 'html', [
                 'html' => '</div>',
             ]);
+
+        // $this->add('moderation_status', 'customSelect', [
+        //     'label' => trans('plugins/real-estate::property.moderation_status'),
+        //     'label_attr' => ['class' => 'control-label required font-weight-bold'],
+        //     'attr' => [
+        //         'class' => 'form-control select-full',
+        //     ],
+        //     'wrapper' => [
+        //         'class' => 'form-group col-md-3  moderation_status d-none',
+
+        //     ],
+        //     'choices' => ModerationStatusEnum::labels()
+        // ]);
 
         if ($sellerType == 'None') {
             $this->remove('rowOpenSellerInfo')

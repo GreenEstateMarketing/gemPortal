@@ -695,7 +695,6 @@ class GeneralPropertyController extends Controller
 
     public function edit_property($id, FormBuilder $formBuilder, Request $request)
     {
-
         $property = $this->propertyRepository->getFirstBy([
             'id' => $id,
             'member_id' => auth('member')->user()->getAuthIdentifier()
