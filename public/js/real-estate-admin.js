@@ -832,7 +832,6 @@ $(document).ready(function () {
             data:
             {
                 property_id: $("input[name='property_id']").val() ? $("input[name='property_id']").val() : 0,
-                /*category_id:$("input[name='category_id']").val()*/
             },
             success: function (response) {
                 let category = $('ul.parent-category li.label-primary').text().trim();
@@ -844,6 +843,9 @@ $(document).ready(function () {
                     if (checklist.is_verify == 1 && author_id != "") {
                         $("#btn_verify").text('Verified');
                         $(".moderation_status").removeClass('d-none');
+                        $('#mode-status-select').removeAttr('disabled')
+                        $('#mode-status-select').css('background', '#f3a54a')
+                        $('#mode-status-select').focus();
                     } else {
                         if (checklist.document_checklist != "") {
                             parsedarr = JSON.parse(checklist.document_checklist);
@@ -862,22 +864,24 @@ $(document).ready(function () {
                         $("#myModal").modal("show");
                         $("#btn_verify").css('display', 'block');
                         $(".moderation_status").addClass('d-none');
+                        $('#mode-status-select').attr('disabled', 'disabled')
+                        $('#mode-status-select').css('background', 'grey')
                     }
                 } else {
-                    if (category === 'HOME') {
-                        if (subcategory === 'House' || subcategory === 'Room') {
-                            $("#myModal").modal("show");
-                            $("#btn_verify").css('display', 'block');
-                            $(".moderation_status").addClass('d-none');
-                        } else {
-                            $("#myModal").modal("hide");
-                            $("#btn_verify").css('display', 'none');
-                            $(".moderation_status").removeClass('d-none');
-                        }
+                    var verifyDocuments = $('input[name="verify_documents"]').val();
+                    if (verifyDocuments) {
+                        $("#myModal").modal("show");
+                        $("#btn_verify").css('display', 'block');
+                        $(".moderation_status").addClass('d-none');
+                        $('#mode-status-select').attr('disabled', 'disabled')
+                        $('#mode-status-select').css('background', 'grey')
                     } else {
                         $("#myModal").modal("hide");
                         $("#btn_verify").css('display', 'none');
                         $(".moderation_status").removeClass('d-none');
+                        $('#mode-status-select').removeAttr('disabled')
+                        $('#mode-status-select').css('background', '#f3a54a')
+                        $('#mode-status-select').focus();
                     }
                 }
             },
@@ -905,13 +909,15 @@ $(document).ready(function () {
                     },
                     success: function (response) {
                         if (response.status) {
-                            //alert("Checklist updated successfully!");
-                            toastr.success('Document Checklist Updated successfully!', 'success', { iconClass: "toast-custom" });
                             if (response.approved && author_id != "") {
+                                toastr.success('Document Checklist Updated successfully! You can approve the property.', 'success', { iconClass: "toast-custom", timeOut: 10000, extendedTimeOut: 5000 });
                                 $(".moderation_status").removeClass('d-none');
+                                $('#mode-status-select').removeAttr('disabled')
+                                $('#mode-status-select').css('background', '#f3a54a')
+                                $('#mode-status-select').focus();
+                            } else {
+                                toastr.success('Document Checklist Updated successfully! You can approve the property after verifying all the documents.', 'success', { iconClass: "toast-custom", timeOut: 10000, extendedTimeOut: 5000 });
                             }
-
-
                         }
                         $("#myModal").modal("hide");
                     },
@@ -954,10 +960,6 @@ $(document).ready(function () {
                             $(btnObj).text(liObj.text());
                             if (response.approved && author_idd != "")
                                 $("#btn_verify").text('Verified');
-
-                            //$("input[name='author_id']").val(author_idd);
-                            //   $(".form-actions-default").css('display','block');
-                            //  $("#btn_verify").css('display','none');
                         }
                         $("#myModal").modal("hide");
                     },
@@ -1220,7 +1222,7 @@ function filterFunctionCheck() {
 $(document).ready(function () {
     var selectedMod = $('input[name="moderation_status_hidden"]').val();
     $('input[name="moderation_status"]').val(selectedMod);
-    $('#mode-status-select').on('change', function() {
+    $('#mode-status-select').on('change', function () {
         var newVal = $('#mode-status-select').val()
         console.log(newVal);
         $('input[name="moderation_status"]').val(newVal);

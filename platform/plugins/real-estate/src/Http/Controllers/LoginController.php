@@ -7,6 +7,7 @@ use Botble\ACL\Traits\LogoutGuardTrait;
 use Botble\ACL\Traits\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use Log;
 use SeoHelper;
 use Theme;
 use URL;
@@ -48,7 +49,7 @@ class LoginController extends Controller
         if (in_array(session()->get('url.intended'), $pages)) {
             $this->redirectTo = route('public.account.dashboard');
         } else {
-            $this->redirectTo = session()->get('url.intended');
+            $this->redirectTo = route('public.account.login');
         }
     }
 
@@ -87,14 +88,15 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
+        
         $request->merge([$this->username() => $request->input('email')]);
-
         $this->validateLogin($request);
 
         // If the class is using the ThrottlesLogins trait, we can automatically throttle
         // the login attempts for this application. We'll key this by the username and
         // the IP address of the client making these requests into this application.
         if ($this->hasTooManyLoginAttempts($request)) {
+            dd('ttoo many');
             $this->fireLockoutEvent($request);
 
             $this->sendLockoutResponse($request);
@@ -146,7 +148,7 @@ class LoginController extends Controller
      */
     public function username()
     {
-        return filter_var(request()->input('username'), FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+        return filter_var(request()->input('email'), FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
     }
 
     /**
@@ -175,5 +177,12 @@ class LoginController extends Controller
         }
 
         return $this->loggedOut($request) ?: redirect('/');
+    }
+
+    protected function sendFailedLoginResponse()
+    {
+        throw ValidationException::withMessages([
+            'email' => [trans('auth.failed')],
+        ]);
     }
 }

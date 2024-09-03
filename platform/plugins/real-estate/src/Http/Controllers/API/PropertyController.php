@@ -47,9 +47,8 @@ class PropertyController extends Controller
         $category_id = $request['category_id'];
         $value = 0;
         $prop_count = catgeories_document::where('category_id', '=', $category_id)->with('documents')->whereHas('documents', function ($q) use ($value) {
-            // Query the name field in status table
-            $q->where('is_delete', '=', $value); // '=' is optional
-        })/*->where('required', '=',1)*/ ->get();
+            $q->where('is_delete', '=', $value);
+        })->get();
         $res = table_properties_check_lists::where('property_id', '=', $property_id)->get();
         if (count($res) > 0) {
             $arr = array('document_checklist' => json_encode($verify_document, true), 'is_verify' => 0);
@@ -75,7 +74,6 @@ class PropertyController extends Controller
                 if (count($verify_document) == count($prop_count)) {
                     $verify = array('is_verify' => 1);
                     $resupdate = table_properties_check_lists::where('property_id', $property_id)->update($verify);
-                    //  $rpropupdate = Property::where('id', $property_id)->update(array('moderation_status' => 'approved'));
                     $approved = true;
 
 

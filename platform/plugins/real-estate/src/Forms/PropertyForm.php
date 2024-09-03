@@ -16,6 +16,7 @@ use Botble\RealEstate\Forms\Fields\LocationField;
 use Botble\RealEstate\Forms\Fields\MediaFileField1;
 use Botble\RealEstate\Http\Requests\PropertyRequest;
 use Botble\RealEstate\Models\Property;
+use Botble\RealEstate\Repositories\Interfaces\CategoryDocumentInterface;
 use Botble\RealEstate\Repositories\Interfaces\CategoryInterface;
 use Botble\RealEstate\Repositories\Interfaces\CurrencyInterface;
 use Botble\RealEstate\Repositories\Interfaces\FacilityInterface;
@@ -67,17 +68,9 @@ class PropertyForm extends FormAbstract
      */
     protected $categoryRepository;
 
-    /**
-     * PropertyForm constructor.
-     * @param PropertyInterface $propertyRepository
-     * @param ProjectInterface $projectRepository
-     * @param FeatureInterface $featureRepository
-     * @param CurrencyInterface $currencyRepository
-     * @param CityInterface $cityRepository
-     * @param CityAreaInterface $cityAreaRepository
-     * @param CategoryInterface $categoryRepository
-     * @param FacilityInterface $facilityRepository
-     */
+    protected $categoryDocumentRepository;
+
+
     public function __construct(
         PropertyInterface $propertyRepository,
         ProjectInterface $projectRepository,
@@ -86,7 +79,8 @@ class PropertyForm extends FormAbstract
         CityInterface $cityRepository,
         CityAreaInterface $cityAreaRepository,
         CategoryInterface $categoryRepository,
-        FacilityInterface $facilityRepository
+        FacilityInterface $facilityRepository,
+        CategoryDocumentInterface $categoryDocumentRepository
     ) {
         parent::__construct();
         $this->propertyRepository = $propertyRepository;
@@ -97,6 +91,7 @@ class PropertyForm extends FormAbstract
         $this->cityAreaRepository = $cityAreaRepository;
         $this->categoryRepository = $categoryRepository;
         $this->facilityRepository = $facilityRepository;
+        $this->categoryDocumentRepository = $categoryDocumentRepository;
     }
 
     /**
@@ -256,6 +251,12 @@ class PropertyForm extends FormAbstract
         $moderationStatuses = ModerationStatusEnum::labels();
         $selectedModerationStatus = $this->model->moderation_status ? $this->model->moderation_status->getValue() : '';
 
+        $verifyDocuments = false;
+        $categoryDocuments = $this->categoryDocumentRepository->getByCategoryId($this->model->category_id);
+        if ($categoryDocuments > 0) {
+            $verifyDocuments = true;
+        }
+
         $this
             ->setupModel(new Property)
             ->setValidatorClass(PropertyRequest::class)
@@ -265,7 +266,7 @@ class PropertyForm extends FormAbstract
             ->add('rowOpenSellerInfo', 'html', [
                 'html' => '<div class="row mb-5 pt-5 pb-5 align-items-center" style="background: #f3a54a;
     color: #fff;
-    border-radius: 11%;">',
+    border-radius: 50px;">',
             ])
             ->add(
                 'SellerInfo',
@@ -626,14 +627,14 @@ class PropertyForm extends FormAbstract
 
             ])
             ->add('moderation_status_hidden', 'hidden', [
-
                 'value' => $this->model->moderation_status ?: "",
-
-
             ])
             ->add('moderation_status', 'hidden', [
                 'value' => "",
                 'id' => 'moderation-status'
+            ])
+            ->add('verify_documents', 'hidden', [
+                'value' => $verifyDocuments
             ])
             ->add('author_id_hidden', 'hidden', [
 
@@ -704,10 +705,7 @@ class PropertyForm extends FormAbstract
                         'plugins/real-estate::partials.moderation-status',
                         compact('moderationStatuses', 'selectedModerationStatus')
                     ),
-                    'priority' => 3,
-                    'attributes' => [
-                        'style' => 'background:#f0f0f0'
-                    ],
+                    'priority' => 3
                 ]
             ])
             ->add('rowOpenmodal', 'html', [
