@@ -235,27 +235,34 @@ class PropertyForm extends FormAbstract
         $sellerName = 'Not Available';
         $sellerEmail = 'Not Available';
         $sellerPhone = 'Not Available';
+        $credits = true;
 
         if ($sellerType == 'Member') {
             $sellerName = $this->getModel()->member->full_name;
             $sellerEmail = $this->getModel()->member->email;
             $sellerPhone = $this->getModel()->member->mobile_no;
+            $credits = $this->getModel()->member->credits > 0;
         } else if ($sellerType == 'Agent') {
             if ($this->getModel()->user) {
                 $sellerName = $this->getModel()->user->first_name . ' ' . $this->getModel()->user->last_name;
                 $sellerEmail = $this->getModel()->user->email;
                 $sellerPhone = $this->getModel()->user->phone;
+                $credits = $this->getModel()->user->credits > 0;
             }
         }
 
+        $sellerType = $credits ? $sellerType : $sellerType . ' (Credits Not Available)';
+
         $moderationStatuses = ModerationStatusEnum::labels();
-        $selectedModerationStatus = $this->model->moderation_status ? $this->model->moderation_status->getValue() : '';
+        $selectedModerationStatus = $this->model ? $this->model->moderation_status->getValue() : '';
 
         $verifyDocuments = false;
-        $categoryDocuments = $this->categoryDocumentRepository->getByCategoryId($this->model->category_id);
-        if ($categoryDocuments > 0) {
-            $verifyDocuments = true;
-        }
+        if($this->model) {
+            $categoryDocuments = $this->categoryDocumentRepository->getByCategoryId($this->model->category_id);
+            if ($categoryDocuments > 0) {
+                $verifyDocuments = true;
+            }
+        }        
 
         $this
             ->setupModel(new Property)
@@ -264,15 +271,13 @@ class PropertyForm extends FormAbstract
             ->addCustomField('location', LocationField::class)
             ->addCustomField('mediafile1', MediaFileField1::class)
             ->add('rowOpenSellerInfo', 'html', [
-                'html' => '<div class="row mb-5 pt-5 pb-5 align-items-center" style="background: #f3a54a;
-    color: #fff;
-    border-radius: 50px;">',
+                'html' => '<div class="row mb-5 pt-5 pb-5 align-items-center" style="background: ' . ($credits ? '#078d24' : '#f33838') . ';color: #fff;border-radius: 50px;">',
             ])
             ->add(
                 'SellerInfo',
                 'html',
                 [
-                    'html' => '<div class="col-md-3 col-lg-3"><div class="row"><div class="col-lg-3 col-md-3">Type:</div><div class="col-lg-9 col-md-9 bold">' . $sellerType . '</div></div></div> <div class="col-md-2 col-lg-2"><div class="row"><div class="col-lg-3 col-md-3">Name:</div><div class="col-lg-9 col-md-9 bold">' . $sellerName . '</div></div></div> <div class="col-md-4 col-lg-4"><div class="row"><div class="col-lg-3 col-md-3">Email:</div><div class="col-lg-9 col-md-9 bold"><a href="mailto:' . $sellerEmail . '">' . $sellerEmail . '</a></div></div></div> <div class="col-md-3 col-lg-3 "><div class="row"><div class="col-lg-3 col-md-3">Phone:</div><div class="col-lg-9 col-md-9 bold"> <a target="_blank" href="https://wa.me/+92' . ltrim($sellerPhone, '0') . '">' . $sellerPhone . '</a></div></div></div>'
+                    'html' => '<div class="col-md-3 col-lg-3"><div class="row"><div class="col-lg-3 col-md-3">Type:</div><div class="col-lg-9 col-md-9 bold">' . $sellerType . '</div></div></div> <div class="col-md-2 col-lg-2"><div class="row"><div class="col-lg-3 col-md-3">Name:</div><div class="col-lg-9 col-md-9 bold">' . $sellerName . '</div></div></div> <div class="col-md-4 col-lg-4"><div class="row"><div class="col-lg-3 col-md-3">Email:</div><div class="col-lg-9 col-md-9 bold"><a style="color: #c7bebe" href="mailto:' . $sellerEmail . '">' . $sellerEmail . '</a></div></div></div> <div class="col-md-3 col-lg-3 "><div class="row"><div class="col-lg-3 col-md-3">Phone:</div><div class="col-lg-9 col-md-9 bold"> <a target="_blank" style="color: #c7bebe" href="https://wa.me/+92' . ltrim($sellerPhone, '0') . '">' . $sellerPhone . '</a></div></div></div>'
                 ]
             )
             ->add('rowCloseSellerInfo', 'html', [
@@ -629,6 +634,9 @@ class PropertyForm extends FormAbstract
             ->add('moderation_status_hidden', 'hidden', [
                 'value' => $this->model->moderation_status ?: "",
             ])
+            ->add('credits', 'hidden', [
+                'value' => $credits
+            ])
             ->add('moderation_status', 'hidden', [
                 'value' => "",
                 'id' => 'moderation-status'
@@ -703,7 +711,7 @@ class PropertyForm extends FormAbstract
                     'title' => trans('plugins/real-estate::property.moderation_status'),
                     'content' => view(
                         'plugins/real-estate::partials.moderation-status',
-                        compact('moderationStatuses', 'selectedModerationStatus')
+                        compact('moderationStatuses', 'selectedModerationStatus', 'credits')
                     ),
                     'priority' => 3
                 ]

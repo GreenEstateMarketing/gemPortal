@@ -61,6 +61,7 @@ class GeneralPropertyForm extends PropertyForm
             ->remove('document3')
             ->remove('never_expired')
             ->remove('btn_verify')
+            ->removeMetaBox('moderation_status')
             ->modify('auto_renew', 'onOff', [
                 'label'         => trans('plugins/real-estate::property.renew_notice', ['days' => config('plugins.real-estate.real-estate.property_expired_after_x_days')]),
                 'label_attr'    => ['class' => 'control-label'],

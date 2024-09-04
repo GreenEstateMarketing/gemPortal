@@ -15,6 +15,8 @@ use Botble\Base\Http\Responses\BaseHttpResponse;
 use Botble\RealEstate\Enums\ModerationStatusEnum;
 use Botble\RealEstate\Forms\PropertyForm;
 use Botble\RealEstate\Http\Requests\PropertyRequest;
+use Botble\RealEstate\Repositories\Interfaces\AccountInterface;
+use Botble\RealEstate\Repositories\Interfaces\MemberInterface;
 use Botble\RealEstate\Repositories\Interfaces\ProjectInterface;
 use Botble\RealEstate\Repositories\Interfaces\FeatureInterface;
 use Botble\RealEstate\Repositories\Interfaces\PropertyInterface;
@@ -61,10 +63,9 @@ class PropertyController extends BaseController
      */
     public function __construct(
         PropertyInterface $propertyRepository,
-        ProjectInterface  $projectRepository,
-        FeatureInterface  $featureRepository
-    )
-    {
+        ProjectInterface $projectRepository,
+        FeatureInterface $featureRepository
+    ) {
         $this->propertyRepository = $propertyRepository;
         $this->projectRepository = $projectRepository;
         $this->featureRepository = $featureRepository;
@@ -190,8 +191,14 @@ class PropertyController extends BaseController
      * @return BaseHttpResponse
      * @throws FileNotFoundException
      */
-    public function update($id, PropertyRequest $request, BaseHttpResponse $response, SaveFacilitiesService $saveFacilitiesService)
-    {
+    public function update(
+        $id,
+        PropertyRequest $request,
+        BaseHttpResponse $response,
+        SaveFacilitiesService $saveFacilitiesService,
+        AccountInterface $accountRepository,
+        MemberInterface $memberRepository
+    ) {
         $property = $this->propertyRepository->findOrFail($id);
         $old_category_id = $property->category_id;
         $old_documents = json_decode($property->documents);
@@ -201,7 +208,7 @@ class PropertyController extends BaseController
         $sqFeet = getSqFeet($area_value, $area_units);
         $property->author_type = Account::class;
         $property->images = json_encode($request->input('images', []));
-        $old_arr = (array)$old_documents;
+        $old_arr = (array) $old_documents;
         $jsonArr = array();
 
         $ids = array_column($old_arr, 'id');
@@ -251,7 +258,7 @@ class PropertyController extends BaseController
         ///if all checklist checked  then approved other wise pending
         $property->moderation_status = $request->input('moderation_status');
         if ($request->input('moderation_status') == ModerationStatusEnum::APPROVED) {
-            if(!$property->date_published) {
+            if (!$property->date_published) {
                 $property->date_published = Carbon::now();
             }
         }
@@ -265,6 +272,18 @@ class PropertyController extends BaseController
 
         $property->status = $status;
         $this->propertyRepository->createOrUpdate($property);
+
+        //deduct credits
+        if ($property->member_id) {
+            $member = $memberRepository->findOrFail(auth('member')->user()->getAuthIdentifier());
+            $member->credits--;
+            $member->save();
+        } else {
+            $account = $accountRepository->findOrFail(auth('account')->user()->getAuthIdentifier());
+            $account->credits--;
+            $account->save();
+        }
+
 
         event(new UpdatedContentEvent(PROPERTY_MODULE_SCREEN_NAME, $request, $property));
 

@@ -154,9 +154,9 @@ class AccountPropertyController extends Controller
             'reference_url' => route('public.account.properties.edit', $property->id),
         ]);
 
-        $account = $accountRepository->findOrFail(auth('account')->user()->getAuthIdentifier());
-        $account->credits--;
-        $account->save();
+        // $account = $accountRepository->findOrFail(auth('account')->user()->getAuthIdentifier());
+        // $account->credits--;
+        // $account->save();
 
         return $response
             ->setPreviousUrl(route('public.account.properties.index'))

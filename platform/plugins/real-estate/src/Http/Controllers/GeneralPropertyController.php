@@ -150,30 +150,15 @@ class GeneralPropertyController extends Controller
      */
     public function create(FormBuilder $formBuilder)
     {
-        if (!auth('member')->user() && !auth('account')->user()) {
-            return redirect()->route('member.login');
-        } else if(auth('member')->user() && !auth('account')->user()) {
-            if (auth('member')->user()->credits > 0) {
-                return redirect()->route('public.member.properties.create');
-            } else {
-                return redirect()->route('public.member.packages');
-            }
-        } else if(!auth('member')->user() && auth('account')->user()) {
-            if (auth('account')->user()->credits > 0) {
-                return redirect()->route('public.account.properties.create');
-            } else {
-                return redirect()->route('public.account.packages');
-            }
+        if (auth('member')->user() && !auth('account')->user()) {
+            return redirect()->route('public.member.properties.create');
+        } else if (!auth('member')->user() && auth('account')->user()) {
+            return redirect()->route('public.account.properties.create');
         }
 
-        // SeoHelper::setTitle(__('Add a property'));
+        SeoHelper::setTitle(__('Add a property'));
 
-        // return $formBuilder->create(GeneralPropertyForm::class)->renderForm();
-        /*$generalPropertyForm = $formBuilder->create(GeneralPropertyForm::class)->renderForm();
-        if (view()->exists(Theme::getThemeNamespace() . '::views.real-estate.add_property')) {
-            return Theme::scope('real-estate.add_property', compact('generalPropertyForm'))->render();
-        }*/
-
+        return $formBuilder->create(GeneralPropertyForm::class)->renderForm();
     }
 
     /**
@@ -200,14 +185,13 @@ class GeneralPropertyController extends Controller
 
             if ($validator->fails()) {
                 return response()->json(['error' => $validator->errors()->all(), 'message' => 'Invalid data format']);
-            } elseif (Member::where('email', $request['new_email'])->first()) {
+            } else if (Member::where('email', $request['new_email'])->first()) {
                 $is_already_member = true;
                 $error = array('status' => false, 'message' => 'Email already exists.');
                 echo json_encode($error);
                 die;
             } else {
                 $arr = array('full_name' => $request['full_name'], 'email' => $request['new_email'], 'mobile_no' => $request['mobile_number'], 'password' => Hash::make($request['new_password']));
-
             }
         } else {
             $validator = Validator::make($request->all(), [
@@ -250,8 +234,6 @@ class GeneralPropertyController extends Controller
         $status = 'selling';
         if ($request['type'] == "rent")
             $status = 'renting';
-        else
-            $status = 'selling';
 
         $request['documents'] = json_encode($jsonArr);
         $area_value = $request['square'];
@@ -260,18 +242,18 @@ class GeneralPropertyController extends Controller
         $sqFeet = getSqFeet($area_value, $area_units);
         $request['square'] = $sqFeet;
         if ($request && $request['images']) {
-            $property = $this->propertyRepository->createOrUpdate(array_merge($request->input(), [
-                'author_id' => $agent_id,
-                'member_id' => $member_id,
-                'status' => $status,
-                'author_type' => $agent_id ? Account::class : Member::class,
-            ]));
             if ($member_id != null) {
                 $is_already_member = true;
             } else {
                 $member_id = Member::create($arr)->id;
                 $is_already_member = false;
             }
+            $property = $this->propertyRepository->createOrUpdate(array_merge($request->input(), [
+                'author_id' => $agent_id,
+                'member_id' => $member_id,
+                'status' => $status,
+                'author_type' => $agent_id ? Account::class : Member::class,
+            ]));
         }
 
         if ($property) {
@@ -294,9 +276,9 @@ class GeneralPropertyController extends Controller
                         'reference_url' => route('general-add-property'),
                     ]);
 
-                    $member = $memberRepository->findOrFail(auth('member')->user()->getAuthIdentifier());
-                    $member->credits--;
-                    $member->save();
+                    // $member = $memberRepository->findOrFail(auth('member')->user()->getAuthIdentifier());
+                    // $member->credits--;
+                    // $member->save();
                     $data = array('route_name' => 'member.dashboard', 'status' => true, 'message' => 'Property Added Successfully!');
                     echo json_encode($data);
                     $response->setMessage(trans('core/base::notices.create_success_message'));
@@ -315,9 +297,9 @@ class GeneralPropertyController extends Controller
                         'reference_url' => route('public.member.properties.edit', $property->id),
                     ]);
 
-                    $member = $memberRepository->findOrFail(auth('member')->user()->getAuthIdentifier());
-                    $member->credits--;
-                    $member->save();
+                    // $member = $memberRepository->findOrFail(auth('member')->user()->getAuthIdentifier());
+                    // $member->credits--;
+                    // $member->save();
                     $data = array('route_name' => 'member.dashboard', 'status' => true, 'message' => 'Property Added Successfully!');
                     echo json_encode($data);
                     $response->setMessage(trans('core/base::notices.create_success_message'));
@@ -747,7 +729,7 @@ class GeneralPropertyController extends Controller
                         unset($old_arr[$array_index]);
                     }
                 }
-                
+
                 $name = $document_id . '-document-' . time() . uniqid() . '.' . $file->getClientOriginalExtension();
                 $file->storeAs('Documents', $name);
                 $jsonArr[$i]['id'] = $document_id;
@@ -908,7 +890,9 @@ class GeneralPropertyController extends Controller
             $cityChoices[$city->id] = $city->name . ($city->state->name ? ' (' . $city->state->name . ')' : '');
         }
 
-        $projects = $this->projectRepository->allBy([],[],
+        $projects = $this->projectRepository->allBy(
+            [],
+            [],
             ['re_projects.name', 're_projects.id']
         );
 
@@ -919,7 +903,7 @@ class GeneralPropertyController extends Controller
         }
 
         $data = array('html' => $html, 'sub_category' => $subcategory, 'city' => $cityChoices, 'projects' => $projectChoices);
-        
+
         if (view()->exists(Theme::getThemeNamespace() . '::views.real-estate.member.wanted')) {
 
             return Theme::scope('real-estate.member.wanted', $data)->render();
