@@ -257,12 +257,12 @@ class PropertyForm extends FormAbstract
         $selectedModerationStatus = $this->model ? $this->model->moderation_status->getValue() : '';
 
         $verifyDocuments = false;
-        if($this->model) {
+        if ($this->model) {
             $categoryDocuments = $this->categoryDocumentRepository->getByCategoryId($this->model->category_id);
             if ($categoryDocuments > 0) {
                 $verifyDocuments = true;
             }
-        }        
+        }
 
         $this
             ->setupModel(new Property)
@@ -597,6 +597,32 @@ class PropertyForm extends FormAbstract
                 ],
                 'choices' => $currencies,
             ])
+            ->addMetaBoxes([
+                'features' => [
+                    'title' => trans('plugins/real-estate::property.form.features'),
+                    'content' => view(
+                        'plugins/real-estate::partials.form-features',
+                        compact('selectedFeatures', 'features')
+                    )->render(),
+                    'priority' => 2,
+                ],
+                'facilities' => [
+                    'title' => trans('plugins/real-estate::property.distance_key'),
+                    'content' => view(
+                        'plugins/real-estate::partials.form-facilities',
+                        compact('facilities', 'selectedFacilities')
+                    ),
+                    'priority' => 1,
+                ],
+                'moderation_status' => [
+                    'title' => trans('plugins/real-estate::property.moderation_status'),
+                    'content' => view(
+                        'plugins/real-estate::partials.moderation-status',
+                        compact('moderationStatuses', 'selectedModerationStatus', 'credits')
+                    ),
+                    'priority' => 3
+                ]
+            ])
             ->add('period', 'customSelect', [
                 'label' => trans('plugins/real-estate::property.form.period'),
                 'label_attr' => ['class' => 'control-label required'],
@@ -689,32 +715,6 @@ class PropertyForm extends FormAbstract
             ])
             ->add('rowCloseaccount', 'html', [
                 'html' => '</div>',
-            ])
-            ->addMetaBoxes([
-                'features' => [
-                    'title' => trans('plugins/real-estate::property.form.features'),
-                    'content' => view(
-                        'plugins/real-estate::partials.form-features',
-                        compact('selectedFeatures', 'features')
-                    )->render(),
-                    'priority' => 2,
-                ],
-                'facilities' => [
-                    'title' => trans('plugins/real-estate::property.distance_key'),
-                    'content' => view(
-                        'plugins/real-estate::partials.form-facilities',
-                        compact('facilities', 'selectedFacilities')
-                    ),
-                    'priority' => 1,
-                ],
-                'moderation_status' => [
-                    'title' => trans('plugins/real-estate::property.moderation_status'),
-                    'content' => view(
-                        'plugins/real-estate::partials.moderation-status',
-                        compact('moderationStatuses', 'selectedModerationStatus', 'credits')
-                    ),
-                    'priority' => 3
-                ]
             ])
             ->add('rowOpenmodal', 'html', [
                 'html' => view('plugins/real-estate::partials.checklist_modal'),

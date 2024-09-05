@@ -200,6 +200,7 @@ class PropertyController extends BaseController
         MemberInterface $memberRepository
     ) {
         $property = $this->propertyRepository->findOrFail($id);
+        $alreadySavedModStatus = $property->moderation_status;
         $old_category_id = $property->category_id;
         $old_documents = json_decode($property->documents);
         $property->fill($request->except(['expire_date', 'square']));
@@ -217,10 +218,8 @@ class PropertyController extends BaseController
             $i = 0;
 
             foreach ($files as $key => $file) {
-                //$key;
                 $document_id = $request['document_ids'][$key];
                 $array_index = array_search($document_id, $ids);
-                // echo $array_index;exit;
                 if ($array_index != "") {
                     $path = $old_arr[$array_index]->path;
                     if (Storage::exists($path)) {
@@ -273,16 +272,20 @@ class PropertyController extends BaseController
         $property->status = $status;
         $this->propertyRepository->createOrUpdate($property);
 
-        //deduct credits
-        if ($property->member_id) {
-            $member = $memberRepository->findOrFail(auth('member')->user()->getAuthIdentifier());
-            $member->credits--;
-            $member->save();
-        } else {
-            $account = $accountRepository->findOrFail(auth('account')->user()->getAuthIdentifier());
-            $account->credits--;
-            $account->save();
+        if ($alreadySavedModStatus != ModerationStatusEnum::APPROVED && $request->input('moderation_status') == ModerationStatusEnum::APPROVED) {
+            //deduct credits
+            if ($property->member_id) {
+                $member = $memberRepository->findOrFail($property->member_id);
+                $member->credits--;
+                $member->save();
+            } else {
+                $account = $accountRepository->findOrFail($property->author_id);
+                $account->credits--;
+                $account->save();
+            }
         }
+
+
 
 
         event(new UpdatedContentEvent(PROPERTY_MODULE_SCREEN_NAME, $request, $property));
