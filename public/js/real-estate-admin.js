@@ -807,6 +807,7 @@ $(document).ready(function () {
 
 
         $(".agents").css('display', 'block');
+        $("#isAgentAlreadyAssigned").css('display', 'inline-block');
         $(".documents").css('display', 'none');
         $(".btn-document").removeClass('btn-primary').addClass('btn-gray');
         $(this).removeClass('btn-gray').addClass('btn-primary');
@@ -821,6 +822,7 @@ $(document).ready(function () {
         $(this).removeClass('btn-gray').addClass('btn-primary');
     });
     if (author_id == "") {
+        $("#isAgentAlreadyAssigned").addClass('d-inline-block');
         $(".btn-agent").css('display', 'block');
         $(".agent-name").css('display', 'block');
     }

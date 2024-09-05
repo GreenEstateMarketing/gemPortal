@@ -1,3 +1,6 @@
+<script src="https://maps.googleapis.com/maps/api/js?key={{ setting('google_map_api_key') }}&libraries=places,geometry">
+</script>
+
 <script type="text/javascript">
     "use strict";
     var map;
@@ -14,13 +17,13 @@
     var count_shapes = 0;
     var random;
 
-    navigator.geolocation.getCurrentPosition(function (position) {
+    navigator.geolocation.getCurrentPosition(function(position) {
         let coords = position.coords;
         lat = coords.latitude;
         lng = coords.longitude;
     });
 
-    $(document).ready(function () {
+    $(document).ready(function() {
         function setpVal(pos) {
             let coords = pos.coords;
             $("#timestamp").text(new Date(pos.timestamp));
@@ -68,7 +71,9 @@
 
             attachDragEndListener(marker);
 
-            geocoder.geocode({'latLng': myLatlng}, function (results, status) {
+            geocoder.geocode({
+                'latLng': myLatlng
+            }, function(results, status) {
                 if (status === google.maps.GeocoderStatus.OK && results[0]) {
                     $('#latitude,#longitude').show();
                     $('#location').val(results[0].formatted_address);
@@ -115,8 +120,11 @@
                         if (isWithInPolygon) {
                             $(":submit").prop('disabled', false);
                             $("#messageText").addClass("d-none");
-                            geocoder.geocode({'latLng': marker.getPosition()}, function (results, status) {
-                                if (status === google.maps.GeocoderStatus.OK && results[0]) {
+                            geocoder.geocode({
+                                'latLng': marker.getPosition()
+                            }, function(results, status) {
+                                if (status === google.maps.GeocoderStatus.OK && results[
+                                        0]) {
                                     $('#location').val(results[0].formatted_address);
                                     $('#latitude').val(marker.getPosition().lat());
                                     $('#longitude').val(marker.getPosition().lng());
@@ -137,7 +145,7 @@
                 });
             });
 
-            google.maps.event.addListener(map, 'click', function (event) {
+            google.maps.event.addListener(map, 'click', function(event) {
                 marker.setPosition(event.latLng);
                 attachDragEndListener(marker);
                 var agent_area_edit = $("#agent_area").val();
@@ -153,7 +161,9 @@
                         handleMarkerOutsidePolygon();
                     }
                 }
-                geocoder.geocode({'latLng': marker.getPosition()}, function (results, status) {
+                geocoder.geocode({
+                    'latLng': marker.getPosition()
+                }, function(results, status) {
                     if (status === google.maps.GeocoderStatus.OK && results[0]) {
                         $('#location').val(results[0].formatted_address);
                         $('#latitude').val(marker.getPosition().lat());
@@ -167,7 +177,7 @@
         }
 
         function attachDragEndListener(marker) {
-            google.maps.event.addListener(marker, 'dragend', function (event) {
+            google.maps.event.addListener(marker, 'dragend', function(event) {
                 var coordinate = marker.getPosition();
                 var agent_area_edit = $("#agent_area").val();
                 if (agent_area_edit != "") {
@@ -186,7 +196,9 @@
                         handleMarkerOutsidePolygon();
                     }
                 }
-                geocoder.geocode({'latLng': marker.getPosition()}, function (results, status) {
+                geocoder.geocode({
+                    'latLng': marker.getPosition()
+                }, function(results, status) {
                     if (status === google.maps.GeocoderStatus.OK && results[0]) {
                         $('#location').val(results[0].formatted_address);
                         $('#latitude').val(marker.getPosition().lat());
@@ -233,7 +245,7 @@
                 var objAr = dataObj.coordinates;
                 var type = dataObj.type;
 
-                $.each(dataObj.coordinates[0], function (index, data) {
+                $.each(dataObj.coordinates[0], function(index, data) {
                     if (type == "Polygon") {
                         var latlng = new google.maps.LatLng(data[1], data[0]);
                         random = latlng;
@@ -245,7 +257,7 @@
                         one++;
                     } else {
                         var many = 0;
-                        $.each(data, function (key, data1) {
+                        $.each(data, function(key, data1) {
                             var latlng = new google.maps.LatLng(data1[1], data1[0]);
                             latlngbounds.extend(latlng);
                             list_data[many] = {
@@ -311,4 +323,3 @@
         }
     });
 </script>
-<script src="https://maps.googleapis.com/maps/api/js?key={{ setting('google_map_api_key') }}&libraries=places,geometry"></script>

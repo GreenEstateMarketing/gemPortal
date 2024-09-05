@@ -13,7 +13,6 @@
     }
 </style>
 @if (setting('google_map_api_key'))
-
     <label class="text-capitalize control-label">mark areas for agent</label>
     <div id="floating-panel">
         <input id="remove-line" type="button" value="Remove" />
@@ -22,12 +21,11 @@
     <div id="map-container">
         <div id="map"></div>
     </div>
-
 @endif
 
 <script async
     src="https://maps.googleapis.com/maps/api/js?key={{ setting('google_map_api_key') }}&loading=async&libraries=drawing&callback=initMap">
-    </script>
+</script>
 
 <script>
     let coordArray = []
@@ -60,7 +58,7 @@
         }
     }
 
-    $(document).ready(function () {
+    $(document).ready(function() {
         let apCoordsVal = $('[name="agent_area_edit"]').val()
         if (apCoordsVal) {
             let apCoords = JSON.parse($('[name="agent_area_edit"]').val());
@@ -142,7 +140,10 @@
                             const center = event.overlay.getCenter();
                             shapeData = {
                                 type: "circle",
-                                center: { lat: center.lat(), lng: center.lng() },
+                                center: {
+                                    lat: center.lat(),
+                                    lng: center.lng()
+                                },
                                 radius: radius,
                             };
                         } else if (event.type === google.maps.drawing.OverlayType.POLYGON) {
@@ -150,7 +151,10 @@
                             const coordinates = [];
                             for (let i = 0; i < path.getLength(); i++) {
                                 const latLng = path.getAt(i);
-                                coordinates.push({ lat: latLng.lat(), lng: latLng.lng() });
+                                coordinates.push({
+                                    lat: latLng.lat(),
+                                    lng: latLng.lng()
+                                });
                             }
                             shapeData = {
                                 type: "polygon",
@@ -166,7 +170,9 @@
                         setSelection(shape);
                         shapesArray.push(shape)
 
-                        const shapeBlob = new Blob([JSON.stringify(shapeData)], { type: "application/json" });
+                        const shapeBlob = new Blob([JSON.stringify(shapeData)], {
+                            type: "application/json"
+                        });
 
                         if (shapeData) {
                             let coords = shapeData.coordinates;
@@ -189,15 +195,15 @@
 
     function handleLocationError(browserHasGeolocation, pos) {
         alert(
-            browserHasGeolocation
-                ? "Error: The Geolocation service failed."
-                : "Error: Your browser doesn't support geolocation."
+            browserHasGeolocation ?
+            "Error: The Geolocation service failed." :
+            "Error: Your browser doesn't support geolocation."
         );
     }
 
     window.initMap = initMap;
 
-    $(document).ready(function () {
+    $(document).ready(function() {
         let global_arr = []
         let counter = 0
         let bermudaTriangle = []
@@ -215,7 +221,7 @@
                 var objAr = dataObj.coordinates;
                 var type = dataObj.type;
 
-                $.each(dataObj.coordinates[0], function (index, data) {
+                $.each(dataObj.coordinates[0], function(index, data) {
 
                     if (type == "Polygon") {
                         var latlng = new google.maps.LatLng(data[1], data[0]);
@@ -229,7 +235,7 @@
                     } else {
                         var many = 0;
 
-                        $.each(data, function (key, data1) {
+                        $.each(data, function(key, data1) {
                             var latlng = new google.maps.LatLng(data1[1], data1[0]);
                             latlngbounds.extend(latlng);
                             list_data[many] = {
@@ -296,11 +302,11 @@
             counter--;
         }
 
-        $("#remove-line").click(function () {
+        $("#remove-line").click(function() {
             var agent_area_edit = $("input[name='agent_area_edit']").val();
 
             if (agent_area_edit != "") {
-                $.each(bermudaTriangle, function (key, value) {
+                $.each(bermudaTriangle, function(key, value) {
                     value.setMap(null);
                 });
                 coordArray = []

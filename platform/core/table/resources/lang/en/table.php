@@ -7,6 +7,7 @@ return [
     'all'                      => 'All',
     'edit_entry'               => 'Edit',
     'delete_entry'             => 'Delete',
+    'disable_entry'            => 'Disable',
     'show_from'                => 'Showing from',
     'to'                       => 'to',
     'in'                       => 'in',

@@ -16,14 +16,11 @@
     <style>
         :root {
             --primary-color:
-                {{ theme_option('primary_color', '#1d5f6f') }}
-            ;
+                {{ theme_option('primary_color', '#1d5f6f') }};
             --primary-color-rgb:
-                {{ hex_to_rgba(theme_option('primary_color', '#1d5f6f'), 0.8) }}
-            ;
+                {{ hex_to_rgba(theme_option('primary_color', '#1d5f6f'), 0.8) }};
             --primary-color-hover:
-                {{ theme_option('primary_color_hover', '#063a5d') }}
-            ;
+                {{ theme_option('primary_color_hover', '#063a5d') }};
             --primary-font: '{{ theme_option('primary_font', 'Nunito Sans') }}';
         }
 
@@ -60,12 +57,10 @@
     <!-- end transition-overlay -->
     <div class="side-navigation">
         <div class="menu">
-            {!!
-    Menu::renderMenuLocation('main-menu', [
-        'options' => ['class' => ''],
-        'view' => 'main-menu',
-    ])
-            !!}
+            {!! Menu::renderMenuLocation('main-menu', [
+                'options' => ['class' => ''],
+                'view' => 'main-menu',
+            ]) !!}
         </div>
         <!-- end menu -->
         <div class="side-content">
@@ -112,20 +107,18 @@
                     <a href="index.html">
                         @if (theme_option('logo'))
                             <a class="navbar-brand" href="{{ route('public.single') }}">
-                                <img src="{{ RvMedia::getImageUrl(theme_option('logo')) }}" class="logo" height="40"
-                                    alt="{{ theme_option('site_name') }}">
+                                <img src="{{ RvMedia::getImageUrl(theme_option('logo')) }}" class="logo"
+                                    height="40" alt="{{ theme_option('site_name') }}">
                             </a>
                         @endif
                     </a>
                 </div>
                 <!-- Sticky Menu -->
                 <div id="menu-sticky" class="menu" style="display: none;align-items: center">
-                    {!!
-    Menu::renderMenuLocation('main-menu', [
-        'options' => ['class' => 'stick-list'],
-        'view' => 'main-menu',
-    ])
-                !!}
+                    {!! Menu::renderMenuLocation('main-menu', [
+                        'options' => ['class' => 'stick-list'],
+                        'view' => 'main-menu',
+                    ]) !!}
                     @if (auth('account')->check())
                         <div id="profile_link_sticky" style="display: none;">
                             <ul>
@@ -133,9 +126,10 @@
                                     <a class="dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <span>
-                                            <img src="{{ auth('account')->user()->avatar_url }}" class="br-100 v-mid mr-1"
-                                                style="width: 30px;">
-                                            <span class="profile-label">{{ auth('account')->user()->getFullName() }}</span>
+                                            <img src="{{ auth('account')->user()->avatar_url }}"
+                                                class="br-100 v-mid mr-1" style="width: 30px;">
+                                            <span
+                                                class="profile-label">{{ auth('account')->user()->getFullName() }}</span>
                                         </span>
                                     </a>
                                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
@@ -144,8 +138,8 @@
                                         <a class="dropdown-item" href="{{ route('public.account.settings') }}">Edit
                                             Profile</a>
                                         @if (auth('account')->check())
-                                            <form id="logout-form" action="{{ route('public.account.logout') }}" method="POST"
-                                                style="display: none;">
+                                            <form id="logout-form" action="{{ route('public.account.logout') }}"
+                                                method="POST" style="display: none;">
                                                 @csrf
                                             </form>
                                         @endif
@@ -163,8 +157,8 @@
                                     <a class="dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <span>
-                                            <img src="{{ auth('member')->user()->avatar_url }}" class="br-100 v-mid mr-1"
-                                                style="width: 30px;">
+                                            <img src="{{ auth('member')->user()->avatar_url }}"
+                                                class="br-100 v-mid mr-1" style="width: 30px;">
                                             <span class="profile-label">{{ auth('member')->user()->full_name }}</span>
                                         </span>
                                     </a>
@@ -172,8 +166,8 @@
                                         <a class="dropdown-item" href="{{ route('member.dashboard') }}">Dashboard</a>
                                         <a class="dropdown-item" href="{{ route('member.settings') }}">Edit Profile</a>
                                         @if (auth('account')->check())
-                                            <form id="logout-form" action="{{ route('public.member.logout') }}" method="POST"
-                                                style="display: none;">
+                                            <form id="logout-form" action="{{ route('public.member.logout') }}"
+                                                method="POST" style="display: none;">
                                                 @csrf
                                             </form>
                                         @endif
@@ -203,17 +197,20 @@
                                 <a class="dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
                                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <span>
-                                        <img src="{{ auth('account')->user()->avatar_url }}" class="br-100 v-mid mr-1"
-                                            style="width: 30px;">
-                                        <span class="profile-label">{{ auth('account')->user()->getFullName() }}</span>
+                                        <img src="{{ auth('account')->user()->avatar_url }}"
+                                            class="br-100 v-mid mr-1" style="width: 30px;">
+                                        <span
+                                            class="profile-label">{{ auth('account')->user()->getFullName() }}</span>
                                     </span>
                                 </a>
                                 <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                    <a class="dropdown-item" href="{{ route('public.account.dashboard') }}">Dashboard</a>
-                                    <a class="dropdown-item" href="{{ route('public.account.settings') }}">Edit Profile</a>
+                                    <a class="dropdown-item"
+                                        href="{{ route('public.account.dashboard') }}">Dashboard</a>
+                                    <a class="dropdown-item" href="{{ route('public.account.settings') }}">Edit
+                                        Profile</a>
                                     @if (auth('account')->check())
-                                        <form id="logout-form" action="{{ route('public.account.logout') }}" method="POST"
-                                            style="display: none;">
+                                        <form id="logout-form" action="{{ route('public.account.logout') }}"
+                                            method="POST" style="display: none;">
                                             @csrf
                                         </form>
                                     @endif
@@ -241,8 +238,8 @@
                                     <a class="dropdown-item" href="{{ route('member.dashboard') }}">Dashboard</a>
                                     <a class="dropdown-item" href="{{ route('member.settings') }}">Edit Profile</a>
                                     @if (auth('member')->check())
-                                        <form id="logout-form" action="{{ route('public.member.logout') }}" method="POST"
-                                            style="display: none;">
+                                        <form id="logout-form" action="{{ route('public.member.logout') }}"
+                                            method="POST" style="display: none;">
                                             @csrf
                                         </form>
                                     @endif
@@ -254,22 +251,19 @@
                         </ul>
                     </div>
                 @else
-
                     <input type="hidden" id="login_check" value="0" />
-                    <button class="btn btn-login login-up ml-2" type="button"><a href="{{route("member.login")}}"><i
-                                class="fas fa-sign-in-alt"></i> Login</a></button>
+                    <button class="btn btn-login login-up ml-2" type="button"><a
+                            href="{{ route('member.login') }}"><i class="fas fa-sign-in-alt"></i> Login</a></button>
                 @endif
 
             </div>
 
             <!-- end upper-side -->
             <div class="menu" id="menu">
-                {!!
-    Menu::renderMenuLocation('main-menu', [
-        'options' => ['class' => ''],
-        'view' => 'main-menu',
-    ])
-            !!}
+                {!! Menu::renderMenuLocation('main-menu', [
+                    'options' => ['class' => ''],
+                    'view' => 'main-menu',
+                ]) !!}
             </div>
             <!-- end menu -->
         </div>
@@ -286,7 +280,8 @@
                 <div class="topsearch">
                     @if (theme_option('home_banner_description'))
                         <h1 class="text-center text-white mb-4 banner-text-description">
-                    {{ theme_option('home_banner_description') }}</h1>@endif
+                            {{ theme_option('home_banner_description') }}</h1>
+                    @endif
                     @if (is_plugin_active('real-estate'))
                         <form action="{{ route('public.projects') }}" method="GET" id="frmhomesearch">
                             <div class="typesearch" id="hometypesearch">
@@ -297,14 +292,15 @@
                                 <a href="javascript:void(0)" rel="rent" class="top-right-radius"
                                     data-url="{{ route('public.properties') }}">{{ __('Rent') }}</a>
                             </div>
-                            <input type="hidden" id="selected-unit" name="selected-unit" value="{{ getDefaultAreaByUnitForNextPage() }}" />
+                            <input type="hidden" id="selected-unit" name="selected-unit"
+                                value="{{ getDefaultAreaByUnitForNextPage() }}" />
                             <!-- <input type="hidden" id="sub-cat" name="child_category_id" value="" >
                             <input type="hidden" id="p-cat" name="p_category_id" value="" > -->
                             <div class="input-group input-group-lg">
                                 <input type="hidden" name="type" value="project" id="txttypesearch">
                                 <div class="input-group-prepend">
-                                    <span style="border-radius: 5px 0px 0px 5px !important" class="input-group-text"><i
-                                            class="far fa-search"></i></span>
+                                    <span style="border-radius: 5px 0px 0px 5px !important"
+                                        class="input-group-text"><i class="far fa-search"></i></span>
                                 </div>
 
                                 <div id="parentChipContainer" class="keyword-input">
@@ -315,11 +311,12 @@
                                                                                              style="display:none">
                                                                                             <span class="sr-only">Loading...</span>
                                                                                         </div>-->
-                                            <input placeholder="Location" class="form-control" type="text" name=""
-                                                id="autocomplete-ajax"
+                                            <input placeholder="Location" class="form-control" type="text"
+                                                name="" id="autocomplete-ajax"
                                                 style="position: absolute; z-index: 2; background: transparent; width: auto" />
-                                            <input class="form-control" type="text" name="" id="autocomplete-ajax-x"
-                                                disabled="disabled" style="color: #CCC; background: transparent; z-index: 1;" />
+                                            <input class="form-control" type="text" name=""
+                                                id="autocomplete-ajax-x" disabled="disabled"
+                                                style="color: #CCC; background: transparent; z-index: 1;" />
                                         </div>
                                         <div id="chipViewMore" class="chip" style="display:none">
                                             <div class="chip-content"></div>
@@ -343,17 +340,21 @@
                                     <span class="input-group-text"><i class="far fa-location"></i></span>
                                 </div>
                                 <div class="keyword-input">
-                                    <input id="city-name-from-map" type="hidden" class="select-city-state form-control"
-                                        placeholder="{{ __('City, State') }}" autocomplete="off" />
+                                    <input id="city-name-from-map" type="hidden"
+                                        class="select-city-state form-control" placeholder="{{ __('City, State') }}"
+                                        autocomplete="off" />
                                     <select class="form-control" id='city_id' name="city_id">
                                         <option value="0">Select city...</option>
-                                        @foreach(app(\Botble\Location\Repositories\Interfaces\CityInterface::class)->allBy(['status' => \Botble\Base\Enums\BaseStatusEnum::PUBLISHED], ['state', 'country'], ['cities.name', 'cities.state_id', 'cities.country_id', 'cities.id']) as $city)
-                                            <option value={{$city->id}}>{{$city->name . ($city->state->name ? ' (' . $city->state->name . ')' : '')}}</option>
+                                        @foreach (app(\Botble\Location\Repositories\Interfaces\CityInterface::class)->allBy(['status' => \Botble\Base\Enums\BaseStatusEnum::PUBLISHED], ['state', 'country'], ['cities.name', 'cities.state_id', 'cities.country_id', 'cities.id']) as $city)
+                                            <option value={{ $city->id }}>
+                                                {{ $city->name . ($city->state->name ? ' (' . $city->state->name . ')' : '') }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div class="input-group-append search-button-wrapper">
-                                    <button class="btn btn-orange" id="submitBtn" type="submit">{{ __('Search') }}</button>
+                                    <button class="btn btn-orange" id="submitBtn"
+                                        type="submit">{{ __('Search') }}</button>
                                 </div>
 
                                 <div class="advanced-search ">
@@ -367,36 +368,43 @@
                                                         <input type="hidden" name="category_id" class="category_id">
                                                         <span class="dropdown-toggle" id="propertydropdownMenuLink"
                                                             style="cursor: pointer;">Category Type</span>
-                                                        <span style="display: flex" class="category_id_text">Home</span>
+                                                        <span style="display: flex"
+                                                            class="category_id_text">Home</span>
 
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4  bedrooms">
                                                     <div class="select--arrow">
-                                                        <select name="bedroom" id="select-bedroom" class="form-control">
+                                                        <select name="bedroom" id="select-bedroom"
+                                                            class="form-control">
                                                             <option value="">{{ __('Bedrooms') }}</option>
-                                                            @for($i = 1; $i < 5; $i++)
-                                                                <option value="{{ $i }}" @if (request()->input('bedroom') == $i)
-                                                                selected @endif>{{ $i }}
+                                                            @for ($i = 1; $i < 5; $i++)
+                                                                <option value="{{ $i }}"
+                                                                    @if (request()->input('bedroom') == $i) selected @endif>
+                                                                    {{ $i }}
                                                                     {{ $i == 1 ? __('room') : __('rooms') }}</option>
                                                             @endfor
-                                                            <option value="5" @if (request()->input('bedroom') == 5) selected
-                                                            @endif>{{ __('5+ rooms') }}</option>
+                                                            <option value="5"
+                                                                @if (request()->input('bedroom') == 5) selected @endif>
+                                                                {{ __('5+ rooms') }}</option>
                                                         </select>
                                                         <i class="fas fa-angle-down"></i>
                                                     </div>
                                                 </div>
                                                 <div class="col-md-4 bathrooms">
                                                     <div class="select--arrow">
-                                                        <select name="bathroom" id="select-bathroom" class="form-control">
+                                                        <select name="bathroom" id="select-bathroom"
+                                                            class="form-control">
                                                             <option value="">{{ __('Bathrooms') }}</option>
-                                                            @for($i = 1; $i < 5; $i++)
-                                                                <option value="{{ $i }}" @if (request()->input('bathroom') == $i)
-                                                                selected @endif>{{ $i }}
+                                                            @for ($i = 1; $i < 5; $i++)
+                                                                <option value="{{ $i }}"
+                                                                    @if (request()->input('bathroom') == $i) selected @endif>
+                                                                    {{ $i }}
                                                                     {{ $i == 1 ? __('room') : __('rooms') }}</option>
                                                             @endfor
-                                                            <option value="5" @if (request()->input('bathroom') == 5) selected
-                                                            @endif>{{ __('5+ rooms') }}</option>
+                                                            <option value="5"
+                                                                @if (request()->input('bathroom') == 5) selected @endif>
+                                                                {{ __('5+ rooms') }}</option>
                                                         </select>
                                                         <i class="fas fa-angle-down"></i>
                                                     </div>
@@ -406,22 +414,25 @@
                                                         <div class="dropdown">
 
                                                             <a id="min-max-price-range"
-                                                                class="form-control price-select dropdown-toggle" href="#"
-                                                                data-toggle="dropdown">Price<span
-                                                                    class="currency">{{CurrentCurrency()->title}}</span><strong
+                                                                class="form-control price-select dropdown-toggle"
+                                                                href="#" data-toggle="dropdown">Price<span
+                                                                    class="currency">{{ CurrentCurrency()->title }}</span><strong
                                                                     class="caret"></strong>
 
                                                             </a>
                                                             <div class="row price-from-to">
-                                                                <div class="col-md-4"><span class="min_price_text">0</span>
+                                                                <div class="col-md-4"><span
+                                                                        class="min_price_text">0</span>
                                                                 </div>
                                                                 <div class="col-md-1">to</div>
-                                                                <div class="col-md-4"><span class="max_price_text">Any</span>
+                                                                <div class="col-md-4"><span
+                                                                        class="max_price_text">Any</span>
                                                                 </div>
                                                             </div>
 
 
-                                                            <div class="dropdown-menu" style="padding:10px;width:100%">
+                                                            <div class="dropdown-menu"
+                                                                style="padding:10px;width:100%">
                                                                 <div class="row justify-content-center">
                                                                     <div class="col-6">
                                                                         <input class="form-control price-label"
@@ -443,13 +454,13 @@
                                                                         <ul class="price-range col-md-12 price-min-ul list-unstyled"
                                                                             style="width: 250px;height:150px; overflow-y: auto;overflow-x:hidden">
 
-                                                                            {!!  getPriceLists() !!}
+                                                                            {!! getPriceLists() !!}
                                                                         </ul>
                                                                     </div>
                                                                     <div class="col-md-6">
                                                                         <ul class="price-range col-md-12 price-max-ul   list-unstyled"
                                                                             style="width:250px;height:150px; overflow-y: auto;overflow-x:hidden">
-                                                                            {!!  getPriceLists() !!}
+                                                                            {!! getPriceLists() !!}
                                                                         </ul>
                                                                     </div>
                                                                 </div>
@@ -465,15 +476,18 @@
                                                 </div>
                                                 <div class="col-md-4 floors commerical-floors d-none">
                                                     <div class="select--arrow">
-                                                        <select name="floor" id="select-floor" class="form-control">
+                                                        <select name="floor" id="select-floor"
+                                                            class="form-control">
                                                             <option value="">{{ __('Floors') }}</option>
-                                                            @for($i = 1; $i < 5; $i++)
-                                                                <option value="{{ $i }}" @if (request()->input('floor') == $i)
-                                                                selected @endif>{{ $i }}
+                                                            @for ($i = 1; $i < 5; $i++)
+                                                                <option value="{{ $i }}"
+                                                                    @if (request()->input('floor') == $i) selected @endif>
+                                                                    {{ $i }}
                                                                     {{ $i == 1 ? __('floor') : __('floors') }}</option>
                                                             @endfor
-                                                            <option value="5" @if (request()->input('floor') == 5) selected
-                                                            @endif>{{ __('5+ floors') }}</option>
+                                                            <option value="5"
+                                                                @if (request()->input('floor') == 5) selected @endif>
+                                                                {{ __('5+ floors') }}</option>
                                                         </select>
                                                         <i class="fas fa-angle-down"></i>
                                                     </div>
@@ -483,15 +497,18 @@
                                             <div class="row second-row">
                                                 <div class="col-md-4 floors home-floors">
                                                     <div class="select--arrow">
-                                                        <select name="floor" id="select-floor" class="form-control">
+                                                        <select name="floor" id="select-floor"
+                                                            class="form-control">
                                                             <option value="">{{ __('Floors') }}</option>
-                                                            @for($i = 1; $i < 5; $i++)
-                                                                <option value="{{ $i }}" @if (request()->input('floor') == $i)
-                                                                selected @endif>{{ $i }}
+                                                            @for ($i = 1; $i < 5; $i++)
+                                                                <option value="{{ $i }}"
+                                                                    @if (request()->input('floor') == $i) selected @endif>
+                                                                    {{ $i }}
                                                                     {{ $i == 1 ? __('floor') : __('floors') }}</option>
                                                             @endfor
-                                                            <option value="5" @if (request()->input('floor') == 5) selected
-                                                            @endif>{{ __('5+ floors') }}</option>
+                                                            <option value="5"
+                                                                @if (request()->input('floor') == 5) selected @endif>
+                                                                {{ __('5+ floors') }}</option>
                                                         </select>
                                                         <i class="fas fa-angle-down"></i>
                                                     </div>
@@ -501,23 +518,28 @@
                                                     <div class="price-dropdown">
                                                         <div class="dropdown">
 
-                                                            <a id="min-max-price-range" class="form-control dropdown-toggle"
-                                                                href="#" data-toggle="dropdown">Price <span
-                                                                    class="currency">{{CurrentCurrency()->title}}</span><strong
+                                                            <a id="min-max-price-range"
+                                                                class="form-control dropdown-toggle" href="#"
+                                                                data-toggle="dropdown">Price <span
+                                                                    class="currency">{{ CurrentCurrency()->title }}</span><strong
                                                                     class="caret"></strong>
 
                                                             </a>
                                                             <div class="row price-from-to">
-                                                                <div class="col-md-4"><span class="min_price_text">0</span>
+                                                                <div class="col-md-4"><span
+                                                                        class="min_price_text">0</span>
                                                                 </div>
                                                                 <div class="col-md-2"
-                                                                    style="margin-left: 9px;margin-right: -15px;">to</div>
-                                                                <div class="col-md-4"><span class="max_price_text">Any</span>
+                                                                    style="margin-left: 9px;margin-right: -15px;">to
+                                                                </div>
+                                                                <div class="col-md-4"><span
+                                                                        class="max_price_text">Any</span>
                                                                 </div>
                                                             </div>
 
 
-                                                            <div class="dropdown-menu" style="padding:10px;width:100%">
+                                                            <div class="dropdown-menu"
+                                                                style="padding:10px;width:100%">
                                                                 <div class="row justify-content-center">
                                                                     <div class="col-6">
                                                                         <input class="form-control price-label"
@@ -540,14 +562,14 @@
                                                                         <ul class="price-range col-md-12 price-min-ul list-unstyled"
                                                                             style="width: 250px;height:150px; overflow-y: auto;overflow-x:hidden">
 
-                                                                            {!!  getPriceLists() !!}
+                                                                            {!! getPriceLists() !!}
                                                                         </ul>
                                                                     </div>
                                                                     <div class="col-md-6"
                                                                         style="padding-right: 15px !important;">
                                                                         <ul class="price-range col-md-12 price-max-ul   list-unstyled"
                                                                             style="width:250px;height:150px; overflow-y: auto;overflow-x:hidden">
-                                                                            {!!  getPriceLists() !!}
+                                                                            {!! getPriceLists() !!}
                                                                         </ul>
                                                                     </div>
                                                                 </div>
@@ -565,34 +587,40 @@
                                                     <div class="price-dropdown">
                                                         <div class="dropdown">
 
-                                                            <a id="min-max-unit-range" class="form-control dropdown-toggle"
-                                                                href="#" data-toggle="dropdown">Area <span
+                                                            <a id="min-max-unit-range"
+                                                                class="form-control dropdown-toggle" href="#"
+                                                                data-toggle="dropdown">Area <span
                                                                     class="currency">({{ getDefaultAreaUnit() }})</span><strong
                                                                     class="caret"></strong>
 
                                                             </a>
                                                             <div class="row unit-from-to">
-                                                                <div class="col-md-4"><span class="min_unit_text">0</span>
+                                                                <div class="col-md-4"><span
+                                                                        class="min_unit_text">0</span>
                                                                 </div>
                                                                 <div class="col-md-2">to</div>
-                                                                <div class="col-md-4"><span class="max_unit_text">Any</span>
+                                                                <div class="col-md-4"><span
+                                                                        class="max_unit_text">Any</span>
                                                                 </div>
                                                             </div>
 
-                                                            <div class="dropdown-menu" style="padding:10px;width:100%">
+                                                            <div class="dropdown-menu"
+                                                                style="padding:10px;width:100%">
 
                                                                 <div class="row justify-content-center">
                                                                     <div class="col-6">
                                                                         <input class="form-control"
                                                                             style="border:1px solid #a0a0a0 !important;"
                                                                             name="min_unit" placeholder="Min"
-                                                                            id="input_min_unit" data-dropdown-id="unit-min" />
+                                                                            id="input_min_unit"
+                                                                            data-dropdown-id="unit-min" />
                                                                     </div>
                                                                     <div class="col-6">
                                                                         <input class="form-control"
                                                                             style="border:1px solid #a0a0a0 !important;"
                                                                             name="max_unit" placeholder="Max"
-                                                                            data-dropdown-id="unit-max" id="input_max_unit" />
+                                                                            data-dropdown-id="unit-max"
+                                                                            id="input_max_unit" />
                                                                     </div>
                                                                 </div>
                                                                 <div class="clearfix"></div>
@@ -601,8 +629,9 @@
                                                                     <div class="col-md-6 unit-list">
                                                                         <ul class="units-range col-md-12 unit-min-ul list-unstyled"
                                                                             style="width: 250px;height:150px; overflow-y: auto;overflow-x:hidden">
-                                                                            @foreach(getAreaLists() as $unit)
-                                                                                <li class="unit-li-item" data-value="{{ $unit }}">
+                                                                            @foreach (getAreaLists() as $unit)
+                                                                                <li class="unit-li-item"
+                                                                                    data-value="{{ $unit }}">
                                                                                     {{ $unit }}</li>
                                                                             @endforeach
                                                                         </ul>
@@ -610,8 +639,9 @@
                                                                     <div class="col-md-6">
                                                                         <ul class="units-range col-md-12 unit-max-ul  list-unstyled"
                                                                             style="width:250px;height:150px; overflow-y: auto;overflow-x:hidden">
-                                                                            @foreach(getAreaLists() as $unit)
-                                                                                <li class="unit-li-item" data-value="{{ $unit }}">
+                                                                            @foreach (getAreaLists() as $unit)
+                                                                                <li class="unit-li-item"
+                                                                                    data-value="{{ $unit }}">
                                                                                     {{ $unit }}</li>
                                                                             @endforeach
                                                                         </ul>
@@ -636,24 +666,27 @@
                                                     <div>
                                                         <ul class="category-ul" name="Category picker">
                                                             <div>
-                                                                @foreach(app(\Botble\RealEstate\Repositories\Interfaces\CategoryInterface::class)->pluck('re_categories.name', 're_categories.id', array('parent_id' => 0)) as $categoryId => $categoryName)
-                                                                    @if($loop->index == 0)
+                                                                @foreach (app(\Botble\RealEstate\Repositories\Interfaces\CategoryInterface::class)->pluck('re_categories.name', 're_categories.id', ['parent_id' => 0]) as $categoryId => $categoryName)
+                                                                    @if ($loop->index == 0)
                                                                         <li class="category-parent-active p-category"
-                                                                            data-id="{{$categoryId}}">{{$categoryName}}</li>
+                                                                            data-id="{{ $categoryId }}">
+                                                                            {{ $categoryName }}</li>
                                                                     @else
                                                                         <li class="category-parent-inactive p-category"
-                                                                            data-id="{{$categoryId}}">{{$categoryName}}</li>
+                                                                            data-id="{{ $categoryId }}">
+                                                                            {{ $categoryName }}</li>
                                                                     @endif
                                                                     <!-- create hiddenly list here of each categories-->
-                                                                    <div class="p{{$categoryId}}" style="display:none">
+                                                                    <div class="p{{ $categoryId }}"
+                                                                        style="display:none">
                                                                         <div class="row">
-                                                                            @foreach(app(\Botble\RealEstate\Repositories\Interfaces\CategoryInterface::class)->pluck('re_categories.name', 're_categories.id', array('parent_id' => $categoryId)) as $subcategoryId => $subcategoryName)
+                                                                            @foreach (app(\Botble\RealEstate\Repositories\Interfaces\CategoryInterface::class)->pluck('re_categories.name', 're_categories.id', ['parent_id' => $categoryId]) as $subcategoryId => $subcategoryName)
                                                                                 <div
-                                                                                    class="@if($loop->count == 1) col-md-12 @else col-md-6 @endif">
+                                                                                    class="@if ($loop->count == 1) col-md-12 @else col-md-6 @endif">
                                                                                     <li class="category-li-item"
-                                                                                        parent-name="{{$categoryName}}"
-                                                                                        data-id="{{$subcategoryId}}">
-                                                                                        {{$subcategoryName}}</li>
+                                                                                        parent-name="{{ $categoryName }}"
+                                                                                        data-id="{{ $subcategoryId }}">
+                                                                                        {{ $subcategoryName }}</li>
                                                                                 </div>
                                                                             @endforeach
                                                                         </div>
@@ -676,7 +709,7 @@
                                     <div class="advanced-search-content project-advanced-search" id="projectysearch">
                                         <div class="form-group">
                                             <div class="row">
-                                                {{--<div class="col-md-4">
+                                                {{-- <div class="col-md-4">
                                                     <!--<div class="select--arrow">
                                                             <select name="category_id"  class="form-control select-category">
                                                                 <option value="">{{ __('Category') }}</option>
@@ -691,23 +724,27 @@
                                                         <span style="display: flex" class="category_id_text">Home</span>
 
                                                     </div>
-                                                </div>--}}
+                                                </div> --}}
                                                 <div class="col-md-5">
                                                     <div class="price-dropdown">
                                                         <div class="dropdown">
-                                                            <a id="min-max-price-range" class="form-control dropdown-toggle"
-                                                                href="#" data-toggle="dropdown">Price <span
-                                                                    class="currency">{{CurrentCurrency()->title}}</span><strong
+                                                            <a id="min-max-price-range"
+                                                                class="form-control dropdown-toggle" href="#"
+                                                                data-toggle="dropdown">Price <span
+                                                                    class="currency">{{ CurrentCurrency()->title }}</span><strong
                                                                     class="caret"></strong>
                                                             </a>
                                                             <div class="row price-from-to">
-                                                                <div class="col-md-4"><span class="min_price_text">0</span>
+                                                                <div class="col-md-4"><span
+                                                                        class="min_price_text">0</span>
                                                                 </div>
                                                                 <div class="col-md-2">to</div>
-                                                                <div class="col-md-4"><span class="max_price_text">Any</span>
+                                                                <div class="col-md-4"><span
+                                                                        class="max_price_text">Any</span>
                                                                 </div>
                                                             </div>
-                                                            <div class="dropdown-menu" style="padding:10px;width:100%">
+                                                            <div class="dropdown-menu"
+                                                                style="padding:10px;width:100%">
                                                                 <div class="row justify-content-center">
                                                                     <div class="col-6">
                                                                         <input class="form-control price-label"
@@ -729,18 +766,19 @@
                                                                         <ul class="price-range col-md-12 price-min-ul list-unstyled"
                                                                             style="width: 250px;height: 150px; overflow-y: auto;overflow-x:hidden">
 
-                                                                            {!!  getPriceLists() !!}
+                                                                            {!! getPriceLists() !!}
                                                                         </ul>
                                                                     </div>
 
                                                                     <div class="col-md-6">
                                                                         <ul class="price-range col-md-12 price-max-ul   list-unstyled"
                                                                             style="width: 250px;height: 150px; overflow-y: auto;overflow-x:hidden">
-                                                                            {!!  getPriceLists() !!}
+                                                                            {!! getPriceLists() !!}
                                                                         </ul>
                                                                     </div>
                                                                 </div>
-                                                                <button type="button" class="btn btn-primary btn-reset-price"
+                                                                <button type="button"
+                                                                    class="btn btn-primary btn-reset-price"
                                                                     style="margin: 10px; height: 35px !important;">Reset
                                                                 </button>
 
@@ -764,24 +802,27 @@
                                                     <div>
                                                         <ul class="category-ul" name="Category picker">
                                                             <div>
-                                                                @foreach(app(\Botble\RealEstate\Repositories\Interfaces\CategoryInterface::class)->pluck('re_categories.name', 're_categories.id', array('parent_id' => 0)) as $categoryId => $categoryName)
-                                                                    @if($loop->index == 0)
+                                                                @foreach (app(\Botble\RealEstate\Repositories\Interfaces\CategoryInterface::class)->pluck('re_categories.name', 're_categories.id', ['parent_id' => 0]) as $categoryId => $categoryName)
+                                                                    @if ($loop->index == 0)
                                                                         <li class="category-parent-active p-category"
-                                                                            data-id="{{$categoryId}}">{{$categoryName}}</li>
+                                                                            data-id="{{ $categoryId }}">
+                                                                            {{ $categoryName }}</li>
                                                                     @else
                                                                         <li class="category-parent-inactive p-category"
-                                                                            data-id="{{$categoryId}}">{{$categoryName}}</li>
+                                                                            data-id="{{ $categoryId }}">
+                                                                            {{ $categoryName }}</li>
                                                                     @endif
                                                                     <!-- create hiddenly list here of each categories-->
-                                                                    <div class="p{{$categoryId}}" style="display:none">
+                                                                    <div class="p{{ $categoryId }}"
+                                                                        style="display:none">
                                                                         <div class="row">
-                                                                            @foreach(app(\Botble\RealEstate\Repositories\Interfaces\CategoryInterface::class)->pluck('re_categories.name', 're_categories.id', array('parent_id' => $categoryId)) as $subcategoryId => $subcategoryName)
+                                                                            @foreach (app(\Botble\RealEstate\Repositories\Interfaces\CategoryInterface::class)->pluck('re_categories.name', 're_categories.id', ['parent_id' => $categoryId]) as $subcategoryId => $subcategoryName)
                                                                                 <div
-                                                                                    class="@if($loop->count == 1) col-md-12 @else col-md-6 @endif">
+                                                                                    class="@if ($loop->count == 1) col-md-12 @else col-md-6 @endif">
                                                                                     <li class="category-li-item"
-                                                                                        parent-name="{{$categoryName}}"
-                                                                                        data-id="{{$subcategoryId}}">
-                                                                                        {{$subcategoryName}}</li>
+                                                                                        parent-name="{{ $categoryName }}"
+                                                                                        data-id="{{ $subcategoryId }}">
+                                                                                        {{ $subcategoryName }}</li>
                                                                                 </div>
                                                                             @endforeach
                                                                         </div>
@@ -801,9 +842,11 @@
                                         </div>
                                         <!-- -->
                                     </div>
-                                    <span> | </span><a href="#" class="area-unit" id="changeAreaUnitlabel" data-toggle="modal"
-                                        data-target="#area_modal">{{ __('Change Area Unit') }} </a>
-                                    <span> | </span><a href="#" class="currency" id="changeCurrencylabel" data-toggle="modal"
+                                    <span> | </span><a href="#" class="area-unit" id="changeAreaUnitlabel"
+                                        data-toggle="modal" data-target="#area_modal">{{ __('Change Area Unit') }}
+                                    </a>
+                                    <span> | </span><a href="#" class="currency" id="changeCurrencylabel"
+                                        data-toggle="modal"
                                         data-target="#currency_modal">{{ __('Change Currency') }} </a>
 
                                 </div>
@@ -849,7 +892,7 @@
 
                     <select class="form-control" id="currency_val">
                         @foreach ($currencies as $currency)
-                            <option value="{{$currency->order}}">{{$currency->title}}</option>
+                            <option value="{{ $currency->order }}">{{ $currency->title }}</option>
                         @endforeach
                     </select>
                 </div>
