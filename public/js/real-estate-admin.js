@@ -703,7 +703,7 @@ $(document).ready(function () {
 
                             }
 
-                            $(".document-row").append('<div class="col-md-4 testsets"><label class="control-label ' + requiredcheck + '">' + value.documents.name + '</label><input type="hidden" name="document_ids[]" value=' + value.document_id + '>' + doc_image + '<input type="file"  name="documents[]" class="form-control" data-document-id="' + value.document_id + '" data-required="' + requiredcheck + '"   ' + requiredcheck + ' accept="'+ value.documents.type +'"></div>');
+                            $(".document-row").append('<div class="col-md-4 testsets"><label class="control-label ' + requiredcheck + '">' + value.documents.name + '</label><input type="hidden" name="document_ids[]" value=' + value.document_id + '>' + doc_image + '<input type="file"  name="documents[]" class="form-control" data-document-id="' + value.document_id + '" data-required="' + requiredcheck + '"   ' + requiredcheck + ' accept="' + value.documents.type + '"></div>');
 
                             //checklists add
 
@@ -807,6 +807,7 @@ $(document).ready(function () {
 
 
         $(".agents").css('display', 'block');
+        $("#isAgentAlreadyAssigned").css('display', 'inline-block');
         $(".documents").css('display', 'none');
         $(".btn-document").removeClass('btn-primary').addClass('btn-gray');
         $(this).removeClass('btn-gray').addClass('btn-primary');
@@ -821,6 +822,7 @@ $(document).ready(function () {
         $(this).removeClass('btn-gray').addClass('btn-primary');
     });
     if (author_id == "") {
+        $("#isAgentAlreadyAssigned").addClass('d-inline-block');
         $(".btn-agent").css('display', 'block');
         $(".agent-name").css('display', 'block');
     }

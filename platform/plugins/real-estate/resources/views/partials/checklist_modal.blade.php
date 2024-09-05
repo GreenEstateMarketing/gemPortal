@@ -4,8 +4,8 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Checklists</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                <button type="button" class="close bg-danger" data-dismiss="modal" aria-label="Close">
+                    <span class="p-2 bg-danger" aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body align-items-center">
@@ -17,6 +17,12 @@
                     <h6 class="pr-2 agent-name" style="display: none">Assign Agent</h6>
 
                 </div>
+                <p class="text mt-2 p-3">Please Verify below documents
+                    <span class="d-none" id="isAgentAlreadyAssigned">And Assign Agents</span> and then you can proceed
+                    to change the
+                    moderation
+                    status to approved.
+                </p>
                 <!--  <div class="stepwizard-step">
                       <button type="button" class="btn btn-default btn-circle2">2</button>
                       <p>Allotment Letter</p>
@@ -27,9 +33,6 @@
                   </div>-->
 
                 <div class="documents mt-4">
-                    <p class="tex">Please Verify below documents and then you can proceed to change the
-                        moderation
-                        status to approved.</p>
                     <div class="verify-documents"></div>
                     <span class="red d-none" id="checklist_dp"></span>
                     <!--                <div class="row">

@@ -41,6 +41,7 @@ return [
     'add_new'                 => 'Add New',
     'action'                  => 'Actions',
     'delete_entry'            => 'Delete',
+    'disable_entry'           => 'Disable',
     'view'                    => 'View Detail',
     'save'                    => 'Save',
     'show_from'               => 'Show from',

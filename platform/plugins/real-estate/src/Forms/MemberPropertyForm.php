@@ -87,6 +87,7 @@ class MemberPropertyForm extends PropertyForm
                 'label' => trans('plugins/real-estate::property.form.images'),
                 'label_attr' => ['class' => 'control-label required'],
             ]);
+            
 
     }
 }
