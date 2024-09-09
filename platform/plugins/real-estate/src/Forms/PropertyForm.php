@@ -238,10 +238,13 @@ class PropertyForm extends FormAbstract
         $credits = true;
 
         if ($sellerType == 'Member') {
-            $sellerName = $this->getModel()->member->full_name;
-            $sellerEmail = $this->getModel()->member->email;
-            $sellerPhone = $this->getModel()->member->mobile_no;
-            $credits = $this->getModel()->member->credits > 0;
+            if ($this->getModel()->member) {
+                $sellerName = $this->getModel()->member->full_name;
+                $sellerEmail = $this->getModel()->member->email;
+                $sellerPhone = $this->getModel()->member->mobile_no;
+                $credits = $this->getModel()->member->credits > 0;
+            }
+
         } else if ($sellerType == 'Agent') {
             if ($this->getModel()->user) {
                 $sellerName = $this->getModel()->user->first_name . ' ' . $this->getModel()->user->last_name;

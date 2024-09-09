@@ -25,7 +25,7 @@
 
 <script async
     src="https://maps.googleapis.com/maps/api/js?key={{ setting('google_map_api_key') }}&loading=async&libraries=drawing&callback=initMap">
-</script>
+    </script>
 
 <script>
     let coordArray = []
@@ -58,7 +58,7 @@
         }
     }
 
-    $(document).ready(function() {
+    $(document).ready(function () {
         let apCoordsVal = $('[name="agent_area_edit"]').val()
         if (apCoordsVal) {
             let apCoords = JSON.parse($('[name="agent_area_edit"]').val());
@@ -183,7 +183,11 @@
                         }
                     });
                 },
-                () => {
+                (error) => {
+                    if (error.code == error.PERMISSION_DENIED) {
+                        document.getElementById('map-container').innerHTML =
+                            '<p>Location permission is required to display the map.</p>';
+                    }
                     handleLocationError(true, map.getCenter());
                 }
             );
@@ -196,14 +200,14 @@
     function handleLocationError(browserHasGeolocation, pos) {
         alert(
             browserHasGeolocation ?
-            "Error: The Geolocation service failed." :
-            "Error: Your browser doesn't support geolocation."
+                "Error: The Geolocation service failed." :
+                "Error: Your browser doesn't support geolocation."
         );
     }
 
     window.initMap = initMap;
 
-    $(document).ready(function() {
+    $(document).ready(function () {
         let global_arr = []
         let counter = 0
         let bermudaTriangle = []
@@ -221,7 +225,7 @@
                 var objAr = dataObj.coordinates;
                 var type = dataObj.type;
 
-                $.each(dataObj.coordinates[0], function(index, data) {
+                $.each(dataObj.coordinates[0], function (index, data) {
 
                     if (type == "Polygon") {
                         var latlng = new google.maps.LatLng(data[1], data[0]);
@@ -235,7 +239,7 @@
                     } else {
                         var many = 0;
 
-                        $.each(data, function(key, data1) {
+                        $.each(data, function (key, data1) {
                             var latlng = new google.maps.LatLng(data1[1], data1[0]);
                             latlngbounds.extend(latlng);
                             list_data[many] = {
@@ -302,11 +306,11 @@
             counter--;
         }
 
-        $("#remove-line").click(function() {
+        $("#remove-line").click(function () {
             var agent_area_edit = $("input[name='agent_area_edit']").val();
 
             if (agent_area_edit != "") {
-                $.each(bermudaTriangle, function(key, value) {
+                $.each(bermudaTriangle, function (key, value) {
                     value.setMap(null);
                 });
                 coordArray = []

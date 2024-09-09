@@ -152,9 +152,11 @@
                                                     <h5 class="primary-head">{{ __('Distance key between facilities') }}</h5>
                                                     <div class="row">
                                                         @foreach($property->facilities as $facility)
-                                                            <div class="col-sm-4">
-                                                                <p><i class="@if ($facility->icon) {{ $facility->icon }} @else fas fa-check @endif text-brown text0i"></i>  {{ $facility->name }} - {{ $facility->pivot->distance }} Km</p>
-                                                            </div>
+                                                            @if($facility->pivot->distance)
+                                                                <div class="col-sm-4">
+                                                                    <p><i class="@if ($facility->icon) {{ $facility->icon }} @else fas fa-check @endif text-brown text0i"></i>  {{ $facility->name }} - {{ $facility->pivot->distance }} Km</p>
+                                                                </div>
+                                                            @endif
                                                         @endforeach
                                                     </div>
                                                 </div>
