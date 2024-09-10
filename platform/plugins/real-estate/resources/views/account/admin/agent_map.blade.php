@@ -185,8 +185,9 @@
                 },
                 (error) => {
                     if (error.code == error.PERMISSION_DENIED) {
-                        document.getElementById('map-container').innerHTML =
-                            '<p>Location permission is required to display the map.</p>';
+                        document.getElementById('map-container').innerHTML = 
+                    '<p class="center alert alert-danger">Location access is required to display the map. Please enable location services in your browser settings.</p>';
+                    $('#remove-line').css('display', 'none')
                     }
                     handleLocationError(true, map.getCenter());
                 }

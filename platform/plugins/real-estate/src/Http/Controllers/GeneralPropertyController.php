@@ -72,6 +72,7 @@ use URL;
 use Botble\RealEstate\Models\Currency;
 use RvMedia;
 use File;
+use EmailHandler;
 
 class GeneralPropertyController extends Controller
 {
@@ -550,9 +551,6 @@ class GeneralPropertyController extends Controller
             'password' => 'required|min:6',
         ]);
 
-        // if ($validator->fails()) {
-        //     return response()->json(['error'=>$validator->errors()->all()]);
-        // }
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator->errors())->withInput();
         }
@@ -565,8 +563,20 @@ class GeneralPropertyController extends Controller
                 'mobile_no' => $request['mobile_no'],
                 'password' => Hash::make($request['password']),
             ]);
-
         }
+
+        EmailHandler::setModule('member')
+            ->addVariables([
+                'member_name' => 'Member Name',
+                'login_url' => 'Login'
+            ])
+            ->setVariableValues([
+                'member_name' => $member->full_name,
+                'login_url' => route('member.login')
+            ])
+            ->sendUsingTemplate('memberregistered', $member->email, [], false, 'plugins', 'Account Created');
+
+
 
         return redirect()->intended('member-login')->with(array('success_msg' => 'Registered Success!'));
     }

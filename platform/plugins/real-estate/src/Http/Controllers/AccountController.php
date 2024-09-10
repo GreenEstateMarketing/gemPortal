@@ -8,7 +8,7 @@ use Botble\Base\Events\UpdatedContentEvent;
 use Botble\Base\Forms\FormBuilder;
 use Botble\Base\Http\Controllers\BaseController;
 use Botble\Base\Http\Responses\BaseHttpResponse;
-use Botble\Base\Supports\EmailHandler;
+use EmailHandler;
 use Botble\Base\Traits\HasDeleteManyItemsTrait;
 use Botble\RealEstate\Forms\AccountForm;
 use Botble\RealEstate\Http\Requests\AccountCreateRequest;
@@ -72,8 +72,9 @@ class AccountController extends BaseController
      */
     public function store(AccountCreateRequest $request, BaseHttpResponse $response)
     {
+        $pass = $request->input('password');
         $request->merge([
-            'password' => bcrypt($request->input('password')),
+            'password' => bcrypt($pass),
             'confirmed_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
         $data = json_decode($request['agent_area']);
@@ -142,10 +143,22 @@ class AccountController extends BaseController
 
         event(new CreatedContentEvent(ACCOUNT_MODULE_SCREEN_NAME, $request, $account));
 
-        $emailHandler = new EmailHandler();
-
-        $emailHandler->setModule(ACCOUNT_MODULE_SCREEN_NAME)
-            ->sendUsingTemplate('notice', $account->email);
+        EmailHandler::setModule(ACCOUNT_MODULE_SCREEN_NAME)
+            ->addVariables([
+                'account_name' => 'Account Name',
+                'username' => 'Username',
+                'password' => 'Password',
+                'phone' => 'Phone',
+                'login_url' => 'Login'
+            ])
+            ->setVariableValues([
+                'account_name' => $account->first_name . ' ' . $account->last_name,
+                'username' => $account->username,
+                'password' => $pass,
+                'phone' => $account->phone,
+                'login_url' => route('public.account.login'),
+            ])
+            ->sendUsingTemplate('accountcreated', $account->email, [], false, 'plugins', 'Agent Account Created');
 
         return $response
             ->setPreviousUrl(route('account.index'))
