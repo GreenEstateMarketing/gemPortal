@@ -193,7 +193,8 @@ class AccountController extends Controller
         //SELECT ST_Within(ST_GEOMFROMTEXT('POINT($lat $lng)'),agent_area) as ceck,id FROM `re_accounts` WHERE id=33
         $col = '*,ST_Within(ST_GEOMFROMTEXT(' . $po . '),agent_area) as ceck,id';
         $w = 'ST_Within(ST_GEOMFROMTEXT(' . $po . ',4326),agent_area)=1';
-        $res = Account::select(['re_accounts.id', 'first_name', 'last_name', 'rating'])->leftJoin('ratings', 're_accounts.id', '=', 'ratings.agent_id')->whereNotNull('confirmed_at')->whereRaw($w)->orderBy('rating', 'DESC')->get();
+        // $res = Account::select(['re_accounts.id', 'first_name', 'last_name', 'rating'])->leftJoin('ratings', 're_accounts.id', '=', 'ratings.agent_id')->whereNotNull('confirmed_at')->whereRaw($w)->orderBy('rating', 'DESC')->get();
+        $res = Account::select(['re_accounts.id', 'first_name', 'last_name', 'rating'])->leftJoin('ratings', 're_accounts.id', '=', 'ratings.agent_id')->whereNotNull('confirmed_at')->orderBy('rating', 'DESC')->get();
         foreach ($res as $k => $val) {
             $res[$k]->img_src = $val->getAvatarUrlAttribute();
         }

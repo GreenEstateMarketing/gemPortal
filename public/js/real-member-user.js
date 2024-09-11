@@ -96,6 +96,7 @@ $(document).ready(function () {
         $("#agent_list").val($(this).attr('data-agent-id'));
         $(".show_contact_detail").addClass("d-none");
         if ($(this).attr('data-agent-id') == "") {
+            alert('no id found')
             $(".agent-detail").addClass('d-none');
         } else {
             $.ajax({
@@ -107,7 +108,7 @@ $(document).ready(function () {
                 },
                 async: false,
                 success: function (response) {
-
+                    console.log(response)
                     if (response.phone == null) {
 
                         $(".showContact").css('display', 'none');
@@ -359,21 +360,21 @@ $("#btnSave").click(function (e) {
                 dataType: 'json',
                 data: formData, // here $(this) refers to the ajax object not form
                 success: function (data) {
-                    if($.isEmptyObject(data.error)){
+                    if ($.isEmptyObject(data.error)) {
                         console.log(data.success);
-                        setTimeout(function() {
+                        setTimeout(function () {
                             $(".print-error-msg").fadeOut(1500);
                         }, 4000);
-                    }else{
+                    } else {
                         $(".fa-spinner").addClass('d-none');
                         printErrorMsg(data.error);
                     }
 
-                    function printErrorMsg (msg) {
+                    function printErrorMsg(msg) {
                         $(".print-error-msg").find("ul").html('');
-                        $(".print-error-msg").css('display','block');
-                        $.each( msg, function( key, value ) {
-                            $(".print-error-msg").find("ul").append('<li>'+value+'</li>');
+                        $(".print-error-msg").css('display', 'block');
+                        $.each(msg, function (key, value) {
+                            $(".print-error-msg").find("ul").append('<li>' + value + '</li>');
                         });
                     }
                     //  var data=JSON.parse(data);
@@ -409,10 +410,10 @@ $("#btnSave").click(function (e) {
                     var errorString = '<ul  class="validation mt-2"><li>' + value + '</li></ul>';
 
                     $("input[name='" + key + "']").after(errorString);
-                    if(key == 'city_id'){
+                    if (key == 'city_id') {
                         $("label[for='city_id']").siblings().after(errorString);
                     }
-                    if(key == 'city_area_id'){
+                    if (key == 'city_area_id') {
                         $("label[for='city_area_id']").siblings().after(errorString);
                     }
                     //$("label[for='city_id']").siblings().after(errorString);
@@ -481,13 +482,16 @@ $('#plugins-real-estate-properties').on('click', '.rate_modal', function () {
         },
 */
         dataType: 'json',
-        async: false,
         success: function (data) {
-
-            $('#agent_name').text(data.data.first_name + ' ' + data.data.last_name);
+            console.log(data)
+            $('#agent_name').text(data.data.fname + ' ' + data.data.lname);
             $('#agent_img').attr('src', data.data.url.encoded);
         },
-
+        error: function (xhr, status, error) {
+            console.error('Error:', error); // Log the error for debugging
+            console.error('Status:', status); // Log the status for debugging
+            console.error('Response:', xhr.responseText); // Log the server response
+        }
     });
     $('#property_id').val(property_id);
     $('#agent_id').val(author_id);
@@ -549,15 +553,15 @@ $("#rate_send").click(function (e) {
     }
 });
 
-$('#mobile_number').keydown(function() {
+$('#mobile_number').keydown(function () {
 
     //allow  backspace, tab, ctrl+A, escape, carriage return
     if (event.keyCode == 8 || event.keyCode == 9 ||
-    event.keyCode == 27 || event.keyCode == 13 ||
-    (event.keyCode == 65 && event.ctrlKey === true))
-    return;
+        event.keyCode == 27 || event.keyCode == 13 ||
+        (event.keyCode == 65 && event.ctrlKey === true))
+        return;
     if ((event.keyCode < 48 || event.keyCode > 57))
-    event.preventDefault();
+        event.preventDefault();
 
 });
 
