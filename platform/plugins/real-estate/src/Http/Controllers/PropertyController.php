@@ -35,6 +35,7 @@ use PhpParser\Node\Stmt\Switch_;
 use Throwable;
 use Illuminate\Support\Facades\Storage;
 use SeoHelper;
+use EmailHandler;
 
 use Theme;
 
@@ -157,6 +158,26 @@ class PropertyController extends BaseController
 
             $saveFacilitiesService->execute($property, $request->input('facilities', []));
         }
+
+        //send to self
+        $variables = [
+            'name' => 'Name',
+            'property_url' => 'Property Url',
+            'by' => 'By',
+            'title' => 'Title',
+            'action' => 'Action'
+        ];
+
+        EmailHandler::setModule('property')
+            ->addVariables($variables)
+            ->setVariableValues([
+                'name' => 'Admin',
+                'property_url' => route('property.edit', ['property' => $property->id]),
+                'by' => 'you',
+                'title' => $property->name,
+                'action' => 'created'
+            ])
+            ->sendUsingTemplate('propertymodify', 'admin@botble.com', [], false, 'plugins', 'Property Created');
 
         return $response
             ->setPreviousUrl(route('property.index'))
@@ -285,14 +306,71 @@ class PropertyController extends BaseController
             }
         }
 
-
-
-
         event(new UpdatedContentEvent(PROPERTY_MODULE_SCREEN_NAME, $request, $property));
 
         $property->features()->sync($request->input('features', []));
 
         $saveFacilitiesService->execute($property, $request->input('facilities', []));
+
+        //Send Email
+
+        $variables = [
+            'name' => 'Name',
+            'property_url' => 'Property Url',
+            'by' => 'By',
+            'title' => 'Title',
+            'action' => 'Action'
+        ];
+
+        $action = 'updated';
+
+        if ($request->input('moderation_status') != ModerationStatusEnum::PENDING) {
+            $action = strtolower($request->input('moderation_status'));
+        }
+
+        EmailHandler::setModule('property')
+            ->addVariables($variables)
+            ->setVariableValues([
+                'name' => 'Admin',
+                'property_url' => route('property.edit', ['property' => $property->id]),
+                'by' => 'You',
+                'title' => $property->name,
+                'action' => $action
+            ])
+            ->sendUsingTemplate('propertymodify', 'admin@botble.com', [], false, 'plugins', 'Property ' . ucfirst($action));
+
+        if ($property->member_id) {
+            $member = $memberRepository->findOrFail($property->member_id);
+
+            EmailHandler::setModule('property')
+                ->addVariables($variables)
+                ->setVariableValues([
+                    'name' => $member->full_name,
+                    'property_url' => route('public.member.properties.edit', ['id' => $property->id]),
+                    'by' => 'Admin',
+                    'title' => $property->name,
+                    'action' => $action
+                ])
+                ->sendUsingTemplate('propertymodify', $member->email, [], false, 'plugins', 'Property ' . ucfirst($action));
+        }
+
+        if ($property->author_id) {
+            $account = $accountRepository->findOrFail($property->author_id);
+
+            EmailHandler::setModule('property')
+                ->addVariables($variables)
+                ->setVariableValues([
+                    'name' => $account->first_name . ' ' . $account->last_name,
+                    'property_url' => route('public.account.properties.edit', ['property' => $property->id]),
+                    'by' => 'Admin',
+                    'title' => $property->name,
+                    'action' => $action
+                ])
+                ->sendUsingTemplate('propertymodify', $account->email, [], false, 'plugins', 'Property ' . ucfirst($action));
+        }
+
+
+
 
         return $response
             ->setPreviousUrl(route('property.index'))
