@@ -1235,8 +1235,8 @@ class GeneralPropertyController extends Controller
             $response = [
             'status' => true,
             'data' => [
-                'fname' => $account->first_name,  // Assuming there's a 'username' field
-                'lname' => $account->last_name,  // Assuming there's a 'password' field (typically hashed)
+                'fname' => $account->first_name,  
+                'lname' => $account->last_name,  
             ],
             'message' => 'Agent retrieved successfully!',
         ];
