@@ -1387,12 +1387,19 @@ class GeneralPropertyController extends Controller
 
             $account = $accountRepository->findOrFail($id);
             $account->url = $account->avatar_url;
-            $res = array('status' => true, 'data' => $account, 'message' => 'Agent  Successfully!');
-            echo json_encode($res);
+            $response = [
+            'status' => true,
+            'data' => [
+                'fname' => $account->first_name,  
+                'lname' => $account->last_name,  
+            ],
+            'message' => 'Agent retrieved successfully!',
+        ];
+            return json_encode($response);
 
         } catch (Exception\Exception $ex) {
             $data = array('status' => false, 'message' => $ex->getMessage());
-            echo json_encode($res);
+            return json_encode($data);
         }
     }
     public function getAgentFro(Request $request, AccountInterface $accountRepository)

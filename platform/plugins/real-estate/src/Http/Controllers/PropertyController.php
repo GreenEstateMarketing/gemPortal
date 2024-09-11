@@ -369,9 +369,6 @@ class PropertyController extends BaseController
                 ->sendUsingTemplate('propertymodify', $account->email, [], false, 'plugins', 'Property ' . ucfirst($action));
         }
 
-
-
-
         return $response
             ->setPreviousUrl(route('property.index'))
             ->setNextUrl(route('property.edit', $property->id))
