@@ -58,6 +58,8 @@ class AccountPropertyForm extends PropertyForm
             }
         }
 
+        $verified = $this->getModel() ? $this->getModel()->verified : false;
+
         $this
             ->setupModel(new Property)
             ->setFormOption('template', 'plugins/real-estate::account.forms.base')
@@ -95,6 +97,17 @@ class AccountPropertyForm extends PropertyForm
             $this->remove('rowOpenSellerInfo')
                 ->remove('SellerInfo')
                 ->remove('rowCloseSellerInfo');
+        }
+
+        if(!$verified) {
+            $this->addMetaBoxes([
+                'verified' => [
+                    'title' => 'Verified',
+                    'content' => view(
+                        'plugins/real-estate::partials.verified',
+                    )->render()
+                ],
+            ]);
         }
     }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use Botble\RealEstate\Http\Controllers\PropertyController;
 use Botble\RealEstate\Models\Category;
 use Botble\RealEstate\Models\Project;
 use Botble\RealEstate\Models\Property;
@@ -491,6 +492,10 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
             });
 
         });
+
+        Route::get('send-mail-for-payment',  [PropertyController::class, 'mailForPayment'])
+            ->name('mail-for-payment');
+
         Route::get('Add-Property', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'create'])
             ->name('general-add-property');
         Route::POST('member-property-save', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'store'])

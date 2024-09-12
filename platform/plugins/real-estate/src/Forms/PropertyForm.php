@@ -267,6 +267,29 @@ class PropertyForm extends FormAbstract
             }
         }
 
+        if ($sellerEmail != 'Not Available') {
+            if ($credits) {
+                $sellerEmail = '<a style="color: #c7bebe" href="mailto:' . $sellerEmail . '">' . $sellerEmail . '</a>';
+            } else {
+                if ($this->getModel()->member_id) {
+                    $query = [
+                        'id' => $this->getModel()->member_id,
+                        'type' => 'member',
+                        'property_id' => $this->getModel()->id,
+                        'title' => $this->getModel()->name
+                    ];
+                } else {
+                    $query = [
+                        'id' => $this->getModel()->author_id,
+                        'type' => 'agent',
+                        'property_id' => $this->getModel()->id,
+                        'title' => $this->getModel()->name
+                    ];
+                }
+                $sellerEmail = '<a href="' . route('mail-for-payment', $query) . '" type="button" class="btn btn-primary">Mail ' . $sellerName . ' For Payment</a>';
+            }
+        }
+
         $this
             ->setupModel(new Property)
             ->setValidatorClass(PropertyRequest::class)
@@ -280,7 +303,7 @@ class PropertyForm extends FormAbstract
                 'SellerInfo',
                 'html',
                 [
-                    'html' => '<div class="col-md-3 col-lg-3"><div class="row"><div class="col-lg-3 col-md-3">Type:</div><div class="col-lg-9 col-md-9 bold">' . $sellerType . '</div></div></div> <div class="col-md-2 col-lg-2"><div class="row"><div class="col-lg-3 col-md-3">Name:</div><div class="col-lg-9 col-md-9 bold">' . $sellerName . '</div></div></div> <div class="col-md-4 col-lg-4"><div class="row"><div class="col-lg-3 col-md-3">Email:</div><div class="col-lg-9 col-md-9 bold"><a style="color: #c7bebe" href="mailto:' . $sellerEmail . '">' . $sellerEmail . '</a></div></div></div> <div class="col-md-3 col-lg-3 "><div class="row"><div class="col-lg-3 col-md-3">Phone:</div><div class="col-lg-9 col-md-9 bold"> <a target="_blank" style="color: #c7bebe" href="https://wa.me/+92' . ltrim($sellerPhone, '0') . '">' . $sellerPhone . '</a></div></div></div>'
+                    'html' => '<div class="col-md-3 col-lg-3"><div class="row"><div class="col-lg-3 col-md-3">Type:</div><div class="col-lg-9 col-md-9 bold">' . $sellerType . '</div></div></div> <div class="col-md-2 col-lg-2"><div class="row"><div class="col-lg-3 col-md-3">Name:</div><div class="col-lg-9 col-md-9 bold">' . $sellerName . '</div></div></div> <div class="col-md-4 col-lg-4"><div class="row"><div class="col-lg-3 col-md-3">Email:</div><div class="col-lg-9 col-md-9 bold">' . $sellerEmail . '</div></div></div> <div class="col-md-3 col-lg-3 "><div class="row"><div class="col-lg-3 col-md-3">Phone:</div><div class="col-lg-9 col-md-9 bold"> <a target="_blank" style="color: #c7bebe" href="https://wa.me/+92' . ltrim($sellerPhone, '0') . '">' . $sellerPhone . '</a></div></div></div>'
                 ]
             )
             ->add('rowCloseSellerInfo', 'html', [

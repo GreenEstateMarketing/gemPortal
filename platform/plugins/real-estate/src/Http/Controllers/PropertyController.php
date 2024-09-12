@@ -31,6 +31,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\View\View;
+use Log;
 use PhpParser\Node\Stmt\Switch_;
 use Throwable;
 use Illuminate\Support\Facades\Storage;
@@ -392,7 +393,6 @@ class PropertyController extends BaseController
 
             return $response->setMessage(trans('core/base::notices.delete_success_message'));
         } catch (Exception $exception) {
-            \Log::debug('exception', [$exception->getMessage()]);
             return $response
                 ->setError()
                 ->setMessage(trans('core/base::notices.cannot_delete'));
@@ -445,4 +445,70 @@ class PropertyController extends BaseController
         }
     }
 
+    public function mailForPayment(Request $request, AccountInterface $accountRepo, MemberInterface $memberRepo, BaseHttpResponse $response)
+    {
+        try {
+            if ($request->has('id') && $request->has('type')) {
+                $type = $request->input('type');
+                $id = $request->get('id');
+                $propertyId = $request->get('property_id');
+                $title = $request->get('title');
+
+                $variables = [
+                    'name' => 'Name',
+                    'property_url' => 'Property Url',
+                    'title' => 'Title',
+                    'credits_url' => 'Credits Url'
+                ];
+
+                if ($type == 'agent') {
+                    $account = $accountRepo->findOrFail($id);
+                    if ($account) {
+                        EmailHandler::setModule('property')
+                            ->addVariables($variables)
+                            ->setVariableValues([
+                                'name' => $account->first_name . ' ' . $account->last_name,
+                                'property_url' => route('public.account.properties.edit', ['property' => $propertyId]),
+                                'title' => $title,
+                                'credits_url' => route('public.account.packages'),
+                            ])
+                            ->sendUsingTemplate('paymentmail', $account->email, [], false, 'plugins', 'GEM - Payment Pending');
+
+                        return $response
+                            ->setPreviousUrl(route('property.edit', ['property' => $propertyId]))
+                            ->setNextUrl(route('property.edit', ['property' => $propertyId]))
+                            ->setMessage('Email has been sent.');
+                    }
+                } else if ($type == 'member') {
+                    $member = $memberRepo->findOrFail($id);
+                    if ($member) {
+                        EmailHandler::setModule('property')
+                            ->addVariables($variables)
+                            ->setVariableValues([
+                                'name' => $member->full_name,
+                                'property_url' => route('public.member.properties.edit', ['id' => $propertyId]),
+                                'title' => $title,
+                                'credits_url' => route('public.member.packages'),
+                            ])
+                            ->sendUsingTemplate('paymentmail', $member->email, [], false, 'plugins', 'GEM - Payment Pending');
+
+                        return $response
+                            ->setPreviousUrl(route('public.account.properties.edit', ['property' => $propertyId]))
+                            ->setNextUrl(route('public.account.properties.edit', ['property' => $propertyId]))
+                            ->setMessage('Email has been sent.');
+                    }
+                } else {
+                    return $response
+                        ->setError()
+                        ->setMessage('Something went wrong. Cannot send email111.');
+                }
+            }
+        } catch (Exception $exception) {
+            Log::debug('message', [$exception->getMessage()]);
+            return $response
+                ->setError()
+                ->setMessage('Something went wrong. Cannot send email222.');
+        }
+
+    }
 }
