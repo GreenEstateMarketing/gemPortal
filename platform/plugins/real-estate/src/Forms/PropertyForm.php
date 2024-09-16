@@ -290,15 +290,44 @@ class PropertyForm extends FormAbstract
             }
         }
 
+        $verified = $this->model ? $this->model->verified : false;
+
         $this
             ->setupModel(new Property)
             ->setValidatorClass(PropertyRequest::class)
             ->withCustomFields()
             ->addCustomField('location', LocationField::class)
-            ->addCustomField('mediafile1', MediaFileField1::class)
-            ->add('rowOpenSellerInfo', 'html', [
-                'html' => '<div class="row mb-5 pt-5 pb-5 align-items-center" style="background: ' . ($credits ? '#078d24' : '#f33838') . ';color: #fff;border-radius: 50px;">',
-            ])
+            ->addCustomField('mediafile1', MediaFileField1::class);
+
+        $this->add('rowOpenVerificatonInfo', 'html', [
+            'html' => '<div class="row mb-5 pt-1 pb-1 align-items-center" style="background: ' . ($this->model->verified ? '#078d24' : '#f33838') . ';color: #fff;border-radius: 50px;">',
+        ]);
+
+        if ($this->model->verified) {
+            $this->add(
+                'VerificatonInfo',
+                'html',
+                [
+                    'html' => '<div class="col-md-12 col-lg-12 offset-4"><i class="fa fa-check"></i> This Property has been Verified by Agent.</div>'
+                ]
+            );
+        } else {
+            $this->add(
+                'VerificatonInfo',
+                'html',
+                [
+                    'html' => '<div class="col-md-12 col-lg-12 offset-4"><i class="fa fa-times"></i> This Property has not been Verified by Agent.</div>'
+                ]
+            );
+        }
+
+        $this->add('rowCloseVerificatonInfo', 'html', [
+            'html' => '</div>',
+        ]);
+
+        $this->add('rowOpenSellerInfo', 'html', [
+            'html' => '<div class="row mb-5 pt-5 pb-5 align-items-center" style="background: ' . ($credits ? '#078d24' : '#f33838') . ';color: #fff;border-radius: 50px;">',
+        ])
             ->add(
                 'SellerInfo',
                 'html',
@@ -644,7 +673,7 @@ class PropertyForm extends FormAbstract
                     'title' => trans('plugins/real-estate::property.moderation_status'),
                     'content' => view(
                         'plugins/real-estate::partials.moderation-status',
-                        compact('moderationStatuses', 'selectedModerationStatus', 'credits')
+                        compact('moderationStatuses', 'selectedModerationStatus', 'credits', 'verified')
                     ),
                     'priority' => 3
                 ]

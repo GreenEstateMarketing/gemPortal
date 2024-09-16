@@ -20,6 +20,9 @@ class AccountPropertyForm extends PropertyForm
      */
     public function buildForm()
     {
+
+        $propertyId = $this->model ? $this->model->id : '';
+
         parent::buildForm();
 
         Assets::addScriptsDirectly('vendor/core/core/base/libraries/tinymce/tinymce.min.js');
@@ -93,21 +96,27 @@ class AccountPropertyForm extends PropertyForm
                 'label_attr' => ['class' => 'control-label required'],
             ]);
 
+        $this->remove('rowOpenVerificatonInfo')
+            ->remove('VerificatonInfo')
+            ->remove('rowCloseVerificatonInfo');
+
         if (!$show) {
             $this->remove('rowOpenSellerInfo')
                 ->remove('SellerInfo')
                 ->remove('rowCloseSellerInfo');
         }
 
-        if(!$verified) {
+        if ($this->model && $this->model->id) {
             $this->addMetaBoxes([
                 'verified' => [
                     'title' => 'Verified',
                     'content' => view(
                         'plugins/real-estate::partials.verified',
+                        compact('verified', 'propertyId')
                     )->render()
                 ],
             ]);
         }
+
     }
 }

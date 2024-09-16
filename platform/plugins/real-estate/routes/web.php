@@ -451,6 +451,11 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                     'as' => 'renew',
                     'uses' => 'AccountPropertyController@renew',
                 ]);
+
+                Route::get('verify/{id}', [
+                    'as' => 'verify',
+                    'uses' => 'AccountPropertyController@verify',
+                ]);
             });
             //resource
             Route::group(['prefix' => 'account/consults', 'as' => 'consult.'], function () {

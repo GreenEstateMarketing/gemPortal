@@ -165,19 +165,19 @@ class AccountPropertyController extends Controller
             'action' => 'Action'
         ];
 
-        if($property->author_id) {
+        if ($property->author_id) {
             $author = $accountRepository->findOrFail($property->author_id);
 
             EmailHandler::setModule('property')
-            ->addVariables($variables)
-            ->setVariableValues([
-                'name' => $author->first_name . ' ' . $author->last_name,
-                'property_url' => route('public.account.properties.edit', ['property' => $property->id]),
-                'by' => 'you',
-                'title' => $property->name,
-                'action' => 'created'
-            ])
-            ->sendUsingTemplate('propertymodify', $author->email, [], false, 'plugins', 'Property Created');
+                ->addVariables($variables)
+                ->setVariableValues([
+                    'name' => $author->first_name . ' ' . $author->last_name,
+                    'property_url' => route('public.account.properties.edit', ['property' => $property->id]),
+                    'by' => 'you',
+                    'title' => $property->name,
+                    'action' => 'created'
+                ])
+                ->sendUsingTemplate('propertymodify', $author->email, [], false, 'plugins', 'Property Created');
         }
 
         //send to admin
@@ -325,19 +325,19 @@ class AccountPropertyController extends Controller
             'action' => 'Action'
         ];
 
-        if($property->author_id) {
+        if ($property->author_id) {
             $author = $this->accountRepository->findOrFail($property->author_id);
 
             EmailHandler::setModule('property')
-            ->addVariables($variables)
-            ->setVariableValues([
-                'name' => $author->first_name . ' ' . $author->last_name,
-                'property_url' => route('public.account.properties.edit', ['property' => $property->id]),
-                'by' => 'you',
-                'title' => $property->name,
-                'action' => 'updated'
-            ])
-            ->sendUsingTemplate('propertymodify', $author->email, [], false, 'plugins', 'Property Updated');
+                ->addVariables($variables)
+                ->setVariableValues([
+                    'name' => $author->first_name . ' ' . $author->last_name,
+                    'property_url' => route('public.account.properties.edit', ['property' => $property->id]),
+                    'by' => 'you',
+                    'title' => $property->name,
+                    'action' => 'updated'
+                ])
+                ->sendUsingTemplate('propertymodify', $author->email, [], false, 'plugins', 'Property Updated');
         }
 
         //send to admin
@@ -393,19 +393,19 @@ class AccountPropertyController extends Controller
             'action' => 'Action'
         ];
 
-        if($property->author_id) {
+        if ($property->author_id) {
             $author = $this->accountRepository->findOrFail($property->author_id);
 
             EmailHandler::setModule('property')
-            ->addVariables($variables)
-            ->setVariableValues([
-                'name' => $author->first_name . ' ' . $author->last_name,
-                'property_url' => route('public.account.properties.edit', ['property' => $property->id]),
-                'by' => 'you',
-                'title' => $property->name,
-                'action' => 'deleted'
-            ])
-            ->sendUsingTemplate('propertymodify', $author->email, [], false, 'plugins', 'Property Deleted');
+                ->addVariables($variables)
+                ->setVariableValues([
+                    'name' => $author->first_name . ' ' . $author->last_name,
+                    'property_url' => route('public.account.properties.edit', ['property' => $property->id]),
+                    'by' => 'you',
+                    'title' => $property->name,
+                    'action' => 'deleted'
+                ])
+                ->sendUsingTemplate('propertymodify', $author->email, [], false, 'plugins', 'Property Deleted');
         }
 
         //send to admin
@@ -445,5 +445,26 @@ class AccountPropertyController extends Controller
         $account->save();
 
         return $response->setMessage(__('Renew property successfully'));
+    }
+
+    public function verify($id, BaseHttpResponse $response)
+    {
+        $property = $this->propertyRepository->findOrFail($id);
+
+        $account = auth('account')->user();
+
+        if ($property->author_id == $account->id) {
+            $property->verified = true;
+            $property->save();
+
+            return $response
+                ->setPreviousUrl(route('public.account.properties.edit', $property->id))
+                ->setNextUrl(route('public.account.properties.edit', $property->id))
+                ->setMessage('This property has been successfully verified by you.');
+        } else {
+            return $response
+                ->setError()
+                ->setMessage("Something went wrong. Couldn't verify property.");
+        }
     }
 }

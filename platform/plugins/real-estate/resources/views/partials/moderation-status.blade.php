@@ -6,7 +6,7 @@
     <select class="select form-control" id="mode-status-select"
         style="background: {{ $credits ? 'grey' : '#f33838' }}; color: #fff; border: 2px solid #fff; border-radius: 17px; height: 1%; padding-left: 2%;"
         disabled="disabled">
-        @if($credits)
+        @if($credits && $verified)
             @foreach ($moderationStatuses as $moderationStatus)
                 @if($selectedModerationStatus == Str::lower($moderationStatus))
                     <option value="{{ Str::lower($moderationStatus) }}" selected>{{ $moderationStatus }}</option>
