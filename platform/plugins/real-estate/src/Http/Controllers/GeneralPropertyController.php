@@ -627,7 +627,6 @@ class GeneralPropertyController extends Controller
                 $jsonArr[$i]['id'] = $document_id;
                 $jsonArr[$i]['path'] = 'Documents/' . $name;
                 $i++;
-
             }
         }
 
