@@ -16,22 +16,24 @@
     var bermudaTriangle = [];
     var count_shapes = 0;
     var random;
+    var currentPolygon;
 
     navigator.geolocation.getCurrentPosition(
         function (position) {
             let coords = position.coords;
             lat = coords.latitude;
             lng = coords.longitude;
-        }, 
-        function(error) {
+        },
+        function (error) {
             if (error.code == error.PERMISSION_DENIED) {
-                document.getElementById('map-container').innerHTML = 
+                document.getElementById('map-container').innerHTML =
                     '<p class="center alert alert-danger">Location access is required to display the map. Please enable location services in your browser settings.</p>';
             }
         }
     );
 
     $(document).ready(function () {
+
         function setpVal(pos) {
             let coords = pos.coords;
             $("#timestamp").text(new Date(pos.timestamp));
@@ -329,5 +331,78 @@
             });
             attachDragEndListener(marker);
         }
+
+        function drawPolygonAreaForSelectedArea(address) {
+            const geocoder = new google.maps.Geocoder();
+
+            geocoder.geocode({ address: address }, function (results, status) {
+                if (status === 'OK') {
+                    const location = results[0].geometry.location;
+                    const bounds = results[0].geometry.viewport;
+
+                    // Center the map on the area
+                    map.setCenter(location);
+
+                    // Fit map to the bounding box
+                    map.fitBounds(bounds);
+
+                    // Get the northeast and southwest corners of the bounding box
+                    const ne = bounds.getNorthEast();  // North-East corner
+                    const sw = bounds.getSouthWest();  // South-West corner
+
+                    // Draw the polygon using these bounds
+                    const polygonCoords = [
+                        { lat: ne.lat(), lng: ne.lng() },
+                        { lat: ne.lat(), lng: sw.lng() },
+                        { lat: sw.lat(), lng: sw.lng() },
+                        { lat: sw.lat(), lng: ne.lng() }
+                    ];
+
+                    const radius = google.maps.geometry.spherical.computeDistanceBetween(ne, sw) / 3; // Radius in meters
+
+                    if (currentPolygon) {
+                        currentPolygon.setMap(null);
+                    }
+
+                    currentPolygon = new google.maps.Circle({
+                        center: location,
+                        radius: radius,  // Radius in meters
+                        strokeColor: '#f57070',
+                        strokeOpacity: 0.8,
+                        strokeWeight: 2,
+                        fillColor: '#f57070',
+                        fillOpacity: 0.35
+                    });
+
+                    currentPolygon.setMap(map);
+                } else {
+                    currentPolygon.setMap(null);
+                    console.error('Geocode failed: ' + status);
+                }
+            });
+        }
+
+        if (agent_area_edit === "") {
+            let alreadySaved = $('#city_area_id').val();
+            
+            if (alreadySaved !== 0) {
+                var cityAreaValue = $('#city_area_id').find('option:selected').text();;
+                var cityValue = $('#city_id').find('option:selected').text();
+
+                let address = cityAreaValue + ' ' + cityValue
+
+                drawPolygonAreaForSelectedArea(address);
+            }
+
+            $('#city_area_id').on('change', function () {
+                var cityAreaValue = $('#city_area_id').find('option:selected').text();
+                var cityValue = $('#city_id').find('option:selected').text();
+
+                let address = cityAreaValue + ' ' + cityValue
+
+                drawPolygonAreaForSelectedArea(address);
+            });
+        }
+
     });
 </script>
