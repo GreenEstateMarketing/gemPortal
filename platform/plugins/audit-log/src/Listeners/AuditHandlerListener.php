@@ -38,15 +38,15 @@ class AuditHandlerListener
     public function handle(AuditHandlerEvent $event)
     {
         $data = [
-            'user_agent'     => $this->request->userAgent(),
-            'ip_address'     => $this->request->ip(),
-            'module'         => $event->module,
-            'action'         => $event->action,
-            'user_id'        => $this->request->user() ? $this->request->user()->getKey() : 0,
-            'reference_user' => $event->referenceUser,
-            'reference_id'   => $event->referenceId,
-            'reference_name' => $event->referenceName,
-            'type'           => $event->type,
+            'user_agent' => $this->encryptWithPublicKey($this->request->userAgent()),
+            'ip_address' => $this->encryptWithPublicKey($this->request->ip()),
+            'module' => $this->encryptWithPublicKey($event->module),
+            'action' => $this->encryptWithPublicKey($event->action),
+            'user_id' => $this->request->user() ? $this->request->user()->getKey() : 0,
+            'reference_user' => $this->encryptWithPublicKey($event->referenceUser),
+            'reference_id' => $this->encryptWithPublicKey($event->referenceId),
+            'reference_name' => $this->encryptWithPublicKey($event->referenceName),
+            'type' => $this->encryptWithPublicKey($event->type),
         ];
 
         if (!in_array($event->action, ['loggedin', 'password'])) {
@@ -54,5 +54,17 @@ class AuditHandlerListener
         }
 
         $this->auditLogRepository->createOrUpdate($data);
+    }
+
+    private function encryptWithPublicKey($data): string
+    {
+        $publicKey = openssl_pkey_get_public(env('RSA_PUBLIC_KEY'));
+
+        if (!$publicKey) {
+            throw new Exception("Unable to load public key");
+        }
+
+        openssl_public_encrypt($data, $encrypted, $publicKey);
+        return base64_encode($encrypted);
     }
 }
