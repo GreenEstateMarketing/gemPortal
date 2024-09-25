@@ -2,6 +2,7 @@
 
 namespace Botble\AuditLog\Http\Controllers;
 
+use Botble\AuditLog\ActivitiesTransformer;
 use Botble\AuditLog\Repositories\Interfaces\AuditLogInterface;
 use Botble\AuditLog\Tables\AuditLogTable;
 use Botble\Base\Events\DeletedContentEvent;
@@ -24,13 +25,16 @@ class AuditLogController extends BaseController
      */
     protected $auditLogRepository;
 
+    protected $transformer;
+
     /**
      * AuditLogController constructor.
      * @param AuditLogInterface $auditLogRepository
      */
-    public function __construct(AuditLogInterface $auditLogRepository)
+    public function __construct(AuditLogInterface $auditLogRepository, ActivitiesTransformer $activitiesTransformer)
     {
         $this->auditLogRepository = $auditLogRepository;
+        $this->transformer = $activitiesTransformer;
     }
 
     /**
@@ -45,7 +49,9 @@ class AuditLogController extends BaseController
             ->getModel()
             ->with('user')
             ->orderBy('created_at', 'desc')
-            ->paginate($limit);
+            ->paginate($limit);        
+
+        $histories = $this->transformer->transform($histories);
 
         return $response
             ->setData(view('plugins/audit-log::widgets.activities', compact('histories', 'limit'))->render());

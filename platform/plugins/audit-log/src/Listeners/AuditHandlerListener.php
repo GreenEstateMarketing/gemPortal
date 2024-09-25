@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 
 class AuditHandlerListener
 {
+    use EncryptionTrait;
+
     /**
      * @var AuditLogInterface
      */
@@ -54,17 +56,5 @@ class AuditHandlerListener
         }
 
         $this->auditLogRepository->createOrUpdate($data);
-    }
-
-    private function encryptWithPublicKey($data): string
-    {
-        $publicKey = openssl_pkey_get_public(env('RSA_PUBLIC_KEY'));
-
-        if (!$publicKey) {
-            throw new Exception("Unable to load public key");
-        }
-
-        openssl_public_encrypt($data, $encrypted, $publicKey);
-        return base64_encode($encrypted);
     }
 }
