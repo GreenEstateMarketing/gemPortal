@@ -23,6 +23,12 @@ Route::group(['namespace' => 'Botble\AuditLog\Http\Controllers', 'middleware' =>
                 'uses'       => 'AuditLogController@deleteAll',
                 'permission' => 'audit-log.destroy',
             ]);
+
+            Route::post('decrypt', [
+                'as'         => 'audit-log.decrypt',
+                'uses'       => 'AuditLogController@decrypt',
+                'permission' => 'audit-log.decrypt',
+            ]);
         });
     });
 });

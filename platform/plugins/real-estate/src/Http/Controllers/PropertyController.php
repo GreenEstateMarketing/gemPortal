@@ -507,7 +507,7 @@ class PropertyController extends BaseController
             Log::debug('message', [$exception->getMessage()]);
             return $response
                 ->setError()
-                ->setMessage('Something went wrong. Cannot send email222.');
+                ->setMessage('Something went wrong. Cannot send email');
         }
 
     }

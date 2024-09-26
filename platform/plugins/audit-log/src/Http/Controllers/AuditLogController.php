@@ -9,10 +9,12 @@ use Botble\Base\Events\DeletedContentEvent;
 use Botble\Base\Http\Controllers\BaseController;
 use Botble\Base\Http\Responses\BaseHttpResponse;
 use Botble\Base\Traits\HasDeleteManyItemsTrait;
+use Cache;
 use Exception;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Log;
 use Throwable;
 
 class AuditLogController extends BaseController
@@ -44,17 +46,27 @@ class AuditLogController extends BaseController
      */
     public function getWidgetActivities(BaseHttpResponse $response)
     {
-        $limit = request()->input('paginate', 10);
-        $histories = $this->auditLogRepository
-            ->getModel()
-            ->with('user')
-            ->orderBy('created_at', 'desc')
-            ->paginate($limit);        
+        try {
+            $limit = request()->input('paginate', 10);
+            $histories = $this->auditLogRepository
+                ->getModel()
+                ->with('user')
+                ->orderBy('created_at', 'desc')
+                ->paginate($limit);
 
-        $histories = $this->transformer->transform($histories);
+            if (Cache::has('decryption_key') && Cache::get('decryption_key') != null) {
+                $histories = $this->transformer->transform($histories);
+            }
 
-        return $response
-            ->setData(view('plugins/audit-log::widgets.activities', compact('histories', 'limit'))->render());
+            return $response
+                ->setData(view('plugins/audit-log::widgets.activities', compact('histories', 'limit'))->render());
+        } catch (Exception $e) {
+            Cache::forget('decryption_key');
+            return $response
+                ->setError()
+                ->setMessage($e->getMessage());
+        }
+
     }
 
     /**
@@ -111,5 +123,29 @@ class AuditLogController extends BaseController
         $this->auditLogRepository->getModel()->truncate();
 
         return $response->setMessage(trans('core/base::notices.delete_success_message'));
+    }
+
+    public function decrypt(Request $request, BaseHttpResponse $response)
+    {
+        try {
+            $decryption_key = $request->get('decryption_key');
+
+            if ($decryption_key == '' || $decryption_key == null) {
+                return $response
+                    ->setError()
+                    ->setMessage('Please enter valid decryption key.');
+            }
+
+            Cache::put('decryption_key', $decryption_key, 120);
+
+            return $response
+                ->setPreviousUrl(route('dashboard.index'))
+                ->setNextUrl(route('dashboard.index'));
+        } catch (Exception $e) {
+            return $response
+                ->setError()
+                ->setMessage('Something went wrong');
+        }
+
     }
 }

@@ -20,7 +20,8 @@
 <div class="modal fade" id="decryptLogsModal" tabindex="-1" aria-labelledby="decryptLogsModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-    <form method="post" action="somethign">
+    <form method="post" action="{{ route('audit-log.decrypt') }}">
+    @csrf
       <div class="modal-header">
         <h5 class="modal-title" id="decryptLogsModalLabel">Decrypt Logs</h5>
         <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
@@ -30,7 +31,7 @@
             <p>Please Provide your private key to decrypt logs.</p>
         </div>        
         <div class="row ml-2 mr-2">
-            <textarea name="decryption_key" class="form-control" placeholder="Decryption Key"></textarea>
+            <textarea rows="15" name="decryption_key" class="form-control" placeholder="Decryption Key" required></textarea>
         </div>
       </div>
       <div class="modal-footer">
