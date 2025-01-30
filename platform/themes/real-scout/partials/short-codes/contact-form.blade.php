@@ -3,12 +3,12 @@
         <div class="col-md-6">
             <div class="wrapper"><h2 class="h2">{{ __('Contact information') }}</h2>
                 <div class="contact-main">
-                    <p>{{ theme_option('about-us') }}</p>
-                    <div class="contact-name" style="text-transform: uppercase">{{ theme_option('company_name') }}</div>
-                    <div class="contact-address">{{ __('Address') }}: {{ theme_option('address') }}
+                    <p>{{ setting('about-us') }}</p>
+                    <div class="contact-name" style="text-transform: uppercase">{{ setting('theme-real-scout-site_title') }}</div>
+                    <div class="contact-address">{{ __('Address') }}: {{ setting('theme-real-scout-address') }}
                     </div>
-                    <div class="contact-phone">{{ __('Hotline') }}: {{ theme_option('hotline') }}</div>
-                    <div class="contact-email">{{ __('Email') }}: {{ theme_option('email') }}</div>
+                    <div class="contact-phone">{{ __('Hotline') }}: {{ setting('theme-real-scout-hotline') }}</div>
+                    <div class="contact-email">{{ __('Email') }}: {{ setting('theme-real-scout-email') }}</div>
                 </div>
             </div>
         </div>
