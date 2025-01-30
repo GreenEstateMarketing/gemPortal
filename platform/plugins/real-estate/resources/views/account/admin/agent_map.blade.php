@@ -13,7 +13,6 @@
     }
 </style>
 @if (setting('google_map_api_key'))
-
     <label class="text-capitalize control-label">mark areas for agent</label>
     <div id="floating-panel">
         <input id="remove-line" type="button" value="Remove" />
@@ -22,7 +21,6 @@
     <div id="map-container">
         <div id="map"></div>
     </div>
-
 @endif
 
 <script async
@@ -142,7 +140,10 @@
                             const center = event.overlay.getCenter();
                             shapeData = {
                                 type: "circle",
-                                center: { lat: center.lat(), lng: center.lng() },
+                                center: {
+                                    lat: center.lat(),
+                                    lng: center.lng()
+                                },
                                 radius: radius,
                             };
                         } else if (event.type === google.maps.drawing.OverlayType.POLYGON) {
@@ -150,7 +151,10 @@
                             const coordinates = [];
                             for (let i = 0; i < path.getLength(); i++) {
                                 const latLng = path.getAt(i);
-                                coordinates.push({ lat: latLng.lat(), lng: latLng.lng() });
+                                coordinates.push({
+                                    lat: latLng.lat(),
+                                    lng: latLng.lng()
+                                });
                             }
                             shapeData = {
                                 type: "polygon",
@@ -166,7 +170,9 @@
                         setSelection(shape);
                         shapesArray.push(shape)
 
-                        const shapeBlob = new Blob([JSON.stringify(shapeData)], { type: "application/json" });
+                        const shapeBlob = new Blob([JSON.stringify(shapeData)], {
+                            type: "application/json"
+                        });
 
                         if (shapeData) {
                             let coords = shapeData.coordinates;
@@ -177,7 +183,12 @@
                         }
                     });
                 },
-                () => {
+                (error) => {
+                    if (error.code == error.PERMISSION_DENIED) {
+                        document.getElementById('map-container').innerHTML = 
+                    '<p class="center alert alert-danger">Location access is required to display the map. Please enable location services in your browser settings.</p>';
+                    $('#remove-line').css('display', 'none')
+                    }
                     handleLocationError(true, map.getCenter());
                 }
             );
@@ -189,9 +200,9 @@
 
     function handleLocationError(browserHasGeolocation, pos) {
         alert(
-            browserHasGeolocation
-                ? "Error: The Geolocation service failed."
-                : "Error: Your browser doesn't support geolocation."
+            browserHasGeolocation ?
+                "Error: The Geolocation service failed." :
+                "Error: Your browser doesn't support geolocation."
         );
     }
 

@@ -15,6 +15,8 @@ use Botble\Base\Http\Responses\BaseHttpResponse;
 use Botble\RealEstate\Enums\ModerationStatusEnum;
 use Botble\RealEstate\Forms\PropertyForm;
 use Botble\RealEstate\Http\Requests\PropertyRequest;
+use Botble\RealEstate\Repositories\Interfaces\AccountInterface;
+use Botble\RealEstate\Repositories\Interfaces\MemberInterface;
 use Botble\RealEstate\Repositories\Interfaces\ProjectInterface;
 use Botble\RealEstate\Repositories\Interfaces\FeatureInterface;
 use Botble\RealEstate\Repositories\Interfaces\PropertyInterface;
@@ -29,10 +31,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\View\View;
+use Log;
 use PhpParser\Node\Stmt\Switch_;
 use Throwable;
 use Illuminate\Support\Facades\Storage;
 use SeoHelper;
+use EmailHandler;
 
 use Theme;
 
@@ -61,10 +65,9 @@ class PropertyController extends BaseController
      */
     public function __construct(
         PropertyInterface $propertyRepository,
-        ProjectInterface  $projectRepository,
-        FeatureInterface  $featureRepository
-    )
-    {
+        ProjectInterface $projectRepository,
+        FeatureInterface $featureRepository
+    ) {
         $this->propertyRepository = $propertyRepository;
         $this->projectRepository = $projectRepository;
         $this->featureRepository = $featureRepository;
@@ -89,9 +92,6 @@ class PropertyController extends BaseController
     public function create(FormBuilder $formBuilder)
     {
         page_title()->setTitle(trans('plugins/real-estate::property.create'));
-        //
-        // dd($res);
-
 
         return $formBuilder->create(PropertyForm::class)->renderForm();
     }
@@ -160,6 +160,26 @@ class PropertyController extends BaseController
             $saveFacilitiesService->execute($property, $request->input('facilities', []));
         }
 
+        //send to self
+        $variables = [
+            'name' => 'Name',
+            'property_url' => 'Property Url',
+            'by' => 'By',
+            'title' => 'Title',
+            'action' => 'Action'
+        ];
+
+        EmailHandler::setModule('property')
+            ->addVariables($variables)
+            ->setVariableValues([
+                'name' => 'Admin',
+                'property_url' => route('property.edit', ['property' => $property->id]),
+                'by' => 'you',
+                'title' => $property->name,
+                'action' => 'created'
+            ])
+            ->sendUsingTemplate('propertymodify', 'admin@botble.com', [], false, 'plugins', 'Property Created');
+
         return $response
             ->setPreviousUrl(route('property.index'))
             ->setNextUrl(route('property.edit', $property->id))
@@ -175,17 +195,9 @@ class PropertyController extends BaseController
     public function edit($id, Request $request, FormBuilder $formBuilder)
     {
         $property = $this->propertyRepository->findOrFail($id, ['features', 'author']);
-        // echo '<pre>';
 
-        //    $property->setAttribute('parent_id');
-
-        // exit;
         $parent_cat = Category::select('parent_id')->where('id', $property->category_id)->first();
-        // print_r($parent_id->parent_id);exit;
         $property->setAttribute('parent_id', $parent_cat->parent_id);
-        // print_r($property->getAttributes();exit;
-        // $property .= $parent_id;
-        // dd($parent_id);
         page_title()->setTitle(trans('plugins/real-estate::property.edit') . ' "' . $property->name . '"');
 
         event(new BeforeEditContentEvent($request, $property));
@@ -201,9 +213,16 @@ class PropertyController extends BaseController
      * @return BaseHttpResponse
      * @throws FileNotFoundException
      */
-    public function update($id, PropertyRequest $request, BaseHttpResponse $response, SaveFacilitiesService $saveFacilitiesService)
-    {
+    public function update(
+        $id,
+        PropertyRequest $request,
+        BaseHttpResponse $response,
+        SaveFacilitiesService $saveFacilitiesService,
+        AccountInterface $accountRepository,
+        MemberInterface $memberRepository
+    ) {
         $property = $this->propertyRepository->findOrFail($id);
+        $alreadySavedModStatus = $property->moderation_status;
         $old_category_id = $property->category_id;
         $old_documents = json_decode($property->documents);
         $property->fill($request->except(['expire_date', 'square']));
@@ -212,7 +231,7 @@ class PropertyController extends BaseController
         $sqFeet = getSqFeet($area_value, $area_units);
         $property->author_type = Account::class;
         $property->images = json_encode($request->input('images', []));
-        $old_arr = (array)$old_documents;
+        $old_arr = (array) $old_documents;
         $jsonArr = array();
 
         $ids = array_column($old_arr, 'id');
@@ -221,10 +240,8 @@ class PropertyController extends BaseController
             $i = 0;
 
             foreach ($files as $key => $file) {
-                //$key;
                 $document_id = $request['document_ids'][$key];
                 $array_index = array_search($document_id, $ids);
-                // echo $array_index;exit;
                 if ($array_index != "") {
                     $path = $old_arr[$array_index]->path;
                     if (Storage::exists($path)) {
@@ -262,7 +279,7 @@ class PropertyController extends BaseController
         ///if all checklist checked  then approved other wise pending
         $property->moderation_status = $request->input('moderation_status');
         if ($request->input('moderation_status') == ModerationStatusEnum::APPROVED) {
-            if(!$property->date_published) {
+            if (!$property->date_published) {
                 $property->date_published = Carbon::now();
             }
         }
@@ -277,11 +294,81 @@ class PropertyController extends BaseController
         $property->status = $status;
         $this->propertyRepository->createOrUpdate($property);
 
+        if ($alreadySavedModStatus != ModerationStatusEnum::APPROVED && $request->input('moderation_status') == ModerationStatusEnum::APPROVED) {
+            //deduct credits
+            if ($property->member_id) {
+                $member = $memberRepository->findOrFail($property->member_id);
+                $member->credits--;
+                $member->save();
+            } else {
+                $account = $accountRepository->findOrFail($property->author_id);
+                $account->credits--;
+                $account->save();
+            }
+        }
+
         event(new UpdatedContentEvent(PROPERTY_MODULE_SCREEN_NAME, $request, $property));
 
         $property->features()->sync($request->input('features', []));
 
         $saveFacilitiesService->execute($property, $request->input('facilities', []));
+
+        //Send Email
+
+        $variables = [
+            'name' => 'Name',
+            'property_url' => 'Property Url',
+            'by' => 'By',
+            'title' => 'Title',
+            'action' => 'Action'
+        ];
+
+        $action = 'updated';
+
+        if ($request->input('moderation_status') != ModerationStatusEnum::PENDING) {
+            $action = strtolower($request->input('moderation_status'));
+        }
+
+        EmailHandler::setModule('property')
+            ->addVariables($variables)
+            ->setVariableValues([
+                'name' => 'Admin',
+                'property_url' => route('property.edit', ['property' => $property->id]),
+                'by' => 'You',
+                'title' => $property->name,
+                'action' => $action
+            ])
+            ->sendUsingTemplate('propertymodify', 'admin@botble.com', [], false, 'plugins', 'Property ' . ucfirst($action));
+
+        if ($property->member_id) {
+            $member = $memberRepository->findOrFail($property->member_id);
+
+            EmailHandler::setModule('property')
+                ->addVariables($variables)
+                ->setVariableValues([
+                    'name' => $member->full_name,
+                    'property_url' => route('public.member.properties.edit', ['id' => $property->id]),
+                    'by' => 'Admin',
+                    'title' => $property->name,
+                    'action' => $action
+                ])
+                ->sendUsingTemplate('propertymodify', $member->email, [], false, 'plugins', 'Property ' . ucfirst($action));
+        }
+
+        if ($property->author_id) {
+            $account = $accountRepository->findOrFail($property->author_id);
+
+            EmailHandler::setModule('property')
+                ->addVariables($variables)
+                ->setVariableValues([
+                    'name' => $account->first_name . ' ' . $account->last_name,
+                    'property_url' => route('public.account.properties.edit', ['property' => $property->id]),
+                    'by' => 'Admin',
+                    'title' => $property->name,
+                    'action' => $action
+                ])
+                ->sendUsingTemplate('propertymodify', $account->email, [], false, 'plugins', 'Property ' . ucfirst($action));
+        }
 
         return $response
             ->setPreviousUrl(route('property.index'))
@@ -306,7 +393,6 @@ class PropertyController extends BaseController
 
             return $response->setMessage(trans('core/base::notices.delete_success_message'));
         } catch (Exception $exception) {
-            \Log::debug('exception', [$exception->getMessage()]);
             return $response
                 ->setError()
                 ->setMessage(trans('core/base::notices.cannot_delete'));
@@ -359,4 +445,70 @@ class PropertyController extends BaseController
         }
     }
 
+    public function mailForPayment(Request $request, AccountInterface $accountRepo, MemberInterface $memberRepo, BaseHttpResponse $response)
+    {
+        try {
+            if ($request->has('id') && $request->has('type')) {
+                $type = $request->input('type');
+                $id = $request->get('id');
+                $propertyId = $request->get('property_id');
+                $title = $request->get('title');
+
+                $variables = [
+                    'name' => 'Name',
+                    'property_url' => 'Property Url',
+                    'title' => 'Title',
+                    'credits_url' => 'Credits Url'
+                ];
+
+                if ($type == 'agent') {
+                    $account = $accountRepo->findOrFail($id);
+                    if ($account) {
+                        EmailHandler::setModule('property')
+                            ->addVariables($variables)
+                            ->setVariableValues([
+                                'name' => $account->first_name . ' ' . $account->last_name,
+                                'property_url' => route('public.account.properties.edit', ['property' => $propertyId]),
+                                'title' => $title,
+                                'credits_url' => route('public.account.packages'),
+                            ])
+                            ->sendUsingTemplate('paymentmail', $account->email, [], false, 'plugins', 'GEM - Payment Pending');
+
+                        return $response
+                            ->setPreviousUrl(route('property.edit', ['property' => $propertyId]))
+                            ->setNextUrl(route('property.edit', ['property' => $propertyId]))
+                            ->setMessage('Email has been sent.');
+                    }
+                } else if ($type == 'member') {
+                    $member = $memberRepo->findOrFail($id);
+                    if ($member) {
+                        EmailHandler::setModule('property')
+                            ->addVariables($variables)
+                            ->setVariableValues([
+                                'name' => $member->full_name,
+                                'property_url' => route('public.member.properties.edit', ['id' => $propertyId]),
+                                'title' => $title,
+                                'credits_url' => route('public.member.packages'),
+                            ])
+                            ->sendUsingTemplate('paymentmail', $member->email, [], false, 'plugins', 'GEM - Payment Pending');
+
+                        return $response
+                            ->setPreviousUrl(route('public.account.properties.edit', ['property' => $propertyId]))
+                            ->setNextUrl(route('public.account.properties.edit', ['property' => $propertyId]))
+                            ->setMessage('Email has been sent.');
+                    }
+                } else {
+                    return $response
+                        ->setError()
+                        ->setMessage('Something went wrong. Cannot send email111.');
+                }
+            }
+        } catch (Exception $exception) {
+            Log::debug('message', [$exception->getMessage()]);
+            return $response
+                ->setError()
+                ->setMessage('Something went wrong. Cannot send email');
+        }
+
+    }
 }

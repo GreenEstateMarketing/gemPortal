@@ -6,6 +6,7 @@ use Botble\AuditLog\Events\AuditHandlerEvent;
 use Botble\Base\Events\UpdatedContentEvent;
 use Exception;
 use AuditLog;
+use Log;
 
 class UpdatedContentListener
 {

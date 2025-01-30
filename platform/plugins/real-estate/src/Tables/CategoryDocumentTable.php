@@ -6,6 +6,7 @@ use Botble\RealEstate\Models\Document;
 use Botble\RealEstate\Repositories\Interfaces\CategoryDocumentInterface;
 use Botble\Table\Abstracts\TableAbstract;
 use Illuminate\Contracts\Routing\UrlGenerator;
+use Log;
 use Yajra\DataTables\DataTables;
 use Auth;
 use Html;
@@ -33,7 +34,12 @@ class CategoryDocumentTable extends TableAbstract
         $data = $this->table
             ->eloquent($this->query())
             ->editColumn('category_id', function ($item) {
-                return $item->category->name;
+                if ($item->category) {
+                    return $item->category->name;
+                }
+
+                return '';
+
             })
             ->editColumn('document_id', function ($item) {
                 return $item->document->name;
@@ -119,18 +125,18 @@ class CategoryDocumentTable extends TableAbstract
     {
         return [
             'category_documents.category_id' => [
-                'title'    => trans('core/base::tables.name'),
-                'type'     => 'text',
+                'title' => trans('core/base::tables.name'),
+                'type' => 'text',
                 'validate' => 'required|max:120',
             ],
             'documents.document_id' => [
-                'title'    => trans('core/base::tables.status'),
-                'type'     => 'text',
+                'title' => trans('core/base::tables.status'),
+                'type' => 'text',
                 'validate' => 'required|max:120',
             ],
             'category_documents.created_at' => [
                 'title' => trans('core/base::tables.created_at'),
-                'type'  => 'date',
+                'type' => 'date',
             ],
         ];
     }

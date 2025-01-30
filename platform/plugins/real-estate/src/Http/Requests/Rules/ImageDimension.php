@@ -18,7 +18,11 @@ class ImageDimension implements Rule
 
     public function passes($attribute, $value)
     {
-        $filePath = public_path('storage/' . $value);
+        if($value) {
+            $filePath = public_path('storage/' . $value);
+        } else {
+            return true;
+        }
 
         if (File::exists($filePath)) {
             $image = getimagesize($filePath);

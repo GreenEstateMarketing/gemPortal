@@ -16,6 +16,7 @@ use Botble\RealEstate\Forms\Fields\LocationField;
 use Botble\RealEstate\Forms\Fields\MediaFileField1;
 use Botble\RealEstate\Http\Requests\PropertyRequest;
 use Botble\RealEstate\Models\Property;
+use Botble\RealEstate\Repositories\Interfaces\CategoryDocumentInterface;
 use Botble\RealEstate\Repositories\Interfaces\CategoryInterface;
 use Botble\RealEstate\Repositories\Interfaces\CurrencyInterface;
 use Botble\RealEstate\Repositories\Interfaces\FacilityInterface;
@@ -67,28 +68,20 @@ class PropertyForm extends FormAbstract
      */
     protected $categoryRepository;
 
-    /**
-     * PropertyForm constructor.
-     * @param PropertyInterface $propertyRepository
-     * @param ProjectInterface $projectRepository
-     * @param FeatureInterface $featureRepository
-     * @param CurrencyInterface $currencyRepository
-     * @param CityInterface $cityRepository
-     * @param CityAreaInterface $cityAreaRepository
-     * @param CategoryInterface $categoryRepository
-     * @param FacilityInterface $facilityRepository
-     */
+    protected $categoryDocumentRepository;
+
+
     public function __construct(
         PropertyInterface $propertyRepository,
-        ProjectInterface  $projectRepository,
-        FeatureInterface  $featureRepository,
+        ProjectInterface $projectRepository,
+        FeatureInterface $featureRepository,
         CurrencyInterface $currencyRepository,
-        CityInterface     $cityRepository,
+        CityInterface $cityRepository,
         CityAreaInterface $cityAreaRepository,
         CategoryInterface $categoryRepository,
-        FacilityInterface $facilityRepository
-    )
-    {
+        FacilityInterface $facilityRepository,
+        CategoryDocumentInterface $categoryDocumentRepository
+    ) {
         parent::__construct();
         $this->propertyRepository = $propertyRepository;
         $this->projectRepository = $projectRepository;
@@ -98,6 +91,7 @@ class PropertyForm extends FormAbstract
         $this->cityAreaRepository = $cityAreaRepository;
         $this->categoryRepository = $categoryRepository;
         $this->facilityRepository = $facilityRepository;
+        $this->categoryDocumentRepository = $categoryDocumentRepository;
     }
 
     /**
@@ -241,35 +235,104 @@ class PropertyForm extends FormAbstract
         $sellerName = 'Not Available';
         $sellerEmail = 'Not Available';
         $sellerPhone = 'Not Available';
+        $credits = true;
 
         if ($sellerType == 'Member') {
-            $sellerName = $this->getModel()->member->full_name;
-            $sellerEmail = $this->getModel()->member->email;
-            $sellerPhone = $this->getModel()->member->mobile_no;
+            if ($this->getModel()->member) {
+                $sellerName = $this->getModel()->member->full_name;
+                $sellerEmail = $this->getModel()->member->email;
+                $sellerPhone = $this->getModel()->member->mobile_no;
+                $credits = $this->getModel()->member->credits > 0;
+            }
+
         } else if ($sellerType == 'Agent') {
             if ($this->getModel()->user) {
                 $sellerName = $this->getModel()->user->first_name . ' ' . $this->getModel()->user->last_name;
                 $sellerEmail = $this->getModel()->user->email;
                 $sellerPhone = $this->getModel()->user->phone;
+                $credits = $this->getModel()->user->credits > 0;
             }
         }
+
+        $sellerType = $credits ? $sellerType : $sellerType . ' (Credits Not Available)';
+
+        $moderationStatuses = ModerationStatusEnum::labels();
+        $selectedModerationStatus = $this->model ? $this->model->moderation_status->getValue() : '';
+
+        $verifyDocuments = false;
+        if ($this->model) {
+            $categoryDocuments = $this->categoryDocumentRepository->getByCategoryId($this->model->category_id);
+            if ($categoryDocuments > 0) {
+                $verifyDocuments = true;
+            }
+        }
+
+        if ($sellerEmail != 'Not Available') {
+            if ($credits) {
+                $sellerEmail = '<a style="color: #c7bebe" href="mailto:' . $sellerEmail . '">' . $sellerEmail . '</a>';
+            } else {
+                if ($this->getModel()->member_id) {
+                    $query = [
+                        'id' => $this->getModel()->member_id,
+                        'type' => 'member',
+                        'property_id' => $this->getModel()->id,
+                        'title' => $this->getModel()->name
+                    ];
+                } else {
+                    $query = [
+                        'id' => $this->getModel()->author_id,
+                        'type' => 'agent',
+                        'property_id' => $this->getModel()->id,
+                        'title' => $this->getModel()->name
+                    ];
+                }
+                $sellerEmail = '<a href="' . route('mail-for-payment', $query) . '" type="button" class="btn btn-primary">Mail ' . $sellerName . ' For Payment</a>';
+            }
+        }
+
+        $verified = $this->model ? $this->model->verified : false;
 
         $this
             ->setupModel(new Property)
             ->setValidatorClass(PropertyRequest::class)
             ->withCustomFields()
             ->addCustomField('location', LocationField::class)
-            ->addCustomField('mediafile1', MediaFileField1::class)
-            ->add('rowOpenSellerInfo', 'html', [
-                'html' => '<div class="row mb-5 pt-5 pb-5 align-items-center" style="background: #f3a54a;
-    color: #fff;
-    border-radius: 11%;">',
-            ])
+            ->addCustomField('mediafile1', MediaFileField1::class);
+
+        $this->add('rowOpenVerificatonInfo', 'html', [
+            'html' => '<div class="row mb-5 pt-1 pb-1 align-items-center" style="background: ' . ($this->model->verified ? '#078d24' : '#f33838') . ';color: #fff;border-radius: 50px;">',
+        ]);
+
+        if ($this->model->verified) {
+            $this->add(
+                'VerificatonInfo',
+                'html',
+                [
+                    'html' => '<div class="col-md-12 col-lg-12 offset-4"><i class="fa fa-check"></i> This Property has been Verified by Agent.</div>'
+                ]
+            );
+        } else {
+            $this->add(
+                'VerificatonInfo',
+                'html',
+                [
+                    'html' => '<div class="col-md-12 col-lg-12 offset-4"><i class="fa fa-times"></i> This Property has not been Verified by Agent.</div>'
+                ]
+            );
+        }
+
+        $this->add('rowCloseVerificatonInfo', 'html', [
+            'html' => '</div>',
+        ]);
+
+        $this->add('rowOpenSellerInfo', 'html', [
+            'html' => '<div class="row mb-5 pt-5 pb-5 align-items-center" style="background: ' . ($credits ? '#078d24' : '#f33838') . ';color: #fff;border-radius: 50px;">',
+        ])
             ->add(
                 'SellerInfo',
                 'html',
                 [
-                    'html' => '<div class="col-md-3 col-lg-3"><div class="row"><div class="col-lg-3 col-md-3">Type:</div><div class="col-lg-9 col-md-9 bold">' . $sellerType . '</div></div></div> <div class="col-md-2 col-lg-2"><div class="row"><div class="col-lg-3 col-md-3">Name:</div><div class="col-lg-9 col-md-9 bold">' . $sellerName . '</div></div></div> <div class="col-md-4 col-lg-4"><div class="row"><div class="col-lg-3 col-md-3">Email:</div><div class="col-lg-9 col-md-9 bold"><a href="mailto:' . $sellerEmail . '">' . $sellerEmail . '</a></div></div></div> <div class="col-md-3 col-lg-3 "><div class="row"><div class="col-lg-3 col-md-3">Phone:</div><div class="col-lg-9 col-md-9 bold"> <a target="_blank" href="https://wa.me/+92' . ltrim($sellerPhone, '0') . '">' . $sellerPhone . '</a></div></div></div>'
+                    'html' => '<div class="col-md-3 col-lg-3"><div class="row"><div class="col-lg-3 col-md-3">Type:</div><div class="col-lg-9 col-md-9 bold">' . $sellerType . '</div></div></div> <div class="col-md-2 col-lg-2"><div class="row"><div class="col-lg-3 col-md-3">Name:</div><div class="col-lg-9 col-md-9 bold">' . $sellerName . '</div></div></div> <div class="col-md-4 col-lg-4"><div class="row"><div class="col-lg-3 col-md-3">Email:</div><div class="col-lg-9 col-md-9 bold">' . $sellerEmail . '</div></div></div> <div class="col-md-3 col-lg-3 "><div class="row"><div class="col-lg-3 col-md-3">Phone:</div><div class="col-lg-9 col-md-9 bold"> <a target="_blank" style="color: #c7bebe" href="https://wa.me/+92' . ltrim($sellerPhone, '0') . '">' . $sellerPhone . '</a></div></div></div>'
                 ]
             )
             ->add('rowCloseSellerInfo', 'html', [
@@ -387,18 +450,6 @@ class PropertyForm extends FormAbstract
                     'class' => 'form-control select-search-full',
                 ],
                 'choices' => [trans('plugins/real-estate::property.select_city_area')] + $cityAreaChoices,
-            ])
-            ->add('moderation_status', 'customSelect', [
-                'label' => trans('plugins/real-estate::property.moderation_status'),
-                'label_attr' => ['class' => 'control-label required'],
-                'attr' => [
-                    'class' => 'form-control select-full',
-                ],
-                'wrapper' => [
-                    'class' => 'form-group col-md-3  moderation_status d-none',
-
-                ],
-                'choices' => ModerationStatusEnum::labels(),
             ])
             ->add('rowClosetitle', 'html', [
                 'html' => '</div>',
@@ -601,6 +652,32 @@ class PropertyForm extends FormAbstract
                 ],
                 'choices' => $currencies,
             ])
+            ->addMetaBoxes([
+                'features' => [
+                    'title' => trans('plugins/real-estate::property.form.features'),
+                    'content' => view(
+                        'plugins/real-estate::partials.form-features',
+                        compact('selectedFeatures', 'features')
+                    )->render(),
+                    'priority' => 2,
+                ],
+                'facilities' => [
+                    'title' => trans('plugins/real-estate::property.distance_key'),
+                    'content' => view(
+                        'plugins/real-estate::partials.form-facilities',
+                        compact('facilities', 'selectedFacilities')
+                    ),
+                    'priority' => 1,
+                ],
+                'moderation_status' => [
+                    'title' => trans('plugins/real-estate::property.moderation_status'),
+                    'content' => view(
+                        'plugins/real-estate::partials.moderation-status',
+                        compact('moderationStatuses', 'selectedModerationStatus', 'credits', 'verified')
+                    ),
+                    'priority' => 3
+                ]
+            ])
             ->add('period', 'customSelect', [
                 'label' => trans('plugins/real-estate::property.form.period'),
                 'label_attr' => ['class' => 'control-label required'],
@@ -636,10 +713,17 @@ class PropertyForm extends FormAbstract
 
             ])
             ->add('moderation_status_hidden', 'hidden', [
-
                 'value' => $this->model->moderation_status ?: "",
-
-
+            ])
+            ->add('credits', 'hidden', [
+                'value' => $credits
+            ])
+            ->add('moderation_status', 'hidden', [
+                'value' => "",
+                'id' => 'moderation-status'
+            ])
+            ->add('verify_documents', 'hidden', [
+                'value' => $verifyDocuments
             ])
             ->add('author_id_hidden', 'hidden', [
 
@@ -687,31 +771,25 @@ class PropertyForm extends FormAbstract
             ->add('rowCloseaccount', 'html', [
                 'html' => '</div>',
             ])
-            ->addMetaBoxes([
-                'features' => [
-                    'title' => trans('plugins/real-estate::property.form.features'),
-                    'content' => view(
-                        'plugins/real-estate::partials.form-features',
-                        compact('selectedFeatures', 'features')
-                    )->render(),
-                    'priority' => 1,
-                ],
-                'facilities' => [
-                    'title' => trans('plugins/real-estate::property.distance_key'),
-                    'content' => view(
-                        'plugins/real-estate::partials.form-facilities',
-                        compact('facilities', 'selectedFacilities')
-                    ),
-                    'priority' => 0,
-                ]
-            ])
-            // view('plugins/real-estate::partials.checklist_modal'),
             ->add('rowOpenmodal', 'html', [
                 'html' => view('plugins/real-estate::partials.checklist_modal'),
             ])
             ->add('rowClosemodal', 'html', [
                 'html' => '</div>',
             ]);
+
+        // $this->add('moderation_status', 'customSelect', [
+        //     'label' => trans('plugins/real-estate::property.moderation_status'),
+        //     'label_attr' => ['class' => 'control-label required font-weight-bold'],
+        //     'attr' => [
+        //         'class' => 'form-control select-full',
+        //     ],
+        //     'wrapper' => [
+        //         'class' => 'form-group col-md-3  moderation_status d-none',
+
+        //     ],
+        //     'choices' => ModerationStatusEnum::labels()
+        // ]);
 
         if ($sellerType == 'None') {
             $this->remove('rowOpenSellerInfo')

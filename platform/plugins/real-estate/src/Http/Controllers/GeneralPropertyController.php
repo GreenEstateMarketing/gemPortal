@@ -2,11 +2,13 @@
 
 namespace Botble\RealEstate\Http\Controllers;
 
+use App;
 use App\Models\member_voucher;
 use App\Models\Rating;
 use App\Models\table_properties_check_lists;
 use Assets;
 use BeyondCode\Vouchers\Models\Voucher;
+use Botble\ACL\Repositories\Interfaces\UserInterface;
 use Botble\Base\Enums\BaseStatusEnum;
 use Botble\Base\Events\BeforeEditContentEvent;
 use Botble\Base\Events\CreatedContentEvent;
@@ -72,6 +74,7 @@ use URL;
 use Botble\RealEstate\Models\Currency;
 use RvMedia;
 use File;
+use EmailHandler;
 
 class GeneralPropertyController extends Controller
 {
@@ -150,30 +153,15 @@ class GeneralPropertyController extends Controller
      */
     public function create(FormBuilder $formBuilder)
     {
-        if (!auth('member')->user() && !auth('account')->user()) {
-            return redirect()->route('member.login');
-        } else if(auth('member')->user() && !auth('account')->user()) {
-            if (auth('member')->user()->credits > 0) {
-                return redirect()->route('public.member.properties.create');
-            } else {
-                return redirect()->route('public.member.packages');
-            }
-        } else if(!auth('member')->user() && auth('account')->user()) {
-            if (auth('account')->user()->credits > 0) {
-                return redirect()->route('public.account.properties.create');
-            } else {
-                return redirect()->route('public.account.packages');
-            }
+        if (auth('member')->user() && !auth('account')->user()) {
+            return redirect()->route('public.member.properties.create');
+        } else if (!auth('member')->user() && auth('account')->user()) {
+            return redirect()->route('public.account.properties.create');
         }
 
-        // SeoHelper::setTitle(__('Add a property'));
+        SeoHelper::setTitle(__('Add a property'));
 
-        // return $formBuilder->create(GeneralPropertyForm::class)->renderForm();
-        /*$generalPropertyForm = $formBuilder->create(GeneralPropertyForm::class)->renderForm();
-        if (view()->exists(Theme::getThemeNamespace() . '::views.real-estate.add_property')) {
-            return Theme::scope('real-estate.add_property', compact('generalPropertyForm'))->render();
-        }*/
-
+        return $formBuilder->create(GeneralPropertyForm::class)->renderForm();
     }
 
     /**
@@ -200,14 +188,13 @@ class GeneralPropertyController extends Controller
 
             if ($validator->fails()) {
                 return response()->json(['error' => $validator->errors()->all(), 'message' => 'Invalid data format']);
-            } elseif (Member::where('email', $request['new_email'])->first()) {
+            } else if (Member::where('email', $request['new_email'])->first()) {
                 $is_already_member = true;
                 $error = array('status' => false, 'message' => 'Email already exists.');
                 echo json_encode($error);
                 die;
             } else {
                 $arr = array('full_name' => $request['full_name'], 'email' => $request['new_email'], 'mobile_no' => $request['mobile_number'], 'password' => Hash::make($request['new_password']));
-
             }
         } else {
             $validator = Validator::make($request->all(), [
@@ -250,8 +237,6 @@ class GeneralPropertyController extends Controller
         $status = 'selling';
         if ($request['type'] == "rent")
             $status = 'renting';
-        else
-            $status = 'selling';
 
         $request['documents'] = json_encode($jsonArr);
         $area_value = $request['square'];
@@ -260,18 +245,18 @@ class GeneralPropertyController extends Controller
         $sqFeet = getSqFeet($area_value, $area_units);
         $request['square'] = $sqFeet;
         if ($request && $request['images']) {
-            $property = $this->propertyRepository->createOrUpdate(array_merge($request->input(), [
-                'author_id' => $agent_id,
-                'member_id' => $member_id,
-                'status' => $status,
-                'author_type' => $agent_id ? Account::class : Member::class,
-            ]));
             if ($member_id != null) {
                 $is_already_member = true;
             } else {
                 $member_id = Member::create($arr)->id;
                 $is_already_member = false;
             }
+            $property = $this->propertyRepository->createOrUpdate(array_merge($request->input(), [
+                'author_id' => $agent_id,
+                'member_id' => $member_id,
+                'status' => $status,
+                'author_type' => $agent_id ? Account::class : Member::class,
+            ]));
         }
 
         if ($property) {
@@ -294,9 +279,6 @@ class GeneralPropertyController extends Controller
                         'reference_url' => route('general-add-property'),
                     ]);
 
-                    $member = $memberRepository->findOrFail(auth('member')->user()->getAuthIdentifier());
-                    $member->credits--;
-                    $member->save();
                     $data = array('route_name' => 'member.dashboard', 'status' => true, 'message' => 'Property Added Successfully!');
                     echo json_encode($data);
                     $response->setMessage(trans('core/base::notices.create_success_message'));
@@ -314,10 +296,6 @@ class GeneralPropertyController extends Controller
                         'reference_name' => $property->name,
                         'reference_url' => route('public.member.properties.edit', $property->id),
                     ]);
-
-                    $member = $memberRepository->findOrFail(auth('member')->user()->getAuthIdentifier());
-                    $member->credits--;
-                    $member->save();
                     $data = array('route_name' => 'member.dashboard', 'status' => true, 'message' => 'Property Added Successfully!');
                     echo json_encode($data);
                     $response->setMessage(trans('core/base::notices.create_success_message'));
@@ -568,9 +546,6 @@ class GeneralPropertyController extends Controller
             'password' => 'required|min:6',
         ]);
 
-        // if ($validator->fails()) {
-        //     return response()->json(['error'=>$validator->errors()->all()]);
-        // }
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator->errors())->withInput();
         }
@@ -583,8 +558,20 @@ class GeneralPropertyController extends Controller
                 'mobile_no' => $request['mobile_no'],
                 'password' => Hash::make($request['password']),
             ]);
-
         }
+
+        EmailHandler::setModule('member')
+            ->addVariables([
+                'member_name' => 'Member Name',
+                'login_url' => 'Login'
+            ])
+            ->setVariableValues([
+                'member_name' => $member->full_name,
+                'login_url' => route('member.login')
+            ])
+            ->sendUsingTemplate('memberregistered', $member->email, [], false, 'plugins', 'Account Created');
+
+
 
         return redirect()->intended('member-login')->with(array('success_msg' => 'Registered Success!'));
     }
@@ -623,15 +610,12 @@ class GeneralPropertyController extends Controller
             abort(403);
         }
 
-        // dd($request->all());
         $request->merge(['expire_date' => now()->addDays(config('plugins.real-estate.real-estate.property_expired_after_x_days'))]);
 
         /**
          * @var Property $property
          */
         $jsonArr = array();
-
-        //run actions with files
 
         if ($request->hasFile('documents')) {
             $files = $request->file('documents');
@@ -643,7 +627,6 @@ class GeneralPropertyController extends Controller
                 $jsonArr[$i]['id'] = $document_id;
                 $jsonArr[$i]['path'] = 'Documents/' . $name;
                 $i++;
-
             }
         }
 
@@ -653,8 +636,7 @@ class GeneralPropertyController extends Controller
         unset($request['square']);
         $sqFeet = getSqFeet($area_value, $area_units);
         $request['square'] = $sqFeet;
-        // $agent_id=null;
-        // $agent_id=$request['agent_list']?$request['agent_list']:null;
+
         $agent_id = $request['author_id'];
         $status = 'selling';
         if ($request['type'] == "rent")
@@ -668,7 +650,7 @@ class GeneralPropertyController extends Controller
             'status' => $status,
             'author_type' => $agent_id > 0 ? Account::class : Member::class
         ]));
-        // dd($property);
+
         if ($property) {
             $property->features()->sync($request->input('features', []));
 
@@ -684,8 +666,56 @@ class GeneralPropertyController extends Controller
         ]);
 
         $member = $memberRepository->findOrFail(auth('member')->user()->getAuthIdentifier());
-        $member->credits--;
-        $member->save();
+
+        //Send Email
+
+        $variables = [
+            'name' => 'Name',
+            'property_url' => 'Property Url',
+            'by' => 'By',
+            'title' => 'Title',
+            'action' => 'Action'
+        ];
+
+        //send to self
+        EmailHandler::setModule('property')
+            ->addVariables($variables)
+            ->setVariableValues([
+                'name' => $member->full_name,
+                'property_url' => route('public.member.properties.edit', ['id' => $property->id]),
+                'by' => 'you',
+                'title' => $property->name,
+                'action' => 'created'
+            ])
+            ->sendUsingTemplate('propertymodify', $member->email, [], false, 'plugins', 'Property Created');
+
+        //Email to Agent if Present
+        if ($property->author_id) {
+            $author = $accountRepository->findOrFail($property->author_id);
+
+            EmailHandler::setModule('property')
+                ->addVariables($variables)
+                ->setVariableValues([
+                    'name' => $author->first_name . ' ' . $author->last_name,
+                    'property_url' => route('public.account.properties.edit', ['property' => $property->id]),
+                    'by' => $member->full_name,
+                    'title' => $property->name,
+                    'action' => 'created'
+                ])
+                ->sendUsingTemplate('propertymodify', $author->email, [], false, 'plugins', 'Property Created');
+        }
+
+        //send to admin
+        EmailHandler::setModule('property')
+            ->addVariables($variables)
+            ->setVariableValues([
+                'name' => 'Admin',
+                'property_url' => route('property.edit', ['property' => $property->id]),
+                'by' => $member->full_name,
+                'title' => $property->name,
+                'action' => 'created'
+            ])
+            ->sendUsingTemplate('propertymodify', 'admin@botble.com', [], false, 'plugins', 'Property Created');
 
         return $response
             ->setPreviousUrl(route('public.member.properties.index'))
@@ -695,11 +725,9 @@ class GeneralPropertyController extends Controller
 
     public function edit_property($id, FormBuilder $formBuilder, Request $request)
     {
-
         $property = $this->propertyRepository->getFirstBy([
             'id' => $id,
             'member_id' => auth('member')->user()->getAuthIdentifier()
-            //'author_type' => Account::class,
         ]);
 
         if (!$property) {
@@ -714,7 +742,7 @@ class GeneralPropertyController extends Controller
             ->create(MemberPropertyForm::class, ['model' => $property])
             ->renderForm();
     }
-    public function update_property($id, PropertyRequest $request, BaseHttpResponse $response, SaveFacilitiesService $saveFacilitiesService)
+    public function update_property($id, PropertyRequest $request, BaseHttpResponse $response, AccountInterface $accountRepository, SaveFacilitiesService $saveFacilitiesService, MemberInterface $memberRepository)
     {
         $property = $this->propertyRepository->getFirstBy([
             'id' => $id,
@@ -748,7 +776,7 @@ class GeneralPropertyController extends Controller
                         unset($old_arr[$array_index]);
                     }
                 }
-                
+
                 $name = $document_id . '-document-' . time() . uniqid() . '.' . $file->getClientOriginalExtension();
                 $file->storeAs('Documents', $name);
                 $jsonArr[$i]['id'] = $document_id;
@@ -804,6 +832,58 @@ class GeneralPropertyController extends Controller
             'reference_url' => route('public.member.properties.edit', $property->id),
         ]);
 
+        //Send Email
+
+        $member = $memberRepository->findOrFail(auth('member')->user()->getAuthIdentifier());
+
+        //send to self
+        $variables = [
+            'name' => 'Name',
+            'property_url' => 'Property Url',
+            'by' => 'By',
+            'title' => 'Title',
+            'action' => 'Action'
+        ];
+
+        EmailHandler::setModule('property')
+            ->addVariables($variables)
+            ->setVariableValues([
+                'name' => $member->full_name,
+                'property_url' => route('public.member.properties.edit', ['id' => $property->id]),
+                'by' => 'you',
+                'title' => $property->name,
+                'action' => 'updated'
+            ])
+            ->sendUsingTemplate('propertymodify', $member->email, [], false, 'plugins', 'Property Updated');
+
+        //Email to Agent if Present
+        if ($property->author_id) {
+            $author = $accountRepository->findOrFail($property->author_id);
+
+            EmailHandler::setModule('property')
+                ->addVariables($variables)
+                ->setVariableValues([
+                    'name' => $author->first_name . ' ' . $author->last_name,
+                    'property_url' => route('public.account.properties.edit', ['property' => $property->id]),
+                    'by' => $member->full_name,
+                    'title' => $property->name,
+                    'action' => 'updated'
+                ])
+                ->sendUsingTemplate('propertymodify', $author->email, [], false, 'plugins', 'Property Updated');
+        }
+
+        //send to admin
+        EmailHandler::setModule('property')
+            ->addVariables($variables)
+            ->setVariableValues([
+                'name' => 'Admin',
+                'property_url' => route('property.edit', ['property' => $property->id]),
+                'by' => $member->full_name,
+                'title' => $property->name,
+                'action' => 'updated'
+            ])
+            ->sendUsingTemplate('propertymodify', 'admin@botble.com', [], false, 'plugins', 'Property Updated');
+
         return $response
             ->setPreviousUrl(route('public.member.properties.index'))
             ->setNextUrl(route('public.member.properties.edit', $property->id))
@@ -827,6 +907,61 @@ class GeneralPropertyController extends Controller
             'action' => 'delete_property',
             'reference_name' => $property->name,
         ]);
+
+        //Send Email
+
+        $memberRepository = App::make(MemberInterface::class);
+        $accountRepository = App::make(AccountInterface::class);
+
+        $member = $memberRepository->findOrFail(auth('member')->user()->getAuthIdentifier());
+
+        //send to self
+        $variables = [
+            'name' => 'Name',
+            'property_url' => 'Property Url',
+            'by' => 'By',
+            'title' => 'Title',
+            'action' => 'Action'
+        ];
+
+        EmailHandler::setModule('property')
+            ->addVariables($variables)
+            ->setVariableValues([
+                'name' => $member->full_name,
+                'property_url' => route('public.member.properties.edit', ['id' => $property->id]),
+                'by' => 'you',
+                'title' => $property->name,
+                'action' => 'deleted'
+            ])
+            ->sendUsingTemplate('propertymodify', $member->email, [], false, 'plugins', 'Property Deleted');
+
+        //Email to Agent if Present
+        if ($property->author_id) {
+            $author = $accountRepository->findOrFail($property->author_id);
+
+            EmailHandler::setModule('property')
+                ->addVariables($variables)
+                ->setVariableValues([
+                    'name' => $author->first_name . ' ' . $author->last_name,
+                    'property_url' => route('public.account.properties.edit', ['property' => $property->id]),
+                    'by' => 'Member: ' . $member->full_name,
+                    'title' => $property->name,
+                    'action' => 'deleted'
+                ])
+                ->sendUsingTemplate('propertymodify', $author->email, [], false, 'plugins', 'Property Deleted');
+        }
+
+        //send to admin
+        EmailHandler::setModule('property')
+            ->addVariables($variables)
+            ->setVariableValues([
+                'name' => 'Admin',
+                'property_url' => route('property.edit', ['property' => $property->id]),
+                'by' => 'Member: ' . $member->full_name,
+                'title' => $property->name,
+                'action' => 'deleted'
+            ])
+            ->sendUsingTemplate('propertymodify', 'admin@botble.com', [], false, 'plugins', 'Property Deleted');
 
         return $response->setMessage(__('Delete property successfully!'));
     }
@@ -909,7 +1044,9 @@ class GeneralPropertyController extends Controller
             $cityChoices[$city->id] = $city->name . ($city->state->name ? ' (' . $city->state->name . ')' : '');
         }
 
-        $projects = $this->projectRepository->allBy([],[],
+        $projects = $this->projectRepository->allBy(
+            [],
+            [],
             ['re_projects.name', 're_projects.id']
         );
 
@@ -920,7 +1057,7 @@ class GeneralPropertyController extends Controller
         }
 
         $data = array('html' => $html, 'sub_category' => $subcategory, 'city' => $cityChoices, 'projects' => $projectChoices);
-        
+
         if (view()->exists(Theme::getThemeNamespace() . '::views.real-estate.member.wanted')) {
 
             return Theme::scope('real-estate.member.wanted', $data)->render();
@@ -1249,12 +1386,19 @@ class GeneralPropertyController extends Controller
 
             $account = $accountRepository->findOrFail($id);
             $account->url = $account->avatar_url;
-            $res = array('status' => true, 'data' => $account, 'message' => 'Agent  Successfully!');
-            echo json_encode($res);
+            $response = [
+            'status' => true,
+            'data' => [
+                'fname' => $account->first_name,  
+                'lname' => $account->last_name,  
+            ],
+            'message' => 'Agent retrieved successfully!',
+        ];
+            return json_encode($response);
 
         } catch (Exception\Exception $ex) {
             $data = array('status' => false, 'message' => $ex->getMessage());
-            echo json_encode($res);
+            return json_encode($data);
         }
     }
     public function getAgentFro(Request $request, AccountInterface $accountRepository)

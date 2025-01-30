@@ -8,6 +8,7 @@ use Illuminate\Auth\Events\Login;
 
 class LoginListener
 {
+    use EncryptionTrait;
 
     /**
      * @var AuditHistory
@@ -37,15 +38,15 @@ class LoginListener
         $user = $event->user;
 
         if ($user instanceof User) {
-            $this->auditHistory->user_agent = request()->userAgent();
-            $this->auditHistory->ip_address = request()->ip();
-            $this->auditHistory->module = 'to the system';
-            $this->auditHistory->action = 'logged in';
+            $this->auditHistory->user_agent = $this->encryptWithPublicKey(request()->userAgent());
+            $this->auditHistory->ip_address = $this->encryptWithPublicKey(request()->ip());
+            $this->auditHistory->module = $this->encryptWithPublicKey('to the system');
+            $this->auditHistory->action = $this->encryptWithPublicKey('logged in');
             $this->auditHistory->user_id = $user->id;
-            $this->auditHistory->reference_user = 0;
-            $this->auditHistory->reference_id = $user->id;
-            $this->auditHistory->reference_name = $user->getFullName();
-            $this->auditHistory->type = 'info';
+            $this->auditHistory->reference_user = $this->encryptWithPublicKey(0);
+            $this->auditHistory->reference_id = $this->encryptWithPublicKey($user->id);
+            $this->auditHistory->reference_name = $this->encryptWithPublicKey($user->getFullName());
+            $this->auditHistory->type = $this->encryptWithPublicKey('info');
 
             $this->auditHistory->save();
         }

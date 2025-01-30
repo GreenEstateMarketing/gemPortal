@@ -12,6 +12,7 @@ use Botble\RealEstate\Models\Account;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Validator;
+use Log;
 use RvMedia;
 use DB;
 use Illuminate\Support\Facades\Auth;
@@ -189,15 +190,20 @@ class AccountController extends Controller
     {
         $lat = $request->latitude;
         $lng = $request->longitude;
-        $po = "'" . 'POINT(' . $lat . ' ' . $lng . ')' . "'";
-        //SELECT ST_Within(ST_GEOMFROMTEXT('POINT($lat $lng)'),agent_area) as ceck,id FROM `re_accounts` WHERE id=33
-        $col = '*,ST_Within(ST_GEOMFROMTEXT(' . $po . '),agent_area) as ceck,id';
-        $w = 'ST_Within(ST_GEOMFROMTEXT(' . $po . ',4326),agent_area)=1';
-        $res = Account::select(['re_accounts.id', 'first_name', 'last_name', 'rating'])->leftJoin('ratings', 're_accounts.id', '=', 'ratings.agent_id')->whereNotNull('confirmed_at')->whereRaw($w)->orderBy('rating', 'DESC')->get();
-        foreach ($res as $k => $val) {
-            $res[$k]->img_src = $val->getAvatarUrlAttribute();
+        if ($lat && $lng) {
+            $po = "'" . 'POINT(' . $lat . ' ' . $lng . ')' . "'";
+            //SELECT ST_Within(ST_GEOMFROMTEXT('POINT($lat $lng)'),agent_area) as ceck,id FROM `re_accounts` WHERE id=33
+            $col = '*,ST_Within(ST_GEOMFROMTEXT(' . $po . '),agent_area) as ceck,id';
+            $w = 'ST_Within(ST_GEOMFROMTEXT(' . $po . ',4326),agent_area)=1';
+            $res = Account::select(['re_accounts.id', 'first_name', 'last_name', 'rating'])->leftJoin('ratings', 're_accounts.id', '=', 'ratings.agent_id')->whereNotNull('confirmed_at')->whereRaw($w)->orderBy('rating', 'DESC')->get();
+            foreach ($res as $k => $val) {
+                $res[$k]->img_src = $val->getAvatarUrlAttribute();
+            }
+            echo json_encode($res);
+        } else {
+            echo json_encode([]);
         }
-        echo json_encode($res);
+
     }
     public function agent_data(Request $request)
     {

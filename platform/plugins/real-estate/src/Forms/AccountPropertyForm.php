@@ -20,6 +20,9 @@ class AccountPropertyForm extends PropertyForm
      */
     public function buildForm()
     {
+
+        $propertyId = $this->model ? $this->model->id : '';
+
         parent::buildForm();
 
         Assets::addScriptsDirectly('vendor/core/core/base/libraries/tinymce/tinymce.min.js');
@@ -58,6 +61,8 @@ class AccountPropertyForm extends PropertyForm
             }
         }
 
+        $verified = $this->getModel() ? $this->getModel()->verified : false;
+
         $this
             ->setupModel(new Property)
             ->setFormOption('template', 'plugins/real-estate::account.forms.base')
@@ -75,6 +80,7 @@ class AccountPropertyForm extends PropertyForm
             ->remove('never_expired')
             ->remove('btn_verify')
             ->remove('comments')
+            ->removeMetaBox('moderation_status')
             ->modify('auto_renew', 'onOff', [
                 'label' => trans('plugins/real-estate::property.renew_notice', ['days' => config('plugins.real-estate.real-estate.property_expired_after_x_days')]),
                 'label_attr' => ['class' => 'control-label'],
@@ -90,10 +96,27 @@ class AccountPropertyForm extends PropertyForm
                 'label_attr' => ['class' => 'control-label required'],
             ]);
 
+        $this->remove('rowOpenVerificatonInfo')
+            ->remove('VerificatonInfo')
+            ->remove('rowCloseVerificatonInfo');
+
         if (!$show) {
             $this->remove('rowOpenSellerInfo')
                 ->remove('SellerInfo')
                 ->remove('rowCloseSellerInfo');
         }
+
+        if ($this->model && $this->model->id) {
+            $this->addMetaBoxes([
+                'verified' => [
+                    'title' => 'Verified',
+                    'content' => view(
+                        'plugins/real-estate::partials.verified',
+                        compact('verified', 'propertyId')
+                    )->render()
+                ],
+            ]);
+        }
+
     }
 }

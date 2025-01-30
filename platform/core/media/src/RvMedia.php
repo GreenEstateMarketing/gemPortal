@@ -26,6 +26,7 @@ use Mimey\MimeTypes;
 use Storage;
 use Throwable;
 use Validator;
+use Intervention\Image\Facades\Image as InImage;
 
 class RvMedia
 {
@@ -93,15 +94,15 @@ class RvMedia
     public function getUrls(): array
     {
         return [
-            'base_url'                 => url(''),
-            'base'                     => route('media.index'),
-            'get_media'                => route('media.list'),
-            'create_folder'            => route('media.folders.create'),
-            'popup'                    => route('media.popup'),
-            'download'                 => route('media.download'),
-            'upload_file'              => route('media.files.upload'),
-            'get_breadcrumbs'          => route('media.breadcrumbs'),
-            'global_actions'           => route('media.global_actions'),
+            'base_url' => url(''),
+            'base' => route('media.index'),
+            'get_media' => route('media.list'),
+            'create_folder' => route('media.folders.create'),
+            'popup' => route('media.popup'),
+            'download' => route('media.download'),
+            'upload_file' => route('media.files.upload'),
+            'get_breadcrumbs' => route('media.breadcrumbs'),
+            'global_actions' => route('media.global_actions'),
             'media_upload_from_editor' => route('media.files.upload.from.editor'),
         ];
     }
@@ -132,8 +133,8 @@ class RvMedia
     public function responseSuccess($data, $message = null): JsonResponse
     {
         return response()->json([
-            'error'   => false,
-            'data'    => $data,
+            'error' => false,
+            'data' => $data,
             'message' => $message,
         ]);
     }
@@ -148,10 +149,10 @@ class RvMedia
     public function responseError($message, $data = [], $code = null, $status = 200): JsonResponse
     {
         return response()->json([
-            'error'   => true,
+            'error' => true,
             'message' => $message,
-            'data'    => $data,
-            'code'    => $code,
+            'data' => $data,
+            'code' => $code,
         ], $status);
     }
 
@@ -231,7 +232,7 @@ class RvMedia
             return $path;
         }
 
-        if (config('filesystems.default') === 'do_spaces' && (int)setting('media_do_spaces_cdn_enabled')) {
+        if (config('filesystems.default') === 'do_spaces' && (int) setting('media_do_spaces_cdn_enabled')) {
             $customDomain = setting('media_do_spaces_cdn_custom_domain');
 
             if ($customDomain) {
@@ -403,15 +404,17 @@ class RvMedia
         if ($result['error'] == false) {
             $file = $result['data'];
             if ($request->input('upload_type') == 'tinymce') {
-                return response('<script>parent.setImageValue("' . $this->url($file->url) . '"); </script>')->header('Content-Type',
-                    'text/html');
+                return response('<script>parent.setImageValue("' . $this->url($file->url) . '"); </script>')->header(
+                    'Content-Type',
+                    'text/html'
+                );
             }
 
             if (!$request->input('CKEditorFuncNum')) {
                 return response()->json([
                     'fileName' => File::name($this->url($file->url)),
                     'uploaded' => 1,
-                    'url'      => $this->url($file->url),
+                    'url' => $this->url($file->url),
                 ]);
             }
 
@@ -434,7 +437,7 @@ class RvMedia
     {
         if (!$fileUpload) {
             return [
-                'error'   => true,
+                'error' => true,
                 'message' => trans('core/media::media.can_not_detect_file_type'),
             ];
         }
@@ -451,7 +454,7 @@ class RvMedia
 
                 if ($validator->fails()) {
                     return [
-                        'error'   => true,
+                        'error' => true,
                         'message' => $validator->getMessageBag()->first(),
                     ];
                 }
@@ -459,9 +462,9 @@ class RvMedia
 
             $maxSize = $this->getServerConfigMaxUploadFileSize();
 
-            if ($fileUpload->getSize() / 1024 > (int)$maxSize) {
+            if ($fileUpload->getSize() / 1024 > (int) $maxSize) {
                 return [
-                    'error'   => true,
+                    'error' => true,
                     'message' => trans('core/media::media.file_too_big', ['size' => human_file_size($maxSize)]),
                 ];
             }
@@ -474,7 +477,7 @@ class RvMedia
 
             if (!$skipValidation && !in_array(strtolower($fileExtension), explode(',', $allowedMimeTypes))) {
                 return [
-                    'error'   => true,
+                    'error' => true,
                     'message' => trans('core/media::media.can_not_detect_file_type'),
                 ];
             }
@@ -484,9 +487,9 @@ class RvMedia
 
                 if (!$folder) {
                     $folder = $this->folderRepository->createOrUpdate([
-                        'user_id'   => Auth::check() ? Auth::user()->getKey() : 0,
-                        'name'      => $this->folderRepository->createName($folderSlug, 0),
-                        'slug'      => $this->folderRepository->createSlug($folderSlug, 0),
+                        'user_id' => Auth::check() ? Auth::user()->getKey() : 0,
+                        'name' => $this->folderRepository->createName($folderSlug, 0),
+                        'slug' => $this->folderRepository->createSlug($folderSlug, 0),
                         'parent_id' => 0,
                     ]);
                 }
@@ -494,8 +497,10 @@ class RvMedia
                 $folderId = $folder->id;
             }
 
-            $file->name = $this->fileRepository->createName(File::name($fileUpload->getClientOriginalName()),
-                $folderId);
+            $file->name = $this->fileRepository->createName(
+                File::name($fileUpload->getClientOriginalName()),
+                $folderId
+            );
 
             $folderPath = $this->folderRepository->getFullPath($folderId);
 
@@ -519,7 +524,7 @@ class RvMedia
 
             if (!$skipValidation && empty($data['mime_type'])) {
                 return [
-                    'error'   => true,
+                    'error' => true,
                     'message' => trans('core/media::media.can_not_detect_file_type'),
                 ];
             }
@@ -534,16 +539,77 @@ class RvMedia
 
             $this->generateThumbnails($file);
 
+            $this->watermarkImage($folderPath, $fileName);
+
             return [
                 'error' => false,
-                'data'  => new FileResource($file),
+                'data' => new FileResource($file),
             ];
         } catch (Exception $exception) {
             return [
-                'error'   => true,
+                'error' => true,
                 'message' => $exception->getMessage(),
             ];
         }
+    }
+
+    public function watermarkImage($folderPath, $fileName): void
+    {
+        $fileNameArray = explode('.', $fileName);
+        $fileNameWithoutExtension = $fileNameArray[0];
+        $extension = $fileNameArray[1];
+
+        $filePathFull = Storage::path($folderPath) . '/' . $fileName;
+        $image = InImage::make($filePathFull);
+
+        $watermarkPath = public_path('storage/watermark/gem-w.png');
+        $watermark = InImage::make($watermarkPath);
+
+        $watermark->resize(
+            intval($image->width() * 0.3), // 30% of the image width
+            intval($image->height() * 0.3), // 30% of the image height
+            function ($constraint) {
+                $constraint->aspectRatio(); // Maintain aspect ratio
+                $constraint->upsize(); // Prevent upsizing if the watermark is smaller
+            }
+        );
+
+        $image->insert($watermark, 'center');
+        $image->save($filePathFull);
+
+        $watermark1Path = public_path('storage/watermark/gem-w-150x150.png');
+        $watermark1 = InImage::make($watermark1Path);
+
+        $watermark1->resize(
+            intval($image->width() * 0.3), // 30% of the image width
+            intval($image->height() * 0.3), // 30% of the image height
+            function ($constraint) {
+                $constraint->aspectRatio(); // Maintain aspect ratio
+                $constraint->upsize(); // Prevent upsizing if the watermark is smaller
+            }
+        );
+
+        $thumbnail1Full = Storage::path($folderPath) . '/' . $fileNameWithoutExtension . '-150x150.' . $extension;
+        $thumbnail1 = InImage::make($thumbnail1Full);
+        $thumbnail1->insert($watermark1, 'center');
+        $thumbnail1->save($thumbnail1Full);
+
+        $watermark2Path = public_path('storage/watermark/gem-w-410x270.png');
+        $watermark2 = InImage::make($watermark2Path);
+
+        $watermark2->resize(
+            intval($image->width() * 0.3), // 30% of the image width
+            intval($image->height() * 0.3), // 30% of the image height
+            function ($constraint) {
+                $constraint->aspectRatio(); // Maintain aspect ratio
+                $constraint->upsize(); // Prevent upsizing if the watermark is smaller
+            }
+        );
+
+        $thumbnail2Full = Storage::path($folderPath) . '/' . $fileNameWithoutExtension . '-410x270.' . $extension;
+        $thumbnail2 = InImage::make($thumbnail2Full);
+        $thumbnail2->insert($watermark2, 'center');
+        $thumbnail2->save($thumbnail2Full);
     }
 
     /**
@@ -603,13 +669,17 @@ class RvMedia
 
         if (setting('media_watermark_enabled', config('core.media.media.watermark.enabled'))) {
             $image = Image::make($this->getRealPath($file->url));
-            $watermark = Image::make($this->getRealPath(setting('media_watermark_source',
-                config('core.media.media.watermark.source'))));
+            $watermark = Image::make($this->getRealPath(setting(
+                'media_watermark_source',
+                config('core.media.media.watermark.source')
+            )));
 
             // 10% less then an actual image (play with this value)
             // Watermark will be 10 less then the actual width of the image
-            $watermarkSize = round($image->width() * (setting('media_watermark_size',
-                        config('core.media.media.watermark.size')) / 100), 2);
+            $watermarkSize = round($image->width() * (setting(
+                'media_watermark_size',
+                config('core.media.media.watermark.size')
+            ) / 100), 2);
 
             // Resize watermark width keep height auto
             $watermark
@@ -618,7 +688,8 @@ class RvMedia
                 })
                 ->opacity(setting('media_watermark_opacity', config('core.media.media.watermark.opacity')));
 
-            $image->insert($watermark,
+            $image->insert(
+                $watermark,
                 setting('media_watermark_position', config('core.media.media.watermark.position')),
                 setting('watermark_position_x', config('core.media.media.watermark.x')),
                 setting('watermark_position_y', config('core.media.media.watermark.y'))
@@ -678,7 +749,7 @@ class RvMedia
     {
         if (empty($url)) {
             return [
-                'error'   => true,
+                'error' => true,
                 'message' => trans('core/media::media.url_invalid'),
             ];
         }
@@ -689,7 +760,7 @@ class RvMedia
             $contents = file_get_contents($url);
         } catch (Exception $exception) {
             return [
-                'error'   => true,
+                'error' => true,
                 'message' => $exception->getMessage(),
             ];
         }
@@ -739,7 +810,7 @@ class RvMedia
     {
         if (empty($path)) {
             return [
-                'error'   => true,
+                'error' => true,
                 'message' => trans('core/media::media.path_invalid'),
             ];
         }

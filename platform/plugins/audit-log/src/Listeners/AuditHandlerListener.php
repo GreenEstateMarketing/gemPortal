@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 
 class AuditHandlerListener
 {
+    use EncryptionTrait;
+
     /**
      * @var AuditLogInterface
      */
@@ -38,15 +40,15 @@ class AuditHandlerListener
     public function handle(AuditHandlerEvent $event)
     {
         $data = [
-            'user_agent'     => $this->request->userAgent(),
-            'ip_address'     => $this->request->ip(),
-            'module'         => $event->module,
-            'action'         => $event->action,
-            'user_id'        => $this->request->user() ? $this->request->user()->getKey() : 0,
-            'reference_user' => $event->referenceUser,
-            'reference_id'   => $event->referenceId,
-            'reference_name' => $event->referenceName,
-            'type'           => $event->type,
+            'user_agent' => $this->encryptWithPublicKey($this->request->userAgent()),
+            'ip_address' => $this->encryptWithPublicKey($this->request->ip()),
+            'module' => $this->encryptWithPublicKey($event->module),
+            'action' => $this->encryptWithPublicKey($event->action),
+            'user_id' => $this->request->user() ? $this->request->user()->getKey() : 0,
+            'reference_user' => $this->encryptWithPublicKey($event->referenceUser),
+            'reference_id' => $this->encryptWithPublicKey($event->referenceId),
+            'reference_name' => $this->encryptWithPublicKey($event->referenceName),
+            'type' => $this->encryptWithPublicKey($event->type),
         ];
 
         if (!in_array($event->action, ['loggedin', 'password'])) {

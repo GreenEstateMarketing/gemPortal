@@ -37,7 +37,11 @@ class AccountRepository extends RepositoriesAbstract implements AccountInterface
     {
         $res = $this->model->selectRaw('ST_AsGeoJson(agent_area) as poly_coord')->where('id', '=', $id)->get();
         $swapped = $this->swapCoordinates($res[0]->poly_coord);
-        return $swapped;
+        if(env('SWAP_CORD', 'true')) {
+            return $swapped;
+        } 
+
+        return $res[0]->poly_coord;
     }
 
     private function swapCoordinates($geoJson)

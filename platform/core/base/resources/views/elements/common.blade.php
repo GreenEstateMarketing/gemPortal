@@ -23,18 +23,18 @@
         <script type="text/javascript">
             $(document).ready(function () {
                 @if (session()->has('success_msg'))
-                Botble.showSuccess('{{ session('success_msg') }}');
+                    Botble.showSuccess('{{ session('success_msg') }}');
                 @endif
                 @if (session()->has('error_msg'))
-                Botble.showError('{{ session('error_msg') }}');
+                    Botble.showError('{{ session('error_msg') }}');
                 @endif
                 @if (isset($error_msg))
-                Botble.showError('{{ $error_msg }}');
+                    Botble.showError('{{ $error_msg }}');
                 @endif
                 @if (isset($errors))
-                @foreach ($errors->all() as $error)
-                Botble.showError('{{ $error }}');
-                @endforeach
+                    @foreach ($errors->all() as $error)
+                        Botble.showError('{{ $error }}');
+                    @endforeach
                 @endif
             });
         </script>

@@ -8,6 +8,7 @@ use Botble\Base\Events\UpdatedContentEvent;
 use Botble\Base\Forms\FormBuilder;
 use Botble\Base\Http\Controllers\BaseController;
 use Botble\Base\Http\Responses\BaseHttpResponse;
+use EmailHandler;
 use Botble\Base\Traits\HasDeleteManyItemsTrait;
 use Botble\RealEstate\Forms\AccountForm;
 use Botble\RealEstate\Http\Requests\AccountCreateRequest;
@@ -71,22 +72,19 @@ class AccountController extends BaseController
      */
     public function store(AccountCreateRequest $request, BaseHttpResponse $response)
     {
+        $pass = $request->input('password');
         $request->merge([
-            'password' => bcrypt($request->input('password')),
+            'password' => bcrypt($pass),
             'confirmed_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
         $data = json_decode($request['agent_area']);
-        //  dd($request['agent_area']);exit;die;
         $i = 0;
         if ($request['agent_area'] != "") {
             $total_ar = count($data);
-            // echo $total_ar;exit;
             if ($total_ar == 1)
                 $po = 'POLYGON((';
             else
                 $kp = 'MultiPolygon((';
-            //'MultiPolygon(((0 0,0 3,3 3,3 0,0 0),(1 1,1 2,2 2,2 1,1 1)))';
-            //MultiPolygon(('(33.636439241201 70.973612444285,33.723290719941 71.62180580366,33.636439241201 70.973612444285),(33.7735330363 72.28098549116,35.225962172694 73.277578568501,34.951777200511 74.716787552876,34.721834185944 74.041128373189,33.7735330363 72.28098549116)))',4326)
             $ap = 'ST_GeomFromText(';
             $mo = '';
             $first = '';
@@ -99,9 +97,6 @@ class AccountController extends BaseController
                     $first = $item[0]->lat . ' ' . $item[0]->lng;
                     if ($total_ar == 1) {
                         if ($i == $total - 1) {
-                            /* echo $i; echo  't '.($total-1);
-                             echo '<br>';*/
-                            // $po .= $item[0]->lat . ' ' . $item[0]->lng; //first as last
                             $po .= $kk->lat . ' ' . $kk->lng;
                         } else
                             $po .= $kk->lat . ' ' . $kk->lng;
@@ -109,11 +104,7 @@ class AccountController extends BaseController
                         $i++;
                     } else {
                         if ($q == $total - 1) {
-                            /* echo $i; echo  't '.($total-1);
-                             echo '<br>';*/
                             $rp .= $kk->lat . ' ' . $kk->lng;
-                            //$rp .= $item[0]->lat . ' ' . $item[0]->lng; //first as last
-                            // $po.=$kk->lat.' '.$kk->lng;
                         } else
                             $rp .= $kk->lat . ' ' . $kk->lng;
                         $rp .= ',';
@@ -121,7 +112,6 @@ class AccountController extends BaseController
                     }
 
                 }
-                //    echo $po;
                 $rp .= $first;
 
                 $mo .= rtrim($rp, ',');
@@ -135,11 +125,6 @@ class AccountController extends BaseController
                 $ap .= '))';
                 $ap .= "',4326)";
             } else {
-                /*$kp .= "'";
-
-                $kp .= '))';
-                $kp.="',4326)";
-                //*/
                 $kp .= rtrim($mo, ',');
                 $ap .= "'";
                 $ap .= rtrim($kp, ',');
@@ -147,8 +132,6 @@ class AccountController extends BaseController
                 $ap .= "',4326)";
 
             }
-            //  echo $ap;
-            //   exit;
         }
         $account = Account::create($request->except('agent_area'));
         if ($request['agent_area'] != "") {
@@ -156,11 +139,26 @@ class AccountController extends BaseController
         }
         $account->confirmed_at = Carbon::now()->format('Y-m-d H:i:s');
 
-        // echo $account->toSql();exit;
         $account->save();
-        //dd($account);exit;
-        // $account = $this->accountRepository->createOrUpdate($data)->toSql();;
-        //  event(new CreatedContentEvent(ACCOUNT_MODULE_SCREEN_NAME, $request, $account));
+
+        event(new CreatedContentEvent(ACCOUNT_MODULE_SCREEN_NAME, $request, $account));
+
+        EmailHandler::setModule(ACCOUNT_MODULE_SCREEN_NAME)
+            ->addVariables([
+                'account_name' => 'Account Name',
+                'username' => 'Username',
+                'password' => 'Password',
+                'phone' => 'Phone',
+                'login_url' => 'Login'
+            ])
+            ->setVariableValues([
+                'account_name' => $account->first_name . ' ' . $account->last_name,
+                'username' => $account->username,
+                'password' => $pass,
+                'phone' => $account->phone,
+                'login_url' => route('public.account.login'),
+            ])
+            ->sendUsingTemplate('accountcreated', $account->email, [], false, 'plugins', 'Agent Account Created');
 
         return $response
             ->setPreviousUrl(route('account.index'))
@@ -177,7 +175,6 @@ class AccountController extends BaseController
     {
         $account = $this->accountRepository->findOrFail($id);
         $name = $this->accountRepository->getPolygon($id);
-        // echo $name;exit;
         page_title()->setTitle(trans('plugins/real-estate::account.edit', ['name' => $account->getFullName()]));
         $account->password = null;
         $account->coordinate = $name;

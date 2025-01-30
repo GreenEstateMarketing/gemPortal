@@ -526,7 +526,7 @@
                             </div>
                             <p class="city"><i class="fas fa-map-marker-alt" style="opacity: 0.7"></i>&nbsp;
                                 {{ item.location }}</p>
-                            <p class="threemt bold500">
+                            <div class="threemt bold500"></div>
                             <div v-if="item.category_parent_id == '1'">
                                 <div class="room-info   pt-3"><i class="fa fa-bed fa-2x pr-2 bed-icon"
                                         aria-hidden="true"></i><b class="bed-no pr-2">{{ item.number_bedroom }}</b><i

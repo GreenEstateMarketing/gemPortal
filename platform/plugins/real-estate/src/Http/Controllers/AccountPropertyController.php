@@ -11,6 +11,7 @@ use Botble\Base\Forms\FormBuilder;
 use Botble\Base\Http\Responses\BaseHttpResponse;
 use Botble\RealEstate\Forms\AccountPropertyForm;
 use Botble\RealEstate\Models\Property;
+use Botble\RealEstate\Repositories\Interfaces\MemberInterface;
 use Botble\RealEstate\Repositories\Interfaces\PropertyInterface;
 use Botble\RealEstate\Http\Requests\PropertyRequest;
 use Botble\RealEstate\Models\Account;
@@ -25,6 +26,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Storage;
 use SeoHelper;
+use EmailHandler;
 
 class AccountPropertyController extends Controller
 {
@@ -154,9 +156,42 @@ class AccountPropertyController extends Controller
             'reference_url' => route('public.account.properties.edit', $property->id),
         ]);
 
-        $account = $accountRepository->findOrFail(auth('account')->user()->getAuthIdentifier());
-        $account->credits--;
-        $account->save();
+        //Send Email        
+        //send to self
+        $variables = [
+            'name' => 'Name',
+            'property_url' => 'Property Url',
+            'by' => 'By',
+            'title' => 'Title',
+            'action' => 'Action'
+        ];
+
+        if ($property->author_id) {
+            $author = $accountRepository->findOrFail($property->author_id);
+
+            EmailHandler::setModule('property')
+                ->addVariables($variables)
+                ->setVariableValues([
+                    'name' => $author->first_name . ' ' . $author->last_name,
+                    'property_url' => route('public.account.properties.edit', ['property' => $property->id]),
+                    'by' => 'you',
+                    'title' => $property->name,
+                    'action' => 'created'
+                ])
+                ->sendUsingTemplate('propertymodify', $author->email, [], false, 'plugins', 'Property Created');
+        }
+
+        //send to admin
+        EmailHandler::setModule('property')
+            ->addVariables($variables)
+            ->setVariableValues([
+                'name' => 'Admin',
+                'property_url' => route('property.edit', ['property' => $property->id]),
+                'by' => 'Agent: ' . $author->first_name . ' ' . $author->last_name,
+                'title' => $property->name,
+                'action' => 'created'
+            ])
+            ->sendUsingTemplate('propertymodify', 'admin@botble.com', [], false, 'plugins', 'Property Created');
 
         return $response
             ->setPreviousUrl(route('public.account.properties.index'))
@@ -250,8 +285,6 @@ class AccountPropertyController extends Controller
 
             }
 
-
-
         }
         if ($old_category_id == $request['category_id']) {
             $update_arr = array_merge($old_arr, $jsonArr);
@@ -282,6 +315,43 @@ class AccountPropertyController extends Controller
             'reference_name' => $property->name,
             'reference_url' => route('public.account.properties.edit', $property->id),
         ]);
+
+        //Send Email        
+        //send to self
+        $variables = [
+            'name' => 'Name',
+            'property_url' => 'Property Url',
+            'by' => 'By',
+            'title' => 'Title',
+            'action' => 'Action'
+        ];
+
+        if ($property->author_id) {
+            $author = $this->accountRepository->findOrFail($property->author_id);
+
+            EmailHandler::setModule('property')
+                ->addVariables($variables)
+                ->setVariableValues([
+                    'name' => $author->first_name . ' ' . $author->last_name,
+                    'property_url' => route('public.account.properties.edit', ['property' => $property->id]),
+                    'by' => 'you',
+                    'title' => $property->name,
+                    'action' => 'updated'
+                ])
+                ->sendUsingTemplate('propertymodify', $author->email, [], false, 'plugins', 'Property Updated');
+        }
+
+        //send to admin
+        EmailHandler::setModule('property')
+            ->addVariables($variables)
+            ->setVariableValues([
+                'name' => 'Admin',
+                'property_url' => route('property.edit', ['property' => $property->id]),
+                'by' => 'Agent: ' . $author->first_name . ' ' . $author->last_name,
+                'title' => $property->name,
+                'action' => 'updated'
+            ])
+            ->sendUsingTemplate('propertymodify', 'admin@botble.com', [], false, 'plugins', 'Property Updated');
 
         return $response
             ->setPreviousUrl(route('public.account.properties.index'))
@@ -314,6 +384,43 @@ class AccountPropertyController extends Controller
             'reference_name' => $property->name,
         ]);
 
+        //Send Email        
+        //send to self
+        $variables = [
+            'name' => 'Name',
+            'property_url' => 'Property Url',
+            'by' => 'By',
+            'title' => 'Title',
+            'action' => 'Action'
+        ];
+
+        if ($property->author_id) {
+            $author = $this->accountRepository->findOrFail($property->author_id);
+
+            EmailHandler::setModule('property')
+                ->addVariables($variables)
+                ->setVariableValues([
+                    'name' => $author->first_name . ' ' . $author->last_name,
+                    'property_url' => route('public.account.properties.edit', ['property' => $property->id]),
+                    'by' => 'you',
+                    'title' => $property->name,
+                    'action' => 'deleted'
+                ])
+                ->sendUsingTemplate('propertymodify', $author->email, [], false, 'plugins', 'Property Deleted');
+        }
+
+        //send to admin
+        EmailHandler::setModule('property')
+            ->addVariables($variables)
+            ->setVariableValues([
+                'name' => 'Admin',
+                'property_url' => route('property.edit', ['property' => $property->id]),
+                'by' => 'Agent: ' . $author->first_name . ' ' . $author->last_name,
+                'title' => $property->name,
+                'action' => 'deleted'
+            ])
+            ->sendUsingTemplate('propertymodify', 'admin@botble.com', [], false, 'plugins', 'Property Deleted');
+
         return $response->setMessage(__('Delete property successfully!'));
     }
 
@@ -339,5 +446,61 @@ class AccountPropertyController extends Controller
         $account->save();
 
         return $response->setMessage(__('Renew property successfully'));
+    }
+
+    public function verify($id, BaseHttpResponse $response, MemberInterface $memberRepository)
+    {
+        $property = $this->propertyRepository->findOrFail($id);
+
+        $account = auth('account')->user();
+
+        if ($property->author_id == $account->id) {
+            $property->verified = true;
+            $property->save();
+
+            //send emails to corresponding people
+            $variables = [
+                'name' => 'Name',
+                'property_url' => 'Property Url',
+                'by' => 'By',
+                'title' => 'Title',
+                'action' => 'Action'
+            ];
+
+            EmailHandler::setModule('property')
+            ->addVariables($variables)
+            ->setVariableValues([
+                'name' => 'Admin',
+                'property_url' => route('property.edit', ['property' => $property->id]),
+                'by' => 'Agent: ' . $account->first_name . ' ' . $account->last_name,
+                'title' => $property->name,
+                'action' => 'verified'
+            ])
+            ->sendUsingTemplate('propertymodify', 'admin@botble.com', [], false, 'plugins', 'Property Verified');
+
+            //to member if its owned by member
+            if($property->member_id) {
+                $member = $memberRepository->findOrFail($property->member_id);
+                EmailHandler::setModule('property')
+                ->addVariables($variables)
+                ->setVariableValues([
+                    'name' => $member->full_name,
+                    'property_url' => route('public.member.properties.edit', ['id' => $property->id]),
+                    'by' => 'Agent: ' . $account->first_name . ' ' . $account->last_name,
+                    'title' => $property->name,
+                    'action' => 'verified'
+                ])
+                ->sendUsingTemplate('propertymodify', $member->email, [], false, 'plugins', 'Property Verified');
+            }
+
+            return $response
+                ->setPreviousUrl(route('public.account.properties.edit', $property->id))
+                ->setNextUrl(route('public.account.properties.edit', $property->id))
+                ->setMessage('This property has been successfully verified by you.');
+        } else {
+            return $response
+                ->setError()
+                ->setMessage("Something went wrong. Couldn't verify property.");
+        }
     }
 }
