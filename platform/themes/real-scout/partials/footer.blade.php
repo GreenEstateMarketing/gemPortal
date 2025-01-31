@@ -55,6 +55,8 @@
                     <li><a href="#">News</a></li>
                     <li><a href="/contact">Contact</a></li>
                     <li><a href="/faq">FAQ</a></li>
+                    <li><a href="/return-policy">Return Policy</a></li>
+                    <li><a href="/shipping-policy">Shipping/Delivery Policy</a></li>
                 </ul>
             </div>
             <!-- end col-2 -->
