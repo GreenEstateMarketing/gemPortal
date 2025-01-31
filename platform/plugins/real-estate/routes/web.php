@@ -5,8 +5,6 @@ use Botble\RealEstate\Models\Category;
 use Botble\RealEstate\Models\Project;
 use Botble\RealEstate\Models\Property;
 
-dd('YEAH');
-
 Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' => ['web', 'core']], function () {
 
     Route::group([

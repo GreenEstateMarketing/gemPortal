@@ -441,6 +441,7 @@ class RealEstateServiceProvider extends ServiceProvider
         $this->app->register(EventServiceProvider::class);
 
         if (is_plugin_active('rss-feed')) {
+            dd('YEAH');
             \RssFeed::addFeedLink(route('feeds.properties'), 'Properties feed');
         }
     }
