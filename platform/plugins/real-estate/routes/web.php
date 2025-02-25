@@ -498,7 +498,7 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
 
         });
 
-        Route::get('send-mail-for-payment',  [PropertyController::class, 'mailForPayment'])
+        Route::get('send-mail-for-payment', [PropertyController::class, 'mailForPayment'])
             ->name('mail-for-payment');
 
         Route::get('Add-Property', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'create'])
@@ -589,6 +589,13 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
 
             Route::get('member/packages/{id}/subscribe', 'GeneralPropertyController@getSubscribePackage')
                 ->name('public.member.package.subscribe');
+
+            Route::get('member/packages/callback', 'GeneralPropertyController@packageCallback')
+                ->name('public.member.package.callback');
+
+            Route::get('member/packages/notify', 'GeneralPropertyController@packageNotify')
+                ->name('public.member.package.notify');
+
             Route::post('member/packages/discount', 'GeneralPropertyController@discountPackage')
                 ->name('public.member.package.discount');
 

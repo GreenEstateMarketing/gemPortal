@@ -1210,10 +1210,115 @@ class GeneralPropertyController extends Controller
             $package->price = $total_price - session('discount');
         }
 
+        //BankAlfalahPaymentImplementation
+        $url = "https://sandbox.bankalfalah.com/HS/HS/HS";
+        $bankorderId = rand(0, 1786612);
+
+        $Key1 = "U39aPQdcCpvT89KD";
+        $Key2 = "4538160685898369";
+        $HS_ChannelId = env('CHANNEL_ID');
+        $HS_MerchantId = env('MERCHANT_ID');
+        $HS_StoreId = env('STORE_ID');
+        $HS_IsRedirectionRequest = 0;
+        $HS_ReturnURL = route('public.member.package.callback');
+        $HS_MerchantHash = env('MERCHANT_HASH');
+        $HS_MerchantUsername = env('MERCHANT_USERNAME');
+        $HS_MerchantPassword = env('MERCHANT_PASSWORD');
+        $HS_TransactionReferenceNumber = $bankorderId;
+        $transactionTypeId = "3";
+        $TransactionAmount = $package->price;
+
+        $cipher = "aes-128-cbc";
+
+
+        $mapString =
+            "HS_ChannelId=$HS_ChannelId"
+            . "&HS_IsRedirectionRequest=$HS_IsRedirectionRequest"
+            . "&HS_MerchantId=$HS_MerchantId"
+            . "&HS_StoreId=$HS_StoreId"
+            . "&HS_ReturnURL=$HS_ReturnURL"
+            . "&HS_MerchantHash=$HS_MerchantHash"
+            . "&HS_MerchantUsername=$HS_MerchantUsername"
+            . "&HS_MerchantPassword=$HS_MerchantPassword"
+            . "&HS_TransactionReferenceNumber=$HS_TransactionReferenceNumber";
+
+
+        $cipher_text = openssl_encrypt($mapString, $cipher, $Key1, OPENSSL_RAW_DATA, $Key2);
+        $hashRequest = base64_encode($cipher_text);
+
+
+        $fields = [
+            "HS_ChannelId" => $HS_ChannelId,
+            "HS_IsRedirectionRequest" => $HS_IsRedirectionRequest,
+            "HS_MerchantId" => $HS_MerchantId,
+            "HS_StoreId" => $HS_StoreId,
+            "HS_ReturnURL" => $HS_ReturnURL,
+            "HS_MerchantHash" => $HS_MerchantHash,
+            "HS_MerchantUsername" => $HS_MerchantUsername,
+            "HS_MerchantPassword" => $HS_MerchantPassword,
+            "HS_TransactionReferenceNumber" => $HS_TransactionReferenceNumber,
+            "HS_RequestHash" => $hashRequest
+        ];
+
+        $fields_string = http_build_query($fields);
+
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $result = curl_exec($ch);
+
+        $handshake = json_decode($result);
+
+        $AuthToken = $handshake->AuthToken;
+
+        $RequestHash1 = NULL;
+        $Currency = "PKR";
+        $IsBIN = 0;
+
+        $mapStringSSo =
+            "AuthToken=$AuthToken"
+            . "&RequestHash=$RequestHash1"
+            . "&ChannelId=$HS_ChannelId"
+            . "&Currency=$Currency"
+            . "&IsBIN=$IsBIN"
+            . "&ReturnURL=$HS_ReturnURL"
+            . "&MerchantId=$HS_MerchantId"
+            . "&StoreId=$HS_StoreId"
+            . "&MerchantHash=$HS_MerchantHash"
+            . "&MerchantUsername=$HS_MerchantUsername"
+            . "&MerchantPassword=$HS_MerchantPassword"
+            . "&TransactionTypeId=3"
+            . "&TransactionReferenceNumber=$HS_TransactionReferenceNumber"
+            . "&TransactionAmount=$TransactionAmount";
+
+
+        $cipher_text = openssl_encrypt($mapStringSSo, $cipher, $Key1, OPENSSL_RAW_DATA, $Key2);
+        $hashRequest1 = base64_encode($cipher_text);
+
 
         SeoHelper::setTitle(trans('plugins/real-estate::package.subscribe_package', ['name' => $package->name]));
         //return Theme::scope('real-estate.member.wanted',$data)->render();
-        return view('plugins/real-estate::member.checkout', compact('package', 'voucher', 'total_price'));
+        return view('plugins/real-estate::member.checkout', compact(
+            'package',
+            'voucher',
+            'total_price',
+            'AuthToken',
+            'hashRequest1',
+            'HS_ChannelId',
+            'HS_ReturnURL',
+            'HS_MerchantId',
+            'HS_StoreId',
+            'HS_MerchantHash',
+            'HS_MerchantUsername',
+            'HS_MerchantPassword',
+            'HS_TransactionReferenceNumber',
+            'TransactionAmount'
+        ));
     }
     public function getPackageSubscribeCallback(
         $packageId,
@@ -1223,7 +1328,6 @@ class GeneralPropertyController extends Controller
         TransactionInterface $transactionRepository,
         BaseHttpResponse $response
     ) {
-        \Illuminate\Support\Facades\Log::debug('YEAHHHHHHHHHHHH');
         $package = $packageRepository->findOrFail($packageId);
 
         if ($request->input('type') == PaymentMethodEnum::PAYPAL) {
@@ -1258,6 +1362,16 @@ class GeneralPropertyController extends Controller
         return $response
             ->setNextUrl(route('public.member.packages'))
             ->setMessage(trans('plugins/real-estate::package.add_credit_success'));
+    }
+
+    public function packageCallback()
+    {
+        echo "Paid";
+    }
+
+    public function packageNotify()
+    {
+        echo "notification rec";
     }
     public function getActivityLogs(BaseHttpResponse $response)
     {
@@ -1387,13 +1501,13 @@ class GeneralPropertyController extends Controller
             $account = $accountRepository->findOrFail($id);
             $account->url = $account->avatar_url;
             $response = [
-            'status' => true,
-            'data' => [
-                'fname' => $account->first_name,  
-                'lname' => $account->last_name,  
-            ],
-            'message' => 'Agent retrieved successfully!',
-        ];
+                'status' => true,
+                'data' => [
+                    'fname' => $account->first_name,
+                    'lname' => $account->last_name,
+                ],
+                'message' => 'Agent retrieved successfully!',
+            ];
             return json_encode($response);
 
         } catch (Exception\Exception $ex) {
