@@ -204,6 +204,19 @@ theme_option()
         ],
     ])
     ->setField([
+        'id' => 'linkedin',
+        'section_id' => 'opt-text-subsection-social',
+        'type' => 'text',
+        'label' => 'Linkedin',
+        'attributes' => [
+            'name' => 'linkedin',
+            'value' => null,
+            'options' => [
+                'class' => 'form-control',
+            ],
+        ],
+    ])
+    ->setField([
         'id' => 'twitter',
         'section_id' => 'opt-text-subsection-social',
         'type' => 'text',

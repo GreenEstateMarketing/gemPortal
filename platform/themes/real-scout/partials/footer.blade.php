@@ -77,6 +77,7 @@
                         <li><a href="{{ theme_option('facebook') }}"><i class="fab fa-facebook-f"></i></a></li>
                         <li><a href="{{ theme_option('twitter') }}"><i class="fab fa-twitter"></i></a></li>
                         <li><a href="{{ theme_option('youtube') }}"><i class="fab fa-youtube"></i></a></li>
+                        <li><a href="{{ theme_option('linkedin') }}"><i class="fab fa-linkedin"></i></a></li>
                     </ul>
                 </div>
                 <!-- end contact-box -->
