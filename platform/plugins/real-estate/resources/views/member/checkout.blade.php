@@ -165,13 +165,13 @@
         <!-- <h2 class="m-4 pl-4 pr-4">Payment Method</h2> -->
         <div class="row justify-content-center pb-5">
 
-            <form action="https://sandbox.bankalfalah.com/SSO/SSO/SSO" id="PageRedirectionForm" method="post"
+            <form action="https://payments.bankalfalah.com/SSO/SSO/SSO" id="PageRedirectionForm" method="post"
                 novalidate="novalidate">
                 <input id="AuthToken" name="AuthToken" type="hidden" value="<?php echo $AuthToken; ?>">
                 <input id="RequestHash" name="RequestHash" type="hidden" value="<?php echo $hashRequest1; ?>">
                 <input id="ChannelId" name="ChannelId" type="hidden" value="<?php echo $HS_ChannelId; ?>">
-                <input id="Currency" name="Currency" type="hidden" value="PKR">
-                <input id="IsBIN" name="IsBIN" type="hidden" value="0">
+                <input id="Currency" name="Currency" type="hidden" value="<?php echo $Currency;  ?>">
+                <input id="IsBIN" name="IsBIN" type="hidden" value="<?php echo $IsBIN;  ?>">
                 <input id="ReturnURL" name="ReturnURL" type="hidden" value="<?php echo $HS_ReturnURL; ?>">
                 <input id="MerchantId" name="MerchantId" type="hidden" value="<?php echo $HS_MerchantId;?>">
                 <input id="StoreId" name="StoreId" type="hidden" value="<?php echo $HS_StoreId;?>">
@@ -180,7 +180,7 @@
                     value="<?php echo $HS_MerchantUsername;?>">
                 <input id="MerchantPassword" name="MerchantPassword" type="hidden"
                     value="<?php echo $HS_MerchantPassword;?>">
-                <input id="TransactionTypeId" name="TransactionTypeId" type="hidden" value="3">
+                <input id="TransactionTypeId" name="TransactionTypeId" type="hidden" value="<?php echo $TransactionTypeId;  ?>">
 
 
                 <input autocomplete="off" id="TransactionReferenceNumber" name="TransactionReferenceNumber"

@@ -1211,11 +1211,11 @@ class GeneralPropertyController extends Controller
         }
 
         //BankAlfalahPaymentImplementation
-        $url = "https://sandbox.bankalfalah.com/HS/HS/HS";
+        $url = "https://payments.bankalfalah.com/HS/HS/HS";
         $bankorderId = rand(0, 1786612);
 
-        $Key1 = "U39aPQdcCpvT89KD";
-        $Key2 = "4538160685898369";
+        $Key1 = env('KEY1');
+        $Key2 = env('KEY2');
         $HS_ChannelId = env('CHANNEL_ID');
         $HS_MerchantId = env('MERCHANT_ID');
         $HS_StoreId = env('STORE_ID');
@@ -1225,11 +1225,10 @@ class GeneralPropertyController extends Controller
         $HS_MerchantUsername = env('MERCHANT_USERNAME');
         $HS_MerchantPassword = env('MERCHANT_PASSWORD');
         $HS_TransactionReferenceNumber = $bankorderId;
-        $transactionTypeId = "3";
+        $TransactionTypeId = "3";
         $TransactionAmount = $package->price;
 
         $cipher = "aes-128-cbc";
-
 
         $mapString =
             "HS_ChannelId=$HS_ChannelId"
@@ -1259,6 +1258,8 @@ class GeneralPropertyController extends Controller
             "HS_TransactionReferenceNumber" => $HS_TransactionReferenceNumber,
             "HS_RequestHash" => $hashRequest
         ];
+
+//        dd($fields);
 
         $fields_string = http_build_query($fields);
 
@@ -1317,7 +1318,10 @@ class GeneralPropertyController extends Controller
             'HS_MerchantUsername',
             'HS_MerchantPassword',
             'HS_TransactionReferenceNumber',
-            'TransactionAmount'
+            'TransactionAmount',
+            'Currency',
+            'IsBIN',
+            'TransactionTypeId'
         ));
     }
     public function getPackageSubscribeCallback(
