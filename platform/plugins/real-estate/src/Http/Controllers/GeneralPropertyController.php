@@ -3,19 +3,19 @@
 namespace Botble\RealEstate\Http\Controllers;
 
 use App;
-use App\Models\member_voucher;
 use App\Models\Rating;
 use App\Models\table_properties_check_lists;
 use Assets;
+use Auth;
 use BeyondCode\Vouchers\Models\Voucher;
-use Botble\ACL\Repositories\Interfaces\UserInterface;
 use Botble\Base\Enums\BaseStatusEnum;
 use Botble\Base\Events\BeforeEditContentEvent;
 use Botble\Base\Events\CreatedContentEvent;
 use Botble\Base\Events\UpdatedContentEvent;
-use Botble\Base\Supports\MembershipAuthorization;
-use Botble\Location\Repositories\Interfaces\CityInterface;
+use Botble\Base\Forms\FormBuilder;
+use Botble\Base\Http\Responses\BaseHttpResponse;
 use Botble\Location\Repositories\Interfaces\CityAreaInterface;
+use Botble\Location\Repositories\Interfaces\CityInterface;
 use Botble\Media\Chunks\Exceptions\UploadMissingFileException;
 use Botble\Media\Chunks\Handler\DropZoneUploadHandler;
 use Botble\Media\Chunks\Receiver\FileReceiver;
@@ -24,57 +24,49 @@ use Botble\Payment\Enums\PaymentMethodEnum;
 use Botble\Payment\Enums\PaymentStatusEnum;
 use Botble\Payment\Repositories\Interfaces\PaymentInterface;
 use Botble\Payment\Services\Gateways\PayPalPaymentService;
+use Botble\RealEstate\Forms\AccountPropertyForm;
+use Botble\RealEstate\Forms\GeneralPropertyForm;
+use Botble\RealEstate\Forms\MemberPropertyForm;
 use Botble\RealEstate\Http\Requests\MemberSettingRequest;
-use Botble\RealEstate\Http\Requests\SettingRequest;
+use Botble\RealEstate\Http\Requests\PropertyRequest;
 use Botble\RealEstate\Http\Requests\UpdatePasswordRequest;
 use Botble\RealEstate\Http\Resources\ActivityLogResource;
 use Botble\RealEstate\Http\Resources\MemberResource;
 use Botble\RealEstate\Http\Resources\PackageResource;
 use Botble\RealEstate\Http\Resources\TransactionResource;
+use Botble\RealEstate\Models\Account;
+use Botble\RealEstate\Models\Currency;
+use Botble\RealEstate\Models\Member;
 use Botble\RealEstate\Models\Package;
+use Botble\RealEstate\Models\Property;
+use Botble\RealEstate\Repositories\Interfaces\AccountActivityLogInterface;
+use Botble\RealEstate\Repositories\Interfaces\AccountInterface;
 use Botble\RealEstate\Repositories\Interfaces\CategoryInterface;
 use Botble\RealEstate\Repositories\Interfaces\MemberActivityLogInterface;
 use Botble\RealEstate\Repositories\Interfaces\MemberInterface;
 use Botble\RealEstate\Repositories\Interfaces\PackageInterface;
 use Botble\RealEstate\Repositories\Interfaces\ProjectInterface;
+use Botble\RealEstate\Repositories\Interfaces\PropertyInterface;
 use Botble\RealEstate\Repositories\Interfaces\TransactionInterface;
+use Botble\RealEstate\Services\SaveFacilitiesService;
+use Botble\RealEstate\Tables\AccountPropertyTable;
 use Botble\RealEstate\Tables\MemberPropertyTable;
 use Botble\Setting\Supports\SettingStore;
-use Illuminate\Http\Resources\Json\JsonResource;
+use EmailHandler;
+use Exception;
+use File;
+use Illuminate\Contracts\Config\Repository;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Hash;
-use Botble\Base\Forms\FormBuilder;
-use Botble\Base\Http\Responses\BaseHttpResponse;
-use Botble\RealEstate\Forms\AccountPropertyForm;
-use Botble\RealEstate\Forms\GeneralPropertyForm;
-use Botble\RealEstate\Forms\MemberPropertyForm;
-use Botble\RealEstate\Models\Property;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Log;
-use Botble\RealEstate\Repositories\Interfaces\PropertyInterface;
-use Botble\RealEstate\Http\Requests\PropertyRequest;
-use Botble\RealEstate\Models\Account;
-use Botble\RealEstate\Repositories\Interfaces\AccountActivityLogInterface;
-use Botble\RealEstate\Repositories\Interfaces\AccountInterface;
-use Botble\RealEstate\Services\SaveFacilitiesService;
-use Botble\RealEstate\Tables\AccountPropertyTable;
-use Exception;
-use Illuminate\Contracts\Config\Repository;
-use Illuminate\Http\Request;
-use Auth;
-use Botble\RealEstate\Models\Member;
-use Illuminate\Routing\Controller;
-use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\DB;
+use RvMedia;
 use SeoHelper;
 use Theme;
 use URL;
-use Botble\RealEstate\Models\Currency;
-use RvMedia;
-use File;
-use EmailHandler;
 
 class GeneralPropertyController extends Controller
 {
@@ -98,6 +90,7 @@ class GeneralPropertyController extends Controller
     protected $activityLogRepository;
     protected $memberLogRepository;
     protected $categoryRepository;
+
     /**
      * PublicController constructor.
      * @param Repository $config
@@ -106,16 +99,17 @@ class GeneralPropertyController extends Controller
      * @param AccountActivityLogInterface $accountActivityLogRepository
      */
     public function __construct(
-        Repository $config,
-        MemberInterface $memberRepository,
-        PropertyInterface $propertyRepository,
+        Repository                  $config,
+        MemberInterface             $memberRepository,
+        PropertyInterface           $propertyRepository,
         AccountActivityLogInterface $accountActivityLogRepository,
-        CategoryInterface $categoryRepository,
-        CityInterface $cityRepository,
-        CityAreaInterface $cityAreaRepository,
-        MemberActivityLogInterface $memberActivityLogRepository,
-        ProjectInterface $projectRepository
-    ) {
+        CategoryInterface           $categoryRepository,
+        CityInterface               $cityRepository,
+        CityAreaInterface           $cityAreaRepository,
+        MemberActivityLogInterface  $memberActivityLogRepository,
+        ProjectInterface            $projectRepository
+    )
+    {
         $this->memberRepository = $memberRepository;
         $this->propertyRepository = $propertyRepository;
         $this->cityRepository = $cityRepository;
@@ -139,6 +133,7 @@ class GeneralPropertyController extends Controller
     {
         return auth('member');
     }
+
     public function index(AccountPropertyTable $propertyTable)
     {
         SeoHelper::setTitle(__('Properties'));
@@ -364,7 +359,7 @@ class GeneralPropertyController extends Controller
         $property->fill($request->except(['expire_date']));
         $area_value = $request['square'];
         $area_units = $request['area_units'];
-        $old_arr = (array) $old_documents;
+        $old_arr = (array)$old_documents;
         $jsonArr = array();
 
         $ids = array_column($old_arr, 'id');
@@ -395,7 +390,6 @@ class GeneralPropertyController extends Controller
                 $i++;
 
             }
-
 
 
         }
@@ -493,6 +487,7 @@ class GeneralPropertyController extends Controller
 
         return $response->setMessage(__('Renew property successfully'));
     }
+
     public function login()
     {
         SeoHelper::setTitle(trans('plugins/real-estate::account.login'));
@@ -506,6 +501,7 @@ class GeneralPropertyController extends Controller
         //return view('plugins/real-estate::member.auth.login');
 
     }
+
     public function attemptLogin(Request $request)
     {
         /*$this->validate($request, [
@@ -520,11 +516,10 @@ class GeneralPropertyController extends Controller
 
             return redirect('/member/dashboard');
         }
-        return back()->withErrors(['Invalid email or password'])->withInput();
-        /*->withInput($request->only('email', 'remember'))->with('error' , 'Wrong email or password')*/
-        ;
+        return back()->withErrors(['Invalid email or password'])->withInput();/*->withInput($request->only('email', 'remember'))->with('error' , 'Wrong email or password')*/;
 
     }
+
     public function register()
     {
         SeoHelper::setTitle(trans('plugins/real-estate::account.register'));
@@ -537,6 +532,7 @@ class GeneralPropertyController extends Controller
         return view('plugins/real-estate::member.auth.register');
 
     }
+
     protected function createMember(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -572,7 +568,6 @@ class GeneralPropertyController extends Controller
             ->sendUsingTemplate('memberregistered', $member->email, [], false, 'plugins', 'Account Created');
 
 
-
         return redirect()->intended('member-login')->with(array('success_msg' => 'Registered Success!'));
     }
 
@@ -587,11 +582,13 @@ class GeneralPropertyController extends Controller
         return view('plugins/real-estate::member.dashboard.index', compact('user'));
 
     }
+
     public function properties(MemberPropertyTable $propertyTable)
     {
         SeoHelper::setTitle(__('Properties'));
         return $propertyTable->render('plugins/real-estate::member.table.base');
     }
+
     public function create_property(FormBuilder $formBuilder)
     {
         if (!auth('member')->user()->canPost()) {
@@ -742,6 +739,7 @@ class GeneralPropertyController extends Controller
             ->create(MemberPropertyForm::class, ['model' => $property])
             ->renderForm();
     }
+
     public function update_property($id, PropertyRequest $request, BaseHttpResponse $response, AccountInterface $accountRepository, SaveFacilitiesService $saveFacilitiesService, MemberInterface $memberRepository)
     {
         $property = $this->propertyRepository->getFirstBy([
@@ -758,7 +756,7 @@ class GeneralPropertyController extends Controller
         $old_documents = json_decode($property->documents);
 
         $property->fill($request->except(['expire_date']));
-        $old_arr = (array) $old_documents;
+        $old_arr = (array)$old_documents;
         $jsonArr = array();
 
         $ids = array_column($old_arr, 'id');
@@ -784,7 +782,6 @@ class GeneralPropertyController extends Controller
                 $i++;
 
             }
-
 
 
         }
@@ -889,6 +886,7 @@ class GeneralPropertyController extends Controller
             ->setNextUrl(route('public.member.properties.edit', $property->id))
             ->setMessage(trans('core/base::notices.update_success_message'));
     }
+
     public function delete_property($id, BaseHttpResponse $response)
     {
         $property = $this->propertyRepository->getFirstBy([
@@ -965,6 +963,7 @@ class GeneralPropertyController extends Controller
 
         return $response->setMessage(__('Delete property successfully!'));
     }
+
     public function logout(Request $request, BaseHttpResponse $response)
     {
         do_action(AUTH_ACTION_AFTER_LOGOUT_SYSTEM, $request, $request->user('member'));
@@ -975,6 +974,7 @@ class GeneralPropertyController extends Controller
             ->setNextUrl(route('public.index'))
             ->setMessage(trans('core/acl::auth.login.logout_success'));
     }
+
     /**member log**/
     public function getAllLogs($accountId, $paginate = 10)
     {
@@ -984,12 +984,14 @@ class GeneralPropertyController extends Controller
 
 
     }
+
     public function term_conditions()
     {
         $res = Page::where('id', 5)->get(); //for terms & conditons
         /*$returnHTML = Theme::scope('real-estate.member.wanted',$data)->render();*/
         return response()->json(array('success' => true, 'html' => $res[0]->content));
     }
+
     public function wanted()
     {
         SeoHelper::setTitle(trans('plugins/real-estate::wanted.name'));
@@ -1065,6 +1067,7 @@ class GeneralPropertyController extends Controller
 
         return view('plugins/real-estate::member.wanted', $data);
     }
+
     public function getSettings()
     {
         SeoHelper::setTitle(trans('plugins/real-estate::account.account_settings'));
@@ -1073,23 +1076,25 @@ class GeneralPropertyController extends Controller
 
         return view('plugins/real-estate::member.settings.index', compact('user'));
     }
+
     public function postSettings(MemberSettingRequest $request, BaseHttpResponse $response)
     {
 
         Member::where('id', auth('member')->user()->getAuthIdentifier())
-
             ->update($request->except('email', '_token'));
         /*$this->activityLogRepository->createOrUpdate(['action' => 'update_setting']);*/
         return $response
             ->setNextUrl(route('member.settings'))
             ->setMessage(trans('plugins/real-estate::account.update_profile_success'));
     }
+
     public function getSecurity()
     {
         SeoHelper::setTitle(trans('plugins/real-estate::account.security'));
 
         return view('plugins/real-estate::member.settings.security');
     }
+
     public function postSecurity(UpdatePasswordRequest $request, BaseHttpResponse $response)
     {
 
@@ -1101,6 +1106,7 @@ class GeneralPropertyController extends Controller
             ->setMessage(trans('plugins/real-estate::account.update_password_success'));
 
     }
+
     //////////package management//////
     public function getPackages()
     {
@@ -1110,6 +1116,7 @@ class GeneralPropertyController extends Controller
 
         return view('plugins/real-estate::member.settings.package');
     }
+
     public function ajaxGetPackages(PackageInterface $packageRepository, BaseHttpResponse $response)
     {
         $member = $this->memberRepository->findOrFail(
@@ -1123,9 +1130,9 @@ class GeneralPropertyController extends Controller
 
         $packages = $packages->filter(function ($package) use ($member) {
             return $package->account_limit === null || $member->packages->where(
-                'id',
-                $package->id
-            )->count() < $package->account_limit;
+                    'id',
+                    $package->id
+                )->count() < $package->account_limit;
         });
 
         return $response->setData([
@@ -1133,6 +1140,7 @@ class GeneralPropertyController extends Controller
             'account' => new MemberResource($member),
         ]);
     }
+
     public function ajaxGetTransactions(TransactionInterface $transactionRepository, BaseHttpResponse $response)
     {
         $transactions = $transactionRepository->advancedGet([
@@ -1149,12 +1157,14 @@ class GeneralPropertyController extends Controller
 
         return $response->setData(TransactionResource::collection($transactions))->toApiResponse();
     }
+
     public function ajaxSubscribePackage(
-        Request $request,
-        PackageInterface $packageRepository,
-        BaseHttpResponse $response,
+        Request              $request,
+        PackageInterface     $packageRepository,
+        BaseHttpResponse     $response,
         TransactionInterface $transactionRepository
-    ) {
+    )
+    {
         $package = $packageRepository->findOrFail($request->input('id'));
         $member = $this->memberRepository->findOrFail(auth('member')->user()->getAuthIdentifier());
 
@@ -1177,6 +1187,7 @@ class GeneralPropertyController extends Controller
             ->setData(new MemberResource($member->refresh()))
             ->setMessage(trans('plugins/real-estate::package.add_credit_success'));
     }
+
     protected function savePayment(Package $package, ?string $chargeId, TransactionInterface $transactionRepository, bool $force = false)
     {
         $payment = app(PaymentInterface::class)->getFirstBy(['charge_id' => $chargeId]);
@@ -1201,7 +1212,12 @@ class GeneralPropertyController extends Controller
 
         return true;
     }
-    public function getSubscribePackage($id, PackageInterface $packageRepository)
+
+    public function getSubscribePackage(
+        $id,
+        PackageInterface $packageRepository,
+        PaymentInterface $paymentRepository
+    )
     {
         $package = $packageRepository->findOrFail($id);
         $total_price = $package->price;
@@ -1210,9 +1226,26 @@ class GeneralPropertyController extends Controller
             $package->price = $total_price - session('discount');
         }
 
+        //Create Payment With Pending Status
+        $member = auth('member')->user();
+        $orderId = 'GEM-' . date('is') . '-' . rand(0, 1786612);
+        $paymentData = [
+            'amount' => $package->price,
+            'currency' => 'PKR',
+            'user_id' => $member->id,
+            'charge_id' => $orderId,
+            'payment_channel' => 'credit_card',
+            'order_id' => $orderId,
+            'status' => PaymentStatusEnum::PENDING,
+            'payment_type' => 'confirm',
+            'package_id' => $package->id
+        ];
+
+        $payment = $paymentRepository->create($paymentData);
+
         //BankAlfalahPaymentImplementation
         $url = "https://sandbox.bankalfalah.com/HS/HS/HS";
-        $bankorderId = rand(0, 1786612);
+        $bankorderId = $orderId;
 
         $Key1 = env('KEY1');
         $Key2 = env('KEY2');
@@ -1258,8 +1291,6 @@ class GeneralPropertyController extends Controller
             "HS_TransactionReferenceNumber" => $HS_TransactionReferenceNumber,
             "HS_RequestHash" => $hashRequest
         ];
-
-//        dd($fields);
 
         $fields_string = http_build_query($fields);
 
@@ -1324,6 +1355,55 @@ class GeneralPropertyController extends Controller
             'TransactionTypeId'
         ));
     }
+
+    public function packageCallback(
+        BaseHttpResponse     $response,
+        PaymentInterface     $paymentRepository,
+        TransactionInterface $transactionRepository,
+        PackageInterface     $packageRepository
+    )
+    {
+        $orderId = $_GET['O'];
+        $transactionStatus = $_GET['TS'];
+
+        if ($transactionStatus == 'P') {
+
+            $payment = $paymentRepository->getFirstBy(['charge_id' => $orderId]);
+            $package = $packageRepository->findById($payment->package_id);
+
+            $member = auth('member')->user();
+            $member->credits += $package->number_of_listings;
+            $member->save();
+
+            $member->packages()->attach($package);
+
+            $transactionRepository->createOrUpdate([
+                'user_id' => $member->id,
+                'account_id' => auth('member')->user()->getAuthIdentifier(),
+                'credits' => $package->number_of_listings,
+                'payment_id' => $payment ? $payment->id : null,
+            ]);
+
+            $message = 'Your payment has been received. Credits have been added to your account';
+
+            return $response
+                ->setNextUrl(route('public.member.packages'))
+                ->setMessage($message);
+        } else {
+            $message = 'Something went wrong with the payment. Please try again';
+
+            return $response
+                ->setNextUrl(route('public.member.packages'))
+                ->setError()
+                ->setMessage($message);
+        }
+    }
+
+    public function packageNotify()
+    {
+        echo "notification rec";
+    }
+
     public function getPackageSubscribeCallback(
         $packageId,
         Request $request,
@@ -1331,7 +1411,8 @@ class GeneralPropertyController extends Controller
         PackageInterface $packageRepository,
         TransactionInterface $transactionRepository,
         BaseHttpResponse $response
-    ) {
+    )
+    {
         $package = $packageRepository->findOrFail($packageId);
 
         if ($request->input('type') == PaymentMethodEnum::PAYPAL) {
@@ -1368,15 +1449,7 @@ class GeneralPropertyController extends Controller
             ->setMessage(trans('plugins/real-estate::package.add_credit_success'));
     }
 
-    public function packageCallback()
-    {
-        echo "Paid";
-    }
 
-    public function packageNotify()
-    {
-        echo "notification rec";
-    }
     public function getActivityLogs(BaseHttpResponse $response)
     {
         $activities = $this->memberLogRepository->getAllLogs(auth('member')->user()->getAuthIdentifier());
@@ -1385,6 +1458,7 @@ class GeneralPropertyController extends Controller
         Assets::addScriptsDirectly('js/app.js');
         return $response->setData(ActivityLogResource::collection($activities))->toApiResponse();
     }
+
     public function checkout($id, Request $request)
     {
         $package = Package::findOrFail($id);
@@ -1393,6 +1467,7 @@ class GeneralPropertyController extends Controller
         return Theme::scope('real-estate.member.checkout', compact('package', 'total_price', 'voucher'))->render();
         // return view('checkout',compact('package','total_price','voucher'));
     }
+
     public function postcheckout(Request $request, MemberInterface $memberRepository)
     {
         $package = Package::findOrFail($request->id);
@@ -1415,6 +1490,7 @@ class GeneralPropertyController extends Controller
 
         // return view('checkout',compact('package','total_price','voucher'));
     }
+
     public function discountPackage(Request $request, MemberInterface $memberRepository, BaseHttpResponse $response)
     {
         $package = Package::findOrFail($request->id);
@@ -1496,6 +1572,7 @@ class GeneralPropertyController extends Controller
             echo json_encode($data);
         }
     }
+
     public function getAgent(Request $request, AccountInterface $accountRepository)
     {
         $id = $_GET['id'];
@@ -1519,6 +1596,7 @@ class GeneralPropertyController extends Controller
             return json_encode($data);
         }
     }
+
     public function getAgentFro(Request $request, AccountInterface $accountRepository)
     {
         $id = $_GET['id'];
@@ -1535,6 +1613,7 @@ class GeneralPropertyController extends Controller
             echo json_encode($data);
         }
     }
+
     public function area_unit_update(SettingStore $settingStore)
     {
 
@@ -1549,6 +1628,7 @@ class GeneralPropertyController extends Controller
             echo json_encode($data);
         }
     }
+
     public function currency_unit_update(SettingStore $settingStore)
     {
 
@@ -1567,6 +1647,7 @@ class GeneralPropertyController extends Controller
             echo json_encode($data);
         }
     }
+
     public function postUpload(Request $request, BaseHttpResponse $response)
     {
         if (setting('media_chunk_enabled') != '1') {
