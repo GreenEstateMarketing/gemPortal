@@ -1211,7 +1211,7 @@ class GeneralPropertyController extends Controller
         }
 
         //BankAlfalahPaymentImplementation
-        $url = "https://payments.bankalfalah.com/HS/HS/HS";
+        $url = "https://sandbox.bankalfalah.com/HS/HS/HS";
         $bankorderId = rand(0, 1786612);
 
         $Key1 = env('KEY1');

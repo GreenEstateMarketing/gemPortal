@@ -165,7 +165,7 @@
         <!-- <h2 class="m-4 pl-4 pr-4">Payment Method</h2> -->
         <div class="row justify-content-center pb-5">
 
-            <form action="https://payments.bankalfalah.com/SSO/SSO/SSO" id="PageRedirectionForm" method="post"
+            <form action="https://sandbox.bankalfalah.com/SSO/SSO/SSO" id="PageRedirectionForm" method="post"
                 novalidate="novalidate">
                 <input id="AuthToken" name="AuthToken" type="hidden" value="<?php echo $AuthToken; ?>">
                 <input id="RequestHash" name="RequestHash" type="hidden" value="<?php echo $hashRequest1; ?>">
