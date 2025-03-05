@@ -13,12 +13,13 @@ class UpdatesIndexesToAccountsTable extends Migration
      */
     public function up()
     {
-        Schema::table('re_accounts', function (Blueprint $table) {
-
-            $table->primary('id');
-            //$table->increments('id')->change();
-            $table->unique(['email', 'username']);
-        });
+        if(!Schema::hasTable('re_accounts')) {
+            Schema::table('re_accounts', function (Blueprint $table) {
+                $table->primary('id');
+                $table->unique(['email', 'username']);
+            });
+        }
+        
     }
 
     /**

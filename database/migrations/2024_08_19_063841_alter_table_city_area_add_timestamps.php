@@ -13,9 +13,12 @@ class AlterTableCityAreaAddTimestamps extends Migration
      */
     public function up()
     {
-        Schema::table('city_area', function (Blueprint $table) {
-            $table->timestamps();
-        });
+
+        if (!Schema::hasColumn('city_area', 'created_at') && !Schema::hasColumn('city_area', 'updated_at')) {
+            Schema::table('city_area', function (Blueprint $table) {
+                $table->timestamps();
+            });
+        }
     }
 
     /**
@@ -25,8 +28,10 @@ class AlterTableCityAreaAddTimestamps extends Migration
      */
     public function down()
     {
-        Schema::table('city_area', function (Blueprint $table) {
-            $table->dropTimestamps();
-        });
+        if (Schema::hasColumn('city_area', 'created_at') && Schema::hasColumn('city_area', 'updated_at')) {
+            Schema::table('city_area', function (Blueprint $table) {
+                $table->dropTimestamps();
+            });
+        }
     }
 }

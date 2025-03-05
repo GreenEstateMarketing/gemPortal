@@ -13,9 +13,12 @@ class AddInterestToReConsultsTable extends Migration
      */
     public function up()
     {
-        Schema::table('re_consults', function (Blueprint $table) {
-            $table->text('interest');
-        });
+        if(!Schema::hasColumn('re_consults','interest')) {
+            Schema::table('re_consults', function (Blueprint $table) {
+                $table->text('interest');
+            });
+        }
+        
     }
 
     /**
@@ -25,8 +28,10 @@ class AddInterestToReConsultsTable extends Migration
      */
     public function down()
     {
-        Schema::table('re_consults', function (Blueprint $table) {
-            $table->dropColumn('interest');
-        });
+        if(Schema::hasColumn('re_consults','interest')) {
+            Schema::table('re_consults', function (Blueprint $table) {
+                $table->dropColumn('interest');
+            });
+        }
     }
 }
