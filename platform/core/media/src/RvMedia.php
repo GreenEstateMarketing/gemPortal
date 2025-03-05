@@ -539,7 +539,7 @@ class RvMedia
 
             $this->generateThumbnails($file);
 
-            $this->watermarkImage($folderPath, $fileName);
+//            $this->watermarkImage($folderPath, $fileName);
 
             return [
                 'error' => false,
