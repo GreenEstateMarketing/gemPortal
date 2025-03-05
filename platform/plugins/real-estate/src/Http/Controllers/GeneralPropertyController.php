@@ -1228,7 +1228,7 @@ class GeneralPropertyController extends Controller
 
         //Create Payment With Pending Status
         $member = auth('member')->user();
-        $orderId = 'GEM-' . date('is') . '-' . rand(0, 1786612);
+        $orderId = 'GEM-' . date('is') . '-' . rand(1000, 9999);
         $paymentData = [
             'amount' => $package->price,
             'currency' => 'PKR',
