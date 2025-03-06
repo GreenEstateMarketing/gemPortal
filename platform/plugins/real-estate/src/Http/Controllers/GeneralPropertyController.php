@@ -1244,7 +1244,7 @@ class GeneralPropertyController extends Controller
         $payment = $paymentRepository->create($paymentData);
 
         //BankAlfalahPaymentImplementation
-        $url = "https://sandbox.bankalfalah.com/HS/HS/HS";
+        $url = env('HS_URL');
         $bankorderId = $orderId;
 
         $Key1 = env('KEY1');
@@ -1332,6 +1332,7 @@ class GeneralPropertyController extends Controller
         $cipher_text = openssl_encrypt($mapStringSSo, $cipher, $Key1, OPENSSL_RAW_DATA, $Key2);
         $hashRequest1 = base64_encode($cipher_text);
 
+        $ssoUrl = env('SSO_URL');
 
         SeoHelper::setTitle(trans('plugins/real-estate::package.subscribe_package', ['name' => $package->name]));
         //return Theme::scope('real-estate.member.wanted',$data)->render();
@@ -1352,7 +1353,8 @@ class GeneralPropertyController extends Controller
             'TransactionAmount',
             'Currency',
             'IsBIN',
-            'TransactionTypeId'
+            'TransactionTypeId',
+            'ssoUrl'
         ));
     }
 
