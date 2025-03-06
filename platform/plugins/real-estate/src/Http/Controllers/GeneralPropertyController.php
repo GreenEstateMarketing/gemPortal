@@ -1379,6 +1379,10 @@ class GeneralPropertyController extends Controller
 
             $member->packages()->attach($package);
 
+            //Update payment data
+            $dataToUpdate = ['status' => PaymentStatusEnum::COMPLETED];
+            $paymentRepository->update(['charge_id' => $orderId], $dataToUpdate);
+
             $transactionRepository->createOrUpdate([
                 'user_id' => $member->id,
                 'account_id' => auth('member')->user()->getAuthIdentifier(),
