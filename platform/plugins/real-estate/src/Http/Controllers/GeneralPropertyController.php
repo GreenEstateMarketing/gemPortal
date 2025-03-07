@@ -1368,34 +1368,45 @@ class GeneralPropertyController extends Controller
         $orderId = $_GET['O'];
         $transactionStatus = $_GET['TS'];
 
-        if ($transactionStatus == 'P') {
+        try {
+            if ($transactionStatus == 'P') {
 
-            $payment = $paymentRepository->getFirstBy(['charge_id' => $orderId]);
-            $package = $packageRepository->findById($payment->package_id);
+                $payment = $paymentRepository->getFirstBy(['charge_id' => $orderId]);
+                $package = $packageRepository->findById($payment->package_id);
 
-            $member = auth('member')->user();
-            $member->credits += $package->number_of_listings;
-            $member->save();
+                $member = auth('member')->user();
+                $member->credits += $package->number_of_listings;
+                $member->save();
 
-            $member->packages()->attach($package);
+                $member->packages()->attach($package);
 
-            //Update payment data
-            $dataToUpdate = ['status' => PaymentStatusEnum::COMPLETED];
-            $paymentRepository->update(['charge_id' => $orderId], $dataToUpdate);
+                //Update payment data
+                $dataToUpdate = ['status' => PaymentStatusEnum::COMPLETED];
+                $paymentRepository->update(['charge_id' => $orderId], $dataToUpdate);
 
-            $transactionRepository->createOrUpdate([
-                'user_id' => $member->id,
-                'account_id' => auth('member')->user()->getAuthIdentifier(),
-                'credits' => $package->number_of_listings,
-                'payment_id' => $payment ? $payment->id : null,
-            ]);
+                $transactionRepository->createOrUpdate([
+                    'user_id' => $member->id,
+                    'account_id' => auth('member')->user()->getAuthIdentifier(),
+                    'credits' => $package->number_of_listings,
+                    'payment_id' => $payment ? $payment->id : null,
+                ]);
 
-            $message = 'Your payment has been received. Credits have been added to your account';
+                $message = 'Your payment has been received. Credits have been added to your account';
 
-            return $response
-                ->setNextUrl(route('public.member.packages'))
-                ->setMessage($message);
-        } else {
+                event(new CreatedContentEvent(PACKAGE_MODULE_SCREEN_NAME, $payment, $package));
+
+                return $response
+                    ->setNextUrl(route('public.member.packages'))
+                    ->setMessage($message);
+            } else {
+                $message = 'Something went wrong with the payment. Please try again';
+
+                return $response
+                    ->setNextUrl(route('public.member.packages'))
+                    ->setError()
+                    ->setMessage($message);
+            }
+        } catch (Exception $e) {
             $message = 'Something went wrong with the payment. Please try again';
 
             return $response
