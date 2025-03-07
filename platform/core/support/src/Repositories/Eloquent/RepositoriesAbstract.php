@@ -508,4 +508,16 @@ abstract class RepositoriesAbstract implements RepositoryInterface
 
         return $result;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getLastRecord(array $with = [])
+    {
+        $data = $this->make($with)->orderBy('id', 'desc')->first();
+
+        $this->resetModel();
+
+        return $data;
+    }
 }

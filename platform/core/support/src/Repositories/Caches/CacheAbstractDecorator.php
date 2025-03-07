@@ -314,4 +314,12 @@ abstract class CacheAbstractDecorator implements RepositoryInterface
     {
         return $this->getDataIfExistCache(__FUNCTION__, func_get_args());
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getLastRecord(array $with = [])
+    {
+        return $this->getDataIfExistCache(__FUNCTION__, func_get_args());
+    }
 }

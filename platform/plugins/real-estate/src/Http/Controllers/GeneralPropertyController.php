@@ -1373,7 +1373,9 @@ class GeneralPropertyController extends Controller
         try {
             if ($transactionStatus == 'P') {
 
-                $payment = $paymentRepository->getFirstBy(['charge_id' => $orderId]);
+                //Temporarry, need to change before comminging
+//                $payment = $paymentRepository->getFirstBy(['charge_id' => $orderId]);
+                $payment = $paymentRepository->getLastRecord();
                 $package = $packageRepository->findById($payment->package_id);
 
                 $member = auth('member')->user();
@@ -1391,6 +1393,7 @@ class GeneralPropertyController extends Controller
                     'account_id' => auth('member')->user()->getAuthIdentifier(),
                     'credits' => $package->number_of_listings,
                     'payment_id' => $payment ? $payment->id : null,
+                    'user_type' => 'member'
                 ]);
 
                 $message = 'Your payment has been received. Credits have been added to your account';
@@ -1409,12 +1412,12 @@ class GeneralPropertyController extends Controller
                     ->setMessage($message);
             }
         } catch (Exception $e) {
-            $message = 'Something went wrong with the payment. Please try again';
+            $message = 'Something went wrong. Please try again';
 
             return $response
                 ->setNextUrl(route('public.member.packages'))
                 ->setError()
-                ->setMessage($message);
+                ->setMessage($e->getMessage());
         }
     }
 
