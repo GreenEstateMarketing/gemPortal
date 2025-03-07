@@ -77,7 +77,7 @@
 
                     <br>
                     <center>
-                        <button type="submit" class="btn btn-custon-four btn-danger" id="run">PAY ONLINE</button>
+                        <button type="submit" class="btn btn-custon-four btn-danger" id="run" onclick="startLoading()">PAY ONLINE</button>
                     </center>
                 </form>
             </div>
@@ -85,3 +85,16 @@
     </div>
 
 @stop
+
+
+<script>
+    function startLoading() {
+        var btn = document.getElementById("run");
+        btn.innerText = "Redirecting...";
+        btn.disabled = true;
+
+        setTimeout(function () {
+            document.getElementById("PageRedirectionForm").submit();
+        }, 100);
+    }
+</script>
