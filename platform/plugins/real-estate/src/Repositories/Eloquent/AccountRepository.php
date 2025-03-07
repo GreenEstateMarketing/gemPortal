@@ -5,6 +5,7 @@ namespace Botble\RealEstate\Repositories\Eloquent;
 use Botble\RealEstate\Repositories\Interfaces\AccountInterface;
 use Botble\Support\Repositories\Eloquent\RepositoriesAbstract;
 use Illuminate\Support\Str;
+use PhpParser\Node\Stmt\DeclareDeclare;
 
 class AccountRepository extends RepositoriesAbstract implements AccountInterface
 {
@@ -36,10 +37,9 @@ class AccountRepository extends RepositoriesAbstract implements AccountInterface
     function getPolygon($id)
     {
         $res = $this->model->selectRaw('ST_AsGeoJson(agent_area) as poly_coord')->where('id', '=', $id)->get();
-        $swapped = $this->swapCoordinates($res[0]->poly_coord);
         if(env('SWAP_CORD', 'true')) {
-            return $swapped;
-        } 
+            return $this->swapCoordinates($res[0]->poly_coord);
+        }
 
         return $res[0]->poly_coord;
     }

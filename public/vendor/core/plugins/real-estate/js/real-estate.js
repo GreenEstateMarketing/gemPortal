@@ -89,7 +89,6 @@ $(document).ready(function () {
 
 $(document).ready(function () {
     function checkImageCount() {
-        console.log('YEAH');
         var images = $('#images').val();
         var imageArray = images ? images.split(',') : [];
 
