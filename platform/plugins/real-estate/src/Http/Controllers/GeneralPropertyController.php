@@ -1112,7 +1112,8 @@ class GeneralPropertyController extends Controller
     {
         SeoHelper::setTitle(trans('plugins/real-estate::account.packages'));
 
-        Assets::addScriptsDirectly('vendor/core/plugins/real-estate/js/components.js');
+//        Assets::addScriptsDirectly('vendor/core/plugins/real-estate/js/components.js');
+        Assets::addScriptsDirectly('js/app.js');
 
         return view('plugins/real-estate::member.settings.package');
     }

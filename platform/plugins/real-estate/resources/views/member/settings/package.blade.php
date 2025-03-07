@@ -24,8 +24,8 @@
                                 </div>
                             @endif
 
-                            <packages-component url="{{ route('public.member.ajax.packages') }}"
-                                                subscribe_url="{{ route('public.member.ajax.package.subscribe') }}"></packages-component>
+                            <packages url="{{ route('public.member.ajax.packages') }}"
+                                                subscribe_url="{{ route('public.member.ajax.package.subscribe') }}"></packages>
 
                         </div>
                     </div>
@@ -48,6 +48,9 @@
                                     </button>
                                 </div>
                             @endif
+
+                            <member url="{{ route('public.member.ajax.transaction') }}"
+                            ></member>
 
 
                         </div>

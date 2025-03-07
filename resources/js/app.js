@@ -12,6 +12,8 @@ import MemberLogActivity from "./components/MemberLogActivity";
 import Projects from './components/projects';
 import FacilityComponent from './components/FacilityComponent';
 import related from './components/related';
+import PackagesComponent
+    from "../../platform/plugins/real-estate/resources/assets/js/components/dashboard/PackagesComponent";
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 Vue.component('welcome',Welcome);
 Vue.component('properties',Properties);
@@ -22,6 +24,7 @@ Vue.component('member-log-activity',MemberLogActivity);
 Vue.component('projects',Projects);
 Vue.component('facility',FacilityComponent);
 Vue.component('related',related);
+Vue.component('packages', PackagesComponent);
 Vue.prototype.__ = (key) => {
     return window.trans[key] !== 'undefined' ? window.trans[key] : key;
 };

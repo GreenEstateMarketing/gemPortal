@@ -583,7 +583,6 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                     ->name('public.member.ajax.package.subscribe');
             });
             Route::get('member/transactions', [
-
                 'uses' => 'GeneralPropertyController@ajaxGetTransactions',
             ])->name('public.member.ajax.transaction');
 
