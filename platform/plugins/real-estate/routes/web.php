@@ -7,6 +7,9 @@ use Botble\RealEstate\Models\Property;
 
 Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' => ['web', 'core']], function () {
 
+    Route::get('package/callback', 'GeneralPropertyController@genericPackageCallback')
+        ->name('package.callback');
+
     Route::group([
         'prefix' => BaseHelper::getAdminPrefix() . '/real-estate',
         'middleware' => 'auth',

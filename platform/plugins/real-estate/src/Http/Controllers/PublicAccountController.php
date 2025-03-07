@@ -35,6 +35,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
@@ -314,7 +315,7 @@ class PublicAccountController extends Controller
         $HS_MerchantId = env('MERCHANT_ID');
         $HS_StoreId = env('STORE_ID');
         $HS_IsRedirectionRequest = 0;
-        $HS_ReturnURL = route('public.account.package.callback');
+        $HS_ReturnURL = route('package.callback');
         $HS_MerchantHash = env('MERCHANT_HASH');
         $HS_MerchantUsername = env('MERCHANT_USERNAME');
         $HS_MerchantPassword = env('MERCHANT_PASSWORD');
@@ -432,24 +433,27 @@ class PublicAccountController extends Controller
         try {
             if ($transactionStatus == 'P') {
 
-                $payment = $paymentRepository->getFirstBy(['charge_id' => $orderId]);
+//                $payment = $paymentRepository->getFirstBy(['charge_id' => $orderId]);
+                $payment = $paymentRepository->getLastRecord();
                 $package = $packageRepository->findById($payment->package_id);
 
                 $account = auth('account')->user();
                 $account->credits += $package->number_of_listings;
                 $account->save();
 
-                $account->packages()->attach($package);
+//                $account->packages()->attach($package);
 
                 //Update payment data
-                $dataToUpdate = ['status' => PaymentStatusEnum::COMPLETED];
-                $paymentRepository->update(['charge_id' => $orderId], $dataToUpdate);
+                DB::table('payments')->where('id', '=', $payment->id)->update([
+                    'status' => PaymentStatusEnum::COMPLETED
+                ]);
 
                 $transactionRepository->createOrUpdate([
                     'user_id' => $account->id,
                     'account_id' => auth('account')->user()->getAuthIdentifier(),
                     'credits' => $package->number_of_listings,
                     'payment_id' => $payment ? $payment->id : null,
+                    'user_type' => $payment->user_type
                 ]);
 
                 $message = 'Your payment has been received. Credits have been added to your account';
@@ -457,13 +461,13 @@ class PublicAccountController extends Controller
                 event(new CreatedContentEvent(PACKAGE_MODULE_SCREEN_NAME, $payment, $package));
 
                 return $response
-                    ->setNextUrl(route('public.member.packages'))
+                    ->setNextUrl(route('public.account.packages'))
                     ->setMessage($message);
             } else {
                 $message = 'Something went wrong with the payment. Please try again';
 
                 return $response
-                    ->setNextUrl(route('public.member.packages'))
+                    ->setNextUrl(route('public.account.packages'))
                     ->setError()
                     ->setMessage($message);
             }
@@ -471,7 +475,7 @@ class PublicAccountController extends Controller
             $message = 'Something went wrong with the payment. Please try again';
 
             return $response
-                ->setNextUrl(route('public.member.packages'))
+                ->setNextUrl(route('public.account.packages'))
                 ->setError()
                 ->setMessage($message);
         }

@@ -1142,7 +1142,7 @@ class GeneralPropertyController extends Controller
         ]);
     }
 
-    public function ajaxGetTransactions(Request $request,TransactionInterface $transactionRepository, BaseHttpResponse $response)
+    public function ajaxGetTransactions(Request $request, TransactionInterface $transactionRepository, BaseHttpResponse $response)
     {
         $page = request()->query('page', 1);
         $transactions = $transactionRepository->advancedGet([
@@ -1256,7 +1256,7 @@ class GeneralPropertyController extends Controller
         $HS_MerchantId = env('MERCHANT_ID');
         $HS_StoreId = env('STORE_ID');
         $HS_IsRedirectionRequest = 0;
-        $HS_ReturnURL = route('public.member.package.callback');
+        $HS_ReturnURL = route('package.callback');
         $HS_MerchantHash = env('MERCHANT_HASH');
         $HS_MerchantUsername = env('MERCHANT_USERNAME');
         $HS_MerchantPassword = env('MERCHANT_PASSWORD');
@@ -1361,6 +1361,25 @@ class GeneralPropertyController extends Controller
         ));
     }
 
+    public function genericPackageCallback(BaseHttpResponse $response)
+    {
+        $member = auth('member')->user();
+
+        if ($member) {
+            return $response
+                ->setNextUrl(route('public.member.package.callback', [
+                    'O' => $_GET['O'],
+                    'TS' => $_GET['TS'],
+                ]));
+        } else {
+            return $response
+                ->setNextUrl(route('public.account.package.callback', [
+                    'O' => $_GET['O'],
+                    'TS' => $_GET['TS'],
+                ]));
+        }
+    }
+
     public function packageCallback(
         BaseHttpResponse     $response,
         PaymentInterface     $paymentRepository,
@@ -1387,7 +1406,7 @@ class GeneralPropertyController extends Controller
 
                 //Update payment data
                 $dataToUpdate = ['status' => PaymentStatusEnum::COMPLETED];
-                $paymentRepository->update(['charge_id' => $orderId], $dataToUpdate);
+                $paymentRepository->getModel()->update($dataToUpdate);
 
                 $transactionRepository->createOrUpdate([
                     'user_id' => $member->id,
