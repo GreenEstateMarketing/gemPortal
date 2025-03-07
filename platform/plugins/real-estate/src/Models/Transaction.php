@@ -51,14 +51,13 @@ class Transaction extends Eloquent
     {
         $time = Html::tag('span', $this->created_at->diffForHumans(), ['class' => 'small italic']);
 
-        if ($this->user_id) {
-            return 'Added ' . $this->credits . ' credit(s) by admin "' . $this->user->getFullName() . '"';
-        }
+        $creditsLabel = $this->credits > 1 ? 'credits' : 'credit';
 
-        $description = 'You have purchased ' . $this->credits . ' credit(s)';
+        $description = 'You have purchased ' . $this->credits . ' ' . $creditsLabel;
+        $paymentChannel = $this->payment->payment_channel == 'credit_card' ? 'Credit Card' : $this->payment->payment_channel;
         if ($this->payment_id) {
-            $description .= ' via ' . $this->payment->payment_channel->label() . ' ' . $time .
-                ': ' . number_format($this->payment->amount, 2, '.', ',') . $this->payment->currency;
+            $description .= ' via ' . $paymentChannel . ' ' . $time .
+                ': ' . number_format($this->payment->amount, 2, '.', ',') . ' ' . $this->payment->currency;
         }
 
         return $description;

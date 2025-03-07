@@ -1142,15 +1142,16 @@ class GeneralPropertyController extends Controller
         ]);
     }
 
-    public function ajaxGetTransactions(TransactionInterface $transactionRepository, BaseHttpResponse $response)
+    public function ajaxGetTransactions(Request $request,TransactionInterface $transactionRepository, BaseHttpResponse $response)
     {
+        $page = request()->query('page', 1);
         $transactions = $transactionRepository->advancedGet([
             'condition' => [
                 'account_id' => auth('member')->user()->id,
             ],
             'paginate' => [
-                'per_page' => 10,
-                'current_paged' => 1,
+                'per_page' => 2,
+                'current_paged' => $page,
             ],
             'order_by' => ['created_at' => 'DESC'],
             'with' => ['payment', 'user'],
