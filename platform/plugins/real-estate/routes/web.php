@@ -487,8 +487,10 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                 Route::get(
                     'packages/{id}/subscribe/callback',
                     'PublicAccountController@getPackageSubscribeCallback'
-                )
-                    ->name('package.subscribe.callback');
+                )->name('package.subscribe.callback');
+
+                Route::get('packages/callback', 'PublicAccountController@packageCallback')
+                    ->name('package.callback');
             });
             Route::group(['prefix' => 'account'], function () {
                 Route::get('getConsultCount', 'PublicAccountController@getConsultCount')

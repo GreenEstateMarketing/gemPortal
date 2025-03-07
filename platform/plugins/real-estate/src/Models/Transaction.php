@@ -25,6 +25,7 @@ class Transaction extends Eloquent
         'user_id',
         'account_id',
         'payment_id',
+        'user_type'
     ];
 
     /**

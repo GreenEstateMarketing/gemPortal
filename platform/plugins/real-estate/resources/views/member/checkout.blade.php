@@ -53,6 +53,7 @@
 
             </div>
 
+
             @else
                 <div class="offset-md-3 col-md-6 error-message d-none">
                     <div class="alert alert-danger">
@@ -60,6 +61,7 @@
                     </div>
 
                 </div>
+
 
             @endif
             @if(session('success'))
@@ -69,12 +71,14 @@
                 </div>
             </div>
 
+
             @else
                 <div class="offset-md-3 col-md-6 success-message d-none">
                     <div class="alert alert-success">
                         <span id="alert-success"></span>
                     </div>
                 </div>
+
 
             @endif
             </div> -->
@@ -156,6 +160,7 @@
                     <td><b>Discount (-%{{session('discount_percent')}}): </b></td>
                         <td>{{session('discount')}}</td>
                     </tr>
+
 
             @endif
             <tr>

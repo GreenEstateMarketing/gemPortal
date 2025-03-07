@@ -4,6 +4,7 @@ namespace Botble\RealEstate\Http\Controllers;
 
 use Assets;
 use Botble\Base\Enums\BaseStatusEnum;
+use Botble\Base\Events\CreatedContentEvent;
 use Botble\Base\Http\Responses\BaseHttpResponse;
 use Botble\Media\Chunks\Exceptions\UploadMissingFileException;
 use Botble\Media\Chunks\Handler\DropZoneUploadHandler;
@@ -269,13 +270,211 @@ class PublicAccountController extends Controller
      * @param PackageInterface $packageRepository
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function getSubscribePackage($id, PackageInterface $packageRepository)
+    public function getSubscribePackage(
+        $id,
+        PackageInterface $packageRepository,
+        PaymentInterface $paymentRepository
+    )
     {
         $package = $packageRepository->findOrFail($id);
 
         SeoHelper::setTitle(trans('plugins/real-estate::package.subscribe_package', ['name' => $package->name]));
 
-        return view('plugins/real-estate::account.checkout', compact('package'));
+        $total_price = $package->price;
+        $voucher = false;
+        if (session('discount')) {
+            $package->price = $total_price - session('discount');
+        }
+
+        //Create Payment With Pending Status
+        $member = auth('account')->user();
+        $orderId = 'GEM-' . date('is') . '-' . rand(1000, 9999);
+        $paymentData = [
+            'amount' => $package->price,
+            'currency' => 'PKR',
+            'user_id' => $member->id,
+            'charge_id' => $orderId,
+            'payment_channel' => 'credit_card',
+            'order_id' => $orderId,
+            'status' => PaymentStatusEnum::PENDING,
+            'payment_type' => 'confirm',
+            'package_id' => $package->id,
+            'user_type' => 'agent'
+        ];
+
+        $payment = $paymentRepository->create($paymentData);
+
+        //BankAlfalahPaymentImplementation
+        $url = env('HS_URL');
+        $bankorderId = $orderId;
+
+        $Key1 = env('KEY1');
+        $Key2 = env('KEY2');
+        $HS_ChannelId = env('CHANNEL_ID');
+        $HS_MerchantId = env('MERCHANT_ID');
+        $HS_StoreId = env('STORE_ID');
+        $HS_IsRedirectionRequest = 0;
+        $HS_ReturnURL = route('public.account.package.callback');
+        $HS_MerchantHash = env('MERCHANT_HASH');
+        $HS_MerchantUsername = env('MERCHANT_USERNAME');
+        $HS_MerchantPassword = env('MERCHANT_PASSWORD');
+        $HS_TransactionReferenceNumber = $bankorderId;
+        $TransactionTypeId = "3";
+        $TransactionAmount = $package->price;
+
+        $cipher = "aes-128-cbc";
+
+        $mapString =
+            "HS_ChannelId=$HS_ChannelId"
+            . "&HS_IsRedirectionRequest=$HS_IsRedirectionRequest"
+            . "&HS_MerchantId=$HS_MerchantId"
+            . "&HS_StoreId=$HS_StoreId"
+            . "&HS_ReturnURL=$HS_ReturnURL"
+            . "&HS_MerchantHash=$HS_MerchantHash"
+            . "&HS_MerchantUsername=$HS_MerchantUsername"
+            . "&HS_MerchantPassword=$HS_MerchantPassword"
+            . "&HS_TransactionReferenceNumber=$HS_TransactionReferenceNumber";
+
+
+        $cipher_text = openssl_encrypt($mapString, $cipher, $Key1, OPENSSL_RAW_DATA, $Key2);
+        $hashRequest = base64_encode($cipher_text);
+
+
+        $fields = [
+            "HS_ChannelId" => $HS_ChannelId,
+            "HS_IsRedirectionRequest" => $HS_IsRedirectionRequest,
+            "HS_MerchantId" => $HS_MerchantId,
+            "HS_StoreId" => $HS_StoreId,
+            "HS_ReturnURL" => $HS_ReturnURL,
+            "HS_MerchantHash" => $HS_MerchantHash,
+            "HS_MerchantUsername" => $HS_MerchantUsername,
+            "HS_MerchantPassword" => $HS_MerchantPassword,
+            "HS_TransactionReferenceNumber" => $HS_TransactionReferenceNumber,
+            "HS_RequestHash" => $hashRequest
+        ];
+
+        $fields_string = http_build_query($fields);
+
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $result = curl_exec($ch);
+
+        $handshake = json_decode($result);
+
+        $AuthToken = $handshake->AuthToken;
+
+        $RequestHash1 = NULL;
+        $Currency = "PKR";
+        $IsBIN = 0;
+
+        $mapStringSSo =
+            "AuthToken=$AuthToken"
+            . "&RequestHash=$RequestHash1"
+            . "&ChannelId=$HS_ChannelId"
+            . "&Currency=$Currency"
+            . "&IsBIN=$IsBIN"
+            . "&ReturnURL=$HS_ReturnURL"
+            . "&MerchantId=$HS_MerchantId"
+            . "&StoreId=$HS_StoreId"
+            . "&MerchantHash=$HS_MerchantHash"
+            . "&MerchantUsername=$HS_MerchantUsername"
+            . "&MerchantPassword=$HS_MerchantPassword"
+            . "&TransactionTypeId=3"
+            . "&TransactionReferenceNumber=$HS_TransactionReferenceNumber"
+            . "&TransactionAmount=$TransactionAmount";
+
+
+        $cipher_text = openssl_encrypt($mapStringSSo, $cipher, $Key1, OPENSSL_RAW_DATA, $Key2);
+        $hashRequest1 = base64_encode($cipher_text);
+
+        $ssoUrl = env('SSO_URL');
+
+        SeoHelper::setTitle(trans('plugins/real-estate::package.subscribe_package', ['name' => $package->name]));
+        //return Theme::scope('real-estate.member.wanted',$data)->render();
+        return view('plugins/real-estate::account.checkout', compact(
+            'package',
+            'voucher',
+            'total_price',
+            'AuthToken',
+            'hashRequest1',
+            'HS_ChannelId',
+            'HS_ReturnURL',
+            'HS_MerchantId',
+            'HS_StoreId',
+            'HS_MerchantHash',
+            'HS_MerchantUsername',
+            'HS_MerchantPassword',
+            'HS_TransactionReferenceNumber',
+            'TransactionAmount',
+            'Currency',
+            'IsBIN',
+            'TransactionTypeId',
+            'ssoUrl'
+        ));
+    }
+
+    public function packageCallback(
+        BaseHttpResponse     $response,
+        PaymentInterface     $paymentRepository,
+        TransactionInterface $transactionRepository,
+        PackageInterface     $packageRepository
+    )
+    {
+        $orderId = $_GET['O'];
+        $transactionStatus = $_GET['TS'];
+
+        try {
+            if ($transactionStatus == 'P') {
+
+                $payment = $paymentRepository->getFirstBy(['charge_id' => $orderId]);
+                $package = $packageRepository->findById($payment->package_id);
+
+                $account = auth('account')->user();
+                $account->credits += $package->number_of_listings;
+                $account->save();
+
+                $account->packages()->attach($package);
+
+                //Update payment data
+                $dataToUpdate = ['status' => PaymentStatusEnum::COMPLETED];
+                $paymentRepository->update(['charge_id' => $orderId], $dataToUpdate);
+
+                $transactionRepository->createOrUpdate([
+                    'user_id' => $account->id,
+                    'account_id' => auth('account')->user()->getAuthIdentifier(),
+                    'credits' => $package->number_of_listings,
+                    'payment_id' => $payment ? $payment->id : null,
+                ]);
+
+                $message = 'Your payment has been received. Credits have been added to your account';
+
+                event(new CreatedContentEvent(PACKAGE_MODULE_SCREEN_NAME, $payment, $package));
+
+                return $response
+                    ->setNextUrl(route('public.member.packages'))
+                    ->setMessage($message);
+            } else {
+                $message = 'Something went wrong with the payment. Please try again';
+
+                return $response
+                    ->setNextUrl(route('public.member.packages'))
+                    ->setError()
+                    ->setMessage($message);
+            }
+        } catch (Exception $e) {
+            $message = 'Something went wrong with the payment. Please try again';
+
+            return $response
+                ->setNextUrl(route('public.member.packages'))
+                ->setError()
+                ->setMessage($message);
+        }
     }
 
     /**

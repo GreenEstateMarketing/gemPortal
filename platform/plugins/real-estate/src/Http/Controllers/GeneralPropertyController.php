@@ -1239,7 +1239,8 @@ class GeneralPropertyController extends Controller
             'order_id' => $orderId,
             'status' => PaymentStatusEnum::PENDING,
             'payment_type' => 'confirm',
-            'package_id' => $package->id
+            'package_id' => $package->id,
+            'user_type' => 'member'
         ];
 
         $payment = $paymentRepository->create($paymentData);
