@@ -199,8 +199,6 @@ class AccountController extends BaseController
             $data = $request->except('password');
         }
 
-        dd($request['agent_area']);
-
         if ($request['agent_area'] != "") {
             $i = 0;
             $data_map = json_decode($request['agent_area']);
@@ -260,8 +258,6 @@ class AccountController extends BaseController
 
             }
         }
-
-        dd($ap);
 
         $account = Account::find($id);
         $account->update($request->except('agent_area', 'password'));
