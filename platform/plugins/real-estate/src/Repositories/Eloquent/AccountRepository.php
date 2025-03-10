@@ -48,15 +48,22 @@ class AccountRepository extends RepositoriesAbstract implements AccountInterface
     {
         $data = json_decode($geoJson, true);
         if($data) {
-            if ($data['type'] === 'Polygon' || $data['type'] === 'MultiPolygon') {
+            if ($data['type'] === 'Polygon') {
                 foreach ($data['coordinates'] as &$polygon) {
                     foreach ($polygon as &$ring) {
                         $ring = array_reverse($ring);
                     }
                 }
+            } else if ($data['type'] === 'MultiPolygon') {
+                foreach ($data['coordinates'] as &$outerArray) {
+                    foreach ($outerArray as &$polygon) {
+                        foreach ($polygon as &$ring) {
+                            $ring = array_reverse($ring);
+                        }
+                    }
+                }
             }
             return json_encode($data);
         }
-        
     }
 }

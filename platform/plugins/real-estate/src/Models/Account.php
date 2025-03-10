@@ -138,6 +138,7 @@ class Account extends Authenticatable
     {
         return true;
     }
+
     public function getConsults($property_id = '')
     {
         $select = [
@@ -183,21 +184,24 @@ class Account extends Authenticatable
     {
         return $this->belongsToMany(Package::class, 're_account_packages', 'account_id', 'package_id');
     }
+
     public function posts()
     {
 
         return $this->hasMany(Property::class, 'author_id');
 
     }
+
     public function getPolygon()
     {
         $res = $this->selectRaw('ST_AsGeoJson(agent_area) as poly_coord')->where('id', '=', auth('account')->user()->id)->get();
-        if(env('SWAP_CORD', 'true')) {
+        if (env('SWAP_CORD', 'true')) {
             return $this->swapCoordinates($res[0]->poly_coord);
         }
 
         return $res[0]->poly_coord;
     }
+
     public function no_of_listings($id)
     {
         return $this->morphMany(Property::class, 'author')->count('id');
@@ -207,10 +211,18 @@ class Account extends Authenticatable
     {
         $data = json_decode($geoJson, true);
         if ($data) {
-            if ($data['type'] === 'Polygon' || $data['type'] === 'MultiPolygon') {
+            if ($data['type'] === 'Polygon') {
                 foreach ($data['coordinates'] as &$polygon) {
                     foreach ($polygon as &$ring) {
                         $ring = array_reverse($ring);
+                    }
+                }
+            } else if ($data['type'] === 'MultiPolygon') {
+                foreach ($data['coordinates'] as &$outerArray) {
+                    foreach ($outerArray as &$polygon) {
+                        foreach ($polygon as &$ring) {
+                            $ring = array_reverse($ring);
+                        }
                     }
                 }
             }
