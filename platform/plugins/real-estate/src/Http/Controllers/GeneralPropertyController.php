@@ -1371,12 +1371,15 @@ class GeneralPropertyController extends Controller
                     'O' => $_GET['O'],
                     'TS' => $_GET['TS'],
                 ]));
-        } else {
+        } else if(auth('account')->user()) {
             return $response
                 ->setNextUrl(route('public.account.package.callback', [
                     'O' => $_GET['O'],
                     'TS' => $_GET['TS'],
                 ]));
+        } else {
+            return $response
+                ->setNextUrl(route('public.index'));
         }
     }
 
