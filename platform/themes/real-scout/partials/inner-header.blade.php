@@ -86,28 +86,70 @@
                           ])
                 !!}
                 @if (auth('account')->check())
+                    <input type="hidden" id="login_check" value="1" />
                     <div id="profile_link">
                         <ul>
                             <li class="dropdown">
-                                <a class="dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span>
-                                    <img src="{{ auth('account')->user()->avatar_url }}" class="br-100 v-mid mr-1" style="width: 30px;">
-                                   <span class="profile-label">{{ auth('account')->user()->getFullName() }}</span>
-                            </span>
+                                <a class="dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span>
+                                        <img src="{{ auth('account')->user()->avatar_url }}"
+                                            class="br-100 v-mid mr-1" style="width: 30px;">
+                                        <span
+                                            class="profile-label">{{ auth('account')->user()->getFullName() }}</span>
+                                    </span>
                                 </a>
                                 <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                    <a class="dropdown-item" href="{{ route('public.account.dashboard') }}">Dashboard</a>
-                                    <a class="dropdown-item" href="{{ route('public.account.settings') }}">Edit Profile</a>
+                                    <a class="dropdown-item"
+                                        href="{{ route('public.account.dashboard') }}">Dashboard</a>
+                                    <a class="dropdown-item" href="{{ route('public.account.settings') }}">Edit
+                                        Profile</a>
                                     @if (auth('account')->check())
-                                        <form id="logout-form" action="{{ route('public.account.logout') }}" method="POST" style="display: none;">
+                                        <form id="logout-form" action="{{ route('public.account.logout') }}"
+                                            method="POST" style="display: none;">
                                             @csrf
                                         </form>
                                     @endif
-                                    <a class="dropdown-item" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Log Out</a>
+                                    <a class="dropdown-item" href="#"
+                                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Log
+                                        Out</a>
                                 </div>
                             </li>
                         </ul>
                     </div>
+                @elseif(auth('member')->check())
+                    <input type="hidden" id="login_check" value="1" />
+                    <div id="profile_link">
+                        <ul>
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span>
+                                        <img src="{{ auth('member')->user()->avatar_url }}" class="br-100 v-mid mr-1"
+                                            style="width: 30px;">
+                                        <span class="profile-label">{{ auth('member')->user()->full_name }}</span>
+                                    </span>
+                                </a>
+                                <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                                    <a class="dropdown-item" href="{{ route('member.dashboard') }}">Dashboard</a>
+                                    <a class="dropdown-item" href="{{ route('member.settings') }}">Edit Profile</a>
+                                    @if (auth('member')->check())
+                                        <form id="logout-form" action="{{ route('public.member.logout') }}"
+                                            method="POST" style="display: none;">
+                                            @csrf
+                                        </form>
+                                    @endif
+                                    <a class="dropdown-item" href="#"
+                                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Log
+                                        Out</a>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                @else
+                    <input type="hidden" id="login_check" value="0" />
+                    <button class="btn btn-login login-up ml-2" type="button"><a
+                            href="{{ route('member.login') }}"><i class="fas fa-sign-in-alt"></i> Login</a></button>
                 @endif
             </div>
             <!-- end logo -->

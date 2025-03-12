@@ -249,6 +249,7 @@
             scroll = $(window).scrollTop();
 
         if (scroll >= 2){
+            console.log('yeahhhhhhhhhhhh')
             sticky.addClass('fixed');
             $('.navbar .container .upper-side .phone-email').hide();
             $('.navbar .container .upper-side .hamburger').hide();
