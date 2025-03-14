@@ -270,7 +270,7 @@ class PropertyForm extends FormAbstract
 
         if ($sellerEmail != 'Not Available') {
             if ($credits) {
-                $sellerEmail = '<a style="color: ' . ($credits ? '#155724' : '#721c24') . ';" href="mailto:' . $sellerEmail . '">' . $sellerEmail . '</a>';
+                $sellerEmail = '<a style="color: ' . ($credits ? '#155724' : '#721c24') . '; text-decoration: underline;" href="mailto:' . $sellerEmail . '">' . $sellerEmail . '</a>';
             } else {
                 if ($this->getModel()->member_id) {
                     $query = [
