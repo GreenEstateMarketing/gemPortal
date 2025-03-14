@@ -335,7 +335,7 @@ class PropertyForm extends FormAbstract
                 [
                     'html' => '<div class="col-md-3 col-lg-3"><div class="row"><div class="col-lg-3 col-md-3">Type:</div><div class="col-lg-9 col-md-9 bold">' . $sellerType . '</div></div></div>
                   <div class="col-md-2 col-lg-2"><div class="row"><div class="col-lg-3 col-md-3">Name:</div><div class="col-lg-9 col-md-9 bold">' . $sellerName . '</div></div></div>
-                  <div class="col-md-4 col-lg-4"><div class="row"><div class="col-lg-3 col-md-3">Email:</div><div class="col-lg-9 col-md-9 bold" style="color: ' . ($credits ? 'green' : 'red') . ';">' . $sellerEmail . '</div></div></div>
+                  <div class="col-md-4 col-lg-4"><div class="row"><div class="col-lg-3 col-md-3">Email:</div><div class="col-lg-9 col-md-9 bold" style="color: ' . ($credits ? '#155724' : '#721c24') . ';">' . $sellerEmail . '</div></div></div>
                   <div class="col-md-3 col-lg-3"><div class="row"><div class="col-lg-3 col-md-3">Phone:</div><div class="col-lg-9 col-md-9 bold">
                   <a target="_blank" style="color: ' . ($credits ? '#155724' : '#721c24') . ';text-decoration: underline" href="https://wa.me/+92' . ltrim($sellerPhone, '0') . '">' . $sellerPhone . '</a></div></div></div>'
                 ]
