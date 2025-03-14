@@ -68,11 +68,26 @@ class AccountTable extends TableAbstract
 
         return apply_filters(BASE_FILTER_GET_LIST_DATA, $data, $this->repository->getModel())
             ->addColumn('operations', function ($item) {
-                return $this->getOperations('account.edit', 'account.destroy', $item);
+                $operations = $this->getOperations('account.edit', 'account.destroy', $item);
+
+                // Add a new button for the real estate properties route
+                $propertiesUrl = route('property.index', [
+                    'filter_table_id' => 'plugins-real-estate-properties',
+                    'class' => 'Botble\RealEstate\Tables\PropertyTable',
+                    'filter_columns[]' => 're_properties.author_id',
+                    'filter_operators[]' => '=',
+                    'filter_values[]' => $item->id,
+                ]);
+                $propertiesButton = '<a href="' . $propertiesUrl . '" class="btn btn-info btn-sm">
+                                    <i class="fa fa-building"></i> ' . trans('View Properties') . '
+                                 </a>';
+
+                return $operations . ' ' . $propertiesButton;
             })
             ->escapeColumns([])
             ->make(true);
     }
+
 
     /**
      * Get the query object to be processed by the table.

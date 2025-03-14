@@ -51,7 +51,6 @@ class PropertyTable extends TableAbstract
         $this->setOption('id', 'plugins-real-estate-properties');
         parent::__construct($table, $urlGenerator);
     }
-
     /**
      * Display ajax response.
      *
@@ -121,14 +120,16 @@ class PropertyTable extends TableAbstract
             're_properties.status',
             're_properties.moderation_status',
             're_properties.created_at',
-            're_properties.is_deleted'
+            're_properties.is_deleted',
+            're_properties.author_id',
+            're_properties.member_id'
         ];
 
-        $query = $model
-            ->select($select);
+        $query = $model->select($select);
 
         return $this->applyScopes(apply_filters(BASE_FILTER_TABLE_QUERY, $query, $model, $select));
     }
+
 
     /**
      * @return array
@@ -223,8 +224,19 @@ class PropertyTable extends TableAbstract
                 'title' => trans('core/base::tables.created_at'),
                 'type' => 'date',
             ],
+            're_properties.author_id' => [
+                'title' => 'Agent ID',
+                'type' => 'text',
+                'validate' => 'required|integer',
+            ],
+            're_properties.member_id' => [
+                'title' => 'Member ID',
+                'type' => 'text',
+                'validate' => 'required|integer',
+            ],
         ];
     }
+
 
     /**
      * {@inheritDoc}
