@@ -197,6 +197,36 @@ class PropertyTable extends TableAbstract
         return $this->addDeleteAction(route('property.deletes'), 'property.destroy', parent::bulkActions());
     }
 
+    public function getFilters(): array
+    {
+        return [
+            're_properties.name' => [
+                'title' => trans('core/base::tables.name'),
+                'type' => 'text',
+            ],
+            're_properties.status' => [
+                'title' => trans('core/base::tables.status'),
+                'type' => 'select',
+                'choices' => PropertyStatusEnum::labels(),
+            ],
+            're_properties.moderation_status' => [
+                'title' => trans('plugins/real-estate::property.moderation_status'),
+                'type' => 'select',
+                'choices' => ModerationStatusEnum::labels(),
+            ],
+            're_properties.author_id' => [
+                'title' => 'Agent ID',
+                'type' => 'text',
+            ],
+            're_properties.member_id' => [
+                'title' => 'Member ID',
+                'type' => 'text',
+            ],
+        ];
+    }
+
+
+
     /**
      * @return array
      */
@@ -223,16 +253,6 @@ class PropertyTable extends TableAbstract
             're_properties.created_at' => [
                 'title' => trans('core/base::tables.created_at'),
                 'type' => 'date',
-            ],
-            're_properties.author_id' => [
-                'title' => 'Agent ID',
-                'type' => 'text',
-                'validate' => 'required|integer',
-            ],
-            're_properties.member_id' => [
-                'title' => 'Member ID',
-                'type' => 'text',
-                'validate' => 'required|integer',
             ],
         ];
     }

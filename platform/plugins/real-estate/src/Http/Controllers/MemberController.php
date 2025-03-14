@@ -2,41 +2,54 @@
 
 namespace Botble\RealEstate\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use Botble\Base\Events\UpdatedContentEvent;
+use Botble\Base\Http\Controllers\BaseController;
+use Botble\Base\Http\Responses\BaseHttpResponse;
+use Botble\Base\Traits\HasDeleteManyItemsTrait;
+use Botble\RealEstate\Forms\MemberForm;
+use Botble\RealEstate\Http\Requests\MemberEditRequest;
+use Botble\RealEstate\Models\Member;
+use Botble\RealEstate\Repositories\Interfaces\MemberInterface;
+use Botble\RealEstate\Tables\MemberTable;
+use Botble\Base\Forms\FormBuilder;
 
-use Illuminate\Http\Request;
-use Illuminate\Validation\ValidationException;
-
-use Theme;
-use URL;
-
-class MemberController extends Controller
+class MemberController extends BaseController
 {
-    public function __construct()
-{
-    /* session(['url.intended' => URL::previous()]);
-     $pages = [route('member.login'), /*route('public.single'),*//*route('member.account.register')];
+    use HasDeleteManyItemsTrait;
 
-        if (in_array(session()->get('url.intended'), $pages)) {
-            $this->redirectTo = route('member-dashboard');
-        } else {
-            $this->redirectTo = session()->get('url.intended');
-        }*/
-}
-    public function showLoginForm()
+    protected $memberRepository;
+
+    public function __construct(MemberInterface $memberRepository)
     {
-        //print("exit");exit;
-       // SeoHelper::setTitle(trans('plugins/real-estate::account.login'));
-
-        if (view()->exists(Theme::getThemeNamespace() . '::views.real-estate.member.auth.login')) {
-
-            return Theme::scope('real-estate.member.auth.login')->render();
-        }
-
-        return view('plugins/real-estate::member.auth.login');
+        $this->memberRepository = $memberRepository;
     }
-    public function login(Request $request)
+
+    public function index(MemberTable $dataTable)
     {
-        print_r($request);exit;
+        page_title()->setTitle('Members');
+
+        return $dataTable->renderTable();
+    }
+
+    public function edit($id, FormBuilder $formBuilder)
+    {
+        $member = $this->memberRepository->findOrFail($id);
+        page_title()->setTitle(trans('Edit', ['name' => $member->full_name]));
+        $member->password = null;
+        return $formBuilder
+            ->create(MemberForm::class, ['model' => $member])
+            ->renderForm();
+    }
+
+    public function update($id, MemberEditRequest $request, BaseHttpResponse $response)
+    {
+        $member = Member::find($id);
+        $member->update($request->input());
+
+        event(new UpdatedContentEvent(ACCOUNT_MODULE_SCREEN_NAME, $request, $member));
+
+        return $response
+            ->setPreviousUrl(route('member.index'))
+            ->setMessage(trans('core/base::notices.update_success_message'));
     }
 }

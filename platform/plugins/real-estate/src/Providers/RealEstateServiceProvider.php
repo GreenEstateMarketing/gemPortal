@@ -348,6 +348,15 @@ class RealEstateServiceProvider extends ServiceProvider
                     'permissions' => ['account.index'],
                 ])
                 ->registerItem([
+                    'id' => 'cms-plugins-real-estate-member',
+                    'priority' => 22,
+                    'parent_id' => null,
+                    'name' => 'Members',
+                    'icon' => 'fa fa-users',
+                    'url' => route('member.index'),
+                    'permissions' => ['member.index'],
+                ])
+                ->registerItem([
                     'id' => 'cms-plugins-package',
                     'priority' => 23,
                     'parent_id' => null,
@@ -401,7 +410,7 @@ class RealEstateServiceProvider extends ServiceProvider
                 ])
                 ->registerItem([
                     'id' => 'cms-plugins-currencies',
-                    'priority' => 28,
+                    'priority' => 29,
                     'parent_id' => null,
                     'name' => 'Currencies',
                     'icon' => 'fab fa-gg',

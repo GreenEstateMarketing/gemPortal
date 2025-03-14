@@ -264,6 +264,19 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                 'permission' => 'account.agent_area_list',
             ]);
         });
+
+        Route::group(['prefix' => 'members', 'as' => 'member.'], function () {
+            Route::resource('', 'MemberController')
+                ->parameters(['' => 'member']);
+
+            Route::delete('items/destroy', [
+                'as' => 'deletes',
+                'uses' => 'MemberController@deletes',
+                'permission' => 'member.destroy',
+            ]);
+        });
+
+
         ////////////package management/////////
         Route::group(['prefix' => 'packages', 'as' => 'package.'], function () {
             Route::resource('', 'PackageController')
