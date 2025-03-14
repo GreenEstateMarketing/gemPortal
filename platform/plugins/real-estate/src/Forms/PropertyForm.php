@@ -72,16 +72,17 @@ class PropertyForm extends FormAbstract
 
 
     public function __construct(
-        PropertyInterface $propertyRepository,
-        ProjectInterface $projectRepository,
-        FeatureInterface $featureRepository,
-        CurrencyInterface $currencyRepository,
-        CityInterface $cityRepository,
-        CityAreaInterface $cityAreaRepository,
-        CategoryInterface $categoryRepository,
-        FacilityInterface $facilityRepository,
+        PropertyInterface         $propertyRepository,
+        ProjectInterface          $projectRepository,
+        FeatureInterface          $featureRepository,
+        CurrencyInterface         $currencyRepository,
+        CityInterface             $cityRepository,
+        CityAreaInterface         $cityAreaRepository,
+        CategoryInterface         $categoryRepository,
+        FacilityInterface         $facilityRepository,
         CategoryDocumentInterface $categoryDocumentRepository
-    ) {
+    )
+    {
         parent::__construct();
         $this->propertyRepository = $propertyRepository;
         $this->projectRepository = $projectRepository;
@@ -300,7 +301,7 @@ class PropertyForm extends FormAbstract
             ->addCustomField('mediafile1', MediaFileField1::class);
 
         $this->add('rowOpenVerificatonInfo', 'html', [
-            'html' => '<div class="row mb-5 pt-1 pb-1 align-items-center" style="background: ' . ($this->model->verified ? '#078d24' : '#f33838') . ';color: #fff;border-radius: 50px;">',
+            'html' => '<div class="row mb-5 pt-1 pb-1 align-items-center alert ' . ($this->model->verified ? 'alert-success' : 'alert-danger') . '" style="border-radius: 50px;">',
         ]);
 
         if ($this->model->verified) {
@@ -326,19 +327,24 @@ class PropertyForm extends FormAbstract
         ]);
 
         $this->add('rowOpenSellerInfo', 'html', [
-            'html' => '<div class="row mb-5 pt-5 pb-5 align-items-center" style="background: ' . ($credits ? '#078d24' : '#f33838') . ';color: #fff;border-radius: 50px;">',
+            'html' => '<div class="row mb-5 pt-5 pb-5 align-items-center alert ' . ($credits ? 'alert-success' : 'alert-danger') . '" style="border-radius: 50px;">',
         ])
             ->add(
                 'SellerInfo',
                 'html',
                 [
-                    'html' => '<div class="col-md-3 col-lg-3"><div class="row"><div class="col-lg-3 col-md-3">Type:</div><div class="col-lg-9 col-md-9 bold">' . $sellerType . '</div></div></div> <div class="col-md-2 col-lg-2"><div class="row"><div class="col-lg-3 col-md-3">Name:</div><div class="col-lg-9 col-md-9 bold">' . $sellerName . '</div></div></div> <div class="col-md-4 col-lg-4"><div class="row"><div class="col-lg-3 col-md-3">Email:</div><div class="col-lg-9 col-md-9 bold">' . $sellerEmail . '</div></div></div> <div class="col-md-3 col-lg-3 "><div class="row"><div class="col-lg-3 col-md-3">Phone:</div><div class="col-lg-9 col-md-9 bold"> <a target="_blank" style="color: #c7bebe" href="https://wa.me/+92' . ltrim($sellerPhone, '0') . '">' . $sellerPhone . '</a></div></div></div>'
+                    'html' => '<div class="col-md-3 col-lg-3"><div class="row"><div class="col-lg-3 col-md-3">Type:</div><div class="col-lg-9 col-md-9 bold">' . $sellerType . '</div></div></div>
+                  <div class="col-md-2 col-lg-2"><div class="row"><div class="col-lg-3 col-md-3">Name:</div><div class="col-lg-9 col-md-9 bold">' . $sellerName . '</div></div></div>
+                  <div class="col-md-4 col-lg-4"><div class="row"><div class="col-lg-3 col-md-3">Email:</div><div class="col-lg-9 col-md-9 bold" style="color: ' . ($credits ? 'green' : 'red') . ';">' . $sellerEmail . '</div></div></div>
+                  <div class="col-md-3 col-lg-3"><div class="row"><div class="col-lg-3 col-md-3">Phone:</div><div class="col-lg-9 col-md-9 bold">
+                  <a target="_blank" style="color: ' . ($credits ? '#155724' : '#721c24') . ';text-decoration: underline" href="https://wa.me/+92' . ltrim($sellerPhone, '0') . '">' . $sellerPhone . '</a></div></div></div>'
                 ]
             )
             ->add('rowCloseSellerInfo', 'html', [
                 'html' => '</div>',
             ])
-            ->add('rowOpenType', 'html', [
+
+        ->add('rowOpenType', 'html', [
                 'html' => '<div class="row mb-2 align-items-center">',
             ])
             ->add(

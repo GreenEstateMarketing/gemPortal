@@ -26,6 +26,7 @@ class MemberForm extends FormAbstract
                 'attr' => [
                     'placeholder' => trans('plugins/real-estate::account.email_placeholder'),
                     'data-counter' => 60,
+                    'disabled' => 'disabled', // Field disabled
                 ],
             ])->add('mobile_no', 'text', [
                 'label' => trans('Mobile No'),
@@ -40,6 +41,7 @@ class MemberForm extends FormAbstract
                 'attr' => [
                     'placeholder' => trans('Credits'),
                     'data-counter' => 20,
+                    'disabled' => 'disabled', // Field disabled
                 ],
             ]);
     }
