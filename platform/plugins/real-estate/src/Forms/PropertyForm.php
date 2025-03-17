@@ -160,10 +160,11 @@ class PropertyForm extends FormAbstract
             $label_primary = 'label-primary';
             $label_sub_category = 'label-primary';
         }
-        foreach ($categories as $key => $val) {
 
+        foreach ($categories as $key => $val) {
             if ($this->getModel()) {
-                if ($this->getModel()->parent_id == $val->id) {
+                $innerCategory = $this->categoryRepository->findById($this->getModel()->category_id);
+                if ($innerCategory->parent_id == $val->id) {
                     $label_primary = 'label-primary';
                 } else {
                     $label_primary = 'label-secondary';
@@ -455,6 +456,17 @@ class PropertyForm extends FormAbstract
                     'class' => 'form-control select-search-full',
                 ],
                 'choices' => [trans('plugins/real-estate::property.select_city_area')] + $cityAreaChoices,
+            ])
+            ->add('built_in', 'number', [
+                'label' => trans('Built In'),
+                'label_attr' => ['class' => 'control-label'],
+                'attr' => [
+                    'placeholder' => trans('Year the property was built'),
+                    'data-counter' => 4,
+                ],
+                'wrapper' => [
+                    'class' => 'form-group col-md-6',
+                ],
             ])
             ->add('rowClosetitle', 'html', [
                 'html' => '</div>',

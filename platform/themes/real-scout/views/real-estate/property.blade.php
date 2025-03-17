@@ -125,7 +125,10 @@
                                             </div>
                                             <div class="col-md-3"> <b class="">{{ __('Land Size') }}</b><div class="infoTitle d-none"></div><input type="hidden" id="area_units" name="area_units" value="{{setting('real_estate_square_unit') }}"/><input type="hidden" id="square" name="square" value="{{ $property->square }}"/> <p class="showInfoArea" style="cursor: pointer"> {{ $property->square_text }}</p></div>
 
-                                            <div class="col-md-3"><b class="">{{ __('Built in') }}</b><p> 2005</p></div><!-- later add year built in-->
+                                            <div class="col-md-3">
+                                                <b>{{ __('Built in') }}</b>
+                                                <p>{{ $property->built_in ? $property->built_in : __('Not Available') }}</p>
+                                            </div>
 
                                             <div class="col-md-3"><b class="">{{ __('Added At') }}</b><p>{{ $property->created_at }}</p></div><!-- later add parting type-->
 

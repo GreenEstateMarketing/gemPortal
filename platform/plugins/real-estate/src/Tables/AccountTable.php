@@ -68,9 +68,7 @@ class AccountTable extends TableAbstract
 
         return apply_filters(BASE_FILTER_GET_LIST_DATA, $data, $this->repository->getModel())
             ->addColumn('operations', function ($item) {
-                $operations = $this->getOperations('account.edit', 'account.destroy', $item);
 
-                // Add a new button for the real estate properties route
                 $propertiesUrl = route('property.index', [
                     'filter_table_id' => 'plugins-real-estate-properties',
                     'class' => 'Botble\RealEstate\Tables\PropertyTable',
@@ -78,11 +76,12 @@ class AccountTable extends TableAbstract
                     'filter_operators[]' => '=',
                     'filter_values[]' => $item->id,
                 ]);
-                $propertiesButton = '<a href="' . $propertiesUrl . '" class="btn btn-info btn-sm">
-                                    <i class="fa fa-building"></i> ' . trans('View Properties') . '
-                                 </a>';
 
-                return $operations . ' ' . $propertiesButton;
+                $propertiesButton = '<a href="' . $propertiesUrl . '" class="btn btn-icon btn-sm btn-info" data-toggle="tooltip" data-original-title="View Properties">
+                                <i class="fa fa-building"></i> 
+                             </a>';
+
+                return $this->getOperations('account.edit', 'account.destroy', $item, $propertiesButton);
             })
             ->escapeColumns([])
             ->make(true);

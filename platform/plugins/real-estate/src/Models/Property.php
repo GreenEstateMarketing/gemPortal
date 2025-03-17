@@ -61,7 +61,8 @@ class Property extends BaseModel
         'member_id',
         'documents',
         'gem_listing_number',
-        'reject_reason'
+        'reject_reason',
+        'built_in'
     ];
 
     /**

@@ -49,7 +49,6 @@ class MemberTable extends TableAbstract
 
         return apply_filters(BASE_FILTER_GET_LIST_DATA, $data, $this->repository->getModel())
             ->addColumn('operations', function ($item) {
-                $operations = $this->getOperations('member.edit', null, $item);
 
                 $propertiesUrl = route('property.index', [
                     'filter_table_id' => 'plugins-real-estate-properties',
@@ -58,14 +57,17 @@ class MemberTable extends TableAbstract
                     'filter_operators[]' => '=',
                     'filter_values[]' => $item->id,
                 ]);
-                $propertiesButton = '<a href="' . $propertiesUrl . '" class="btn btn-info btn-sm">
-                                    <i class="fa fa-building"></i> ' . trans('View Properties') . '
-                                 </a>';
 
-                return $operations . ' ' . $propertiesButton;
+                $propertiesButton = '<a href="' . $propertiesUrl . '" class="btn btn-icon btn-sm btn-info" data-toggle="tooltip" data-original-title="View Properties">
+                                <i class="fa fa-building"></i> 
+                             </a>';
+
+                return $this->getOperations('member.edit', null, $item, $propertiesButton);
             })
             ->escapeColumns([])
             ->make(true);
+
+
     }
 
     public function query()
