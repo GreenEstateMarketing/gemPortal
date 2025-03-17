@@ -2,6 +2,7 @@
 
 namespace Botble\RealEstate\Tables;
 
+use App\Models\Rating;
 use Botble\RealEstate\Models\Member;
 use Html;
 use Illuminate\Support\Arr;
@@ -67,10 +68,13 @@ class MemberPropertyTable extends PropertyTable
 
         return apply_filters(BASE_FILTER_GET_LIST_DATA, $data, $this->repository->getModel())
             ->addColumn('operations', function ($item) {
+
+                $rating = Rating::where('user_id', $item->member_id)->where('agent_id', $item->author_id)->where('property_id', $item->id)->first();
+
                 $edit = 'public.member.properties.edit';
                 $delete = 'public.member.properties.destroy';
 
-                return view('plugins/real-estate::member.table.actions', compact('edit', 'delete', 'item'))->render();
+                return view('plugins/real-estate::member.table.actions', compact('edit', 'delete', 'item', 'rating'))->render();
             })
             ->escapeColumns([])
             ->make(true);

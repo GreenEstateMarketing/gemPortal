@@ -517,29 +517,19 @@ $("#rate_send").click(function (e) {
             success: function (data) {
 
                 if (data.status) {
-
-                    //alert("Rating Added Successfully!");
                     $.alert('Rating Added Successfully!', {
                         title: 'Success',
-                        /* closeTime: 6000,*/
-                        // autoClose:true,
-
                         type: 'success',
-                        /*  withTime: $('#withTime').is(':checked'),
-
-                          isOnly: !$('#isOnly').is(':checked')*/
                     });
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 2000);
                 } else {
                     $.alert(data.message, {
                         title: 'Error',
-
-                        type: 'danger',
-                        /*  withTime: $('#withTime').is(':checked'),
-
-                          isOnly: !$('#isOnly').is(':checked')*/
+                        type: 'danger'
                     });
                     $('#ratingModal').modal('hide');
-
                 }
 
             },
