@@ -200,12 +200,12 @@ class AccountController extends Controller
                 're_accounts.id',
                 'first_name',
                 'last_name',
-                \DB::raw('AVG(ratings.rating) as average_rating') // Aggregating ratings
+                \DB::raw('AVG(ratings.rating) as rating')
             ])
                 ->leftJoin('ratings', 're_accounts.id', '=', 'ratings.agent_id')
                 ->whereNotNull('confirmed_at')
                 ->whereRaw($w)
-                ->groupBy('re_accounts.id', 'first_name', 'last_name') // Group by account
+                ->groupBy('re_accounts.id', 'first_name', 'last_name')
                 ->orderBy('average_rating', 'DESC')
                 ->get();
 
