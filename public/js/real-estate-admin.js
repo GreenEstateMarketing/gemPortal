@@ -76,14 +76,15 @@ $(window).on("load", function () {
                 $("#dropdown-menu-admin").append('<input type="text" placeholder="Search.." class="form-control" id="myInputadmin" onKeyUp="filterFunction()">');
                 $("#dropdown-menu-checklist").append('<input type="text" placeholder="Search.." class="form-control" id="myInputchecklist" onKeyUp="filterFunctionCheck()">');
                 if (response.length > 0) {
+                    console.log(response)
                     $.each(response, function (key, value) {
                         if (value.rating) {
-                            $("#dropdown-menu-admin").append('<li class="dropdown-item" data-agent-id="' + value.id + '"><img src="' + value.img_src.encoded + '" width="50px" height="50px" class="br-100 v-mid mr-2">  ' + value.first_name + '' + value.last_name + ' (' + value.rating + '<i class="fa fa-star" style="color:#f3a54a" aria-hidden="true"></i>)</li>');
-                            $("#dropdown-menu-checklist").append('<li class="dropdown-item" data-agent-id="' + value.id + '"><img src="' + value.img_src.encoded + '" width="50px" height="50px" class="br-100 v-mid mr-2">  ' + value.first_name + '' + value.last_name + ' (' + value.rating + '<i class="fa fa-star" style="color:#f3a54a" aria-hidden="true"></i>)</li>');
+                            $("#dropdown-menu-admin").append('<li class="dropdown-item" data-agent-id="' + value.id + '"><img src="' + value.img_src.encoded + '" width="50px" height="50px" class="br-100 v-mid mr-2">  ' + value.first_name + ' ' + value.last_name + ' (' + value.rating + '<i class="fa fa-star" style="color:#f3a54a" aria-hidden="true"></i>)</li>');
+                            $("#dropdown-menu-checklist").append('<li class="dropdown-item" data-agent-id="' + value.id + '"><img src="' + value.img_src.encoded + '" width="50px" height="50px" class="br-100 v-mid mr-2">  ' + value.first_name + ' ' + value.last_name + ' (' + value.rating + '<i class="fa fa-star" style="color:#f3a54a" aria-hidden="true"></i>)</li>');
 
                         } else {
                             $("#dropdown-menu-admin").append('<li class="dropdown-item"  data-agent-id="' + value.id + '"><img src="' + value.img_src.encoded + '" width="50" height="50"  class="br-100 v-mid mr-2">  ' + value.first_name + ' ' + value.last_name + '</li>');
-                            $("#dropdown-menu-checklist").append('<li class="dropdown-item" data-agent-id="' + value.id + '"><img src="' + value.img_src.encoded + '" width="50px" height="50px" class="br-100 v-mid mr-2">  ' + value.first_name + '' + value.last_name + '</li>');
+                            $("#dropdown-menu-checklist").append('<li class="dropdown-item" data-agent-id="' + value.id + '"><img src="' + value.img_src.encoded + '" width="50px" height="50px" class="br-100 v-mid mr-2">  ' + value.first_name + ' ' + value.last_name + '</li>');
 
                         }
                     });

@@ -493,8 +493,8 @@ class PropertyController extends BaseController
                             ->sendUsingTemplate('paymentmail', $member->email, [], false, 'plugins', 'GEM - Payment Pending');
 
                         return $response
-                            ->setPreviousUrl(route('public.account.properties.edit', ['property' => $propertyId]))
-                            ->setNextUrl(route('public.account.properties.edit', ['property' => $propertyId]))
+                            ->setPreviousUrl(route('property.edit', ['property' => $propertyId]))
+                            ->setNextUrl(route('property.edit', ['property' => $propertyId]))
                             ->setMessage('Email has been sent.');
                     }
                 } else {
@@ -504,7 +504,6 @@ class PropertyController extends BaseController
                 }
             }
         } catch (Exception $exception) {
-            Log::debug('message', [$exception->getMessage()]);
             return $response
                 ->setError()
                 ->setMessage('Something went wrong. Cannot send email');
