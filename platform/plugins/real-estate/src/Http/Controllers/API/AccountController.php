@@ -202,7 +202,7 @@ class AccountController extends Controller
                 're_accounts.id',
                 'first_name',
                 'last_name',
-                'rating'
+                \DB::raw('AVG(ratings.rating) as rating')
             ])
                 ->leftJoin('ratings', 're_accounts.id', '=', 'ratings.agent_id')
                 ->whereNotNull('confirmed_at')
