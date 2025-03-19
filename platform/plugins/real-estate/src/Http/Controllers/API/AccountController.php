@@ -196,17 +196,19 @@ class AccountController extends Controller
             $col = '*,ST_Within(ST_GEOMFROMTEXT(' . $po . '),agent_area) as ceck,id';
             $w = 'ST_Within(ST_GEOMFROMTEXT(' . $po . ',4326),agent_area)=1';
 
+//            $res = Account::select(['re_accounts.id', 'first_name', 'last_name', 'rating'])->leftJoin('ratings', 're_accounts.id', '=', 'ratings.agent_id')->whereNotNull('confirmed_at')->whereRaw($w)->orderBy('rating', 'DESC')->get();
+
             $res = Account::select([
                 're_accounts.id',
                 'first_name',
                 'last_name',
-                \DB::raw('AVG(ratings.rating) as rating')
+                'rating'
             ])
                 ->leftJoin('ratings', 're_accounts.id', '=', 'ratings.agent_id')
                 ->whereNotNull('confirmed_at')
                 ->whereRaw($w)
                 ->groupBy('re_accounts.id', 'first_name', 'last_name')
-                ->orderBy('average_rating', 'DESC')
+                ->orderBy('rating', 'DESC')
                 ->get();
 
             foreach ($res as $k => $val) {
