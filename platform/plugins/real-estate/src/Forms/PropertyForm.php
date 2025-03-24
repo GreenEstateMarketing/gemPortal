@@ -278,14 +278,16 @@ class PropertyForm extends FormAbstract
                         'id' => $this->getModel()->member_id,
                         'type' => 'member',
                         'property_id' => $this->getModel()->id,
-                        'title' => $this->getModel()->name
+                        'title' => $this->getModel()->name,
+                        'from' => auth('account')->user() ? 'agent' : 'admin'
                     ];
                 } else {
                     $query = [
                         'id' => $this->getModel()->author_id,
                         'type' => 'agent',
                         'property_id' => $this->getModel()->id,
-                        'title' => $this->getModel()->name
+                        'title' => $this->getModel()->name,
+                        'from' => auth('account')->user() ? 'agent' : 'admin'
                     ];
                 }
                 $sellerEmail = '<a href="' . route('mail-for-payment', $query) . '" type="button" class="btn btn-primary">Mail ' . $sellerName . ' For Payment</a>';

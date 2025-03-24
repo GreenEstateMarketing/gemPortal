@@ -310,7 +310,6 @@ class AccountPropertyController extends Controller
         unset($request['square']);
         $sqFeet = getSqFeet($area_value, $area_units);
         $property->square = $sqFeet;
-        dd($property);
         $this->propertyRepository->createOrUpdate($property);
 
         $property->features()->sync($request->input('features', []));

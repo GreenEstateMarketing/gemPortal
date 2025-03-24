@@ -39,6 +39,7 @@ use SeoHelper;
 use EmailHandler;
 
 use Theme;
+use function React\Promise\all;
 
 class PropertyController extends BaseController
 {
@@ -453,6 +454,7 @@ class PropertyController extends BaseController
                 $id = $request->get('id');
                 $propertyId = $request->get('property_id');
                 $title = $request->get('title');
+                $from = $request->get('from');
 
                 $variables = [
                     'name' => 'Name',
@@ -474,10 +476,19 @@ class PropertyController extends BaseController
                             ])
                             ->sendUsingTemplate('paymentmail', $account->email, [], false, 'plugins', 'GEM - Payment Pending');
 
-                        return $response
-                            ->setPreviousUrl(route('property.edit', ['property' => $propertyId]))
-                            ->setNextUrl(route('property.edit', ['property' => $propertyId]))
-                            ->setMessage('Email has been sent.');
+                        if($from == 'agent') {
+                            return $response
+                                ->setPreviousUrl(route('public.account.properties.edit', ['property' => $propertyId]))
+                                ->setNextUrl(route('public.account.properties.edit', ['property' => $propertyId]))
+                                ->setMessage('Email has been sent.');
+                        } else {
+                            return $response
+                                ->setPreviousUrl(route('property.edit', ['property' => $propertyId]))
+                                ->setNextUrl(route('property.edit', ['property' => $propertyId]))
+                                ->setMessage('Email has been sent.');
+                        }
+
+
                     }
                 } else if ($type == 'member') {
                     $member = $memberRepo->findOrFail($id);
@@ -492,10 +503,17 @@ class PropertyController extends BaseController
                             ])
                             ->sendUsingTemplate('paymentmail', $member->email, [], false, 'plugins', 'GEM - Payment Pending');
 
-                        return $response
-                            ->setPreviousUrl(route('property.edit', ['property' => $propertyId]))
-                            ->setNextUrl(route('property.edit', ['property' => $propertyId]))
-                            ->setMessage('Email has been sent.');
+                        if($from == 'agent') {
+                            return $response
+                                ->setPreviousUrl(route('public.account.properties.edit', ['property' => $propertyId]))
+                                ->setNextUrl(route('public.account.properties.edit', ['property' => $propertyId]))
+                                ->setMessage('Email has been sent.');
+                        } else {
+                            return $response
+                                ->setPreviousUrl(route('property.edit', ['property' => $propertyId]))
+                                ->setNextUrl(route('property.edit', ['property' => $propertyId]))
+                                ->setMessage('Email has been sent.');
+                        }
                     }
                 } else {
                     return $response
