@@ -172,13 +172,16 @@ class GeneralPropertyController extends Controller
         $agent_id = $request['agent_list'] ? $request['agent_list'] : null;
         $member_id = null;
         $is_already_member = false;
+
         if ($request['member_status'] == "new_user") {
             $validator = Validator::make($request->all(), [
                 'full_name' => 'required|string|min:3|max:100|regex:^[a-zA-Z]{3,}(?: [a-zA-Z]+){0,2}$^',
                 'new_email' => 'required|email|string',
                 'mobile_number' => 'required|min:11|numeric|regex:^[0][\d]{3}[\d]{7}$^',
                 'new_password' => 'required|min:6',
-                'new_password' => 'required|min:6',
+                'terms' => 'required|accepted',
+            ], [
+                'terms.required' => 'Please accept GEM terms & conditions'
             ]);
 
             if ($validator->fails()) {
@@ -195,6 +198,9 @@ class GeneralPropertyController extends Controller
             $validator = Validator::make($request->all(), [
                 'email' => 'required|email|string',
                 'password' => 'required|min:6',
+                'terms' => 'required|accepted',
+            ], [
+                'terms.required' => 'Please accept GEM terms & conditions'
             ]);
 
             if ($validator->fails()) {

@@ -71,6 +71,8 @@ class GeneralPropertyForm extends PropertyForm
                 ],
             ], true)
             ->remove('rowOpenagent')
+            ->remove('rowOpenVerificatonInfo')
+            ->remove('VerificatonInfo')
           /*  ->addAfter('description', 'content', 'customEditor', [
                 'label'      => trans('core/base::forms.content'),
                 'label_attr' => ['class' => 'control-label required'],

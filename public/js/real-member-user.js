@@ -277,7 +277,6 @@ $(".dropdown-item").change(function (e) {
 });
 
 $("#btnSave").click(function (e) {
-
     $(window).off('beforeunload');
     e.preventDefault();
     res = $("#form_member").validate();
@@ -291,66 +290,78 @@ $("#btnSave").click(function (e) {
         var form = $('#form_member')[0];
         var formData = new FormData(form);
         formData.append("price", setprice);
-        /*var email=$("#email").val();
-        var password=$("#password").val();
+        var email = $("#email").val();
+        var password = $("#password").val();
         ////////register//////
-        var name=$("#full_name").val();
-        var new_email=$("#new_email").val();
-        var new_password=$("#new_password").val();
-        var mobile_number=$("#mobile_number").val();
+        var name = $("#full_name").val();
+        var new_email = $("#new_email").val();
+        var new_password = $("#new_password").val();
+        var mobile_number = $("#mobile_number").val();
         $('.validation').remove();
-        var member_status=$("input[name='member_status']:checked").val();
-        var submit=1;
-       // alert(member_status);
-        if(member_status=="existing_user")
-        {
+        var member_status = $("input[name='member_status']:checked").val();
+        var submit = 1;
+
+        if (member_status == "existing_user") {
             $('.validation_register').remove();
             $('.validation_login').remove();
-            if(password=="") {
-                submit=0;
+            if (password == "") {
+                submit = 0;
                 $("input[name='password']").after('<ul class="validation_login"><li>password is required</li></ul>');
+            } else {
+                formData.append("password", password);
             }
-            if(email=="") {
-                submit=0;
+            if (email == "") {
+                submit = 0;
                 $("input[name='email']").after('<ul class="validation_login"><li>email is required</li></ul>');
+            } else {
+                formData.append("email", email);
             }
-            if(!$("input[name='terms']").is(':checked'))
-            {
-                submit=0;
-                $("input[name='terms']").siblings().after('<ul class="validation_login"><li>Please accept GEM terms & condition</li></ul>')
+            if (!$("input[name='terms']").is(':checked')) {
+                submit = 0;
+                // $("input[name='terms']").siblings().after('<ul class="validation_login"><li>Please accept GEM terms & condition</li></ul>')
+            } else {
+                formData.append("terms", true);
             }
-
         }
-        if (  member_status=="new_user" )
-        {
+
+        if (member_status == "new_user") {
+            formData.append("member_status", "new_user");
             $('.validation_register').remove();
             $('.validation_login').remove();
-            if(name=="") {
-                submit=0;
+            if (name == "") {
+                submit = 0;
                 $("input[name='full_name']").after('<ul class="validation_register"><li>full name is required</li></ul>');
+            } else {
+                formData.append("full_name", name);
             }
-            if(new_email=="") {
-                submit=0;
+            if (new_email == "") {
+                submit = 0;
                 $("input[name='new_email']").after('<ul class="validation_register"><li>email is required</li></ul>');
+            } else {
+                formData.append("new_email", new_email);
             }
-            if(mobile_number=="") {
-                submit=0;
+            if (mobile_number == "") {
+                submit = 0;
                 $("input[name='mobile_number']").after('<ul class="validation_register"><li>mobile number is required</li></ul>');
+            } else {
+                formData.append("mobile_number", mobile_number);
             }
-            if(new_password=="") {
-                submit=0;
+            if (new_password == "") {
+                submit = 0;
                 $("input[name='new_password']").after('<ul class="validation_register"><li>password is required</li></ul>');
+            } else {
+                formData.append("new_password", new_password);
             }
-            if(!$("#terms").is(':checked')) {
-                submit=0;
-                $("input[name='terms']").after('<ul class="validation_register"><li>Please accept GEM terms & condition</li></ul>');
+            if (!$("#terms").is(':checked')) {
+                submit = 0;
+                // $("input[name='terms']").after('<ul class="validation_register"><li>Please accept GEM terms & condition</li></ul>');
+            } else {
+                formData.append("terms", true);
             }
+        }
 
-        }*/
-        //  else {
         let document = 1;
 
-        /*submit==1 &&*/
         if (document == 1) {
             $.ajax({
                 type: 'POST',
@@ -377,6 +388,7 @@ $("#btnSave").click(function (e) {
                             $(".print-error-msg").find("ul").append('<li>' + value + '</li>');
                         });
                     }
+
                     //  var data=JSON.parse(data);
                     if (data.status) {
                         /*Swal.fire({
@@ -521,7 +533,7 @@ $("#rate_send").click(function (e) {
                         title: 'Success',
                         type: 'success',
                     });
-                    setTimeout(function() {
+                    setTimeout(function () {
                         window.location.reload();
                     }, 2000);
                 } else {

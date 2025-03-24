@@ -137,9 +137,17 @@ class AccountPropertyController extends Controller
         unset($request['square']);
         $sqFeet = getSqFeet($area_value, $area_units);
         $request['square'] = $sqFeet;
+        $propertyData = array_merge($request->input(), [
+            'author_id' => auth('account')->user()->getAuthIdentifier(),
+            'author_type' => Account::class,
+            'verified' => true
+        ]);
+
+
         $property = $this->propertyRepository->createOrUpdate(array_merge($request->input(), [
             'author_id' => auth('account')->user()->getAuthIdentifier(),
             'author_type' => Account::class,
+            'verified' => true
         ]));
 
         if ($property) {
@@ -302,6 +310,7 @@ class AccountPropertyController extends Controller
         unset($request['square']);
         $sqFeet = getSqFeet($area_value, $area_units);
         $property->square = $sqFeet;
+        dd($property);
         $this->propertyRepository->createOrUpdate($property);
 
         $property->features()->sync($request->input('features', []));

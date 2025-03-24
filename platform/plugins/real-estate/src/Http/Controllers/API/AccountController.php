@@ -211,10 +211,11 @@ class AccountController extends Controller
                 ->orderBy('rating', 'DESC')
                 ->get();
 
-            \Illuminate\Support\Facades\Log::debug('res', [$res]);
-
             foreach ($res as $k => $val) {
                 $res[$k]->img_src = $val->getAvatarUrlAttribute();
+                if(strlen($val->first_name) + strlen($val->last_name) > 10) {
+                    $val->first_name = $val->first_name[0];
+                }
             }
             echo json_encode($res);
         } else {

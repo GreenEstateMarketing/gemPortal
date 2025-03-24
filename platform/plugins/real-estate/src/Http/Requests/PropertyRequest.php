@@ -40,7 +40,7 @@ class PropertyRequest extends Request
         return [
             'city_id.not_in' => 'Choose city from list',
             'city_area_id.not_in' => 'Choose city area from list',
-            'reject_reason.required_if' => 'Please enter reject reason'
+            'reject_reason.required_if' => 'Please enter reject reason',
         ];
     }
 
