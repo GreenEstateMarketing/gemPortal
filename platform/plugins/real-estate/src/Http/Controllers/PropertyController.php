@@ -501,7 +501,7 @@ class PropertyController extends BaseController
                                 'title' => $title,
                                 'credits_url' => route('public.member.packages'),
                             ])
-                            ->sendUsingTemplate('paymentmail', $member->email, [], false, 'plugins', 'GEM - Payment Pending');
+                            ->sendUsingTemplate('testemail', $member->email, [], false, 'plugins', 'GEM - Payment Pending');
 
                         if($from == 'agent') {
                             return $response
