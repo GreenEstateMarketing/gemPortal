@@ -518,7 +518,7 @@ class PropertyController extends BaseController
                 } else {
                     return $response
                         ->setError()
-                        ->setMessage('Something went wrong. Cannot send email111.');
+                        ->setMessage('Something went wrong. Cannot send email.');
                 }
             }
         } catch (Exception $exception) {
