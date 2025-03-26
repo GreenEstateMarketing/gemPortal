@@ -40,7 +40,7 @@ class SendMailListener
             if ($event->debug) {
                 throw $exception;
             }
-            Log::error('Error sending email: ', [$exception->getMessage()]);
+            Log::error('Error sending email: ', [$exception]);
         }
     }
 }
