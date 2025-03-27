@@ -170,7 +170,7 @@ class PropertyController extends BaseController
             'action' => 'Action'
         ];
 
-        EmailHandler::setModule('property')
+        EmailHandler::setModule('real-estate')
             ->addVariables($variables)
             ->setVariableValues([
                 'name' => 'Admin',
@@ -330,7 +330,7 @@ class PropertyController extends BaseController
             $action = strtolower($request->input('moderation_status'));
         }
 
-        EmailHandler::setModule('property')
+        EmailHandler::setModule('real-estate')
             ->addVariables($variables)
             ->setVariableValues([
                 'name' => 'Admin',
@@ -344,7 +344,7 @@ class PropertyController extends BaseController
         if ($property->member_id) {
             $member = $memberRepository->findOrFail($property->member_id);
 
-            EmailHandler::setModule('property')
+            EmailHandler::setModule('real-estate')
                 ->addVariables($variables)
                 ->setVariableValues([
                     'name' => $member->full_name,
@@ -359,7 +359,7 @@ class PropertyController extends BaseController
         if ($property->author_id) {
             $account = $accountRepository->findOrFail($property->author_id);
 
-            EmailHandler::setModule('property')
+            EmailHandler::setModule('real-estate')
                 ->addVariables($variables)
                 ->setVariableValues([
                     'name' => $account->first_name . ' ' . $account->last_name,
@@ -466,7 +466,7 @@ class PropertyController extends BaseController
                 if ($type == 'agent') {
                     $account = $accountRepo->findOrFail($id);
                     if ($account) {
-                        EmailHandler::setModule('property')
+                        EmailHandler::setModule('real-estate')
                             ->addVariables($variables)
                             ->setVariableValues([
                                 'name' => $account->first_name . ' ' . $account->last_name,
@@ -493,7 +493,7 @@ class PropertyController extends BaseController
                 } else if ($type == 'member') {
                     $member = $memberRepo->findOrFail($id);
                     if ($member) {
-                        EmailHandler::setModule('property')
+                        EmailHandler::setModule('real-estate')
                             ->addVariables($variables)
                             ->setVariableValues([
                                 'name' => $member->full_name,
@@ -501,7 +501,7 @@ class PropertyController extends BaseController
                                 'title' => $title,
                                 'credits_url' => route('public.member.packages'),
                             ])
-                            ->sendUsingTemplate('testemail', $member->email, [], false, 'plugins', 'GEM - Payment Pending');
+                            ->sendUsingTemplate('paymentmail', $member->email, [], false, 'plugins', 'GEM - Payment Pending');
 
                         if($from == 'agent') {
                             return $response

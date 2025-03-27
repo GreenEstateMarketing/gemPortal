@@ -177,7 +177,7 @@ class AccountPropertyController extends Controller
         if ($property->author_id) {
             $author = $accountRepository->findOrFail($property->author_id);
 
-            EmailHandler::setModule('property')
+            EmailHandler::setModule('real-estate')
                 ->addVariables($variables)
                 ->setVariableValues([
                     'name' => $author->first_name . ' ' . $author->last_name,
@@ -190,7 +190,7 @@ class AccountPropertyController extends Controller
         }
 
         //send to admin
-        EmailHandler::setModule('property')
+        EmailHandler::setModule('real-estate')
             ->addVariables($variables)
             ->setVariableValues([
                 'name' => 'Admin',
@@ -337,7 +337,7 @@ class AccountPropertyController extends Controller
         if ($property->author_id) {
             $author = $this->accountRepository->findOrFail($property->author_id);
 
-            EmailHandler::setModule('property')
+            EmailHandler::setModule('real-estate')
                 ->addVariables($variables)
                 ->setVariableValues([
                     'name' => $author->first_name . ' ' . $author->last_name,
@@ -350,7 +350,7 @@ class AccountPropertyController extends Controller
         }
 
         //send to admin
-        EmailHandler::setModule('property')
+        EmailHandler::setModule('real-estate')
             ->addVariables($variables)
             ->setVariableValues([
                 'name' => 'Admin',
@@ -405,7 +405,7 @@ class AccountPropertyController extends Controller
         if ($property->author_id) {
             $author = $this->accountRepository->findOrFail($property->author_id);
 
-            EmailHandler::setModule('property')
+            EmailHandler::setModule('real-estate')
                 ->addVariables($variables)
                 ->setVariableValues([
                     'name' => $author->first_name . ' ' . $author->last_name,
@@ -418,7 +418,7 @@ class AccountPropertyController extends Controller
         }
 
         //send to admin
-        EmailHandler::setModule('property')
+        EmailHandler::setModule('real-estate')
             ->addVariables($variables)
             ->setVariableValues([
                 'name' => 'Admin',
@@ -475,7 +475,7 @@ class AccountPropertyController extends Controller
                 'action' => 'Action'
             ];
 
-            EmailHandler::setModule('property')
+            EmailHandler::setModule('real-estate')
             ->addVariables($variables)
             ->setVariableValues([
                 'name' => 'Admin',
@@ -489,7 +489,7 @@ class AccountPropertyController extends Controller
             //to member if its owned by member
             if($property->member_id) {
                 $member = $memberRepository->findOrFail($property->member_id);
-                EmailHandler::setModule('property')
+                EmailHandler::setModule('real-estate')
                 ->addVariables($variables)
                 ->setVariableValues([
                     'name' => $member->full_name,

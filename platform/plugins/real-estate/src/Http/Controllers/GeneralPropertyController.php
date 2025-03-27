@@ -562,7 +562,7 @@ class GeneralPropertyController extends Controller
             ]);
         }
 
-        EmailHandler::setModule('member')
+        EmailHandler::setModule('real-estate')
             ->addVariables([
                 'member_name' => 'Member Name',
                 'login_url' => 'Login'
@@ -681,7 +681,7 @@ class GeneralPropertyController extends Controller
         ];
 
         //send to self
-        EmailHandler::setModule('property')
+        EmailHandler::setModule('real-estate')
             ->addVariables($variables)
             ->setVariableValues([
                 'name' => $member->full_name,
@@ -696,7 +696,7 @@ class GeneralPropertyController extends Controller
         if ($property->author_id) {
             $author = $accountRepository->findOrFail($property->author_id);
 
-            EmailHandler::setModule('property')
+            EmailHandler::setModule('real-estate')
                 ->addVariables($variables)
                 ->setVariableValues([
                     'name' => $author->first_name . ' ' . $author->last_name,
@@ -709,7 +709,7 @@ class GeneralPropertyController extends Controller
         }
 
         //send to admin
-        EmailHandler::setModule('property')
+        EmailHandler::setModule('real-estate')
             ->addVariables($variables)
             ->setVariableValues([
                 'name' => 'Admin',
@@ -848,7 +848,7 @@ class GeneralPropertyController extends Controller
             'action' => 'Action'
         ];
 
-        EmailHandler::setModule('property')
+        EmailHandler::setModule('real-estate')
             ->addVariables($variables)
             ->setVariableValues([
                 'name' => $member->full_name,
@@ -863,7 +863,7 @@ class GeneralPropertyController extends Controller
         if ($property->author_id) {
             $author = $accountRepository->findOrFail($property->author_id);
 
-            EmailHandler::setModule('property')
+            EmailHandler::setModule('real-estate')
                 ->addVariables($variables)
                 ->setVariableValues([
                     'name' => $author->first_name . ' ' . $author->last_name,
@@ -876,7 +876,7 @@ class GeneralPropertyController extends Controller
         }
 
         //send to admin
-        EmailHandler::setModule('property')
+        EmailHandler::setModule('real-estate')
             ->addVariables($variables)
             ->setVariableValues([
                 'name' => 'Admin',
@@ -928,7 +928,7 @@ class GeneralPropertyController extends Controller
             'action' => 'Action'
         ];
 
-        EmailHandler::setModule('property')
+        EmailHandler::setModule('real-estate')
             ->addVariables($variables)
             ->setVariableValues([
                 'name' => $member->full_name,
@@ -943,7 +943,7 @@ class GeneralPropertyController extends Controller
         if ($property->author_id) {
             $author = $accountRepository->findOrFail($property->author_id);
 
-            EmailHandler::setModule('property')
+            EmailHandler::setModule('real-estate')
                 ->addVariables($variables)
                 ->setVariableValues([
                     'name' => $author->first_name . ' ' . $author->last_name,
@@ -956,7 +956,7 @@ class GeneralPropertyController extends Controller
         }
 
         //send to admin
-        EmailHandler::setModule('property')
+        EmailHandler::setModule('real-estate')
             ->addVariables($variables)
             ->setVariableValues([
                 'name' => 'Admin',
