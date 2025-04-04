@@ -19,6 +19,7 @@ use Botble\RealEstate\Repositories\Interfaces\AccountActivityLogInterface;
 use Botble\RealEstate\Repositories\Interfaces\AccountInterface;
 use Botble\RealEstate\Services\SaveFacilitiesService;
 use Botble\RealEstate\Tables\AccountPropertyTable;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Exception;
 use Illuminate\Contracts\Config\Repository;
@@ -244,7 +245,14 @@ class AccountPropertyController extends Controller
      * @return BaseHttpResponse
      *
      */
-    public function update($id, PropertyRequest $request, BaseHttpResponse $response, SaveFacilitiesService $saveFacilitiesService)
+    public function update(
+        $id,
+        PropertyRequest $request,
+        BaseHttpResponse $response,
+        SaveFacilitiesService $saveFacilitiesService,
+        AccountInterface $accountRepository,
+        MemberInterface $memberRepository
+    )
     {
         $property = $this->propertyRepository->getFirstBy([
             'id' => $id,
@@ -310,7 +318,23 @@ class AccountPropertyController extends Controller
         unset($request['square']);
         $sqFeet = getSqFeet($area_value, $area_units);
         $property->square = $sqFeet;
+        if($request['renew_now'] == "1") {
+            $property->expire_date = Carbon::now()->addDays(45);
+        }
         $this->propertyRepository->createOrUpdate($property);
+
+        if($request['renew_now'] == "1") {
+            //deduct credits
+            if ($property->member_id) {
+                $member = $memberRepository->findOrFail($property->member_id);
+                $member->credits--;
+                $member->save();
+            } else {
+                $account = $accountRepository->findOrFail($property->author_id);
+                $account->credits--;
+                $account->save();
+            }
+        }
 
         $property->features()->sync($request->input('features', []));
 

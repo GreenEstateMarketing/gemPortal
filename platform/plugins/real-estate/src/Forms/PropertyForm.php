@@ -296,6 +296,7 @@ class PropertyForm extends FormAbstract
 
         $verified = $this->model ? $this->model->verified : false;
 
+
         $this
             ->setupModel(new Property)
             ->setValidatorClass(PropertyRequest::class)
@@ -775,21 +776,35 @@ class PropertyForm extends FormAbstract
                     'class' => 'form-group period-form-group col-md-3',
                 ],
                 'default_value' => false,
-            ])
-            ->add('auto_renew', 'onOff', [
-                'label' => trans(
-                    'plugins/real-estate::property.renew_notice',
-                    ['days' => config('plugins.real-estate.real-estate.property_expired_after_x_days')]
-                ),
-                'label_attr' => ['class' => 'control-label'],
-                'default_value' => false,
-                'wrapper' => [
-                    'class' => 'form-group col-md-6 auto-renew-form-group' . (!$this->getModel()->id || $this->getModel()->never_expired == true ? ' hidden' : null),
-                ],
-            ])
-            ->add('rowCloseaccount', 'html', [
-                'html' => '</div>',
-            ])
+            ]);
+
+        if ($this->model->expire_date) {
+            if ($credits && $this->model->expire_date->isPast()) {
+                $this->add('renew_now', 'onOff', [
+                    'label' => 'Renew Now?',
+                    'label_attr' => ['class' => 'control-label'],
+                    'wrapper' => [
+                        'class' => 'form-group period-form-group col-md-3',
+                    ],
+                    'default_value' => false,
+                ]);
+            }
+        }
+
+//            ->add('auto_renew', 'onOff', [
+//                'label' => trans(
+//                    'plugins/real-estate::property.renew_notice',
+//                    ['days' => config('plugins.real-estate.real-estate.property_expired_after_x_days')]
+//                ),
+//                'label_attr' => ['class' => 'control-label'],
+//                'default_value' => false,
+//                'wrapper' => [
+//                    'class' => 'form-group col-md-6 auto-renew-form-group' . (!$this->getModel()->id || $this->getModel()->never_expired == true ? ' hidden' : null),
+//                ],
+//            ])
+        $this->add('rowCloseaccount', 'html', [
+            'html' => '</div>',
+        ])
             ->add('rowOpenmodal', 'html', [
                 'html' => view('plugins/real-estate::partials.checklist_modal'),
             ])

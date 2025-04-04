@@ -52,6 +52,7 @@ use Botble\RealEstate\Services\SaveFacilitiesService;
 use Botble\RealEstate\Tables\AccountPropertyTable;
 use Botble\RealEstate\Tables\MemberPropertyTable;
 use Botble\Setting\Supports\SettingStore;
+use Carbon\Carbon;
 use EmailHandler;
 use Exception;
 use File;
@@ -349,6 +350,7 @@ class GeneralPropertyController extends Controller
      */
     public function update($id, PropertyRequest $request, BaseHttpResponse $response, SaveFacilitiesService $saveFacilitiesService)
     {
+        dd('YEAH Member');
         $property = $this->propertyRepository->getFirstBy([
             'id' => $id,
             'member_id' => auth('member')->user()->getAuthIdentifier()
@@ -746,7 +748,14 @@ class GeneralPropertyController extends Controller
             ->renderForm();
     }
 
-    public function update_property($id, PropertyRequest $request, BaseHttpResponse $response, AccountInterface $accountRepository, SaveFacilitiesService $saveFacilitiesService, MemberInterface $memberRepository)
+    public function update_property(
+        $id,
+        PropertyRequest $request,
+        BaseHttpResponse $response,
+        AccountInterface $accountRepository,
+        SaveFacilitiesService $saveFacilitiesService,
+        MemberInterface $memberRepository
+    )
     {
         $property = $this->propertyRepository->getFirstBy([
             'id' => $id,
@@ -821,7 +830,25 @@ class GeneralPropertyController extends Controller
             $status = 'selling';
 
         $property->status = $status;
+
+        if($request['renew_now'] == "1") {
+            $property->expire_date = Carbon::now()->addDays(45);
+        }
+
         $this->propertyRepository->createOrUpdate($property);
+
+        if($request['renew_now'] == "1") {
+            //deduct credits
+            if ($property->member_id) {
+                $member = $memberRepository->findOrFail($property->member_id);
+                $member->credits--;
+                $member->save();
+            } else {
+                $account = $accountRepository->findOrFail($property->author_id);
+                $account->credits--;
+                $account->save();
+            }
+        }
 
         $property->features()->sync($request->input('features', []));
 

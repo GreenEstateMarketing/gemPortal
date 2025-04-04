@@ -43,13 +43,15 @@ class TransactionController extends BaseController
     public function postCreate($id, CreateTransactionRequest $request, BaseHttpResponse $response)
     {
         $account = $this->accountRepository->findOrFail($id);
+        $data = $request->input();
+        $data['user_type'] = 'agent';
 
         $request->merge([
             'user_id'    => Auth::user()->getKey(),
             'account_id' => $id,
         ]);
 
-        $this->transactionRepository->createOrUpdate($request->input());
+        $this->transactionRepository->createOrUpdate($data);
 
         $account->credits += $request->input('credits');
         $this->accountRepository->createOrUpdate($account);

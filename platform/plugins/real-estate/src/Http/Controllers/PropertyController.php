@@ -234,6 +234,10 @@ class PropertyController extends BaseController
         $property->images = json_encode($request->input('images', []));
         $old_arr = (array) $old_documents;
         $jsonArr = array();
+        if($request['renew_now'] == "1") {
+            $property->expire_date = Carbon::now()->addDays(45);
+        }
+
 
         $ids = array_column($old_arr, 'id');
         if ($request->hasFile('documents')) {
@@ -296,6 +300,19 @@ class PropertyController extends BaseController
         $this->propertyRepository->createOrUpdate($property);
 
         if ($alreadySavedModStatus != ModerationStatusEnum::APPROVED && $request->input('moderation_status') == ModerationStatusEnum::APPROVED) {
+            //deduct credits
+            if ($property->member_id) {
+                $member = $memberRepository->findOrFail($property->member_id);
+                $member->credits--;
+                $member->save();
+            } else {
+                $account = $accountRepository->findOrFail($property->author_id);
+                $account->credits--;
+                $account->save();
+            }
+        }
+
+        if($request['renew_now'] == "1") {
             //deduct credits
             if ($property->member_id) {
                 $member = $memberRepository->findOrFail($property->member_id);
