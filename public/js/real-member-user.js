@@ -369,10 +369,10 @@ $("#btnSave").click(function (e) {
                 processData: false,
                 contentType: false,
                 dataType: 'json',
-                data: formData, // here $(this) refers to the ajax object not form
+                data: formData,
                 success: function (data) {
+                    $(".fa-spinner").addClass('d-none');
                     if ($.isEmptyObject(data.error)) {
-                        console.log(data.success);
                         setTimeout(function () {
                             $(".print-error-msg").fadeOut(1500);
                         }, 4000);
@@ -389,7 +389,6 @@ $("#btnSave").click(function (e) {
                         });
                     }
 
-                    //  var data=JSON.parse(data);
                     if (data.status) {
                         /*Swal.fire({
                             title: 'Property Added Success!',
@@ -406,17 +405,13 @@ $("#btnSave").click(function (e) {
                             title: data.message,
                             text: '',
                             icon: 'error'
-
                         });
                     }
-                    //console.log(data);
                 },
 
             }).fail(function (data) {
                 $(".fa-spinner").addClass('d-none');
-                //alert();
                 var response = JSON.parse(data.responseText);
-                console.log(response);
                 $('.validation').remove();
                 $.each(response.errors, function (key, value) {
                     var errorString = '<ul  class="validation mt-2"><li>' + value + '</li></ul>';
