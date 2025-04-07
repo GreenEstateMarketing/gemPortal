@@ -81,6 +81,7 @@ $(document).ready(function () {
     });
 
     $(document).on("click", ".custom-select-agent", function (event) {
+
         $("#text_agent").html("Agent List");
         $(".custom-select-agent").addClass('d-none');
         $(".agent-detail").addClass('d-none');
@@ -88,7 +89,6 @@ $(document).ready(function () {
     });
 
     $(document).on("click", "#dropdown-menu-member li", function (event) {
-
         var btnObj = $(this).parent().siblings('button');
         $("#text_agent").html($(this).text());
         //$(btnObj+" <span class='close_btn'>").html($(this).text());
@@ -99,6 +99,7 @@ $(document).ready(function () {
             alert('no id found')
             $(".agent-detail").addClass('d-none');
         } else {
+            $("input[name='author_id_hidden']").val($(this).attr('data-agent-id'))
             $.ajax({
                 url: "/api/v1/agent-data",
                 type: "get",
@@ -108,7 +109,6 @@ $(document).ready(function () {
                 },
                 async: false,
                 success: function (response) {
-                    console.log(response)
                     if (response.phone == null) {
 
                         $(".showContact").css('display', 'none');

@@ -62,14 +62,14 @@ class GeneralPropertyForm extends PropertyForm
             ->remove('never_expired')
             ->remove('btn_verify')
             ->removeMetaBox('moderation_status')
-            ->modify('auto_renew', 'onOff', [
-                'label'         => trans('plugins/real-estate::property.renew_notice', ['days' => config('plugins.real-estate.real-estate.property_expired_after_x_days')]),
-                'label_attr'    => ['class' => 'control-label'],
-                'default_value' => false,
-                'wrapper'       => [
-                    'class' => 'form-group col-md-6 auto-renew-form-group' . (!$this->getModel()->id || $this->getModel()->never_expired == true ? ' hidden' : null),
-                ],
-            ], true)
+            // ->modify('auto_renew', 'onOff', [
+            //     'label'         => trans('plugins/real-estate::property.renew_notice', ['days' => config('plugins.real-estate.real-estate.property_expired_after_x_days')]),
+            //     'label_attr'    => ['class' => 'control-label'],
+            //     'default_value' => false,
+            //     'wrapper'       => [
+            //         'class' => 'form-group col-md-6 auto-renew-form-group' . (!$this->getModel()->id || $this->getModel()->never_expired == true ? ' hidden' : null),
+            //     ],
+            // ], true)
             ->remove('rowOpenagent')
             ->remove('rowOpenVerificatonInfo')
             ->remove('VerificatonInfo')
