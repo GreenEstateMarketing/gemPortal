@@ -550,17 +550,17 @@ $("#rate_send").click(function (e) {
     }
 });
 
-$('#mobile_number').keydown(function () {
+// $('#mobile_number').keydown(function () {
 
-    //allow  backspace, tab, ctrl+A, escape, carriage return
-    if (event.keyCode == 8 || event.keyCode == 9 ||
-        event.keyCode == 27 || event.keyCode == 13 ||
-        (event.keyCode == 65 && event.ctrlKey === true))
-        return;
-    if ((event.keyCode < 48 || event.keyCode > 57))
-        event.preventDefault();
+//     //allow  backspace, tab, ctrl+A, escape, carriage return
+//     if (event.keyCode == 8 || event.keyCode == 9 ||
+//         event.keyCode == 27 || event.keyCode == 13 ||
+//         (event.keyCode == 65 && event.ctrlKey === true))
+//         return;
+//     if ((event.keyCode < 48 || event.keyCode > 57))
+//         event.preventDefault();
 
-});
+// });
 
 function filterFunction() {
     var input, filter, ul, li, a, i;
