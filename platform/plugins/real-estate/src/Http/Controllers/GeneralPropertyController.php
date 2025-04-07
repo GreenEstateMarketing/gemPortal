@@ -241,7 +241,7 @@ class GeneralPropertyController extends Controller
             $status = 'renting';
 
         $request['documents'] = json_encode($jsonArr);
-        $area_value = $request['square'];
+        $area_value = str_replace(',', '', $request['square']);
         $area_units = $request['area_units'];
         unset($request['square']);
         $sqFeet = getSqFeet($area_value, $area_units);
