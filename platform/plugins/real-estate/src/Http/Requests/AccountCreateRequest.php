@@ -21,7 +21,9 @@ class AccountCreateRequest extends Request
             'username' => 'required|max:60|min:2|unique:re_accounts,username',
             'email' => 'required|max:60|min:6|email|unique:re_accounts',
             'phone' => 'min:11|numeric|regex:/[0][\d]{3}[\d]{7}$/',
-            'password' => 'required|min:6|confirmed'
+            'password' => 'required|min:6|confirmed',
+            'city_id' => ['required', 'integer', 'exists:cities,id'],
+            'city_area_id' => ['required', 'integer', 'exists:city_area,id'],
         ];
 
         if ($this->hasFile('image_path')) {

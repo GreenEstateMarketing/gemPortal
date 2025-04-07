@@ -133,6 +133,7 @@ class AccountController extends BaseController
 
             }
         }
+
         $account = Account::create($request->except('agent_area'));
         if ($request['agent_area'] != "") {
             $account->agent_area = \DB::raw($ap);

@@ -20,7 +20,9 @@ class AccountEditRequest extends Request
             'last_name'  => 'required|max:120|min:2',
             'username'   => 'required|max:60|min:2|unique:re_accounts,username,' . $this->route('account'),
             'email'      => 'required|max:60|min:6|email|unique:re_accounts,email,' . $this->route('account'),
-            'image_path' => [new ImageDimension(500, 500)]
+            'image_path' => [new ImageDimension(500, 500)],
+            'city_id' => ['required', 'integer', 'exists:cities,id'],
+            'city_area_id' => ['required', 'integer', 'exists:city_area,id']
         ];
 
         if ($this->input('is_change_password') == 1) {

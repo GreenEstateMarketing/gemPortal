@@ -44,7 +44,9 @@ class Account extends Authenticatable
         'credits',
         'agent_area',
         'confirmed_at',
-        'image_path'
+        'image_path',
+        'city_id',
+        'city_area_id'
     ];
 
     /**

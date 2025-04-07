@@ -16,6 +16,7 @@ use Botble\RealEstate\Forms\Fields\LocationField;
 use Botble\RealEstate\Forms\Fields\MediaFileField1;
 use Botble\RealEstate\Http\Requests\PropertyRequest;
 use Botble\RealEstate\Models\Property;
+use Botble\RealEstate\Repositories\Interfaces\AccountInterface;
 use Botble\RealEstate\Repositories\Interfaces\CategoryDocumentInterface;
 use Botble\RealEstate\Repositories\Interfaces\CategoryInterface;
 use Botble\RealEstate\Repositories\Interfaces\CurrencyInterface;
@@ -23,6 +24,7 @@ use Botble\RealEstate\Repositories\Interfaces\FacilityInterface;
 use Botble\RealEstate\Repositories\Interfaces\FeatureInterface;
 use Botble\RealEstate\Repositories\Interfaces\ProjectInterface;
 use Botble\RealEstate\Repositories\Interfaces\PropertyInterface;
+use Str;
 use Throwable;
 use Auth;
 
@@ -70,19 +72,21 @@ class PropertyForm extends FormAbstract
 
     protected $categoryDocumentRepository;
 
+    protected $accountRepository;
+
 
     public function __construct(
-        PropertyInterface         $propertyRepository,
-        ProjectInterface          $projectRepository,
-        FeatureInterface          $featureRepository,
-        CurrencyInterface         $currencyRepository,
-        CityInterface             $cityRepository,
-        CityAreaInterface         $cityAreaRepository,
-        CategoryInterface         $categoryRepository,
-        FacilityInterface         $facilityRepository,
-        CategoryDocumentInterface $categoryDocumentRepository
-    )
-    {
+        PropertyInterface $propertyRepository,
+        ProjectInterface $projectRepository,
+        FeatureInterface $featureRepository,
+        CurrencyInterface $currencyRepository,
+        CityInterface $cityRepository,
+        CityAreaInterface $cityAreaRepository,
+        CategoryInterface $categoryRepository,
+        FacilityInterface $facilityRepository,
+        CategoryDocumentInterface $categoryDocumentRepository,
+        AccountInterface $accountRepository
+    ) {
         parent::__construct();
         $this->propertyRepository = $propertyRepository;
         $this->projectRepository = $projectRepository;
@@ -93,6 +97,7 @@ class PropertyForm extends FormAbstract
         $this->categoryRepository = $categoryRepository;
         $this->facilityRepository = $facilityRepository;
         $this->categoryDocumentRepository = $categoryDocumentRepository;
+        $this->accountRepository = $accountRepository;
     }
 
     /**
@@ -114,11 +119,26 @@ class PropertyForm extends FormAbstract
             ->addStylesDirectly('/css/real-estate-admin.css')
             ->addStylesDirectly('/css/toast.css');
 
+        //Auto selected city and city area for agents
+        $cityId = 0;
+        $cityAreaId = 0;
+        if (!auth('member')->user() && auth('account')->user()) {
+            $agentId = auth('account')->user()->getAuthIdentifier();
+            $agent = $this->accountRepository->findById($agentId);
+            $cityId = $agent->city_id;
+            $cityAreaId = $agent->city_area_id;
+        }
+
         $projects = $this->projectRepository->pluck('re_projects.name', 're_projects.id');
         $cityareas = [];
-        if ($this->getModel()) {
-            $cityareas = $this->cityAreaRepository->allBy(['city_id' => $this->getModel()->city_id]);
+        if($cityAreaId != 0) {
+            $cityareas = $this->cityAreaRepository->allBy(['city_id' => $cityId]);
+        } else {
+            if ($this->getModel()) {
+                $cityareas = $this->cityAreaRepository->allBy(['city_id' => $this->getModel()->city_id]);
+            }
         }
+        
         $currencies = $this->currencyRepository->pluck('re_currencies.title', 're_currencies.id');
         $cities = $this->cityRepository->allBy(
             ['status' => BaseStatusEnum::PUBLISHED],
@@ -304,9 +324,12 @@ class PropertyForm extends FormAbstract
             ->addCustomField('location', LocationField::class)
             ->addCustomField('mediafile1', MediaFileField1::class);
 
-        $this->add('rowOpenVerificatonInfo', 'html', [
-            'html' => '<div class="row mb-5 pt-1 pb-1 align-items-center alert ' . ($this->model->verified ? 'alert-success' : 'alert-danger') . '" style="border-radius: 50px;">',
-        ]);
+            if (!Str::contains(request()->url(), 'create')) {
+                $this->add('rowOpenVerificatonInfo', 'html', [
+                    'html' => '<div class="row mb-5 pt-1 pb-1 align-items-center alert ' . ($this->model->verified ? 'alert-success' : 'alert-danger') . '" style="border-radius: 50px;">',
+                ]);
+            }
+        
 
         if ($this->model->verified) {
             $this->add(
@@ -317,18 +340,25 @@ class PropertyForm extends FormAbstract
                 ]
             );
         } else {
-            $this->add(
-                'VerificatonInfo',
-                'html',
-                [
-                    'html' => '<div class="col-md-12 col-lg-12 offset-4"><i class="fa fa-times"></i> This Property has not been Verified by Agent.</div>'
-                ]
-            );
+            if (!Str::contains(request()->url(), 'create')) {
+                $this->add(
+                    'VerificatonInfo',
+                    'html',
+                    [
+                        'html' => '<div class="col-md-12 col-lg-12 offset-4"><i class="fa fa-times"></i> This Property has not been Verified by Agent.</div>'
+                    ]
+                );
+            }
+            
         }
 
-        $this->add('rowCloseVerificatonInfo', 'html', [
-            'html' => '</div>',
-        ]);
+        if (!Str::contains(request()->url(), 'create')) {
+            $this->add('rowCloseVerificatonInfo', 'html', [
+                'html' => '</div>',
+            ]);
+        }
+
+        
 
         $this->add('rowOpenSellerInfo', 'html', [
             'html' => '<div class="row mb-5 pt-5 pb-5 align-items-center alert ' . ($credits ? 'alert-success' : 'alert-danger') . '" style="border-radius: 50px;">',
@@ -443,10 +473,11 @@ class PropertyForm extends FormAbstract
                     'class' => 'form-group col-md-6',
 
                 ],
-                'attr' => [
+                'attr' => array_merge([
                     'class' => 'form-control select-search-full city_id',
-                ],
+                ], $cityId > 0 ? ['disabled' => 'disabled'] : []),
                 'choices' => [0 => trans('plugins/real-estate::property.select_city')] + $cityChoices,
+                'selected' => $cityId != 0 ? $cityId : ''
             ])
             ->add('city_area_id', 'customSelect', [
                 'label' => trans('plugins/real-estate::property.form.city_area'),
@@ -455,10 +486,11 @@ class PropertyForm extends FormAbstract
                     'class' => 'form-group col-md-6',
 
                 ],
-                'attr' => [
+                'attr' => array_merge([
                     'class' => 'form-control select-search-full',
-                ],
+                ], $cityAreaId > 0 ? ['disabled' => 'disabled'] : []),
                 'choices' => [trans('plugins/real-estate::property.select_city_area')] + $cityAreaChoices,
+                'selected' => $cityAreaId != 0 ? $cityAreaId : ''
             ])
             ->add('built_in', 'number', [
                 'label' => trans('Built In'),
@@ -791,7 +823,7 @@ class PropertyForm extends FormAbstract
             }
         }
 
-//            ->add('auto_renew', 'onOff', [
+        //            ->add('auto_renew', 'onOff', [
 //                'label' => trans(
 //                    'plugins/real-estate::property.renew_notice',
 //                    ['days' => config('plugins.real-estate.real-estate.property_expired_after_x_days')]
