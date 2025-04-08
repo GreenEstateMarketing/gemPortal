@@ -11,6 +11,41 @@
 
         width: inherit;
     }
+
+    .zoom-control {
+        background-color: #f3a54a; /* Set the button color to #f3a54a */
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        margin-right: 10px;
+        font-size: 24px;
+        color: #ffffff; /* White text for contrast */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      /* Hover Effects */
+      .zoom-control:hover {
+        background-color: #e67e22; /* Darker shade of #f3a54a on hover */
+        color: white;
+        box-shadow: 0 4px 10px rgba(230, 126, 34, 0.4);
+      }
+
+      /* Zoom In Button (Optional: Can add more distinct styles for each button) */
+      .zoom-control.zoom-in {
+        font-size: 26px; /* Slightly larger font for the zoom-in button */
+      }
+
+      /* Zoom Out Button */
+      .zoom-control.zoom-out {
+        font-size: 26px; /* Same size for both buttons */
+      }
+    </style>
 </style>
 @if (setting('google_map_api_key'))
     <label class="text-capitalize control-label">mark areas for agent</label>
@@ -100,6 +135,24 @@
                         zoom: 8,
                     });
 
+                    const zoomInControl = document.createElement("button");
+                    zoomInControl.textContent = "+";
+                    zoomInControl.classList.add("zoom-control");
+                    map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(zoomInControl);
+                    zoomInControl.addEventListener("click", () => {
+                        map.setZoom(map.getZoom() + 1);
+                    });
+
+                    // Adding custom zoom out button
+                    const zoomOutControl = document.createElement("button");
+                    zoomOutControl.textContent = "-";
+                    zoomOutControl.classList.add("zoom-control");
+                    map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(zoomOutControl);
+                    zoomOutControl.addEventListener("click", () => {
+                        map.setZoom(map.getZoom() - 1);
+                    });
+
+
                     const drawingManager = new google.maps.drawing.DrawingManager({
                         drawingMode: google.maps.drawing.OverlayType.MARKER,
                         drawingControl: true,
@@ -185,9 +238,9 @@
                 },
                 (error) => {
                     if (error.code == error.PERMISSION_DENIED) {
-                        document.getElementById('map-container').innerHTML = 
-                    '<p class="center alert alert-danger">Location access is required to display the map. Please enable location services in your browser settings.</p>';
-                    $('#remove-line').css('display', 'none')
+                        document.getElementById('map-container').innerHTML =
+                            '<p class="center alert alert-danger">Location access is required to display the map. Please enable location services in your browser settings.</p>';
+                        $('#remove-line').css('display', 'none')
                     }
                     handleLocationError(true, map.getCenter());
                 }

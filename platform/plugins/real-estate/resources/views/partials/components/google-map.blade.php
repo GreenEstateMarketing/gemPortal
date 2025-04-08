@@ -64,6 +64,24 @@
             };
 
             map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+            const zoomInControl = document.createElement("button");
+                    zoomInControl.textContent = "+";
+                    zoomInControl.classList.add("zoom-control");
+                    map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(zoomInControl);
+                    zoomInControl.addEventListener("click", () => {
+                        map.setZoom(map.getZoom() + 1);
+                    });
+
+                    // Adding custom zoom out button
+                    const zoomOutControl = document.createElement("button");
+                    zoomOutControl.textContent = "-";
+                    zoomOutControl.classList.add("zoom-control");
+                    map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(zoomOutControl);
+                    zoomOutControl.addEventListener("click", () => {
+                        map.setZoom(map.getZoom() - 1);
+                    });
+
             var iconBase = '/themes/real-scout/images/generic-3.png';
             var icon = {
                 url: iconBase,
