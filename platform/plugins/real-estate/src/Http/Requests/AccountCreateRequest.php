@@ -23,7 +23,8 @@ class AccountCreateRequest extends Request
             'phone' => 'min:11|numeric|regex:/[0][\d]{3}[\d]{7}$/',
             'password' => 'required|min:6|confirmed',
             'city_id' => ['required', 'integer', 'exists:cities,id'],
-            'city_area_id' => ['required', 'integer', 'exists:city_area,id'],
+            'city_area_id' => ['required', 'array'],
+            'city_area_id.*' => 'string|max:256'
         ];
 
         if ($this->hasFile('image_path')) {

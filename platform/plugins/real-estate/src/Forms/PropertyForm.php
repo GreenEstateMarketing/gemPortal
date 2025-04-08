@@ -6,6 +6,7 @@ use App\Models\description_template;
 use Assets;
 use Botble\Base\Enums\BaseStatusEnum;
 use Botble\Base\Forms\FormAbstract;
+use Botble\Location\Models\CityArea;
 use Botble\Location\Repositories\Interfaces\CityInterface;
 use Botble\Location\Repositories\Interfaces\CityAreaInterface;
 use Botble\RealEstate\Enums\ModerationStatusEnum;
@@ -131,14 +132,14 @@ class PropertyForm extends FormAbstract
 
         $projects = $this->projectRepository->pluck('re_projects.name', 're_projects.id');
         $cityareas = [];
-        if($cityAreaId != 0) {
-            $cityareas = $this->cityAreaRepository->allBy(['city_id' => $cityId]);
+        if ($cityAreaId != 0) {
+            $cityareas = CityArea::where('city_id', $cityId)->whereIn('id', explode(',', $cityAreaId))->get();
         } else {
             if ($this->getModel()) {
                 $cityareas = $this->cityAreaRepository->allBy(['city_id' => $this->getModel()->city_id]);
             }
         }
-        
+
         $currencies = $this->currencyRepository->pluck('re_currencies.title', 're_currencies.id');
         $cities = $this->cityRepository->allBy(
             ['status' => BaseStatusEnum::PUBLISHED],
@@ -157,6 +158,7 @@ class PropertyForm extends FormAbstract
             if ($city->state->status != BaseStatusEnum::PUBLISHED || $city->country->status != BaseStatusEnum::PUBLISHED) {
                 continue;
             }
+
             $cityChoices[$city->id] = $city->name . ($city->state->name ? ' (' . $city->state->name . ')' : '');
         }
 
@@ -324,12 +326,12 @@ class PropertyForm extends FormAbstract
             ->addCustomField('location', LocationField::class)
             ->addCustomField('mediafile1', MediaFileField1::class);
 
-            if (!Str::contains(request()->url(), 'create')) {
-                $this->add('rowOpenVerificatonInfo', 'html', [
-                    'html' => '<div class="row mb-5 pt-1 pb-1 align-items-center alert ' . ($this->model->verified ? 'alert-success' : 'alert-danger') . '" style="border-radius: 50px;">',
-                ]);
-            }
-        
+        if (!Str::contains(request()->url(), 'create')) {
+            $this->add('rowOpenVerificatonInfo', 'html', [
+                'html' => '<div class="row mb-5 pt-1 pb-1 align-items-center alert ' . ($this->model->verified ? 'alert-success' : 'alert-danger') . '" style="border-radius: 50px;">',
+            ]);
+        }
+
 
         if ($this->model->verified) {
             $this->add(
@@ -349,7 +351,7 @@ class PropertyForm extends FormAbstract
                     ]
                 );
             }
-            
+
         }
 
         if (!Str::contains(request()->url(), 'create')) {
@@ -358,7 +360,7 @@ class PropertyForm extends FormAbstract
             ]);
         }
 
-        
+
 
         $this->add('rowOpenSellerInfo', 'html', [
             'html' => '<div class="row mb-5 pt-5 pb-5 align-items-center alert ' . ($credits ? 'alert-success' : 'alert-danger') . '" style="border-radius: 50px;">',
@@ -465,34 +467,69 @@ class PropertyForm extends FormAbstract
                     'class' => 'form-control select-search-full',
                 ],
                 'choices' => [0 => trans('plugins/real-estate::property.select_project')] + $projects,
-            ])
-            ->add('city_id', 'customSelect', [
+            ]);
+
+        if ($cityId > 0) {
+            $this->add('city_id', 'hidden', [
+                    'value' => $cityId,
+                ])
+                ->add('city_id_display', 'customSelect', [
+                    'label' => trans('plugins/real-estate::property.form.city'),
+                    'label_attr' => ['class' => 'control-label required'],
+                    'wrapper' => [
+                        'class' => 'form-group col-md-6',
+                    ],
+                    'attr' => [
+                        'class' => 'form-control select-search-full city_id',
+                        'disabled' => 'disabled',
+                    ],
+                    'choices' => [0 => trans('plugins/real-estate::property.select_city')] + $cityChoices,
+                    'selected' => $cityId,
+                ]);
+        } else {
+            $this->add('city_id', 'customSelect', [
                 'label' => trans('plugins/real-estate::property.form.city'),
                 'label_attr' => ['class' => 'control-label required'],
                 'wrapper' => [
                     'class' => 'form-group col-md-6',
-
                 ],
-                'attr' => array_merge([
+                'attr' => [
                     'class' => 'form-control select-search-full city_id',
-                ], $cityId > 0 ? ['disabled' => 'disabled'] : []),
+                ],
                 'choices' => [0 => trans('plugins/real-estate::property.select_city')] + $cityChoices,
-                'selected' => $cityId != 0 ? $cityId : ''
-            ])
-            ->add('city_area_id', 'customSelect', [
+                'selected' => $this->getModel()->city_id ? $this->getModel()->city_id : '',
+            ]);
+        }
+
+        if ($cityAreaId > 0) {
+            $this
+                ->add('city_area_id', 'customSelect', [
+                    'label' => trans('plugins/real-estate::property.form.city_area'),
+                    'label_attr' => ['class' => 'control-label required'],
+                    'wrapper' => [
+                        'class' => 'form-group col-md-6',
+                    ],
+                    'attr' => [
+                        'class' => 'form-control select-search-full'
+                    ],
+                    'choices' => [trans('plugins/real-estate::property.select_city_area')] + $cityAreaChoices,
+                    'selected' => $this->getModel()->city_area_id ? $this->getModel()->city_area_id : ''
+                ]);
+        } else {
+            $this->add('city_area_id', 'customSelect', [
                 'label' => trans('plugins/real-estate::property.form.city_area'),
                 'label_attr' => ['class' => 'control-label required'],
                 'wrapper' => [
                     'class' => 'form-group col-md-6',
-
                 ],
-                'attr' => array_merge([
+                'attr' => [
                     'class' => 'form-control select-search-full',
-                ], $cityAreaId > 0 ? ['disabled' => 'disabled'] : []),
-                'choices' => [trans('plugins/real-estate::property.select_city_area')] + $cityAreaChoices,
-                'selected' => $cityAreaId != 0 ? $cityAreaId : ''
-            ])
-            ->add('built_in', 'number', [
+                ],
+                'choices' => [trans('plugins/real-estate::property.select_city_area')] + $cityAreaChoices
+            ]);
+        }
+
+        $this->add('built_in', 'number', [
                 'label' => trans('Built In'),
                 'label_attr' => ['class' => 'control-label'],
                 'attr' => [

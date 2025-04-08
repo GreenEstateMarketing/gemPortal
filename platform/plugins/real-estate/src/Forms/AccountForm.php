@@ -47,9 +47,10 @@ class AccountForm extends FormAbstract
     public function buildForm()
     {
         Assets::addStylesDirectly('vendor/core/plugins/real-estate/css/account-admin.css')
-            ->addScriptsDirectly('/js/real-estate-admin.js')
+            ->addScriptsDirectly('/js/real-estate-agent.js')
             ->addScriptsDirectly(['/vendor/core/plugins/real-estate/js/account-admin.js'])
             ->addStylesDirectly('/css/real-estate-admin.css');
+
         $this
             ->setupModel(new Account)
             ->setValidatorClass(AccountCreateRequest::class)
@@ -134,18 +135,22 @@ class AccountForm extends FormAbstract
             ],
             'choices' => [0 => trans('plugins/real-estate::property.select_city')] + $cityChoices,
         ])
-            ->add('city_area_id', 'customSelect', [
-                'label' => trans('plugins/real-estate::property.form.city_area'),
-                'label_attr' => ['class' => 'control-label required'],
-                'wrapper' => [
-                    'class' => 'form-group col-md-6',
-
-                ],
-                'attr' => [
-                    'class' => 'form-control select-search-full',
-                ],
-                'choices' => [trans('plugins/real-estate::property.select_city_area')] + $cityAreaChoices,
-            ]);
+        ->add('city_area_id', 'customSelect', [
+            'label' => trans('plugins/real-estate::property.form.city_area'),
+            'label_attr' => ['class' => 'control-label required'],
+            'wrapper' => [
+                'class' => 'form-group col-md-6',
+            ],
+            'attr' => [
+                'id' => 'city_area_id',
+                'class' => 'form-control select-search-full',
+                'multiple' => 'multiple',
+                'name' => 'city_area_id[]'
+            ],
+            'choices' => $cityAreaChoices,
+            'selected' => explode(',', $this->getModel()->city_area_id)
+        ]);
+        
 
 
         $this->add('is_change_password', 'checkbox', [

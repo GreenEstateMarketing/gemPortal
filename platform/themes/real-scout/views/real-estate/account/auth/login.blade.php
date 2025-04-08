@@ -55,11 +55,11 @@
                             </button>
                         </div>
 
-                        <div class="form-group text-center">
+                        <!-- <div class="form-group text-center">
                             <p>{{ __("Don't have an account?") }} <a href="{{ route('public.account.register') }}"
-                                    class="d-block d-sm-inline-block text-sm-left text-center">{{ __('Register a new account') }}</a>
+                                    class="d-block d-sm-inline-block text-sm-left text-center">{{ __('Register dda new account') }}</a>
                             </p>
-                        </div>
+                        </div> -->
 
                         <div class="text-center">
                             {!! apply_filters(BASE_FILTER_AFTER_LOGIN_OR_REGISTER_FORM, null, \Botble\RealEstate\Models\Account::class) !!}

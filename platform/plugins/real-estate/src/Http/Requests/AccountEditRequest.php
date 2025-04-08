@@ -22,7 +22,8 @@ class AccountEditRequest extends Request
             'email'      => 'required|max:60|min:6|email|unique:re_accounts,email,' . $this->route('account'),
             'image_path' => [new ImageDimension(500, 500)],
             'city_id' => ['required', 'integer', 'exists:cities,id'],
-            'city_area_id' => ['required', 'integer', 'exists:city_area,id']
+            'city_area_id' => ['required', 'array'],
+            'city_area_id.*' => 'string|max:256'
         ];
 
         if ($this->input('is_change_password') == 1) {

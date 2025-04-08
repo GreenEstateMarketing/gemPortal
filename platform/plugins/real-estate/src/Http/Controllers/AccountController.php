@@ -134,6 +134,8 @@ class AccountController extends BaseController
             }
         }
 
+        $request['city_area_id'] = implode( ',', $request['city_area_id']);
+
         $account = Account::create($request->except('agent_area'));
         if ($request['agent_area'] != "") {
             $account->agent_area = \DB::raw($ap);
@@ -261,6 +263,8 @@ class AccountController extends BaseController
         }
 
         $account = Account::find($id);
+        $request['city_area_id'] = implode( ',', $request['city_area_id']);
+
         $account->update($request->except('agent_area', 'password'));
         if ($request['agent_area'] != "") {
             $account->agent_area = \DB::raw($ap);

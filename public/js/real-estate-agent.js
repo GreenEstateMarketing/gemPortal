@@ -1,3 +1,32 @@
+$(window).on("load", function () {
+    // Handler for .load() called.
+    $('.city_id').on('change', function () {
+        var city_id = $(this).val();
+        $.ajax({
+            type: 'get',
+            url: '/ajax/get-city-areas',
+            dataType: 'json',
+            async: false,
+            data: {
+                city_id: city_id
+            },
+            success: function (response) {
+
+                $('#city_area_id').empty();
+                $.each(response.data, function (i, item) {
+                    $('#city_area_id').append('<option value="'
+                        + item.id
+                        + '">'
+                        + item.city_area_name
+                        + '</option>'
+                    );
+
+                });
+            }
+        });
+    });
+});
+
 
 $(document).ready(function() {
     $("#add_comment").click(function(e) {

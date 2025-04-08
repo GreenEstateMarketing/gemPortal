@@ -190,7 +190,7 @@
                         <!-- end contact-box -->
                     </div>
                     <!-- end col-4 -->
-                    <div class="col-12"> <span class="copyright">© {{ date('Y') }} {!! clean(theme_option('copyright')) !!}</span> <span class="creation">Site created by <a href="#">SwiftLogix</a></span> </div>
+                    <div class="col-12"> <span class="copyright">© {{ date('Y') }} {!! clean(theme_option('copyright')) !!}</span> <span class="creation">Site created by <a href="https://linesquaretech.com/" target="_blank">LineSquare Technologies</a></span> </div>
                     <!-- end col-12 -->
                 </div>
                 <!-- end row -->
