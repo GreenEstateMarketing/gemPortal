@@ -704,7 +704,20 @@ $(document).ready(function () {
 
                             }
 
-                            $(".document-row").append('<div class="col-md-4 testsets"><label class="control-label ' + requiredcheck + '">' + value.documents.name + ' (' +value.documents.type + ') ' + '</label><input type="hidden" name="document_ids[]" value=' + value.document_id + '>' + doc_image + '<input type="file"  name="documents[]" class="form-control" data-document-id="' + value.document_id + '" data-required="' + requiredcheck + '"   ' + requiredcheck + ' accept="' + value.documents.type + '"></div>');
+                            $(".document-row").append(
+                                '<div class="col-md-4 testsets">' +
+                                    '<label class="control-label ' + requiredcheck + '">' + value.documents.name + ' (' + value.documents.type + ')</label>' +
+                                    '<input type="hidden" name="document_ids[]" value="' + value.document_id + '">' +
+                                    doc_image +
+                                    '<div class="d-flex align-items-center">' +
+                                        '<input type="file" name="documents[]" class="form-control file-input" style="width: calc(100% - 30px);" data-document-id="' + value.document_id + '" data-required="' + requiredcheck + '" ' + requiredcheck + ' accept="' + value.documents.type + '">' +
+                                        '<a href="javascript:void(0)" class="remove-file-link text-danger ms-2" title="Remove file" style="font-size: 16px;">&#10006;</a>' +
+                                    '</div>' +
+                                '</div>'
+                            );
+                            
+                            
+                            
 
                             //checklists add
 
@@ -719,7 +732,7 @@ $(document).ready(function () {
                                 var path = response.data.document_images[key].path;
                                 var id = response.data.document_images[key].id;
                                 /*if(id==value.id)*/
-                                doc_image = '<br><a target="_blank" href="/storage/' + path + '">' + path + '</a><input type="hidden" data-src="/storage/' + path + '">';
+                                doc_image = '<br><a target="_blank" href="/storage/' + path + '">' + 'See Document' + '</a><input type="hidden" data-src="/storage/' + path + '">';
 
                             }
                             /*if(response.data.document_images)
@@ -741,7 +754,17 @@ $(document).ready(function () {
                                 warningcheck = "";
                             }*/
                             if (property_id != "") {
-                                $(".document-row").append('<div class="col-md-4"><label class="control-label ' + requiredcheck + '">' + value.documents.name + '</label>' + warningcheck + '<input type="hidden" name="document_ids[]" value=' + value.document_id + '>' + doc_image + '<input type="file"  name="documents[]" class="form-control" data-document-id="' + value.document_id + '" data-required="' + requiredcheck + '"   ' + requiredcheck + '></div>');
+                                $(".document-row").append(
+                                    '<div class="col-md-4 testsets">' +
+                                        '<label class="control-label ' + requiredcheck + '">' + value.documents.name + ' (' + value.documents.type + ')</label>' +
+                                        '<input type="hidden" name="document_ids[]" value="' + value.document_id + '">' +
+                                        doc_image +
+                                        '<div class="d-flex align-items-center">' +
+                                            '<input type="file" name="documents[]" class="form-control file-input" style="width: calc(100% - 30px);" data-document-id="' + value.document_id + '" data-required="' + requiredcheck + '" ' + requiredcheck + ' accept="' + value.documents.type + '">' +
+                                            '<a href="javascript:void(0)" class="remove-file-link text-danger ms-2" title="Remove file" style="font-size: 16px;">&#10006;</a>' +
+                                        '</div>' +
+                                    '</div>'
+                                );
 
                                 //checklists add
 
@@ -1230,6 +1253,13 @@ $(document).ready(function () {
         console.log(newVal);
         $('input[name="moderation_status"]').val(newVal);
     });
+});
+
+$(document).on('click', '.remove-file-link', function (e) {
+    e.preventDefault();
+    const $input = $(this).siblings('.file-input');
+    $input.val(''); // Clear file
+    $input.removeClass('is-valid'); // Remove validation class
 });
 
 

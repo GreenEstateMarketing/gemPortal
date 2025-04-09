@@ -169,7 +169,6 @@ class GeneralPropertyController extends Controller
      */
     public function store(PropertyRequest $request, BaseHttpResponse $response, AccountInterface $accountRepository, SaveFacilitiesService $saveFacilitiesService, MemberInterface $memberRepository)
     {
-        dd('yeah');
         $request->merge(['expire_date' => now()->addDays(config('plugins.real-estate.real-estate.property_expired_after_x_days'))]);
         $agent_id = $request['author_id_hidden'] ? $request['author_id_hidden'] : null;
         $member_id = null;
@@ -351,7 +350,6 @@ class GeneralPropertyController extends Controller
      */
     public function update($id, PropertyRequest $request, BaseHttpResponse $response, SaveFacilitiesService $saveFacilitiesService)
     {
-        dd('YEAH Member');
         $property = $this->propertyRepository->getFirstBy([
             'id' => $id,
             'member_id' => auth('member')->user()->getAuthIdentifier()

@@ -14,17 +14,17 @@ $(document).ready(function () {
     $('#city_id').select2();
     $('#city_area_id').select2();
     $('#project-select').select2();
-    $('#mobile_no').keydown(function () {
+    // $('#mobile_no').keydown(function () {
 
-        //allow  backspace, tab, ctrl+A, escape, carriage return
-        if (event.keyCode == 8 || event.keyCode == 9 ||
-            event.keyCode == 27 || event.keyCode == 13 ||
-            (event.keyCode == 65 && event.ctrlKey === true))
-            return;
-        if ((event.keyCode < 48 || event.keyCode > 57))
-            event.preventDefault();
+    //     //allow  backspace, tab, ctrl+A, escape, carriage return
+    //     if (event.keyCode == 8 || event.keyCode == 9 ||
+    //         event.keyCode == 27 || event.keyCode == 13 ||
+    //         (event.keyCode == 65 && event.ctrlKey === true))
+    //         return;
+    //     if ((event.keyCode < 48 || event.keyCode > 57))
+    //         event.preventDefault();
 
-    });
+    // });
     $("#contact").validate({
         rules: {
             city_id: {

@@ -570,33 +570,33 @@ class PropertyForm extends FormAbstract
             ->add('rowClosedocument', 'html', [
                 'html' => '</div>',
             ])
-            ->add('document1', 'mediaFile', [
-                'label' => trans('plugins/real-estate::property.form.document1'),
-                'label_attr' => ['class' => 'control-label'],
-                'id' => 'document3',
-                'wrapper' => [
-                    'class' => 'form-group col-md-3',
-                ],
-                'values' => '',
-            ])
-            ->add('document2', 'mediafile1', [
-                'label' => trans('plugins/real-estate::property.form.document2'),
-                'label_attr' => ['class' => 'control-label'],
-                'id' => 'document2',
-                'wrapper' => [
-                    'class' => 'form-group col-md-3',
-                ],
-                'values' => '',
-            ])
-            ->add('document3', 'mediafile1', [
-                'label' => trans('plugins/real-estate::property.form.document3'),
-                'label_attr' => ['class' => 'control-label'],
-                'id' => 'document3',
-                'wrapper' => [
-                    'class' => 'form-group col-md-3',
-                ],
-                'values' => '',
-            ])
+            // ->add('document1', 'mediaFile', [
+            //     'label' => trans('plugins/real-estate::property.form.document1'),
+            //     'label_attr' => ['class' => 'control-label'],
+            //     'id' => 'document3',
+            //     'wrapper' => [
+            //         'class' => 'form-group col-md-3',
+            //     ],
+            //     'values' => '',
+            // ])
+            // ->add('document2', 'mediafile1', [
+            //     'label' => trans('plugins/real-estate::property.form.document2'),
+            //     'label_attr' => ['class' => 'control-label'],
+            //     'id' => 'document2',
+            //     'wrapper' => [
+            //         'class' => 'form-group col-md-3',
+            //     ],
+            //     'values' => '',
+            // ])
+            // ->add('document3', 'mediafile1', [
+            //     'label' => trans('plugins/real-estate::property.form.document3'),
+            //     'label_attr' => ['class' => 'control-label'],
+            //     'id' => 'document3',
+            //     'wrapper' => [
+            //         'class' => 'form-group col-md-3',
+            //     ],
+            //     'values' => '',
+            // ])
             ->add('rowOpenverify', 'html', [
                 'html' => '<div class="row mb-2 mt-3">',
             ])

@@ -6,13 +6,14 @@
 
     @if ($showLabel && $options['label'] !== false && $options['label_show'])
         {!! Form::customLabel($name, $options['label'], $options['label_attr']) !!}
-        <span id="image-warning" class="alert alert-warning" style="border:none;background:#fff"><i class="fa  fa-exclamation-triangle"></i> Please upload no more than 20 images.</span>
+        <span id="image-warning" class="alert alert-warning" style="border:none;background:#fff"><i
+                class="fa  fa-exclamation-triangle"></i> Please upload no more than 20 images.</span>
     @endif
 
     @if ($showField)
         {!! Form::hidden($name, $options['value'] ? json_encode($options['value']) : null, $options['attr']) !!}
         <div id="multiple-upload" class="dropzone needsclick">
-            <div class="dz-message needsclick agent">
+            <div class="dz-message needsclick member">
                 <span class="plus-sign">+</span>
             </div>
         </div>
@@ -79,7 +80,7 @@
         }
 
         .dropzone .dz-message {
-            margin: 50px 0;
+            /* margin: 50px 0; */
         }
     </style>
     <script>
@@ -97,17 +98,46 @@
             filesizeBase: 1000,
             uploadMultiple: {{ setting('media_chunk_enabled') == '1' ? 'false' : 'true' }},
             chunking: {{ setting('media_chunk_enabled') == '1' ? 'true' : 'false' }},
-            forceChunking: true, // forces chunking when file.size < chunkSize
-            parallelChunkUploads: false, // allows chunks to be uploaded in parallel (this is independent of the parallelUploads option)
-            chunkSize: {{ setting('media_chunk_size', config('core.media.media.chunk.chunk_size')) }}, // chunk size 1,000,000 bytes (~1MB)
-            retryChunks: true, // retry chunks on failure
-            retryChunksLimit: 3, // retry maximum of 3 times (default is 3)
-            timeout: 0, // MB,
-            maxFilesize: {{ setting('media_chunk_enabled') == '1' ? setting('media_chunk_size', config('core.media.media.chunk.chunk_size')) : 2 }}, // MB
-            maxFiles: null, // max files upload,
+            forceChunking: true,
+            parallelChunkUploads: false,
+            chunkSize: {{ setting('media_chunk_size', config('core.media.media.chunk.chunk_size')) }},
+            retryChunks: true,
+            retryChunksLimit: 3,
+            timeout: 0,
+            maxFilesize: {{ setting('media_chunk_enabled') == '1' ? setting('media_chunk_size', config('core.media.media.chunk.chunk_size')) : 2 }},
+            maxFiles: 20,
             paramName: 'file',
-            acceptedFiles: 'image/*',
+            acceptedFiles: '.jpg,.jpeg,.png',
             url: '{{ route('public.account.upload') }}',
+            init: function () {
+                var dz = this;
+
+                // Disable the clickable area once max files are uploaded
+                this.on("addedfile", function () {
+                    if (dz.files.length > 20) { // remove the file
+                        // alert('You cannot upload more than 20 images.');
+                        return false; // prevent adding the file
+                    }
+
+                    // Disable clickable area after max files are reached
+                    // if (dz.files.length > 20) {
+                    //     dz.options.clickable = false;
+                    //     dz.disable();
+                    //     dz.hiddenFileInput.disabled = true;
+                    //     dz.element.classList.add('dz-disabled');
+                    // }
+                });
+
+                // Enable the clickable area if a file is removed
+                this.on("removedfile", function () {
+                    if (dz.files.length < 20) {
+                        dz.options.clickable = true;
+                        dz.enable();
+                        dz.hiddenFileInput.disabled = false;
+                        dz.element.classList.remove('dz-disabled');
+                    }
+                });
+            },
             sending: function (file, xhr, formData) {
                 formData.append('_token', '{{ csrf_token() }}');
             },
@@ -134,18 +164,26 @@
                     $('input[name={{ $name }}]').val(JSON.stringify(uploadedImages));
                 }
             },
+            error: function (file, message) {
+                Botble.showError(typeof message === "string" ? message : message.message);
+                this.removeFile(file);
+            },
             removedfile: function (file) {
-                var x = confirm('Do you want to delete this image?');
-                if (!x) {
-                    return false;
-                }
                 var i = $(file.previewElement).index() - 1;
-                dropzone.options.maxFiles = dropzone.options.maxFiles + 1;
                 uploadedImages.splice(i, 1);
                 $('input[name={{ $name }}]').val(JSON.stringify(uploadedImages));
+
                 $('.dz-message.needsclick').hide();
                 if (uploadedImages.length === 0) {
                     $('.dz-message.needsclick').show();
+                }
+
+                // Enable dropzone again if less than 20 files
+                if (uploadedImages.length < 20) {
+                    dropzone.options.clickable = true;
+                    dropzone.enable();
+                    dropzone.hiddenFileInput.disabled = false;
+                    dropzone.element.classList.remove('dz-disabled');
                 }
 
                 var _ref;

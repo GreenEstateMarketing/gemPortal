@@ -26,7 +26,7 @@
                     <p>100% refundable, safe and secure investments with GEM
 
                         Our criteria to choose best investment projects</p>
-                    <a href="#" class="link">SEE OUR PROJECTS <i class="fas fa-caret-right"></i></a>
+                    <a href="/projects" class="link">SEE OUR PROJECTS <i class="fas fa-caret-right"></i></a>
                 </div>
             </div>
             <!-- end content-box -->
@@ -197,7 +197,7 @@
                     <p>Golf Floras - Your gateway to ultimate luxury! Located at Bahria Town (Garden City) Islamabad.
                     </p>
 
-                    <a href="#" class="link">SEE OUR PROJECTS <i class="fas fa-caret-right"></i></a>
+                    <a href="/projects" class="link">SEE OUR PROJECTS <i class="fas fa-caret-right"></i></a>
                 </div>
                 <!-- end content-box -->
             </div>
