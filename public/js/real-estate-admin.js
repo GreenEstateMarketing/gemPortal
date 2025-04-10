@@ -266,8 +266,7 @@ $(window).ready(function () {
 
     moderation_status = $("input[name='moderation_status_hidden']").val();
 
-    if (moderation_status == "rejected" /*&& property_id > 0*/) {
-
+    if (moderation_status == "rejected") {
         $("#reject_reason").parent().removeClass('d-none');
     }
     else {
@@ -275,8 +274,7 @@ $(window).ready(function () {
         $("#reject_reason").parent().addClass('d-none');
     }
     $("#moderation_status").change(function () {
-        if ($(this).val() == "rejected" /*&& property_id > 0*/) {
-
+        if ($(this).val() == "rejected") {
             $("#reject_reason").parent().removeClass('d-none');
         }
         else {

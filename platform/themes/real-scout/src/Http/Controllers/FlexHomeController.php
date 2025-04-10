@@ -281,6 +281,7 @@ class FlexHomeController extends PublicController
             'condition' => [
                 'author_id' => $account->id,
                 'author_type' => Account::class,
+                'moderation_status' => ModerationStatusEnum::APPROVED
             ],
             'paginate' => [
                 'per_page' => 12,
