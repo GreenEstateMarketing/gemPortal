@@ -195,12 +195,12 @@ class AccountController extends BaseController
      */
     public function update($id, AccountEditRequest $request, BaseHttpResponse $response)
     {
-        if ($request->input('is_change_password') == 1) {
-            $request->merge(['password' => bcrypt($request->input('password'))]);
-            $data = $request->input();
-        } else {
-            $data = $request->except('password');
-        }
+        // if ($request->input('is_change_password') == 1) {
+        //     $request->merge(['password' => bcrypt($request->input('password'))]);
+        //     $data = $request->input();
+        // } else {
+        //     $data = $request->except('password');
+        // }
 
         if ($request['agent_area'] != "") {
             $i = 0;
@@ -271,13 +271,9 @@ class AccountController extends BaseController
         }
 
         if ($request->input('is_change_password') == 1) {
-
-            $data = $request->input();
             $account->password = \bcrypt($request->input('password'));
-        } else {
-            $data = $request->except('password');
+            $account->save();
         }
-        $account->save();
         event(new UpdatedContentEvent(ACCOUNT_MODULE_SCREEN_NAME, $request, $account));
 
         return $response

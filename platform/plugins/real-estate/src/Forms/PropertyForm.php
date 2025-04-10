@@ -259,12 +259,14 @@ class PropertyForm extends FormAbstract
         $sellerName = 'Not Available';
         $sellerEmail = 'Not Available';
         $sellerPhone = 'Not Available';
+        $sellerEmailAddress = 'Not Available';
         $credits = true;
 
         if ($sellerType == 'Member') {
             if ($this->getModel()->member) {
                 $sellerName = $this->getModel()->member->full_name;
                 $sellerEmail = $this->getModel()->member->email;
+                $sellerEmailAddress = $this->getModel()->member->email;
                 $sellerPhone = $this->getModel()->member->mobile_no;
                 $credits = $this->getModel()->member->credits > 0;
             }
@@ -273,10 +275,13 @@ class PropertyForm extends FormAbstract
             if ($this->getModel()->user) {
                 $sellerName = $this->getModel()->user->first_name . ' ' . $this->getModel()->user->last_name;
                 $sellerEmail = $this->getModel()->user->email;
+                $sellerEmailAddress = $this->getModel()->user->email;
                 $sellerPhone = $this->getModel()->user->phone;
                 $credits = $this->getModel()->user->credits > 0;
             }
         }
+
+        $sellerName = ucwords($sellerName);
 
         $sellerType = $credits ? $sellerType : $sellerType . ' (Credits Not Available)';
 
@@ -328,7 +333,7 @@ class PropertyForm extends FormAbstract
 
         if (!Str::contains(request()->url(), 'create')) {
             $this->add('rowOpenVerificatonInfo', 'html', [
-                'html' => '<div class="row mb-5 pt-1 pb-1 align-items-center alert ' . ($this->model->verified ? 'alert-success' : 'alert-danger') . '" style="border-radius: 50px;">',
+                'html' => '<div class="row mb-2 ml-1 pt-1 pb-1 align-items-center" style="border-radius: 50px;">',
             ]);
         }
 
@@ -338,7 +343,7 @@ class PropertyForm extends FormAbstract
                 'VerificatonInfo',
                 'html',
                 [
-                    'html' => '<div class="col-md-12 col-lg-12 offset-4"><i class="fa fa-check"></i> This Property has been Verified by Agent.</div>'
+                    'html' => '<div class="col-md-4 col-lg-4 alert alert-success"><i class="fa fa-check"></i> This Property has been Verified by Agent.</div>'
                 ]
             );
         } else {
@@ -347,7 +352,7 @@ class PropertyForm extends FormAbstract
                     'VerificatonInfo',
                     'html',
                     [
-                        'html' => '<div class="col-md-12 col-lg-12 offset-4"><i class="fa fa-times"></i> This Property has not been Verified by Agent.</div>'
+                        'html' => '<div class="col-md-4 col-lg-4 alert alert-danger"><i class="fa fa-times"></i> This Property has not been Verified by Agent.</div>'
                     ]
                 );
             }
@@ -363,17 +368,39 @@ class PropertyForm extends FormAbstract
 
 
         $this->add('rowOpenSellerInfo', 'html', [
-            'html' => '<div class="row mb-5 pt-5 pb-5 align-items-center alert ' . ($credits ? 'alert-success' : 'alert-danger') . '" style="border-radius: 50px;">',
+            'html' => '<div class="row ml-1 mb-3 pt-2 pb-3 align-items-center" style="border-radius: 50px;">',
         ])
             ->add(
                 'SellerInfo',
                 'html',
                 [
-                    'html' => '<div class="col-md-3 col-lg-3"><div class="row"><div class="col-lg-3 col-md-3">Type:</div><div class="col-lg-9 col-md-9 bold">' . $sellerType . '</div></div></div>
-                  <div class="col-md-2 col-lg-2"><div class="row"><div class="col-lg-3 col-md-3">Name:</div><div class="col-lg-9 col-md-9 bold">' . $sellerName . '</div></div></div>
-                  <div class="col-md-4 col-lg-4"><div class="row"><div class="col-lg-3 col-md-3">Email:</div><div class="col-lg-9 col-md-9 bold" style="color: ' . ($credits ? '#155724' : '#721c24') . ';">' . $sellerEmail . '</div></div></div>
-                  <div class="col-md-3 col-lg-3"><div class="row"><div class="col-lg-3 col-md-3">Phone:</div><div class="col-lg-9 col-md-9 bold">
-                  <a target="_blank" style="color: ' . ($credits ? '#155724' : '#721c24') . ';text-decoration: underline" href="https://wa.me/+92' . ltrim($sellerPhone, '0') . '">' . $sellerPhone . '</a></div></div></div>'
+                    'html' => '
+        <div class="col-md-3 col-lg-3">
+            <div>
+                <div class="bold">User Type:</div>
+                <div>' . $sellerType . '</div>
+            </div>
+        </div>
+        <div class="col-md-2 col-lg-2">
+            <div>
+                <div class="bold">Name:</div>
+                <div>' . $sellerName . '</div>
+            </div>
+        </div>
+        <div class="col-md-4 col-lg-4">
+            <div>
+                <div><span class="bold">Email: </span>(' . $sellerEmailAddress . ')</div>
+                <div style="color: ' . ($credits ? '#155724' : '#721c24') . ';">' . $sellerEmail . '</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-lg-3">
+            <div class="">
+                <div class="bold">Phone:</div>
+                <div>
+                    <a target="_blank" style="color: ' . ($credits ? '#155724' : '#721c24') . '; text-decoration: underline;" href="https://wa.me/+92' . ltrim($sellerPhone, '0') . '">' . $sellerPhone . '</a>
+                </div>
+            </div>
+        </div>'
                 ]
             )
             ->add('rowCloseSellerInfo', 'html', [
@@ -471,8 +498,8 @@ class PropertyForm extends FormAbstract
 
         if ($cityId > 0) {
             $this->add('city_id', 'hidden', [
-                    'value' => $cityId,
-                ])
+                'value' => $cityId,
+            ])
                 ->add('city_id_display', 'customSelect', [
                     'label' => trans('plugins/real-estate::property.form.city'),
                     'label_attr' => ['class' => 'control-label required'],
@@ -530,16 +557,16 @@ class PropertyForm extends FormAbstract
         }
 
         $this->add('built_in', 'number', [
-                'label' => trans('Built In'),
-                'label_attr' => ['class' => 'control-label'],
-                'attr' => [
-                    'placeholder' => trans('Year the property was built'),
-                    'data-counter' => 4,
-                ],
-                'wrapper' => [
-                    'class' => 'form-group col-md-6',
-                ],
-            ])
+            'label' => trans('Built In'),
+            'label_attr' => ['class' => 'control-label'],
+            'attr' => [
+                'placeholder' => trans('Year the property was built'),
+                'data-counter' => 4,
+            ],
+            'wrapper' => [
+                'class' => 'form-group col-md-6',
+            ],
+        ])
             ->add('rowClosetitle', 'html', [
                 'html' => '</div>',
             ])

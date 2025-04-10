@@ -1,9 +1,9 @@
 <?php
 
 return [
-    'create'                     => 'New account',
-    'edit'                       => 'Edit account ":name"',
-    'name'                       => 'Accounts',
+    'create'                     => 'New agent',
+    'edit'                       => 'Edit agent ":name"',
+    'name'                       => 'Agents',
     'confirmation_subject'       => 'Email verification',
     'confirmation_subject_title' => 'Verify your email',
     'not_confirmed'              => 'The given email address has not been confirmed. <a href=":resend_link">Resend confirmation link.</a>',

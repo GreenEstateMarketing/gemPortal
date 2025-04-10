@@ -1246,12 +1246,28 @@ function filterFunctionCheck() {
 $(document).ready(function () {
     var selectedMod = $('input[name="moderation_status_hidden"]').val();
     $('input[name="moderation_status"]').val(selectedMod);
+
     $('#mode-status-select').on('change', function () {
-        var newVal = $('#mode-status-select').val()
-        console.log(newVal);
+        var newVal = $('#mode-status-select').val();
         $('input[name="moderation_status"]').val(newVal);
+
+        if (newVal == "rejected") {
+            $("#reject_reason").parent().removeClass('d-none');
+
+            // Scroll to the reject reason input
+            $('html, body').animate({
+                scrollTop: $("#reject_reason").offset().top - 100
+            }, 500);
+
+            // Use native focus to avoid TS warning
+            document.getElementById("reject_reason")?.focus();
+        } else {
+            $("input[name='reject_reason']").val('');
+            $("#reject_reason").parent().addClass('d-none');
+        }
     });
 });
+
 
 $(document).on('click', '.remove-file-link', function (e) {
     e.preventDefault();

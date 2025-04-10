@@ -1429,8 +1429,8 @@ class GeneralPropertyController extends Controller
             if ($transactionStatus == 'P') {
 
                 //Temporarry, need to change before comminging
-//                $payment = $paymentRepository->getFirstBy(['charge_id' => $orderId]);
-                $payment = $paymentRepository->getLastRecord();
+               $payment = $paymentRepository->getFirstBy(['charge_id' => $orderId]);
+                // $payment = $paymentRepository->getLastRecord();
                 $package = $packageRepository->findById($payment->package_id);
 
                 $member = auth('member')->user();
