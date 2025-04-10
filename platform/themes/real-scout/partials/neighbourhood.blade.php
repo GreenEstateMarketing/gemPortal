@@ -5,14 +5,20 @@
     <div class="container">
         <div class="row">
             <ul class="vertical">
-                <li data-keyword="school" style="cursor: pointer"  class="border-li nearyby active d-flex"><a > <i class="far fa-school"></i>  School</a> <span class="count-res"> </span></li>
-                <li data-keyword="hospital" style="cursor: pointer"  class="border-li nearyby d-flex"><a > <i class="far fa-hospital"></i> Hospital</a> <span class="count-res"> </span></li>
-                <li data-keyword="restaurant" style="cursor: pointer"  class="border-li nearyby d-flex"><a > <i class="far fa-utensils-alt"></i>Restaurant</a> <span class="count-res"> </span></li>
-                <li data-keyword="park" style="cursor: pointer"  class="border-li nearyby d-flex"><a > <i class="fas fa-parking"></i> Park</a> <span class="count-res"> </span></li>
+                <li data-keyword="school" style="cursor: pointer" class="border-li nearyby active d-flex"><a> <i
+                            class="far fa-school"></i> School</a> <span class="count-res"> </span></li>
+                <li data-keyword="hospital" style="cursor: pointer" class="border-li nearyby d-flex"><a> <i
+                            class="far fa-hospital"></i> Hospital</a> <span class="count-res"> </span></li>
+                <li data-keyword="restaurant" style="cursor: pointer" class="border-li nearyby d-flex"><a> <i
+                            class="far fa-utensils-alt"></i>Restaurant</a> <span class="count-res"> </span></li>
+                <li data-keyword="park" style="cursor: pointer" class="border-li nearyby d-flex"><a> <i
+                            class="fas fa-parking"></i> Park</a> <span class="count-res"> </span></li>
             </ul>
 
             <div id="map-container" style="position: relative;height:530px; width:100%;">
-                <center><div><i class="fas fa-spinner fa-pulse loader-spin d-none"></i></div></center>
+                <center>
+                    <div><i class="fas fa-spinner fa-pulse loader-spin d-none"></i></div>
+                </center>
                 <div id="map" style="position: relative;width:inherit;height:inherit"></div>
             </div>
         </div>
@@ -196,6 +202,9 @@
 
     $(document).ready(function () {
         $(".nearyby").click(function () {
+            var latt = parseFloat($("#latitude").val());
+            var long = parseFloat($("#longitude").val());
+            var pos = { lat: latt, lng: long };
             var keyword = $(this).attr("data-keyword");
             getNearbyPlaces(pos, keyword);
             map.fitBounds(bounds);
@@ -210,6 +219,9 @@
             if ($(this).attr('data-tab-id') == 2) {
                 $(".mapouter").addClass('d-none');
                 var keyword = 'school';
+                var latt = parseFloat($("#latitude").val());
+                var long = parseFloat($("#longitude").val());
+                var pos = { lat: latt, lng: long };
                 getNearbyPlaces(pos, keyword);
                 map.fitBounds(bounds);
             } else {
@@ -221,4 +233,4 @@
 
 <script async
     src="https://maps.googleapis.com/maps/api/js?key={{ setting('google_map_api_key') }}&loading=async&libraries=drawing&callback=initMapNeighbourhood">
-</script>
+    </script>
