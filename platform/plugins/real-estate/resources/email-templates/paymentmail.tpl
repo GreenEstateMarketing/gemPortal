@@ -1,24 +1,26 @@
-{{$header}}
+{{ header }}
 
-<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f8f8f8; font-family: Arial, sans-serif;">
+<table width="100%">
+    <tbody>
     <tr>
-        <td align="center">
-            <table width="700" cellpadding="0" cellspacing="0" style="background-color:#ffffff;">
+        <td class="wrapper" width="700" align="center">
+            <table class="section" cellpadding="0" cellspacing="0" width="700" bgcolor="#f8f8f8">
                 <tr>
-                    <td style="padding: 20px 40px; text-align: left;">
-                        <p style="font-size: 16px; color: #333;"><strong>Hello {{ $name }}</strong>,</p>
-                        <p style="font-size: 15px; color: #333;">
-                            Your payment for the property <a href="{{ $property_url }}" style="color: #3366cc;">{{ $title }}</a> is currently pending.
-                        </p>
-                        <p style="font-size: 15px; color: #333;">
-                            You can easily purchase credits by clicking <a href="{{ $credits_url }}" style="color: #3366cc;">here</a>.
-                        </p>
-                        <p style="font-size: 15px; color: #333;">Thanks,<br/>The GEM Team</p>
+                    <td class="column" align="left">
+                        <table>
+                            <tbody>
+                            <tr>
+                                <td align="left" style="padding: 20px 50px;">
+                                    <p><strong>Hello {{ name }}</strong></p>
+                                    <p>Your payment for property <a href="{{ property_url }}">{{ title }}</a> is pending. Please buy credit from <a href="{{ credits_url }}">Here</a> </p>.
+                                    <p>Thanks</p>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </td>
                 </tr>
             </table>
         </td>
     </tr>
-</table>
-
-{{ $footer }}
+    {{ footer }}
