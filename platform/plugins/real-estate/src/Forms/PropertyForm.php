@@ -306,7 +306,7 @@ class PropertyForm extends FormAbstract
                         'type' => 'member',
                         'property_id' => $this->getModel()->id,
                         'title' => $this->getModel()->name,
-                        'from' => auth('account')->user()->getAuthIdentifier() ? 'agent' : 'admin'
+                        'from' => auth('account')->user() ? 'agent' : 'admin'
                     ];
                 } else {
                     $query = [
