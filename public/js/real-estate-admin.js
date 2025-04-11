@@ -263,28 +263,9 @@ $(window).ready(function () {
             });
         }
     });
-
-    moderation_status = $("input[name='moderation_status_hidden']").val();
-
-    if (moderation_status == "rejected") {
-        $("#reject_reason").parent().removeClass('d-none');
-    }
-    else {
-        $("input[name='reject_reason']").val('');
-        $("#reject_reason").parent().addClass('d-none');
-    }
-    $("#moderation_status").change(function () {
-        if ($(this).val() == "rejected") {
-            $("#reject_reason").parent().removeClass('d-none');
-        }
-        else {
-            $("input[name='reject_reason']").val('');
-            $("#reject_reason").parent().addClass('d-none');
-        }
-    });
-
-
 });
+
+
 $(document).ready(function () {
     $(document).on('click', '[data-id="sale"]', function () {
         $('#proj-1').css('display', 'none');
@@ -591,6 +572,7 @@ $(document).ready(function () {
     });
     property_id = $("input[name='property_id']").val();
     moderation_status = $("input[name='moderation_status']").val();
+    console.log(moderation_status);
     if ($("input[name='type']").val() == '') {
         $(".type_sale").first().trigger("click");
     }

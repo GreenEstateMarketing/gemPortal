@@ -609,7 +609,6 @@ class GeneralPropertyController extends Controller
 
     public function save_property(PropertyRequest $request, BaseHttpResponse $response, AccountInterface $accountRepository, SaveFacilitiesService $saveFacilitiesService, MemberInterface $memberRepository)
     {
-
         if (!auth('member')->user()->canPost()) {
             abort(403);
         }

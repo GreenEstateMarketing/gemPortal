@@ -77,17 +77,18 @@ class PropertyForm extends FormAbstract
 
 
     public function __construct(
-        PropertyInterface $propertyRepository,
-        ProjectInterface $projectRepository,
-        FeatureInterface $featureRepository,
-        CurrencyInterface $currencyRepository,
-        CityInterface $cityRepository,
-        CityAreaInterface $cityAreaRepository,
-        CategoryInterface $categoryRepository,
-        FacilityInterface $facilityRepository,
+        PropertyInterface         $propertyRepository,
+        ProjectInterface          $projectRepository,
+        FeatureInterface          $featureRepository,
+        CurrencyInterface         $currencyRepository,
+        CityInterface             $cityRepository,
+        CityAreaInterface         $cityAreaRepository,
+        CategoryInterface         $categoryRepository,
+        FacilityInterface         $facilityRepository,
         CategoryDocumentInterface $categoryDocumentRepository,
-        AccountInterface $accountRepository
-    ) {
+        AccountInterface          $accountRepository
+    )
+    {
         parent::__construct();
         $this->propertyRepository = $propertyRepository;
         $this->projectRepository = $projectRepository;
@@ -123,7 +124,7 @@ class PropertyForm extends FormAbstract
         //Auto selected city and city area for agents
         $cityId = 0;
         $cityAreaId = 0;
-        if (!auth('member')->user() && auth('account')->user()) {
+        if (!auth('member')->user() && auth('account')->user() && \Request::path() != 'admin/real-estate/properties/create') {
             $agentId = auth('account')->user()->getAuthIdentifier();
             $agent = $this->accountRepository->findById($agentId);
             $cityId = $agent->city_id;
@@ -286,7 +287,7 @@ class PropertyForm extends FormAbstract
         $sellerType = $credits ? $sellerType : $sellerType . ' (Credits Not Available)';
 
         $moderationStatuses = ModerationStatusEnum::labels();
-        $selectedModerationStatus = $this->model ? $this->model->moderation_status->getValue() : '';
+        $selectedModerationStatus = $this->model ? $this->model->moderation_status->getValue() : 'pending';
 
         $verifyDocuments = false;
         if ($this->model) {
@@ -364,7 +365,6 @@ class PropertyForm extends FormAbstract
                 'html' => '</div>',
             ]);
         }
-
 
 
         $this->add('rowOpenSellerInfo', 'html', [
@@ -829,13 +829,13 @@ class PropertyForm extends FormAbstract
 
             ])
             ->add('moderation_status_hidden', 'hidden', [
-                'value' => $this->model->moderation_status ?: "",
+                'value' => $this->model->moderation_status->getValue() ?: ModerationStatusEnum::PENDING,
             ])
             ->add('credits', 'hidden', [
                 'value' => $credits
             ])
             ->add('moderation_status', 'hidden', [
-                'value' => "",
+                'value' => $this->model->moderation_status->getValue() ?: ModerationStatusEnum::PENDING,
                 'id' => 'moderation-status'
             ])
             ->add('verify_documents', 'hidden', [
