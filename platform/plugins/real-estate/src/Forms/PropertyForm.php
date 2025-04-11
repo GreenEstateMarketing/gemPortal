@@ -306,7 +306,7 @@ class PropertyForm extends FormAbstract
                         'type' => 'member',
                         'property_id' => $this->getModel()->id,
                         'title' => $this->getModel()->name,
-                        'from' => auth('account')->user() ? 'agent' : 'admin'
+                        'from' => auth('account')->user()->getAuthIdentifier() ? 'agent' : 'admin'
                     ];
                 } else {
                     $query = [
@@ -314,7 +314,7 @@ class PropertyForm extends FormAbstract
                         'type' => 'agent',
                         'property_id' => $this->getModel()->id,
                         'title' => $this->getModel()->name,
-                        'from' => auth('account')->user() ? 'agent' : 'admin'
+                        'from' => 'admin'
                     ];
                 }
                 $sellerEmail = '<a href="' . route('mail-for-payment', $query) . '" type="button" class="btn btn-primary">Mail ' . $sellerName . ' For Payment</a>';
