@@ -1,5 +1,3 @@
-{{ header }}
-
 <table width="100%">
     <tbody>
         <tr>
@@ -31,4 +29,5 @@
                 </table>
             </td>
         </tr>
-{{ footer }}
+    </tbody>
+</table>
