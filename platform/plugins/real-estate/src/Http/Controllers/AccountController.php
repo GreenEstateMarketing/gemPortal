@@ -139,6 +139,7 @@ class AccountController extends BaseController
         $account = Account::create($request->except('agent_area'));
         if ($request['agent_area'] != "") {
             $account->agent_area = \DB::raw($ap);
+            $account>save();
         }
         $account->confirmed_at = Carbon::now()->format('Y-m-d H:i:s');
 
@@ -268,6 +269,7 @@ class AccountController extends BaseController
         $account->update($request->except('agent_area', 'password'));
         if ($request['agent_area'] != "") {
             $account->agent_area = \DB::raw($ap);
+            $account->save();
         }
 
         if ($request->input('is_change_password') == 1) {
