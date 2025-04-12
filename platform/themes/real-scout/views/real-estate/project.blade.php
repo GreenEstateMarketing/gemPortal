@@ -113,10 +113,10 @@
                             <div class="tab" role="tabpanel">
                                 <!-- Nav tabs -->
                                 <ul class="nav nav-tabs" role="tablist">
-                                    <li role="presentation" class="active"><a href="#Section1" aria-controls="home" class="showGrid mr-5 ml-5" data-tab-id="1" role="tab"  data-toggle="tab"><i class="fa fa-star"></i> Highlights</a></li>
-                                    <li role="presentation"><a href="#Section2" aria-controls="profile" role="tab"   class="showGrid mr-5 ml-5" data-tab-id="2" data-toggle="tab"><i class="fa fa-home"></i> Neighbourhood</a></li>
-                                    <li role="presentation"><a href="#Section3" aria-controls="messages" role="tab"  class="showGrid mr-5 ml-5"  data-tab-id="3"  data-toggle="tab"><i class="fa fa-calculator"></i> Calculator</a></li>
-                                    <li role="presentation"><a href="#Section4" aria-controls="messages" role="tab"   class="showGrid mr-5 ml-5" data-tab-id="4" data-toggle="tab"><i class="fas fa-chart-bar"></i> Statistics</a></li>
+                                    <li role="presentation" class="active"><a href="#Section1" aria-controls="home" class="showGrid mr-3 ml-3" data-tab-id="1" role="tab"  data-toggle="tab"><i class="fa fa-star"></i> Highlights</a></li>
+                                    <li role="presentation"><a href="#Section2" aria-controls="profile" role="tab"   class="showGrid mr-3 ml-3" data-tab-id="2" data-toggle="tab"><i class="fa fa-home"></i> Neighbourhood</a></li>
+                                    <li role="presentation"><a href="#Section3" aria-controls="messages" role="tab"  class="showGrid mr-3 ml-3"  data-tab-id="3"  data-toggle="tab"><i class="fa fa-calculator"></i> Calculator</a></li>
+                                    <li role="presentation"><a href="#Section4" aria-controls="messages" role="tab"   class="showGrid mr-3 ml-3" data-tab-id="4" data-toggle="tab"><i class="fas fa-chart-bar"></i> Statistics</a></li>
 
                                 </ul>
                                 <!-- Tab panes -->
