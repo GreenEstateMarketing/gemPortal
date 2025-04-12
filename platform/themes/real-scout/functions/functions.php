@@ -716,7 +716,7 @@ function getLandAreaUnits($area = '', $unit = '')
 }
 function no_of_listings($id)
 {
-    return Account::join('re_properties', 're_accounts.id', '=', 're_properties.author_id')->where('re_accounts.id', $id)->count('re_properties.id');
+    return Account::join('re_properties', 're_accounts.id', '=', 're_properties.author_id')->where('re_properties.moderation_status', '=',ModerationStatusEnum::APPROVED)->where('re_accounts.id', $id)->count('re_properties.id');
 }
 function getDefaultAreaByUnit($area = '', $unit = '')
 {
