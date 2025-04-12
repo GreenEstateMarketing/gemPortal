@@ -40,7 +40,7 @@ class CloseProperties extends Command
     {
         $properties = DB::table('re_properties')
             ->where('moderation_status', '=', 'approved')
-            ->where('date_published', '<=', Carbon::now()->subDays(30));
+            ->where('date_published', '<=', Carbon::now()->subDays(45));
 
         $total = count($properties->get());
 

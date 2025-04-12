@@ -78,14 +78,14 @@ class MemberPropertyForm extends PropertyForm
             ->remove('rowOpenVerificatonInfo')
             ->remove('VerificatonInfo')
             ->remove('rowCloseVerificatonInfo')
-//            ->modify('auto_renew', 'onOff', [
-//                'label' => trans('plugins/real-estate::property.renew_notice', ['days' => config('plugins.real-estate.real-estate.property_expired_after_x_days')]),
-//                'label_attr' => ['class' => 'control-label'],
-//                'default_value' => false,
-//                'wrapper' => [
-//                    'class' => 'form-group col-md-6 auto-renew-form-group' . (!$this->getModel()->id || $this->getModel()->never_expired == true ? ' hidden' : null),
-//                ],
-//            ], true)
+           ->modify('auto_renew', 'onOff', [
+               'label' => trans('plugins/real-estate::property.renew_notice', ['days' => config('plugins.real-estate.real-estate.property_expired_after_x_days')]),
+               'label_attr' => ['class' => 'control-label'],
+               'default_value' => false,
+               'wrapper' => [
+                   'class' => 'form-group col-md-6 auto-renew-form-group' . (!$this->getModel()->id || $this->getModel()->never_expired == true ? ' hidden' : null),
+               ],
+           ], true)
             ->remove('author_id')
             ->addAfter('description', 'images', 'multipleUpload', [
                 'label' => trans('plugins/real-estate::property.form.images'),
