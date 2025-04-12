@@ -25,10 +25,16 @@
                                     <div class="contactInfo d-none">
                                         <div class="phone"><i class="fa fa-phone"></i> {{$val->phone}}</div>
                                     </div>
-                                    @if ($val->username)
+                                    <!-- @if ($val->username)
                                         <p class="mt-2"><span class="fas fa-arrow-circle-right"></span> <a
-                                                href="{{ route('public.agent', $val->username) }}">{{ __('properties by this agent') }}</a>
+                                                href="{{ route('public.agent.detail', $val->username) }}">{{ __('properties by this agent') }} {{no_of_listings($val->id)}}</a>
                                         </p>
+                                    @endif -->
+                                    @if ($val->username)
+                                        <p class="mt-2"><span class="fas fa-arrow-circle-right"></span>
+                                            @if(no_of_listings($val->id) > 0)<a
+                                                href="{{ route('public.agent.detail', $val->username) }}">{{ __('properties by this agent') }}</a>
+                                            @else {{ __('properties by this agent') }} @endif<i class="fa fa-home"></i> {{no_of_listings($val->id)}}</p>
                                     @endif
                                 </ul>
                             </figcaption>
