@@ -72,7 +72,7 @@ class PublicController extends Controller
                 'category_id' => 'required',
                 'name' => 'required|string|min:3|max:100|regex:^[a-zA-Z]{3,}(?: [a-zA-Z]+){0,2}$^',
                 'email' => 'required|email|string',
-                'mobile_no' => 'required|min:11|numeric|regex:^[0][\d]{3}[\d]{7}$^',
+                'mobile_no' => ['required', 'regex:/^\+?[1-9][0-9]{7,14}$/'],
                 'city_id' => 'required|not_in:0',
                 'city_area_id' => 'not_in:0',
                 'comments' => 'required|string|min:5|max:255',
@@ -87,6 +87,7 @@ class PublicController extends Controller
                 'amount.required_if' => 'Amount is required when type is project',
                 'project_select.required_if' => 'You must select a project or provide a new project value',
                 'new_project_value.required_if' => 'You must provide a new project value or select a project',
+                'mobile_no.regex' => 'The phone number format is invalid. It must be a valid international number, e.g., +1234567890.',
             ]);
 
 

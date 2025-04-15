@@ -167,7 +167,7 @@
                                             @endif
                                     </div>
                                     <div role="tabpanel" class="tab-pane fade" id="Section3">
-                                        {!! Theme::partial('mortage_calculator') !!}
+                                        {!! Theme::partial('mortage_calculator', ['property' => $property]) !!}
 
                                     </div>
                                     <div role="tabpanel" class="tab-pane fade" id="Section4">

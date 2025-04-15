@@ -178,11 +178,12 @@ class GeneralPropertyController extends Controller
             $validator = Validator::make($request->all(), [
                 'full_name' => 'required|string|min:3|max:100|regex:^[a-zA-Z]{3,}(?: [a-zA-Z]+){0,2}$^',
                 'new_email' => 'required|email|string',
-                'mobile_number' => 'required|min:11|numeric|regex:^[0][\d]{3}[\d]{7}$^',
+                'mobile_number' => ['required', 'regex:/^\+?[1-9][0-9]{7,14}$/'],
                 'new_password' => 'required|min:6',
                 'terms' => 'required|accepted',
             ], [
-                'terms.required' => 'Please accept GEM terms & conditions'
+                'terms.required' => 'Please accept GEM terms & conditions',
+                'mobile_number.regex' => 'The phone number format is invalid. It must be a valid international number, e.g., +1234567890.',
             ]);
 
             if ($validator->fails()) {
@@ -545,8 +546,10 @@ class GeneralPropertyController extends Controller
         $validator = Validator::make($request->all(), [
             'full_name' => 'required|string|min:3|max:100|regex:^[a-zA-Z]{3,}(?: [a-zA-Z]+){0,2}$^',
             'email' => 'required|email|string',
-            'mobile_no' => 'required|min:11|numeric|regex:^[0][\d]{3}[\d]{7}$^',
+            'mobile_no' => ['required', 'regex:/^\+?[1-9][0-9]{7,14}$/'],
             'password' => 'required|min:6',
+        ], [
+            'mobile_no.regex' => 'The phone number format is invalid. It must be a valid international number, e.g., +1234567890.',
         ]);
 
         if ($validator->fails()) {

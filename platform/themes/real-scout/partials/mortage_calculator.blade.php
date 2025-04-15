@@ -2,7 +2,9 @@
     <div class="row">
         <form class="form-horizontal well" id="mortgage-calculator" method="POST">
             <div class="col-xs-12 text-center">
-                <p>Enter the <i>house price</i>, <i>interest rate</i>, <i>length of the loan</i>, <i>your down payment</i>, <i>insurance</i> and <i>taxes</i> to see how much your monthly mortgage payment will be:</p>
+                <p>Enter the <i>house price</i>, <i>interest rate</i>, <i>length of the loan</i>, <i>your down
+                        payment</i>, <i>insurance</i> and <i>taxes</i> to see how much your monthly mortgage payment
+                    will be:</p>
             </div>
             <div class="row align-items-end">
                 <div class="col-md-4">
@@ -11,7 +13,8 @@
                             <label class="control-label">House Price<span> PKR</span></label>
                             <div class="input-group">
 
-                                <input type="number" class="form-control" placeholder="Amount" name="house-price" tabindex="1">
+                                <input disabled type="number" class="form-control" placeholder="Amount"
+                                    name="house-price" tabindex="1" value="{{ $property->price }}">
                             </div>
                         </div>
                     </div>
@@ -30,9 +33,11 @@
                         <label class="control-label"># of Years</label>
                         <div class="btn-group btn-group-justified btn-year" data-toggle="buttons" name="years">
                             <label class="btn btn-default" name="years-button-15">
-                                <input type="radio" name="years-radio" class="year-radio"  autocomplete="off" value="15" checked>15</label>
+                                <input type="radio" name="years-radio" class="year-radio" autocomplete="off" value="15"
+                                    checked>15</label>
                             <label class="btn btn-default" name="years-button-30">
-                                <input type="radio" name="years-radio"  class="year-radio" autocomplete="off" value="30">30</label>
+                                <input type="radio" name="years-radio" class="year-radio" autocomplete="off"
+                                    value="30">30</label>
                         </div>
                     </div>
                 </div>
@@ -48,7 +53,7 @@
                         </div>
                     </div>
                 </div>
-<!--                <div class="col-md-4">
+                <!--                <div class="col-md-4">
                     <div id="insurance-group" class="requisite">
                         <label class="control-label">Insurance  <span> PKR</span></label>
                         &lt;!&ndash;                            <button type="button" class="btn btn-xs btn-default" data-toggle="popover" data-trigger="hover" title="Annual Insurance" data-content="Enter the amount of your annual premium.">?</button>&ndash;&gt;
@@ -58,7 +63,7 @@
                         </div>
                     </div>
                 </div>-->
-<!--                <div class="col-md-4">
+                <!--                <div class="col-md-4">
                     <div id="taxes-group" class="requisite">
                         <label class="control-label">Taxes <span> PKR</span></label>
                         &lt;!&ndash;                        <button type="button" class="btn btn-xs btn-default" data-toggle="popover" data-trigger="hover" title="Annual Taxes" data-content="Enter the amount of your annual tax bill.">?</button>&ndash;&gt;
@@ -72,13 +77,14 @@
             <div class="row mt-4">
 
                 <div class="col-xs-12 col-md-4 offset-md-4">
-                    <button type="button" class="btn btn-primary btn-lg btn-block" name="calculate" tabindex="6">Calculate</button>
+                    <button type="button" class="btn btn-primary btn-lg btn-block" name="calculate"
+                        tabindex="6">Calculate</button>
                 </div>
 
             </div>
 
 
-<!--            <h3 class="text-center">Monthly Insurance & Taxes</h3>
+            <!--            <h3 class="text-center">Monthly Insurance & Taxes</h3>
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
@@ -109,20 +115,32 @@
 
             </div>-->
             <div class="row">
-
-
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
-                        <div id="conv-group" class=" input-spacer">
-                            <label class="control-label" for="conv">Per Month <span> PKR</span></label>
-                            <div class="input-group">
-
-                                <input type="text" class="form-control" name="conv" readonly>
-                            </div>
+                        <label class="control-label" for="conv">Total PKR</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="conv" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label" for="conv-interest">Interest</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="conv-interest" readonly>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label" for="conv-principal">Principal</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="conv-principal" readonly>
                         </div>
                     </div>
                 </div>
             </div>
+
             <!--    <p class="col-xs-12 col-sm-8 col-sm-offset-2 text-center">If you would like the information presented in this calculator to keep for offline viewing, printing, or sharing, enter your email below and click <q>Send</q>.</p>
                 <div class="form-group">
                     <div id="email-group" class="col-md-4 col-md-offset-4 col-sm-6 col-sm-offset-3 col-xs-12">
@@ -140,7 +158,7 @@
     </div>
 </div>
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         // Initiate popovers for '?' buttons next to input labels
         $("[data-toggle='popover']").popover({
             container: "body",
@@ -159,7 +177,7 @@
         var taxes = $("input[name=taxes]");
 
         // Booleans for input validation
-        var housePriceValid = false;
+        var housePriceValid = true;
         var interestRateValid = false;
         var yearsValid = true;
         var downPaymentValid = false;
@@ -167,9 +185,9 @@
         var taxesValid = false;
 
         // Iterate upon inputs, making white when empty.
-        $.each(inputs, function() {
+        $.each(inputs, function () {
             var input = $(this);
-            input.keyup(function() {
+            input.keyup(function () {
                 if (!input.val()) {
                     input.closest($("div .requisite")).removeClass("has-error").removeClass("has-success");
                 }
@@ -177,20 +195,20 @@
         });
 
         // Check if House Price input is greater than 0 on each keyup.
-        housePrice.keyup(function() {
-            if ($(this).val()) {
-                if (parseFloat($(this).val()) > 0) {
-                    $(this).closest($("div .requisite")).removeClass("has-error").addClass("has-success");
-                    housePriceValid = true;
-                } else {
-                    $(this).closest($("div .requisite")).removeClass("has-success").addClass("has-error");
-                    housePriceValid = false;
-                }
-            }
-        });
+        // housePrice.keyup(function() {
+        //     if ($(this).val()) {
+        //         if (parseFloat($(this).val()) > 0) {
+        //             $(this).closest($("div .requisite")).removeClass("has-error").addClass("has-success");
+        //             housePriceValid = true;
+        //         } else {
+        //             $(this).closest($("div .requisite")).removeClass("has-success").addClass("has-error");
+        //             housePriceValid = false;
+        //         }
+        //     }
+        // });
 
         // Check if Interest Rate input is greater than 0 and less than 100 on each keyup.
-        interestRate.keyup(function() {
+        interestRate.keyup(function () {
             if ($(this).val()) {
                 if (parseFloat($(this).val()) > 0 && parseFloat($(this).val()) < 100) {
                     $(this).closest($("div .requisite")).removeClass("has-error").addClass("has-success");
@@ -203,7 +221,7 @@
         });
 
         // Handle switching of radio buttons
-        $("input:radio[name=years-radio]").change(function() {
+        $("input:radio[name=years-radio]").change(function () {
 
             years = $("input:radio[name=years-radio]:checked");
             if ($("input:radio[name=years-radio]:checked").val() === "15") {
@@ -223,7 +241,7 @@
 
         $("input:radio[name=years-radio]").trigger("change");
         // Check if Down Payment input is >= 0 and < 100 for validation
-        downPayment.keyup(function() {
+        downPayment.keyup(function () {
             if ($(this).val()) {
                 if (parseFloat($(this).val()) >= 0 && parseFloat($(this).val()) < 100) {
                     $(this).closest($("div .requisite")).removeClass("has-error").addClass("has-success");
@@ -236,7 +254,7 @@
         });
 
         // Make sure no negative number is inputted for insurance dollar amount
-        insurance.keyup(function() {
+        insurance.keyup(function () {
             if ($(this).val()) {
                 if (parseFloat($(this).val()) > 0) {
                     $(this).closest($("div .requisite")).removeClass("has-error").addClass("has-success");
@@ -248,7 +266,7 @@
         });
 
         // Make sure no negative number is inputted for taxes dollar amount
-        taxes.keyup(function() {
+        taxes.keyup(function () {
             if ($(this).val()) {
                 if (parseFloat($(this).val()) > 0) {
                     $(this).closest($("div .requisite")).removeClass("has-error").addClass("has-success");
@@ -273,14 +291,14 @@
         var emailCONV;
 
         // Validate inputs and calculate if all is valid.
-        $("button[name=calculate]").click(function() {
+        $("button[name=calculate]").click(function () {
 
             if (!$("input:radio[name=years-radio]:checked").val()) {
                 $("div#years-group").addClass("has-error");
                 $("label[name=years-button-15]").addClass("btn-danger");
                 $("label[name=years-button-30]").addClass("btn-danger");
             }
-            $.each(inputs, function() {
+            $.each(inputs, function () {
                 var input = $(this);
                 if (!input.val()) {
                     input.closest($("div .requisite")).addClass("has-error");
@@ -289,14 +307,14 @@
             //yearsValid
             //alert(housePriceValid); alert(interestRateValid); alert(yearsValid); alert(downPaymentValid); alert(insuranceValid);alert(taxesValid);
             //&& insuranceValid && taxesValid
-            if (housePriceValid && interestRateValid && yearsValid && downPaymentValid ) {
+            if (housePriceValid && interestRateValid && yearsValid && downPaymentValid) {
                 calculate();
                 emailHousePrice = $("input[name=house-price]").val();
                 emailInterestRate = $("input[name=interest-rate]").val();
                 emailYears = $("input:radio[name=years-radio]:checked").val();
                 emailDownPayment = $("input[name=down-payment]").val();
-               // emailInsurance = $("input[name=insurance]").val();
-               // emailTaxes = $("input[name=taxes]").val();
+                // emailInsurance = $("input[name=insurance]").val();
+                // emailTaxes = $("input[name=taxes]").val();
                 emailInsuranceMonthly = $("input[name=insurance-monthly]").val();
                 emailTaxesMonthly = $("input[name=taxes-monthly]").val();
                 emailFHA = $("input[name=fha]").val();
@@ -330,7 +348,7 @@
                 } else if (downPayment.val() < 10) {
                     fhaPayment = ((fhaPrinciple * 0.0050) / 12);
                 }
-            } else if(numYears === 30) {
+            } else if (numYears === 30) {
                 if (downPayment.val() >= 5) {
                     fhaPayment = ((fhaPrinciple * 0.0055) / 12);
                 } else if (downPayment.val() < 5) {
@@ -391,14 +409,21 @@
 
             var convTotal;
             if (downPayment.val() >= 3) {
-                convTotal = monthlyPayment  + convPayment;
+                convTotal = monthlyPayment + convPayment;
+                var convInterestOnly = principle * interestRateM;
+                var convPrincipalOnly = monthlyPayment - convInterestOnly;
+
                 $("input[name=conv]").val(convTotal.toFixed(2));
+                $("input[name=conv-interest]").val(convInterestOnly.toFixed(2));
+                $("input[name=conv-principal]").val(convPrincipalOnly.toFixed(2));
             } else {
-                $("input[name=conv]").val("3% down required");
+                $("input[name=conv]").val("3% down payment required");
+                $("input[name=conv-interest]").val("");
+                $("input[name=conv-principal]").val("");
             }
         }
 
-        $("form").submit(function(event) {
+        $("form").submit(function (event) {
             event.preventDefault();
             event.stopImmediatePropagation()
             $("#email-group").removeClass("has-error");
@@ -415,7 +440,7 @@
                 "taxes": emailTaxes,
                 "insuranceMonthly": emailInsuranceMonthly,
                 "taxesMonthly": emailTaxesMonthly,
-                "fha" : emailFHA,
+                "fha": emailFHA,
                 "va": emailVA,
                 "usda": emailUSDA,
                 "conv": emailCONV,
@@ -429,7 +454,7 @@
                 dataType: "json",
                 encode: true
             })
-                .done(function(response) {
+                .done(function (response) {
                     if (!response.success) {
                         if (!response.wp_mail) {
                             if (response.errors.email) {

@@ -125,11 +125,13 @@ class AccountController extends Controller
         $validator = Validator::make($request->input(), [
             'first_name' => 'required|max:120|min:2',
             'last_name' => 'required|max:120|min:2',
-            'phone' => 'required|max:15|min:8',
+            'phone' => ['required', 'regex:/^\+?[1-9][0-9]{7,14}$/'],
             'dob' => 'required|max:15|min:8',
             'gender' => 'nullable',
             'description' => 'nullable',
             'email' => 'nullable|max:60|min:6|email|unique:re_accounts,email,' . $userId,
+        ], [
+            'phone.regex' => 'The phone number format is invalid. It must be a valid international number, e.g., +1234567890.',
         ]);
 
         if ($validator->fails()) {

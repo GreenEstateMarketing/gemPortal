@@ -168,7 +168,7 @@
                                     <p class="mobile">{{ $property->author->phone }}</p>
                                     <p>{{ $property->author->email }}</p>
                                     @if ($property->author->username)
-                                        <p><span class="fas fa-arrow-circle-right"></span> <a href="{{ route('public.agent', $property->author->username) }}">{{ __('More properties by this agent') }}</a></p>
+                                        <p><span class="fas fa-arrow-circle-right"></span> <a href="{{ route('public.agent', $property->author->username) }}">{{ __('More propeddrties by this agent') }}</a></p>
                                     @endif
                                 </div>
                             </div>

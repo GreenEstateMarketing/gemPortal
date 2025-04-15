@@ -21,12 +21,14 @@ class ContactRequest extends Request
                 'email'                => 'required|email',
                 'content'              => 'required',
                 'g-recaptcha-response' => 'required|captcha',
+                'phone' => ['required', 'regex:/^\+?[1-9][0-9]{7,14}$/'],
             ];
         }
         return [
             'name'    => 'required',
             'email'   => 'required|email',
             'content' => 'required',
+            'phone' => ['required', 'regex:/^\+?[1-9][0-9]{7,14}$/'],
         ];
     }
 
@@ -40,6 +42,7 @@ class ContactRequest extends Request
             'email.required'   => trans('plugins/contact::contact.form.email.required'),
             'email.email'      => trans('plugins/contact::contact.form.email.email'),
             'content.required' => trans('plugins/contact::contact.form.content.required'),
+            'phone.regex' => 'The phone number format is invalid. It must be a valid international number, e.g., +1234567890.',
         ];
     }
 }

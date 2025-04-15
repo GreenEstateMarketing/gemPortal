@@ -20,6 +20,7 @@ class AccountEditRequest extends Request
             'last_name'  => 'required|max:120|min:2',
             'username'   => 'required|max:60|min:2|unique:re_accounts,username,' . $this->route('account'),
             'email'      => 'required|max:60|min:6|email|unique:re_accounts,email,' . $this->route('account'),
+            'phone' => ['required', 'regex:/^\+?[1-9][0-9]{7,14}$/'],
             'image_path' => [new ImageDimension(500, 500)],
             'city_id' => ['required', 'integer', 'exists:cities,id'],
             'city_area_id' => ['required', 'array'],
@@ -31,5 +32,12 @@ class AccountEditRequest extends Request
         }
 
         return $rules;
+    }
+
+    public function messages()
+    {
+        return [
+            'phone.regex' => 'The phone number format is invalid. It must be a valid international number, e.g., +1234567890.',
+        ];
     }
 }

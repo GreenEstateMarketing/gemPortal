@@ -97,17 +97,17 @@ class PublicController extends Controller
 //            ]);
 //            $consultRepository->createOrUpdate($consult);
 
-//            EmailHandler::setModule(REAL_ESTATE_MODULE_SCREEN_NAME)
-//                ->setVariableValues([
-//                    'consult_name'    => $consult->name ?? 'N/A',
-//                    'consult_email'   => $consult->email ?? 'N/A',
-//                    'consult_phone'   => $consult->phone ?? 'N/A',
-//                    'consult_content' => $consult->content ?? 'N/A',
-//                    'consult_link'    => $link ?? 'N/A',
-//                    'consult_subject' => $subject ?? 'N/A',
-//                    'consult_interest' => $consult->interest ?? 'N/A',
-//                ])
-//                ->sendUsingTemplate('notice', $sendTo);
+           EmailHandler::setModule(REAL_ESTATE_MODULE_SCREEN_NAME)
+               ->setVariableValues([
+                   'consult_name'    => $consult->name ?? 'N/A',
+                   'consult_email'   => $consult->email ?? 'N/A',
+                   'consult_phone'   => $consult->phone ?? 'N/A',
+                   'consult_content' => $consult->content ?? 'N/A',
+                   'consult_link'    => $link ?? 'N/A',
+                   'consult_subject' => $subject ?? 'N/A',
+                   'consult_interest' => $consult->interest ?? 'N/A',
+               ])
+               ->sendUsingTemplate('notice', $sendTo);
 
             return $response->setMessage(trans('plugins/real-estate::consult.email.success'));
         } catch (Exception $exception) {

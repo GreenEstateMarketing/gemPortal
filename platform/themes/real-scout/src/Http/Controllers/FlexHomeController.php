@@ -34,6 +34,7 @@ use Theme\FlexHome\Http\Resources\ProjectResource;
 
 class FlexHomeController extends PublicController
 {
+
     /**
      * @param string $slug
      * @param Request $request

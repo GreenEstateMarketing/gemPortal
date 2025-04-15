@@ -396,7 +396,7 @@ class PropertyForm extends FormAbstract
             <div class="">
                 <div class="bold">Phone:</div>
                 <div>
-                    <a target="_blank" style="color: ' . ($credits ? '#155724' : '#721c24') . '; text-decoration: underline;" href="https://wa.me/+92' . ltrim($sellerPhone, '0') . '">' . $sellerPhone . '</a>
+                    <a target="_blank" style="color: ' . ($credits ? '#155724' : '#721c24') . '; text-decoration: underline;" href="https://wa.me/+92' . ltrim($sellerPhone, '0') . '"> <i class="fab fa-whatsapp"></i> ' . $sellerPhone . '</a>
                 </div>
             </div>
         </div>'

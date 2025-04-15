@@ -33,6 +33,10 @@ class Handler extends ExceptionHandler
             ]));
         }
 
+        if ($exception instanceof \Illuminate\Session\TokenMismatchException) {
+            return redirect()->back()->with('error_msg', 'Your session has expired. Please try again.');
+        }
+
         if ($exception instanceof ModelNotFoundException || $exception instanceof MethodNotAllowedHttpException) {
             $exception = new NotFoundHttpException($exception->getMessage(), $exception);
         }
@@ -84,14 +88,19 @@ class Handler extends ExceptionHandler
     {
         if ($this->shouldReport($exception) && !$this->isExceptionFromBot()) {
             if (!app()->isLocal() && !app()->runningInConsole()) {
-                if (setting('enable_send_error_reporting_via_email', false) && setting('email_driver',
-                        config('mail.default'))) {
+                if (
+                    setting('enable_send_error_reporting_via_email', false) && setting(
+                        'email_driver',
+                        config('mail.default')
+                    )
+                ) {
                     if ($exception instanceof Exception) {
                         EmailHandler::sendErrorException($exception);
                     }
                 }
 
-                if (config('core.base.general.error_reporting.via_slack', false) == true &&
+                if (
+                    config('core.base.general.error_reporting.via_slack', false) == true &&
                     !$exception instanceof OAuthServerException
                 ) {
                     Log::channel('slack')
