@@ -29,7 +29,7 @@ class PropertyRequest extends Request
             'city_area_id' => 'required|not_in:0',
             'location' => 'required|string',
             'images' => ['required', new ValidImageCount(1, 20)],
-            'status' => Rule::in(PropertyStatusEnum::values()),
+            'status' => ['nullable', Rule::in(PropertyStatusEnum::values())],
             'moderation_status' => Rule::in(ModerationStatusEnum::values()),
             'reject_reason' => 'required_if:moderation_status,rejected'
         ];
