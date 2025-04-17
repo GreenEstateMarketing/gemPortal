@@ -290,13 +290,19 @@ class PropertyController extends BaseController
         }
         $property->never_expired = $request->input('never_expired');
         $property->square = $sqFeet;
-//        $status = 'selling';
-//        if ($request['type'] == "rent")
-//            $status = 'renting';
-//        else
-//            $status = 'selling';
 
-        $property->status = $request->input('status');
+        if($request->input('status')) {
+            $property->status = $request->input('status');
+        } else {
+            $status = 'selling';
+            if ($request['type'] == "rent"){
+                $status = 'renting';
+            }
+
+            $property->status = $status;
+        }
+
+
         $this->propertyRepository->createOrUpdate($property);
 
         if ($alreadySavedModStatus != ModerationStatusEnum::APPROVED && $request->input('moderation_status') == ModerationStatusEnum::APPROVED) {
