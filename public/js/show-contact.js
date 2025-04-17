@@ -1,7 +1,7 @@
 $(".showContact").click(function () {
-    a_id = $(this).attr('data-id');
+    let a_id = $(this).attr('data-id');
     $(".fa-spinner").removeClass('d-none');
-    $(".contactInfo").removeClass('d-none');
+    $(".contactInfo" + a_id).removeClass('d-none');
 
     $.ajax({
         type: 'get',
@@ -19,7 +19,7 @@ $(".showContact").click(function () {
                     $("#mobile_text").text(data.phone);
                 }
                 $("#email_text").text(data.email);
-                $('.contactInfo').removeClass("d-none");
+                $('.contactInfo-' + a_id).removeClass("d-none");
                 setTimeout(function () {
                     $('.contactInfo').addClass("d-none");
                     $("#mobile_text").text("");

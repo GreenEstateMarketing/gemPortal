@@ -299,7 +299,7 @@
                                     <p>
                                         <strong>
                                             @if ($property->author->username)
-                                                <a href="{{ route('public.agent', $property->author->username) }}">{{ $property->author->getFullName() }}</a>
+                                                <a href="{{ route('public.agent.detail', $property->author->username) }}">{{ $property->author->getFullName() }}</a>
                                             @else
                                                 {{ $property->author->getFullName() }}
                                             @endif
@@ -314,14 +314,14 @@
                         </div>
                         <div class="row rowm10 itemagent mt-3">
                             <div class="col">
-                                <div class="showinfo contactInfo d-none">
+                                <div class="showinfo contactInfo-{{$property->author->id}} d-none">
                                     <p class="mobile mobile-p d-none"> <i class="fa fa-phone mr-1"></i><span id="mobile_text"></span> </p>
                                     <p><i class="fa fa-envelope mr-1" aria-hidden="true"></i><span id="email_text"></span> </p>
                                 </div>
                             </div>
                         </div>
                         @if ($property->author->username)
-                            <p class="mt-2"><span class="fas fa-arrow-circle-right"></span> <a href="{{ route('public.agent', $property->author->username) }}">{{ __('More properties by this agent') }}</a></p>
+                            <p class="mt-2"><span class="fas fa-arrow-circle-right"></span> <a href="{{ route('public.agent.detail', $property->author->username) }}">{{ __('More properties by this agent') }}</a></p>
                         @endif
                     </div>
                 @endif
