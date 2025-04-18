@@ -3,7 +3,9 @@
         <div class="slidetop">
             <div class="owl-carousel" id="listcarousel">
                 @foreach ($property->images as $image)
-                    <div class="item"><img  src="{{ RvMedia::getImageUrl($image, null, false, RvMedia::getDefaultImage()) }}" class="showfullimg" rel="{{ $loop->index }}" alt="{{ $property->name }}"></div>
+                    <div class="item"><img
+                                src="{{ RvMedia::getImageUrl($image, null, false, RvMedia::getDefaultImage()) }}"
+                                class="showfullimg" rel="{{ $loop->index }}" alt="{{ $property->name }}"></div>
                 @endforeach
             </div>
         </div>
@@ -13,7 +15,9 @@
             <div style="max-width: 800px; margin: 0 auto;">
                 <div class="owl-carousel" id="listcarouselthumb">
                     @foreach($property->images as $image)
-                        <div class="item cthumb" rel="{{ $loop->index }}"><img  src="{{ RvMedia::getImageUrl($image, null, false, RvMedia::getDefaultImage()) }}" class="showfullimg" rel="{{ $loop->index }}" alt="{{ $property->name }}"></div>
+                        <div class="item cthumb" rel="{{ $loop->index }}"><img
+                                    src="{{ RvMedia::getImageUrl($image, null, false, RvMedia::getDefaultImage()) }}"
+                                    class="showfullimg" rel="{{ $loop->index }}" alt="{{ $property->name }}"></div>
                     @endforeach
                 </div>
                 <i class="fas fa-chevron-right ar-next"></i>
@@ -22,7 +26,7 @@
         </div>
     </div>
     <div id="gallery" data-images="{{ json_encode($images) }}"></div>
-    <input type="hidden" id="latitude" name="latitude" value="{{$property->latitude}}" />
+    <input type="hidden" id="latitude" name="latitude" value="{{$property->latitude}}"/>
     <input type="hidden" id="longitude" name="longitude" value="{{$property->longitude}}"/>
 
     <div class="container-fluid w90 padtop20">
@@ -31,13 +35,14 @@
                 <div class="boxright">
                     <div class="row">
                         <div class="col-md-6">
-
-                            <h1 class="property-price">{{ format_price($property->price, $property->currency) }}</h1>
+                            <h1 class="property-price">{{ format_price($property->price, $property->currency) }}  </h1>
+                            {!! $property->status->toHtml()  !!}
                         </div>
                         <div class="col-md-6">
                             <div class="float-right">
 
-                                <a href="#" class="text-brown heart add-to-wishlist" data-id="{{ $property->id }}" title="{{ __('I care about this property!!!') }}"><i class="far fa-heart fa-3x"></i></a>
+                                <a href="#" class="text-brown heart add-to-wishlist" data-id="{{ $property->id }}"
+                                   title="{{ __('I care about this property!!!') }}"><i class="far fa-heart fa-3x"></i></a>
                                 <p>Favourite</p>
                             </div>
                         </div>
@@ -50,7 +55,7 @@
                         </div>
                         <div class="col-md-4">
                             <div class="row float-right">
-                            <!-- <div class="col-md-12">
+                                <!-- <div class="col-md-12">
                                     <div class="d-flex align-items-center float-right">
                                         <h3 class="text-brown pl-1">{{ number_format($property->number_bedroom) }}</h3><a href="#" class="text-brown pl-1"  title="{{ __('Number of rooms') }}"><i class="far fa-bed fa-2x"></i></a>
                                         <p>Favourite</p>
@@ -61,20 +66,25 @@
 
                                 </div>-->
                                 @if($property->category->id==1 || $property->category->parent_id==1)
-                                <div class="col-md-6">
-                                    <ul>
-                                        <li><span>{{ number_format($property->number_bedroom) }} <a  class="text-brown pl-1"  title="{{ __('Number of rooms') }}"><i class="far fa-bed fa-2x"></i></a></span> </li>
+                                    <div class="col-md-6">
+                                        <ul>
+                                            <li><span>{{ number_format($property->number_bedroom) }} <a
+                                                            class="text-brown pl-1" title="{{ __('Number of rooms') }}"><i
+                                                                class="far fa-bed fa-2x"></i></a></span></li>
 
-                                        <li><p>Bedroom</p></li>
-                                    </ul>
-                                </div>
-                                <div class="col-md-6">
-                                    <ul>
-                                        <li><span>{{ number_format($property->number_bathroom) }}<a  class="text-brown pl-1"  title="{{ __('Number of rest rooms') }}"><i class="far fa-bath fa-2x"></i></a></span></li>
+                                            <li><p>Bedroom</p></li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <ul>
+                                            <li><span>{{ number_format($property->number_bathroom) }}<a
+                                                            class="text-brown pl-1"
+                                                            title="{{ __('Number of rest rooms') }}"><i
+                                                                class="far fa-bath fa-2x"></i></a></span></li>
 
-                                        <li><p>Bathroom</p></li>
-                                    </ul>
-                                </div>
+                                            <li><p>Bathroom</p></li>
+                                        </ul>
+                                    </div>
                                 @endif
 
                             </div>
@@ -84,7 +94,7 @@
                     <br>
                     {!! Theme::partial('share', ['title' => __('Share this property'), 'description' => $property->name]) !!}
                 </div>
-               <!-- <section class="boxright">
+                <!-- <section class="boxright">
                     <div class="row">
                         <div class="col-md-6">
                             <h2>$129,000</h2>
@@ -104,10 +114,22 @@
                             <div class="tab" role="tabpanel">
                                 <!-- Nav tabs -->
                                 <ul class="nav nav-tabs" role="tablist">
-                                    <li role="presentation" class="active"><a href="#Section1" aria-controls="home" class="showGrid mr-3 ml-3" data-tab-id="1" role="tab"  data-toggle="tab"><i class="fa fa-star"></i> Highlights</a></li>
-                                    <li role="presentation"><a href="#Section2" aria-controls="profile" role="tab"   class="showGrid mr-3 ml-3" data-tab-id="2" data-toggle="tab"><i class="fa fa-home"></i> Neighbourhood</a></li>
-                                    <li role="presentation"><a href="#Section3" aria-controls="messages" role="tab"  class="showGrid mr-3 ml-3"  data-tab-id="3"  data-toggle="tab"><i class="fa fa-calculator"></i> Calculator</a></li>
-                                    <li role="presentation"><a href="#Section4" aria-controls="messages" role="tab"   class="showGrid mr-3 ml-3" data-tab-id="4" data-toggle="tab"><i class="fas fa-chart-bar"></i> Statistics</a></li>
+                                    <li role="presentation" class="active"><a href="#Section1" aria-controls="home"
+                                                                              class="showGrid mr-3 ml-3" data-tab-id="1"
+                                                                              role="tab" data-toggle="tab"><i
+                                                    class="fa fa-star"></i> Highlights</a></li>
+                                    <li role="presentation"><a href="#Section2" aria-controls="profile" role="tab"
+                                                               class="showGrid mr-3 ml-3" data-tab-id="2"
+                                                               data-toggle="tab"><i class="fa fa-home"></i>
+                                            Neighbourhood</a></li>
+                                    <li role="presentation"><a href="#Section3" aria-controls="messages" role="tab"
+                                                               class="showGrid mr-3 ml-3" data-tab-id="3"
+                                                               data-toggle="tab"><i class="fa fa-calculator"></i>
+                                            Calculator</a></li>
+                                    <li role="presentation"><a href="#Section4" aria-controls="messages" role="tab"
+                                                               class="showGrid mr-3 ml-3" data-tab-id="4"
+                                                               data-toggle="tab"><i class="fas fa-chart-bar"></i>
+                                            Statistics</a></li>
 
                                 </ul>
                                 <!-- Tab panes -->
@@ -118,19 +140,28 @@
 
                                         <p> {!! clean($property->description, 'youtube') !!}</p>
 
-                                            <h3 class="primary-head">{{ __('Property Summary') }}</h3>
+                                        <h3 class="primary-head">{{ __('Property Summary') }}</h3>
                                         <div class="row pt-3">
                                             <div class="col-md-3">
-                                                <b class="">{{ __('Property Type') }}</b><p>{{ $property->category->name }}</p>
+                                                <b class="">{{ __('Property Type') }}</b>
+                                                <p>{{ $property->category->name }}</p>
                                             </div>
-                                            <div class="col-md-3"> <b class="">{{ __('Land Size') }}</b><div class="infoTitle d-none"></div><input type="hidden" id="area_units" name="area_units" value="{{setting('real_estate_square_unit') }}"/><input type="hidden" id="square" name="square" value="{{ $property->square }}"/> <p class="showInfoArea" style="cursor: pointer"> {{ $property->square_text }}</p></div>
+                                            <div class="col-md-3"><b class="">{{ __('Land Size') }}</b>
+                                                <div class="infoTitle d-none"></div>
+                                                <input type="hidden" id="area_units" name="area_units"
+                                                       value="{{setting('real_estate_square_unit') }}"/><input
+                                                        type="hidden" id="square" name="square"
+                                                        value="{{ $property->square }}"/>
+                                                <p class="showInfoArea"
+                                                   style="cursor: pointer"> {{ $property->square_text }}</p></div>
 
                                             <div class="col-md-3">
                                                 <b>{{ __('Built in') }}</b>
                                                 <p>{{ $property->built_in ? $property->built_in : __('Not Available') }}</p>
                                             </div>
 
-                                            <div class="col-md-3"><b class="">{{ __('Added At') }}</b><p>{{ $property->created_at }}</p></div><!-- later add parting type-->
+                                            <div class="col-md-3"><b class="">{{ __('Added At') }}</b>
+                                                <p>{{ $property->created_at }}</p></div><!-- later add parting type-->
 
                                         </div>
                                         @if ($property->features->count())
@@ -138,33 +169,37 @@
                                             <div class="row">
                                                 @foreach($property->features as $feature)
                                                     <div class="col-sm-4">
-                                                        <p><i class="fas fa-check text-orange text0i"></i>  {{ $feature->name }}</p>
+                                                        <p>
+                                                            <i class="fas fa-check text-orange text0i"></i> {{ $feature->name }}
+                                                        </p>
                                                     </div>
                                                 @endforeach
                                             </div>
                                         @endif
                                         <br>
 
-                                       </div>
+                                    </div>
                                     <div role="tabpanel" class="tab-pane fade" id="Section2">
 
                                         {!! Theme::partial('neighbourhood') !!}
                                         @if ($property->facilities->count())
-                                             <div class="row pt-5">
+                                            <div class="row pt-5">
                                                 <div class="col-sm-12">
                                                     <h5 class="primary-head">{{ __('Distance key between facilities') }}</h5>
                                                     <div class="row">
                                                         @foreach($property->facilities as $facility)
                                                             @if($facility->pivot->distance)
                                                                 <div class="col-sm-4">
-                                                                    <p><i class="@if ($facility->icon) {{ $facility->icon }} @else fas fa-check @endif text-brown text0i"></i>  {{ $facility->name }} - {{ $facility->pivot->distance }} Km</p>
+                                                                    <p>
+                                                                        <i class="@if ($facility->icon) {{ $facility->icon }} @else fas fa-check @endif text-brown text0i"></i> {{ $facility->name }}
+                                                                        - {{ $facility->pivot->distance }} Km</p>
                                                                 </div>
                                                             @endif
                                                         @endforeach
                                                     </div>
                                                 </div>
                                             </div>
-                                            @endif
+                                        @endif
                                     </div>
                                     <div role="tabpanel" class="tab-pane fade" id="Section3">
                                         {!! Theme::partial('mortage_calculator', ['property' => $property]) !!}
@@ -180,7 +215,7 @@
                     </div>
 
                 </div>
-<!--                <div class="boxshadow mb-5 background-gray  light-gray-border">
+                <!--                <div class="boxshadow mb-5 background-gray  light-gray-border">
                     <div class="row p-5">
                             <div class="col-md-4">
                                     <h4 class="primary-head">Building</h4>
@@ -260,22 +295,22 @@
                     </div>
                     </div>
                 </div>-->
-{{--                <div class="boxright">--}}
+                {{--                <div class="boxright">--}}
 
 
 
                 @if ($property->latitude)
 
-                <div class="mapouter">
-                    <div class="gmap_canvas">
-                        <iframe id="gmap_canvas" width="100%" height="500"
-                                src="https://maps.google.com/maps?q={{$property->latitude }},{{$property->longitude }}%20&t=&z=13&ie=UTF8&iwloc=&output=embed"
-                                frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
+                    <div class="mapouter">
+                        <div class="gmap_canvas">
+                            <iframe id="gmap_canvas" width="100%" height="500"
+                                    src="https://maps.google.com/maps?q={{$property->latitude }},{{$property->longitude }}%20&t=&z=13&ie=UTF8&iwloc=&output=embed"
+                                    frameborder="0" scrolling="no" marginheight="0" marginwidth="0"></iframe>
+                        </div>
                     </div>
-                </div>
                 @endif
 
-{{--                </div>--}}
+                {{--                </div>--}}
             </div>
             <div class="col-md-3">
                 @if ($property->author->id)
@@ -288,10 +323,12 @@
                             <div class="col-sm-3 colm10">
                                 @if ($property->author->username)
                                     <a href="{{ route('public.agent', $property->author->username) }}">
-                                        <img src="{{ $property->author->avatar_url }}" alt="{{ $property->author->getFullName() }}" class="img-thumbnail">
+                                        <img src="{{ $property->author->avatar_url }}"
+                                             alt="{{ $property->author->getFullName() }}" class="img-thumbnail">
                                     </a>
                                 @else
-                                    <img src="{{ $property->author->avatar_url }}" alt="{{ $property->author->getFullName() }}" class="img-thumbnail">
+                                    <img src="{{ $property->author->avatar_url }}"
+                                         alt="{{ $property->author->getFullName() }}" class="img-thumbnail">
                                 @endif
                             </div>
                             <div class="col-sm-8 colm10">
@@ -305,7 +342,9 @@
                                             @endif
                                         </strong>
                                     </p>
-                                    <button type="button" data-id="{{$property->author->id}}" class="showContact btn btn-info pt-1 pb-1">Show Contact <i class="fa fa-spinner d-none" aria-hidden="true"></i></button>
+                                    <button type="button" data-id="{{$property->author->id}}"
+                                            class="showContact btn btn-info pt-1 pb-1">Show Contact <i
+                                                class="fa fa-spinner d-none" aria-hidden="true"></i></button>
 
 
                                 </div>
@@ -315,13 +354,17 @@
                         <div class="row rowm10 itemagent mt-3">
                             <div class="col">
                                 <div class="showinfo contactInfo-{{$property->author->id}} d-none">
-                                    <p class="mobile mobile-p d-none"> <i class="fa fa-phone mr-1"></i><span id="mobile_text"></span> </p>
-                                    <p><i class="fa fa-envelope mr-1" aria-hidden="true"></i><span id="email_text"></span> </p>
+                                    <p class="mobile mobile-p d-none"><i class="fa fa-phone mr-1"></i><span
+                                                id="mobile_text"></span></p>
+                                    <p><i class="fa fa-envelope mr-1" aria-hidden="true"></i><span
+                                                id="email_text"></span></p>
                                 </div>
                             </div>
                         </div>
                         @if ($property->author->username)
-                            <p class="mt-2"><span class="fas fa-arrow-circle-right"></span> <a href="{{ route('public.agent.detail', $property->author->username) }}">{{ __('More properties by this agent') }}</a></p>
+                            <p class="mt-2"><span class="fas fa-arrow-circle-right"></span> <a
+                                        href="{{ route('public.agent.detail', $property->author->username) }}">{{ __('More properties by this agent') }}</a>
+                            </p>
                         @endif
                     </div>
                 @endif
@@ -332,7 +375,8 @@
             </div>
         </div>
         <h5 class="headifhouse mt-5">{{ __('Related properties') }}</h5>
-        <related type="related" url="{{ route('public.ajax.properties') }}" property_id="{{ $property->id }}" category_id="{{ $property->category_id }}" city_id="{{ $property->city_id }}" ></related>
+        <related type="related" url="{{ route('public.ajax.properties') }}" property_id="{{ $property->id }}"
+                 category_id="{{ $property->category_id }}" city_id="{{ $property->city_id }}"></related>
         <br>
         <br>
         <br>
