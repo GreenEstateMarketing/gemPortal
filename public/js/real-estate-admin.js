@@ -1259,3 +1259,22 @@ $(document).on('click', '.remove-file-link', function (e) {
 });
 
 
+$(document).on('change', '#selling-status', function () {
+    const sellingStatus = $(this).val().trim().toLowerCase();
+    const triggerStatuses = ['sold', 'rented', 'closed'];
+
+    if (triggerStatuses.includes(sellingStatus)) {
+        // Show buyer info section
+        $('#buyer-info').removeClass('d-none');
+
+        $('html, body').animate({
+            scrollTop: $('#buyer-info').offset().top - 100
+        }, 600);
+    } else {
+        // Optionally hide it again
+        $('#buyer-info').addClass('d-none');
+    }
+});
+
+
+

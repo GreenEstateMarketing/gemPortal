@@ -15,6 +15,7 @@ use Botble\Base\Http\Responses\BaseHttpResponse;
 use Botble\RealEstate\Enums\ModerationStatusEnum;
 use Botble\RealEstate\Forms\PropertyForm;
 use Botble\RealEstate\Http\Requests\PropertyRequest;
+use Botble\RealEstate\Models\Buyer;
 use Botble\RealEstate\Repositories\Interfaces\AccountInterface;
 use Botble\RealEstate\Repositories\Interfaces\MemberInterface;
 use Botble\RealEstate\Repositories\Interfaces\ProjectInterface;
@@ -30,6 +31,7 @@ use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 use Log;
 use PhpParser\Node\Stmt\Switch_;
@@ -66,9 +68,10 @@ class PropertyController extends BaseController
      */
     public function __construct(
         PropertyInterface $propertyRepository,
-        ProjectInterface $projectRepository,
-        FeatureInterface $featureRepository
-    ) {
+        ProjectInterface  $projectRepository,
+        FeatureInterface  $featureRepository
+    )
+    {
         $this->propertyRepository = $propertyRepository;
         $this->projectRepository = $projectRepository;
         $this->featureRepository = $featureRepository;
@@ -221,7 +224,8 @@ class PropertyController extends BaseController
         SaveFacilitiesService $saveFacilitiesService,
         AccountInterface $accountRepository,
         MemberInterface $memberRepository
-    ) {
+    )
+    {
         $property = $this->propertyRepository->findOrFail($id);
         $alreadySavedModStatus = $property->moderation_status;
         $old_category_id = $property->category_id;
@@ -232,9 +236,9 @@ class PropertyController extends BaseController
         $sqFeet = getSqFeet($area_value, $area_units);
         $property->author_type = Account::class;
         $property->images = json_encode($request->input('images', []));
-        $old_arr = (array) $old_documents;
+        $old_arr = (array)$old_documents;
         $jsonArr = array();
-        if($request['renew_now'] == "1") {
+        if ($request['renew_now'] == "1") {
             $property->expire_date = Carbon::now()->addDays(45);
         }
 
@@ -291,11 +295,11 @@ class PropertyController extends BaseController
         $property->never_expired = $request->input('never_expired');
         $property->square = $sqFeet;
 
-        if($request->input('status')) {
+        if ($request->input('status')) {
             $property->status = $request->input('status');
         } else {
             $status = 'selling';
-            if ($request['type'] == "rent"){
+            if ($request['type'] == "rent") {
                 $status = 'renting';
             }
 
@@ -318,7 +322,7 @@ class PropertyController extends BaseController
             }
         }
 
-        if($request['renew_now'] == "1") {
+        if ($request['renew_now'] == "1") {
             //deduct credits
             if ($property->member_id) {
                 $member = $memberRepository->findOrFail($property->member_id);
@@ -499,7 +503,7 @@ class PropertyController extends BaseController
                             ])
                             ->sendUsingTemplate('paymentmail', $account->email, [], false, 'plugins', 'GEM - Payment Pending');
 
-                        if($from == 'agent') {
+                        if ($from == 'agent') {
                             return $response
                                 ->setPreviousUrl(route('public.account.properties.edit', ['property' => $propertyId]))
                                 ->setNextUrl(route('public.account.properties.edit', ['property' => $propertyId]))
@@ -526,7 +530,7 @@ class PropertyController extends BaseController
                             ])
                             ->sendUsingTemplate('paymentmail', $member->email, [], false, 'plugins', 'GEM - Payment Pending');
 
-                        if($from == 'agent') {
+                        if ($from == 'agent') {
                             return $response
                                 ->setPreviousUrl(route('public.account.properties.edit', ['property' => $propertyId]))
                                 ->setNextUrl(route('public.account.properties.edit', ['property' => $propertyId]))
@@ -550,5 +554,68 @@ class PropertyController extends BaseController
                 ->setMessage('Something went wrong. Cannot send email');
         }
 
+    }
+
+    public function saveBuyerInfo(Request $request)
+    {
+        // Step 1: Validate input
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'phone' => ['required', 'regex:/^\+?[1-9][0-9]{7,14}$/'],
+            'email' => 'required|email',
+            'amount' => 'required|numeric|min:0',
+        ], [
+            'phone.regex' => 'The phone number format is invalid. It must be a valid international number, e.g., +1234567890.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            // Step 2: Check for existing buyer by property_id
+            $buyer = Buyer::where('property_id', $request->input('property_id'))->first();
+
+            if ($buyer) {
+                // Update existing buyer
+                $buyer->update([
+                    'name' => $request->input('name'),
+                    'email' => $request->input('email'),
+                    'phone' => $request->input('phone'),
+                    'seller_id' => $request->input('seller_id'),
+                    'agent_id' => $request->input('agent_id'),
+                    'amount' => $request->input('amount'),
+                    'transaction_type' => $request->input('transaction_type'),
+                ]);
+
+                return response()->json([
+                    'message' => 'Buyer info updated successfully!',
+                    'buyer' => $buyer
+                ]);
+            } else {
+                // Create new buyer
+                $buyer = Buyer::create([
+                    'name' => $request->input('name'),
+                    'email' => $request->input('email'),
+                    'phone' => $request->input('phone'),
+                    'property_id' => $request->input('property_id'),
+                    'seller_id' => $request->input('seller_id'),
+                    'agent_id' => $request->input('agent_id'),
+                    'amount' => $request->input('amount'),
+                    'transaction_type' => $request->input('transaction_type'),
+                ]);
+
+                return response()->json([
+                    'message' => 'Buyer info saved successfully! Now click the Save button under Publish.',
+                    'buyer' => $buyer
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Failed to save buyer info. Please try again later.'
+            ], 500);
+        }
     }
 }

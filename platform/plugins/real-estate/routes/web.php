@@ -519,6 +519,9 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
         Route::get('send-mail-for-payment', [PropertyController::class, 'mailForPayment'])
             ->name('mail-for-payment');
 
+        Route::post('save-buyer-info', [PropertyController::class, 'saveBuyerInfo'])
+            ->name('save-buyer-info');
+
         Route::get('Add-Property', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'create'])
             ->name('general-add-property');
         Route::POST('member-property-save', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'store'])

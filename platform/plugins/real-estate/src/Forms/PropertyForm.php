@@ -16,6 +16,7 @@ use Botble\RealEstate\Enums\PropertyTypeEnum;
 use Botble\RealEstate\Forms\Fields\LocationField;
 use Botble\RealEstate\Forms\Fields\MediaFileField1;
 use Botble\RealEstate\Http\Requests\PropertyRequest;
+use Botble\RealEstate\Models\Buyer;
 use Botble\RealEstate\Models\Property;
 use Botble\RealEstate\Repositories\Interfaces\AccountInterface;
 use Botble\RealEstate\Repositories\Interfaces\CategoryDocumentInterface;
@@ -324,6 +325,13 @@ class PropertyForm extends FormAbstract
 
         $verified = $this->model ? $this->model->verified : false;
 
+        //Buyer info if present
+        $buyerInfo = null;
+        if($properties) {
+            $buyerInfo = Buyer::where('property_id', '=', $properties->id)->first();
+        }
+
+
 
         $this
             ->setupModel(new Property)
@@ -474,33 +482,37 @@ class PropertyForm extends FormAbstract
                 'html' => '<div class="row mb-2 mt-3">',
             ]);
 
-            if(!auth('member')->check() && !auth('account')->check()) {
-                if($this->getModel()->id && $this->getModel()->moderation_status == ModerationStatusEnum::APPROVED) {
-                    $this->add('status', 'customSelect', [
-                        'label' => $this->getModel()->status == 'selling' ? 'Selling Status' : 'Renting Status',
-                        'label_attr' => ['class' => 'control-label'],
-                        'wrapper' => [
-                            'class' => 'form-group col-md-6',
-                        ],
-                        'choices' => ['' => 'Select'] + PropertyStatusEnum::labels(),
-                        'selected' => $this->getModel()->status
-                    ]);
-                }
-            }
+        $currentUrl = url()->current();
 
 
-            $this->add('name', 'text', [
-                'label' => trans('plugins/real-estate::property.form.name'),
-                'label_attr' => ['class' => 'control-label required'],
+        if ($this->getModel()->id && $this->getModel()->moderation_status == ModerationStatusEnum::APPROVED) {
+            $this->add('status', 'customSelect', [
+                'label' => $this->getModel()->status == 'selling' ? 'Selling Status' : 'Renting Status',
+                'label_attr' => ['class' => 'control-label'],
                 'attr' => [
-                    'placeholder' => trans('plugins/real-estate::property.form.name'),
-                    'data-counter' => 120,
+                    'id' => 'selling-status'
                 ],
                 'wrapper' => [
-                    'class' => 'form-group col-md-6',
+                    'class' => 'form-group col-md-6'
                 ],
+                'choices' => ['' => 'Select'] + PropertyStatusEnum::labels(),
+                'selected' => $this->getModel()->status
+            ]);
+        }
 
-            ])
+
+        $this->add('name', 'text', [
+            'label' => trans('plugins/real-estate::property.form.name'),
+            'label_attr' => ['class' => 'control-label required'],
+            'attr' => [
+                'placeholder' => trans('plugins/real-estate::property.form.name'),
+                'data-counter' => 120,
+            ],
+            'wrapper' => [
+                'class' => 'form-group col-md-6',
+            ],
+
+        ])
             ->add('project_id', 'customSelect', [
                 'label' => trans('plugins/real-estate::property.form.project'),
                 'label_attr' => ['class' => 'control-label'],
@@ -810,6 +822,14 @@ class PropertyForm extends FormAbstract
                     ),
                     'priority' => 3
                 ],
+                'buyer' => [
+                    'title' => 'Buyer (Available only when the property is sold, rented or closed)',
+                    'content' => view(
+                        'plugins/real-estate::partials.buyer',
+                        compact('properties', 'buyerInfo')
+                    ),
+                    'priority' => 4
+                ]
             ])
             // ->add('period', 'customSelect', [
             //         'label' => trans('plugins/real-estate::property.form.period'),

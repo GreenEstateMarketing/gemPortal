@@ -139,7 +139,7 @@ class AccountController extends BaseController
         $account = Account::create($request->except('agent_area'));
         if ($request['agent_area'] != "") {
             $account->agent_area = \DB::raw($ap);
-            $account>save();
+            $account->save();
         }
         $account->confirmed_at = Carbon::now()->format('Y-m-d H:i:s');
 
