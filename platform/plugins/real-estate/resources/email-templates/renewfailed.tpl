@@ -12,12 +12,12 @@
                                     <p style="font-size: 15px; color: #333;"><strong>Hello {{ name }},</strong></p>
 
                                     <p style="font-size: 15px; color: #333;">
-                                        Your property titled <a href="{{ property_url }}" style="color: #3366cc;">{{ title }}</a> has bee renewed for listing. One credit has been deducted from your account.
+                                        Your property titled <a href="{{ property_url }}" style="color: #3366cc;">{{ title }}</a> has bee expired. You have no more credits available in your account.
                                     </p>
 
                                     <p style="font-size: 15px; color: #333;">
-                                        You can manage your account from:
-                                        <a href="{{ dashboard_url }}" style="color: #3366cc;">Dashboard</a>.
+                                        You can purchase credits from:
+                                        <a href="{{ credits_url }}" style="color: #3366cc;">Dashboard</a>.
                                     </p>
 
                                     <p style="font-size: 15px; color: #333;">
