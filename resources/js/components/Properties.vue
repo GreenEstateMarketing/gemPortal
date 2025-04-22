@@ -5,7 +5,7 @@
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Change Area Unit</h5>
+                        <h5 class="modal-title">Change Area sdfsUnit</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -96,7 +96,7 @@
 
 
                                                         <li class="price-li-item" :data-value="index"
-                                                            v-for="(item, index)  in price_list">{{ item }}
+                                                            v-for="(item, index) in price_list">{{ item }}
                                                         </li>
 
                                                     </ul>
@@ -108,7 +108,7 @@
                                                         style="width: 250px;height:150px; overflow-y: auto;overflow-x:hidden;margin-left: 1rem; cursor:pointer">
 
                                                         <li class="price-li-item" :data-value="index"
-                                                            v-for="(item, index)  in price_list">{{ item }}
+                                                            v-for="(item, index) in price_list">{{ item }}
                                                         </li>
 
 
@@ -313,7 +313,7 @@
 
 
                                                     <li class="price-li-item" :data-value="index"
-                                                        v-for="(item, index)  in price_list">{{ item }}
+                                                        v-for="(item, index) in price_list">{{ item }}
                                                     </li>
 
                                                 </ul>
@@ -324,7 +324,7 @@
                                                     style="width: 250px;height:150px; overflow-y: auto;overflow-x:hidden; cursor:pointer">
 
                                                     <li class="price-li-item" :data-value="index"
-                                                        v-for="(item, index)  in price_list">{{ item }}
+                                                        v-for="(item, index) in price_list">{{ item }}
                                                     </li>
                                                 </ul>
                                             </div>
@@ -591,6 +591,7 @@ export default {
             parent_categories: [],
             selected_parent_category: '',
             child_categories: [],
+            coordinates: [],
 
             test: JSON.parse(this.chosenlist),
             options: [
@@ -702,7 +703,6 @@ export default {
             })
         },
         getChildCategories: function (id) {
-            console.log('IN CHILD', id);
             this.category_id = id;
             this.child_categories = [];
             this.child_category_id = '';
@@ -730,6 +730,11 @@ export default {
                 this.min_unit = min_unit;
 
             let url = this.url + '?type=' + this.type;
+            if (this.coordinates && this.coordinates.length > 0) {
+                this.coordinates.forEach((point, index) => {
+                    url += `&coordinates[${index}][lat]=${point.lat}&coordinates[${index}][lng]=${point.lng}`;
+                });
+            }
             this.data = [];
             this.links = {};
             this.isLoading = true;
@@ -759,20 +764,6 @@ export default {
                 url += '&location=' + city_name;
             }
 
-            /* if(this.location)
-             {
-                 url += '&location=' + this.location;
-                 this.location=this.location;
-             }else {
-                 //  var url_location = new URL(location.href).searchParams.get('location')
-                 var url_location=location.href;
-                 var url_loc = url_location ? url_location.indexOf( "location" ) : -1;
-                 if (url_loc > 0) {
-                     var url_locat = new URL(location.href).searchParams.get('location');
-                     url += '&location=' + url_locat;
-                     this.location = url_locat;
-                 }
-             }*/
             if (Number.isInteger(Number(this.bedroom)) && Number(this.bedroom) > 0) {
                 url += '&bedroom=' + this.bedroom;
             }
@@ -780,28 +771,7 @@ export default {
             if (Number.isInteger(Number(this.bathroom)) && Number(this.bathroom) > 0) {
                 url += '&bathroom=' + this.bathroom;
             }
-            /*else
-            {
-                //  var url_location = new URL(location.href).searchParams.get('location')
-                var url_location=location.href;
-                var url_bedroom = url_location ? url_location.indexOf( "bedroom" ) : -1;
-                if (url_bedroom > 0) {
-                    var url_bed = new URL(location.href).searchParams.get('bedroom');
-                    url += '&bedroom=' + url_bed;
-                    this.bedroom = url_bed;
-                }
-            }*/
 
-            /*else
-            {
-                var url_location=location.href;
-                var url_bathroom = url_location ? url_location.indexOf( "bathroom" ) : -1;
-                if (url_bathroom > 0) {
-                    var url_bath = new URL(location.href).searchParams.get('bathroom');
-                    url += '&bathroom=' + url_bath;
-                    this.bathroom = url_bath;
-                }
-            }*/
             if (this.floor) {
                 url += '&floor=' + this.floor;
                 this.floor = this.floor;
@@ -830,36 +800,7 @@ export default {
             if (Number(this.max_unit) && Number(this.max_unit) > 0) {
                 url += '&max_square=' + this.max_unit;
             }
-            /*if(this.min_price)
-            {
-                url += '&min_price=' + this.min_price;
-                this.min_price=this.min_price;
-            }
-            else
-            {
-                var url_location=location.href;
-                var url_min = url_location ? url_location.indexOf( "min_price" ) : -1;
-                if (url_min > 0) {
-                    var url_mi = new URL(location.href).searchParams.get('min_price');
-                    url += '&min_price=' + url_mi;
-                    this.min_price = url_mi;
-                }
-            }
-            if(this.max_price)
-            {
-                url += '&max_price=' + this.max_price;
-                this.max_price=this.max_price;
-            }
-            else
-            {
-                var url_location=location.href;
-                var url_max = url_location ? url_location.indexOf( "max_price" ) : -1;
-                if (url_max > 0) {
-                    var url_ma = new URL(location.href).searchParams.get('max_price');
-                    url += '&max_price=' + url_ma;
-                    this.max_price = url_ma;
-                }
-            }*/
+
             this.current_unit = this.current_unit ? this.current_unit : "(Square feet)";
             this.unit = this.unit ? this.unit : 'ft²';
 
@@ -880,26 +821,7 @@ export default {
             }
 
             url += '&city_id=' + this.city_id;
-            /*if(this.city_id)
-            {
-                url += '&city_id=' + this.city_id;
 
-            }
-            else
-            {
-                /!*var url_location=location.href;
-                var url_max = url_location ? url_location.indexOf( "max_price" ) : -1;
-                if (url_max > 0) {
-                    var url_ma = new URL(location.href).searchParams.get('max_price');
-                    url += '&max_price=' + url_ma;
-                    this.max_price = url_ma;
-                }*!/
-            }*/
-            /*var id_search_hidden=$("#id_search_hidden").val();
-            if(id_search_hidden!="")
-            {
-                //arr.push(id_search_hidden);
-            }*/
 
             this.search_data_chosen = this.chosenlist;
             var searchLocations = [];
@@ -925,17 +847,6 @@ export default {
             } else {
                 var url_location = location.href;
                 var url_k = url_location ? url_location.indexOf("k") : -1;
-
-                /* if (url_k > 0) {
-                     var url_ka = new URL(location.href).searchParams.get('k');
-                    /!* url += '&keyword=' + url_ka;*!/
-                     $.each(url_ka , function(index, val) {
-                         url += '&keyword[]=' +val;
-                     });
-
-                     //this.search_data_chosen =url_ka;
-
-                 }*/
             }
             if (this.sort_by) {
                 url += '&sort_by=' + this.sort_by;
@@ -1233,9 +1144,8 @@ export default {
             }
 
         },
-        // Helper method to insert markers
-        insertMarkers: function () {
 
+        insertMarkers: function () {
             var mapOptions =
             {
                 zoom: 8,
@@ -1247,9 +1157,68 @@ export default {
 
             var list_data = [];
 
-
-            //  markers[i]= L.marker([data.latitude, +data.longitude]);
             var map = new google.maps.Map(document.getElementById(this.mapName), mapOptions);
+
+            const drawingManager = new google.maps.drawing.DrawingManager({
+                drawingMode: google.maps.drawing.OverlayType.MARKER,
+                drawingControl: true,
+                drawingControlOptions: {
+                    position: google.maps.ControlPosition.TOP_CENTER,
+                    drawingModes: [
+                        google.maps.drawing.OverlayType.POLYGON,
+                    ],
+                },
+                markerOptions: {
+                    icon: "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png",
+                },
+                circleOptions: {
+                    fillColor: "#ffff00",
+                    fillOpacity: 1,
+                    strokeWeight: 5,
+                    clickable: false,
+                    editable: true,
+                    zIndex: 1,
+                },
+                polygonOptions: {
+                    fillColor: "#ffff00",
+                    fillOpacity: 1,
+                    strokeWeight: 5,
+                    clickable: false,
+                    editable: true,
+                    zIndex: 1,
+                },
+            });
+
+            drawingManager.setMap(map);
+
+            google.maps.event.addListener(drawingManager, 'overlaycomplete', (event) => {
+                if (event.type === google.maps.drawing.OverlayType.POLYGON) {
+                    const polygon = event.overlay;
+                    const path = polygon.getPath();
+                    const coordinates = [];
+
+                    for (let i = 0; i < path.getLength(); i++) {
+                        const point = path.getAt(i);
+                        coordinates.push({
+                            lat: point.lat(),
+                            lng: point.lng()
+                        });
+                    }
+
+                    this.coordinates = coordinates;
+                    this.getProperties();
+
+                    // Optional: remove the drawing tools after drawing one polygon
+                    // drawingManager.setDrawingMode(null);
+                    // drawingManager.setOptions({
+                    //     drawingControl: false
+                    // });
+
+                    // Now call your method to fetch filtered properties
+                    // Example: this.fetchPropertiesWithinPolygon(coordinates);
+                }
+            });
+
             i = 0;
 
             this.data.forEach(data => {
@@ -1307,90 +1276,16 @@ export default {
                     this['infowindow'].open(map, this);
                     currentInfoWindow = this['infowindow'];
                 });
-                /* new google.maps.event.addListener(marker, 'click', function () {
 
-                     /!*infowindow.open({
-                         anchor: marker,
-                         map,
-
-                     })*!/;
-
-                 });*/
                 latlngbounds.extend(list_data[i].latlng);
-            }
-            if (list_data[i].latlng == "") {
-                list_data[i].latlng = new google.maps.LatLng(30.375320, 69.345116)
-            }
-            /*for (var i = 0; i < list_data.length; i++) {
 
-            }*/
-            map.fitBounds(latlngbounds);
-            /*new google.maps.Rectangle({
-                bounds: latlngbounds,
-                map: map,
-                fillColor: "#000000",
-                fillOpacity: 0.2,
-                strokeWeight: 0
-            });*/
-
-
-            /*var latlng = [
-            new google.maps.LatLng(33.99, 85.56),
-            new google.maps.LatLng(40.89, 50.01),
-            // ...
-        ];
-        var latlngbounds = new google.maps.LatLngBounds();
-        for (var i = 0; i < latlng.length; i++) {
-            latlngbounds.extend(latlng[i]);
-        }
-        map.fitBounds(latlngbounds);*/
-            //  var markerBounds = new google.maps.LatLngBounds();
-            // Iterate through each individual estate
-            // Each estate will create a new marker
-            //this.data.forEach(data => {
-
-            /*var marker = new google.maps.Marker({
-                map:map,
-              // icon: '/themes/real-scout/images/marker.png',
-              //  url: "/pages/estates.id",
-
-                position: {
-                    lat: parseFloat(data.latitude),
-                    lng: parseFloat(data.longitude)
+                if (list_data[i].latlng == "") {
+                    list_data[i].latlng = new google.maps.LatLng(30.375320, 69.345116)
                 }
-            });*/
+            }
 
 
-            /* var contentString= '<div class="infowindow-wrap"><div class="img-thumbnail pt-2"><img src="'+data.url+'"></div><div class="title-info pt-2"><a href="'+data.url+'"><b>'+data.name+'</b></a></div><div class="location-info pt-2"><a href="'+data.url+'"><b>'+data.location+'</b></a></div><div class="price-info pt-2"><b>'+data.price+'</b></div><div class="room-info pt-2"><img src="/themes/real-scout/images/bed.svg" class="pr-2" alt="icon"><b class="pr-2">'+data.number_bedroom+'</b><img class="pr-2" src="/themes/real-scout/images/bath.svg" alt="icon"><bclass="pr-2">'+data.number_bathroom+'</b><img class="pr-2" src="/themes/real-scout/images/area.svg" alt="icon"><b class="pr-2">'+data.square_text+'</b></div></div>';
-              const infowindow = new google.maps.InfoWindow({
-                  content: contentString,
-              });
-
-
-              google.maps.event.addListener(marker, 'click', function () {
-                  infowindow.close();
-                  infowindow.open({
-                      anchor: marker,
-                      map,
-
-                  });
-              });*/
-
-            /* google.maps.event.addListener(marker, 'mouseover', function () {
-                 infowindow.open(map, marker);
-
-             });*/
-
-            /* google.maps.event.addListener(marker, 'mouseout', function () {
-
-
-             })*/
-            ;
-
-            // });
-
-            //   map.fitBounds(markerBounds);
-
+            // map.fitBounds(latlngbounds);
 
         },
     }
@@ -1400,5 +1295,12 @@ export default {
 <style scoped>
 .toggleBtn {
     margin-right: 48px;
+}
+
+.gmnoprint,
+.gmnoprint * {
+    display: block !important;
+    opacity: 1 !important;
+    z-index: 99999 !important;
 }
 </style>

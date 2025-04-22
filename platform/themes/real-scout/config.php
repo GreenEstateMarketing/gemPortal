@@ -127,9 +127,13 @@ return [
             $theme->asset()->container('footer')->usePath()->add('scripts-js', 'js/scripts.js');
 
             if (Route::current() && Route::current()->getName() != "public.property.show")
-                $theme->asset()->container('footer')->add('googleapis-js', "https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=false&sensor=false&key=" . setting('google_map_api_key') . "");
-            if (Route::current() && Route::current()->getName() == "public.property.show" || Route::current() && Route::current()->getName() == "public.project.show")
+                $theme->asset()->container('footer')->add('googleapis-js', "https://maps.googleapis.com/maps/api/js?key=" . setting('google_map_api_key') . "&libraries=places,drawing");
+
+
+            if (Route::current() && Route::current()->getName() == "public.property.show" || Route::current() && Route::current()->getName() == "public.project.show") {
                 $theme->asset()->container('footer')->add('googleapis-js', "https://maps.googleapis.com/maps/api/js?key=" . setting('google_map_api_key') . "&libraries=places,geometry&callback=initMapNeighbourhood");
+            }
+
 
             $theme->asset()->container('footer')->add('show-contact-js', 'js/show-contact.js', [], []);
             if (Route::current() && Route::current()->getName() != "public.index" && Route::current() && Route::current()->getName() != "public.property.show" && Route::current() && Route::current()->getName() != "public.project.show")
@@ -163,7 +167,7 @@ return [
                 $theme->asset()->container('footer')->add('homechoosen-js', '/js/homechoosen.js');
 
             }
-            $theme->asset()->container('footer')->add('tabs-div-prop', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js', null, array ('integrity' => 'sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS', 'crossorigin' => 'anonymous'));
+            $theme->asset()->container('footer')->add('tabs-div-prop', 'https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js', null, array('integrity' => 'sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS', 'crossorigin' => 'anonymous'));
             if (function_exists('shortcode')) {
                 $theme->composer([
                     'index',

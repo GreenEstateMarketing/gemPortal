@@ -198,13 +198,13 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
                     }
                 }*/
             } /*else {
-               $this->model = $this->model
-                   ->where(function (Builder $query) use ($filters) {
-                       return $query
-                           ->where('re_properties.name', 'LIKE', '%' . $filters['keyword'] . '%')
-                           ->orWhere('re_properties.location', 'LIKE', '%' . $filters['keyword'] . '%');
-                   });
-           }*/
+         $this->model = $this->model
+             ->where(function (Builder $query) use ($filters) {
+                 return $query
+                     ->where('re_properties.name', 'LIKE', '%' . $filters['keyword'] . '%')
+                     ->orWhere('re_properties.location', 'LIKE', '%' . $filters['keyword'] . '%');
+             });
+     }*/
 
 
         }
@@ -535,39 +535,7 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
 
                 $this->model = $this->model
                     ->whereIn('re_properties.city_area_id', $cityAreasChild);
-
-                /*foreach ($areaData as $key=>$val)
-                {
-                    //  $this->model= $this->model->where('cities.name', 'LIKE', '%' . trim($areaData[0]) . '%');
-                    if($key==0)
-                    {
-                        $this->model = $this->model
-                            ->where(function (Builder $query) use ($val) {
-                                return $query
-                                    ->where('re_properties.name', 'LIKE', '%' . trim($val) . '%')
-                                    ->orWhere('re_properties.location', 'LIKE', '%' . trim($val) . '%');
-                            });
-                    }
-                    else
-                    {
-                        $this->model = $this->model
-                            ->orwhere(function (Builder $query) use ($val) {
-                                return $query
-                                    ->where('re_properties.name', 'LIKE', '%' . trim($val) . '%')
-                                    ->orWhere('re_properties.location', 'LIKE', '%' . trim($val) . '%');
-                            });
-                    }
-                }*/
-            } /*else {
-               $this->model = $this->model
-                   ->where(function (Builder $query) use ($filters) {
-                       return $query
-                           ->where('re_properties.name', 'LIKE', '%' . $filters['keyword'] . '%')
-                           ->orWhere('re_properties.location', 'LIKE', '%' . $filters['keyword'] . '%');
-                   });
-           }*/
-
-
+            }
         }
 
         if ($filters['type'] !== null) {
@@ -651,24 +619,6 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
                 });
         }
 
-        // if ($filters['square'] !== null || $filters['square'] !== null) {
-        //     $this->model = $this->model
-        //         ->where(function ($query) use ($filters) {
-        //             $square = Arr::get($filters, 'square');
-
-
-        //             /**
-        //              * @var \Illuminate\Database\Query\Builder $query
-        //              */
-        //             if ($square !== null) {
-        //                 $query = $query->where('re_properties.square', '=', $square);
-        //             }
-
-
-        //             return $query;
-        //         });
-        // }
-
         if ($filters['min_price'] !== null || $filters['max_price'] !== null) {
             $this->model = $this->model
                 ->where(function ($query) use ($filters) {
@@ -710,35 +660,32 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
                     return $query;
                 });
         }
-        if ($filters['points'] !== null) {
+        if (isset($filters['coordinates']) && count($filters['coordinates']) > 0) {
             $this->model = $this->model
                 ->where(function ($query) use ($filters) {
 
+                    $coordinates = $filters['coordinates'];
 
-                    /* $latLngs1 = Arr::get($filters, 'latLngs-1');
-                     $latLngs2 = Arr::get($filters, 'latLngs-2');
-                     $latLngs3 = Arr::get($filters, 'latLngs-3');
-                     $latLngs4 = Arr::get($filters, 'latLngs-4');
-                     $latLngs1=explode(',',$latLngs1);
-                     $latLngs2=explode(',',$latLngs2);
-                     $latLngs3=explode(',',$latLngs3);
-                     $latLngs4=explode(',',$latLngs4);
-                      /**
-                      * @var Builder $query
-                      */
-                    /* if ($latLngs1 !== null && $latLngs2!=null && $latLngs3!=null && $latLngs4!=null) {
-                         $latitude[0]=$latLngs1[0];
-                         $latitude[1]=$latLngs2[0];
-                         $longitude[0]=$latLngs1[1];
-                         $longitude[1]=$latLngs4[1];
-                         $query = $query->whereBetween('re_properties.latitude',$latitude);
-                         $query = $query->whereBetween('re_properties.longitude',$longitude);
-                         /* $bindings = $query->getBindings();
-                         $sql = str_replace('?', '%s', $query->toSql());
-                         $sql = sprintf($sql, ...$bindings);
-                         dd($sql);
-                         echo $query->toSql();exit;
-                     }*/
+                    // Round coordinates to 6 decimal places for better comparison
+                    $polygon = [];
+                    foreach ($coordinates as $coordinate) {
+                        $polygon[] = [round($coordinate['lng'], 6), round($coordinate['lat'], 6)]; // GeoJSON format: [longitude, latitude]
+                    }
+
+                    // Add the first point again to close the polygon
+                    $polygon[] = [round($coordinates[0]['lng'], 6), round($coordinates[0]['lat'], 6)];
+
+                    // Debug the generated polygon
+                    $polygonText = "POLYGON((" . implode(',', array_map(function ($point) {
+                        return $point[0] . ' ' . $point[1];
+                    }, $polygon)) . "))";
+
+                    // Use a spatial query to check if the point is inside the polygon
+                    $query->whereRaw('ST_Contains(
+                        ST_GeomFromText("' . $polygonText . '"), 
+                        POINT(longitude, latitude)
+                    )');
+
                     return $query;
                 });
         }
