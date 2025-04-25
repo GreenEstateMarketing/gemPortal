@@ -55,6 +55,7 @@
                     <li><a href="/faq">FAQ</a></li>
                     <li><a href="/return-policy">Return Policy</a></li>
                     <li><a href="/shipping-policy">Shipping/Delivery Policy</a></li>
+                    <li><a href="/disclaimer">GEM Portal Disclaimer</a></li>
                 </ul>
             </div>
             <!-- end col-2 -->
