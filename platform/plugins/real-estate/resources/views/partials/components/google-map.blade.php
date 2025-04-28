@@ -66,21 +66,21 @@
             map = new google.maps.Map(document.getElementById("map"), mapOptions);
 
             const zoomInControl = document.createElement("button");
-                    zoomInControl.textContent = "+";
-                    zoomInControl.classList.add("zoom-control");
-                    map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(zoomInControl);
-                    zoomInControl.addEventListener("click", () => {
-                        map.setZoom(map.getZoom() + 1);
-                    });
+            zoomInControl.textContent = "+";
+            zoomInControl.classList.add("zoom-control");
+            map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(zoomInControl);
+            zoomInControl.addEventListener("click", () => {
+                map.setZoom(map.getZoom() + 1);
+            });
 
-                    // Adding custom zoom out button
-                    const zoomOutControl = document.createElement("button");
-                    zoomOutControl.textContent = "-";
-                    zoomOutControl.classList.add("zoom-control");
-                    map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(zoomOutControl);
-                    zoomOutControl.addEventListener("click", () => {
-                        map.setZoom(map.getZoom() - 1);
-                    });
+            // Adding custom zoom out button
+            const zoomOutControl = document.createElement("button");
+            zoomOutControl.textContent = "-";
+            zoomOutControl.classList.add("zoom-control");
+            map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(zoomOutControl);
+            zoomOutControl.addEventListener("click", () => {
+                map.setZoom(map.getZoom() - 1);
+            });
 
             var iconBase = '/themes/real-scout/images/generic-3.png';
             var icon = {
@@ -126,33 +126,60 @@
                 if (places.length == 0) {
                     return;
                 }
-                markers.forEach((marker) => {
-                    marker.setMap(null);
+
+                markers.forEach((m) => {
+                    m.setMap(null);
                 });
                 markers = [];
+
                 const bounds = new google.maps.LatLngBounds();
+
                 places.forEach((place) => {
                     if (!place.geometry || !place.geometry.location) {
                         console.log("Returned place contains no geometry");
                         return;
                     }
-                    marker.setPosition(place.geometry.location);
-                    attachDragEndListener(marker);
+
+                    const location = place.geometry.location; // ✅ correct location
 
                     var agent_area_edit = $("#agent_area").val();
                     if (agent_area_edit != "") {
-                        var isWithInPolygon = google.maps.geometry.poly.containsLocation(
-                            place.geometry.location,
-                            bermudaTriangle[count_shapes]
-                        );
+                        var isWithInPolygon = false;
+                        for (var i = 0; i < bermudaTriangle.length; i++) {
+                            if (google.maps.geometry.poly.containsLocation(location, bermudaTriangle[i])) {
+                                isWithInPolygon = true;
+                                break;
+                            }
+                        }
+
                         if (isWithInPolygon) {
                             $(":submit").prop('disabled', false);
                             $("#messageText").addClass("d-none");
-                            geocoder.geocode({
-                                'latLng': marker.getPosition()
-                            }, function (results, status) {
-                                if (status === google.maps.GeocoderStatus.OK && results[
-                                    0]) {
+
+                            // Place marker at searched location
+                            if (marker) {
+                                marker.setMap(null);
+                            }
+
+                            var iconBase = '/themes/real-scout/images/generic-3.png';
+                            var icon = {
+                                url: iconBase,
+                                scaledSize: new google.maps.Size(32, 37),
+                                origin: new google.maps.Point(0, 0),
+                                anchor: new google.maps.Point(0, 0)
+                            };
+
+                            marker = new google.maps.Marker({
+                                map: map,
+                                position: location,
+                                draggable: true,
+                                icon: icon
+                            });
+
+                            attachDragEndListener(marker);
+
+                            geocoder.geocode({'latLng': location}, function (results, status) {
+                                if (status === google.maps.GeocoderStatus.OK && results[0]) {
                                     $('#location').val(results[0].formatted_address);
                                     $('#latitude').val(marker.getPosition().lat());
                                     $('#longitude').val(marker.getPosition().lng());
@@ -161,46 +188,80 @@
                                     $('#latitude').trigger('change');
                                 }
                             });
+
                         } else {
                             handleMarkerOutsidePolygon();
                         }
                     }
+
                     if (place.geometry.viewport) {
                         bounds.union(place.geometry.viewport);
                     } else {
-                        bounds.extend(place.geometry.location);
+                        bounds.extend(location);
                     }
                 });
+
+                map.fitBounds(bounds);
             });
 
+
             google.maps.event.addListener(map, 'click', function (event) {
-                marker.setPosition(event.latLng);
-                attachDragEndListener(marker);
-                var agent_area_edit = $("#agent_area").val();
-                if (agent_area_edit != "") {
-                    var isWithInPolygon = google.maps.geometry.poly.containsLocation(
-                        event.latLng,
-                        bermudaTriangle[count_shapes]
-                    );
-                    if (isWithInPolygon) {
-                        $(":submit").prop('disabled', false);
-                        $("#messageText").addClass("d-none");
-                    } else {
-                        handleMarkerOutsidePolygon();
+                console.log('click event');
+                var isWithInPolygon = false;
+                for (var i = 0; i < bermudaTriangle.length; i++) {
+                    if (google.maps.geometry.poly.containsLocation(event.latLng, bermudaTriangle[i])) {
+                        isWithInPolygon = true;
+                        break;
                     }
                 }
-                geocoder.geocode({
-                    'latLng': marker.getPosition()
-                }, function (results, status) {
-                    if (status === google.maps.GeocoderStatus.OK && results[0]) {
-                        $('#location').val(results[0].formatted_address);
-                        $('#latitude').val(marker.getPosition().lat());
-                        $('#longitude').val(marker.getPosition().lng());
-                        infowindow.setContent(results[0].formatted_address);
-                        infowindow.open(map, marker);
-                        $('#latitude').trigger('change');
+
+                console.log('isWithInPolygon', isWithInPolygon);
+
+                if (isWithInPolygon) {
+                    // ✅ Inside polygon
+                    $(":submit").prop('disabled', false);
+                    $("#messageText").addClass("d-none");
+
+                    // Remove the old marker if needed
+                    if (marker) {
+                        marker.setMap(null);
                     }
-                });
+
+                    // Create a fresh marker at clicked position
+                    var iconBase = '/themes/real-scout/images/generic-3.png';
+                    var icon = {
+                        url: iconBase,
+                        scaledSize: new google.maps.Size(32, 37),
+                        origin: new google.maps.Point(0, 0),
+                        anchor: new google.maps.Point(0, 0)
+                    };
+
+                    marker = new google.maps.Marker({
+                        map: map,
+                        position: event.latLng,
+                        draggable: true,
+                        icon: icon
+                    });
+
+                    attachDragEndListener(marker);
+
+                    // Also update latitude/longitude fields
+                    $('#latitude').val(event.latLng.lat());
+                    $('#longitude').val(event.latLng.lng());
+                    $('#latitude').trigger('change');
+
+                    // Optional: Reverse geocode the address
+                    geocoder.geocode({'latLng': event.latLng}, function (results, status) {
+                        if (status === google.maps.GeocoderStatus.OK && results[0]) {
+                            $('#location').val(results[0].formatted_address);
+                            infowindow.setContent(results[0].formatted_address);
+                            infowindow.open(map, marker);
+                        }
+                    });
+
+                } else {
+                    handleMarkerOutsidePolygon();
+                }
             });
         }
 
@@ -240,6 +301,14 @@
         }
 
         function handleMarkerOutsidePolygon() {
+            $(":submit").prop('disabled', true);
+            $("#messageText").removeClass("d-none");
+            $("#messageText").text("Please Select Location Inside the polygon");
+
+            if (marker) {
+                marker.setMap(null);
+            }
+
             var iconBase = '/themes/real-scout/images/generic-3.png';
             var icon = {
                 url: iconBase,
@@ -247,16 +316,14 @@
                 origin: new google.maps.Point(0, 0),
                 anchor: new google.maps.Point(0, 0)
             };
-            marker.setMap(null);
-            $(":submit").prop('disabled', true);
-            $("#messageText").removeClass("d-none");
-            $("#messageText").text("Please Select Location Inside the polygon");
+
             marker = new google.maps.Marker({
                 map: map,
                 position: random,
                 draggable: true,
                 icon: icon
             });
+
             attachDragEndListener(marker);
         }
 
@@ -270,7 +337,6 @@
                 var list_data = [];
                 var one = 0;
                 var shapes = 0;
-                var objAr = dataObj.coordinates;
                 var type = dataObj.type;
 
                 $.each(dataObj.coordinates[0], function (index, data) {
@@ -303,7 +369,7 @@
                             strokeWeight: 2,
                             fillColor: "#FF0000",
                             fillOpacity: 0.35,
-                            clickable: true
+                            clickable: false
                         });
                         bermudaTriangle[count_shapes].setMap(map);
                         count_shapes++;
@@ -322,6 +388,7 @@
                         strokeWeight: 2,
                         fillColor: "#FF0000",
                         fillOpacity: 0.35,
+                        clickable: false
                     });
                     bermudaTriangle[count_shapes].setMap(map);
                 }
@@ -332,7 +399,11 @@
 
         var agent_area_edit = $("#agent_area").val();
         if (agent_area_edit != "") {
-            drawPolygonArea();
+            $(document).ready(function () {
+                setTimeout(function() {
+                    drawPolygonArea();
+                }, 2000);
+            });
             marker.setMap(null);
             var iconBase = '/themes/real-scout/images/generic-3.png';
             var icon = {
@@ -353,7 +424,7 @@
         function drawPolygonAreaForSelectedArea(address) {
             const geocoder = new google.maps.Geocoder();
 
-            geocoder.geocode({ address: address }, function (results, status) {
+            geocoder.geocode({address: address}, function (results, status) {
                 if (status === 'OK') {
                     const location = results[0].geometry.location;
                     const bounds = results[0].geometry.viewport;
@@ -370,10 +441,10 @@
 
                     // Draw the polygon using these bounds
                     const polygonCoords = [
-                        { lat: ne.lat(), lng: ne.lng() },
-                        { lat: ne.lat(), lng: sw.lng() },
-                        { lat: sw.lat(), lng: sw.lng() },
-                        { lat: sw.lat(), lng: ne.lng() }
+                        {lat: ne.lat(), lng: ne.lng()},
+                        {lat: ne.lat(), lng: sw.lng()},
+                        {lat: sw.lat(), lng: sw.lng()},
+                        {lat: sw.lat(), lng: ne.lng()}
                     ];
 
                     const radius = google.maps.geometry.spherical.computeDistanceBetween(ne, sw) / 3; // Radius in meters
@@ -402,9 +473,10 @@
 
         if (agent_area_edit === "") {
             let alreadySaved = $('#city_area_id').val();
-            
+
             if (alreadySaved !== 0) {
-                var cityAreaValue = $('#city_area_id').find('option:selected').text();;
+                var cityAreaValue = $('#city_area_id').find('option:selected').text();
+                ;
                 var cityValue = $('#city_id').find('option:selected').text();
 
                 let address = cityAreaValue + ' ' + cityValue

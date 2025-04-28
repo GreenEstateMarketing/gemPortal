@@ -343,8 +343,6 @@
             }
         }
 
-        drawPolygonArea();
-
         function deleteSelectedShape() {
             let lastShape = shapesArray.pop()
             lastShape.setMap(null)
@@ -377,6 +375,12 @@
                 deleteSelectedShape();
             }
 
+        });
+
+        $(document).ready(function () {
+            setTimeout(function() {
+                drawPolygonArea();
+            }, 2000);
         });
     })
 </script>

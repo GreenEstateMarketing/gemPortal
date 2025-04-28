@@ -15,6 +15,7 @@ use Botble\RealEstate\Repositories\Interfaces\CurrencyInterface;
 use Botble\RealEstate\Repositories\Interfaces\ProjectInterface;
 use Botble\RealEstate\Repositories\Interfaces\PropertyInterface;
 use Botble\SeoHelper\SeoOpenGraph;
+use Botble\Setting\Repositories\Interfaces\SettingInterface;
 use Botble\Slug\Repositories\Interfaces\SlugInterface;
 use EmailHandler;
 use Exception;
@@ -46,20 +47,20 @@ class PublicController extends Controller
      */
     public function postSendConsult(
         SendConsultRequest $request,
-        BaseHttpResponse $response,
-        ConsultInterface $consultRepository,
-        PropertyInterface $propertyRepository,
-        ProjectInterface $projectRepository
-    ) {
+        BaseHttpResponse   $response,
+        ConsultInterface   $consultRepository,
+        PropertyInterface  $propertyRepository,
+        ProjectInterface   $projectRepository
+    )
+    {
         try {
-            /**
-             * @var Consult $consult
-             */
             $consult = $consultRepository->getModel();
 
             $sendTo = null;
             $link = null;
             $subject = null;
+
+            $sendTo = setting('theme-real-scout-email');
 
             if ($request->input('type') == 'project') {
                 $request->merge(['project_id' => $request->input('data_id')]);
@@ -73,41 +74,38 @@ class PublicController extends Controller
                 $property = $propertyRepository->findById($request->input('data_id'), ['author']);
                 if ($property && $property->author->email) {
                     $sendTo = $property->author->email;
-                    $link = $property->url;
-                    $subject = $property->name;
                 }
 
+                $link = $property->url;
+                $subject = $property->name;
             }
-            
+
             $consultEntry = new Consult();
             $consultEntry->name = $request->input('name');
-            if ($request->input('type') == 'project'){
+            if ($request->input('type') == 'project') {
                 $consultEntry->project_id = $request->input('data_id');
-            }else{
+            } else {
                 $consultEntry->property_id = $request->input('data_id');
             }
+
             $consultEntry->phone = $request->input('phone');
             $consultEntry->email = $request->input('email');
             $consultEntry->content = $request->input('content');
             $consultEntry->interest = $request->input('interest');
-            $consultEntry->save();            
+            $consultEntry->save();
 
-//            $consult->fill([
-//                $request->input('name')
-//            ]);
-//            $consultRepository->createOrUpdate($consult);
 
-           EmailHandler::setModule(REAL_ESTATE_MODULE_SCREEN_NAME)
-               ->setVariableValues([
-                   'consult_name'    => $consult->name ?? 'N/A',
-                   'consult_email'   => $consult->email ?? 'N/A',
-                   'consult_phone'   => $consult->phone ?? 'N/A',
-                   'consult_content' => $consult->content ?? 'N/A',
-                   'consult_link'    => $link ?? 'N/A',
-                   'consult_subject' => $subject ?? 'N/A',
-                   'consult_interest' => $consult->interest ?? 'N/A',
-               ])
-               ->sendUsingTemplate('notice', $sendTo);
+            EmailHandler::setModule(REAL_ESTATE_MODULE_SCREEN_NAME)
+                ->setVariableValues([
+                    'consult_name' => $consult->name ?? 'N/A',
+                    'consult_email' => $consult->email ?? 'N/A',
+                    'consult_phone' => $consult->phone ?? 'N/A',
+                    'consult_content' => $consult->content ?? 'N/A',
+                    'consult_link' => $link ?? 'N/A',
+                    'consult_subject' => $subject ?? 'N/A',
+                    'consult_interest' => $consult->interest ?? 'N/A',
+                ])
+                ->sendUsingTemplate('notice', $sendTo);
 
             return $response->setMessage(trans('plugins/real-estate::consult.email.success'));
         } catch (Exception $exception) {
@@ -128,9 +126,9 @@ class PublicController extends Controller
     public function getProject(string $key, SlugInterface $slugRepository, ProjectInterface $projectRepository)
     {
         $slug = $slugRepository->getFirstBy([
-            'slugs.key'      => $key,
+            'slugs.key' => $key,
             'reference_type' => Project::class,
-            'prefix'         => SlugHelper::getPrefix(Project::class),
+            'prefix' => SlugHelper::getPrefix(Project::class),
         ]);
 
         if (!$slug) {
@@ -206,9 +204,9 @@ class PublicController extends Controller
     public function getProperty(string $key, SlugInterface $slugRepository, PropertyInterface $propertyRepository)
     {
         $slug = $slugRepository->getFirstBy([
-            'slugs.key'      => $key,
+            'slugs.key' => $key,
             'reference_type' => Property::class,
-            'prefix'         => SlugHelper::getPrefix(Property::class),
+            'prefix' => SlugHelper::getPrefix(Property::class),
         ]);
 
         if (!$slug) {
@@ -278,31 +276,31 @@ class PublicController extends Controller
      * @return BaseHttpResponse|\Response
      */
     public function getProjects(
-        Request $request,
-        ProjectInterface $projectRepository,
+        Request           $request,
+        ProjectInterface  $projectRepository,
         CategoryInterface $categoryRepository,
-        BaseHttpResponse $response
-    ) {
+        BaseHttpResponse  $response
+    )
+    {
 
         SeoHelper::setTitle(__('Projects'));
-        $chosenArr=$request->get('k');
-        $chosenFullArr=array();
+        $chosenArr = $request->get('k');
+        $chosenFullArr = array();
 
-        if(!isset($chosenArr))
-           $chosenArr=array();
-        else
-        {
-            $chosenFullArr=$chosenArr;
+        if (!isset($chosenArr))
+            $chosenArr = array();
+        else {
+            $chosenFullArr = $chosenArr;
             foreach ($chosenArr as $key => $val) {
                 $chosenArr[$key] = substr($val, 0, 15);
             }
 
         }
 
-        $category_id=$request->get('category_id');
-        $parent_id=0;
-        if($category_id!="")
-            $parent_id=getParentCategory($category_id);
+        $category_id = $request->get('category_id');
+        $parent_id = 0;
+        if ($category_id != "")
+            $parent_id = getParentCategory($category_id);
 
         /*//$chosenArr=array(0=>'C');
        // print_r($chosenFullArr);exit;
@@ -340,9 +338,9 @@ class PublicController extends Controller
         }*/
 
         $categories = $categoryRepository->pluck('re_categories.name', 're_categories.id');
-        $cities = City::select('id','name')->where('status','published')->get();
+        $cities = City::select('id', 'name')->where('status', 'published')->get();
 
-        return Theme::scope('real-estate.projects', compact( 'categories','chosenArr','parent_id','chosenFullArr','cities'))->render();
+        return Theme::scope('real-estate.projects', compact('categories', 'chosenArr', 'parent_id', 'chosenFullArr', 'cities'))->render();
     }
 
     /**
@@ -352,79 +350,79 @@ class PublicController extends Controller
      * @return BaseHttpResponse|\Response
      */
     public function getProperties(
-        Request $request,
+        Request           $request,
         PropertyInterface $propertyRepository,
         CategoryInterface $categoryRepository,
-        BaseHttpResponse $response
-    ) {
+        BaseHttpResponse  $response
+    )
+    {
         SeoHelper::setTitle(__('Properties'));
-/*
-        $filters = [
-            'keyword'     => $request->input('k'),
-            'type'        => $request->input('type'),
-            'bedroom'     => $request->input('bedroom'),
-            'bathroom'    => $request->input('bathroom'),
-            'floor'       => $request->input('floor'),
-            'min_price'   => $request->input('min_price'),
-            'max_price'   => $request->input('max_price'),
-            'min_square'  => $request->input('min_square'),
-            'max_square'  => $request->input('max_square'),
-            'project'     => $request->input('project'),
-            'category_id' => $request->input('category_id'),
-            'city'        => $request->input('city'),
-            'city_id'     => $request->input('city_id'),
-            'location'    => $request->input('location'),
-            'sort_by'     => $request->input('sort_by'),
-            'latitude'    => $request->input('latitude'),
-            'longitude'   => $request->input('longitude'),
-            'latLngs-1'   => $request->input('latLngs-1'),
-            'latLngs-2'   => $request->input('latLngs-2'),
-            'latLngs-3'   => $request->input('latLngs-3'),
-            'latLngs-4'   => $request->input('latLngs-4')
-        ];*/
-        $chosenArr=$request->get('k');
-        $chosenFullArr=array();
+        /*
+                $filters = [
+                    'keyword'     => $request->input('k'),
+                    'type'        => $request->input('type'),
+                    'bedroom'     => $request->input('bedroom'),
+                    'bathroom'    => $request->input('bathroom'),
+                    'floor'       => $request->input('floor'),
+                    'min_price'   => $request->input('min_price'),
+                    'max_price'   => $request->input('max_price'),
+                    'min_square'  => $request->input('min_square'),
+                    'max_square'  => $request->input('max_square'),
+                    'project'     => $request->input('project'),
+                    'category_id' => $request->input('category_id'),
+                    'city'        => $request->input('city'),
+                    'city_id'     => $request->input('city_id'),
+                    'location'    => $request->input('location'),
+                    'sort_by'     => $request->input('sort_by'),
+                    'latitude'    => $request->input('latitude'),
+                    'longitude'   => $request->input('longitude'),
+                    'latLngs-1'   => $request->input('latLngs-1'),
+                    'latLngs-2'   => $request->input('latLngs-2'),
+                    'latLngs-3'   => $request->input('latLngs-3'),
+                    'latLngs-4'   => $request->input('latLngs-4')
+                ];*/
+        $chosenArr = $request->get('k');
+        $chosenFullArr = array();
 
-        $cities = City::select('id','name')->where('status','published')->get();
+        $cities = City::select('id', 'name')->where('status', 'published')->get();
         // echo '<pre>';
         // print_r($cities);
         // exit();
-        if(!isset($chosenArr))
-            $chosenArr=array();
-        else
-        {
-            $chosenFullArr=$chosenArr;
+        if (!isset($chosenArr))
+            $chosenArr = array();
+        else {
+            $chosenFullArr = $chosenArr;
             foreach ($chosenArr as $key => $val) {
                 $chosenArr[$key] = substr($val, 0, 15);
             }
 
         }
 
-        $category_id=$request->get('category_id');
-        $parent_id=0;
-        if($category_id!="")
-            $parent_id=getParentCategory($category_id);
-     /*   $params = [
-            'paginate' => [
-                'per_page'      => $request->input('per_page') ? (int)$request->input('per_page') : (int)theme_option('number_of_properties_per_page',
-                    12),
-                'current_paged' => $request->input('page', 1),
-            ],
-            'order_by' => ['re_properties.created_at' => 'DESC'],
-        ];
+        $category_id = $request->get('category_id');
+        $parent_id = 0;
+        if ($category_id != "")
+            $parent_id = getParentCategory($category_id);
+        /*   $params = [
+               'paginate' => [
+                   'per_page'      => $request->input('per_page') ? (int)$request->input('per_page') : (int)theme_option('number_of_properties_per_page',
+                       12),
+                   'current_paged' => $request->input('page', 1),
+               ],
+               'order_by' => ['re_properties.created_at' => 'DESC'],
+           ];
 
-        $properties = $propertyRepository->getProperties($filters, $params);
-        Theme::breadcrumb()
-            ->add(__('Home'), url('/'))
-            ->add(__('Properties'), route('public.properties'));
+           $properties = $propertyRepository->getProperties($filters, $params);
+           Theme::breadcrumb()
+               ->add(__('Home'), url('/'))
+               ->add(__('Properties'), route('public.properties'));
 
-        if ($request->ajax()) {
-            return $response->setData(Theme::partial('search-suggestion', ['items' => $properties]));
-        }*/
+           if ($request->ajax()) {
+               return $response->setData(Theme::partial('search-suggestion', ['items' => $properties]));
+           }*/
 
         $categories = $categoryRepository->pluck('re_categories.name', 're_categories.id');
 
-        return Theme::scope('real-estate.properties', compact( 'categories','chosenArr','category_id','parent_id','chosenFullArr','cities'))->render();
+        return Theme::scope('real-estate.properties', compact('categories', 'chosenArr', 'category_id', 'parent_id', 'chosenFullArr', 'cities'))->render();
     }
 
     /**
@@ -439,11 +437,12 @@ class PublicController extends Controller
         SlugInterface $slugRepository,
         PropertyInterface $propertyRepository,
         CategoryInterface $categoryRepository
-    ) {
+    )
+    {
         $slug = $slugRepository->getFirstBy([
-            'slugs.key'      => $key,
+            'slugs.key' => $key,
             'reference_type' => Category::class,
-            'prefix'         => SlugHelper::getPrefix(Category::class),
+            'prefix' => SlugHelper::getPrefix(Category::class),
         ]);
 
         if (!$slug) {
@@ -480,7 +479,7 @@ class PublicController extends Controller
 
         $params = [
             'paginate' => [
-                'per_page'      => theme_option('number_of_properties_per_page', 12),
+                'per_page' => theme_option('number_of_properties_per_page', 12),
                 'current_paged' => $request->input('page', 1),
             ],
             'order_by' => ['re_properties.created_at' => 'DESC'],
@@ -499,11 +498,12 @@ class PublicController extends Controller
      * @return BaseHttpResponse
      */
     public function changeCurrency(
-        Request $request,
-        BaseHttpResponse $response,
+        Request           $request,
+        BaseHttpResponse  $response,
         CurrencyInterface $currencyRepository,
-        $title = null
-    ) {
+                          $title = null
+    )
+    {
         if (empty($title)) {
             $title = $request->input('currency');
         }
