@@ -96,6 +96,8 @@ class LoginController extends BaseController
 
         $this->validateLogin($request);
 
+
+
         // If the class is using the ThrottlesLogins trait, we can automatically throttle
         // the login attempts for this application. We'll key this by the username and
         // the IP address of the client making these requests into this application.
@@ -106,6 +108,12 @@ class LoginController extends BaseController
         }
 
         $user = app(UserInterface::class)->getFirstBy([$this->username() => $request->input($this->username())]);
+        
+
+        if(!$user) {
+            return $this->sendFailedLoginResponse();
+        }
+
         if (!empty($user)) {
             if (!app(ActivationInterface::class)->completed($user)) {
                 return $this->response
@@ -127,7 +135,7 @@ class LoginController extends BaseController
         // user surpasses their maximum number of attempts they will get locked out.
         $this->incrementLoginAttempts($request);
 
-        return $this->sendFailedLoginResponse($request);
+        return $this->sendFailedLoginResponsePassword();
     }
 
     /**

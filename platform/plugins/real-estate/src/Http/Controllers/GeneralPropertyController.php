@@ -512,20 +512,17 @@ class GeneralPropertyController extends Controller
 
     public function attemptLogin(Request $request)
     {
-        /*$this->validate($request, [
-            'email'   => 'required|email',
-            'password' => 'required|min:6'
-        ]);*/
-        /* $this->validate($request, [
-             'email' => 'required|email',
-         ]);*/
-        //echo $request->email;exit;
-        if (Auth::guard('member')->attempt(['email' => $request->email, 'password' => $request->password]/*, $request->get('remember')*/)) {
+        $member = Member::where('email', $request->email)->first();
 
+        if(!$member) {
+            return back()->withErrors(['Invalid email'])->withInput();
+        }
+
+        if (Auth::guard('member')->attempt(['email' => $request->email, 'password' => $request->password])) {
             return redirect('/member/dashboard');
         }
-        return back()->withErrors(['Invalid email or password'])->withInput();/*->withInput($request->only('email', 'remember'))->with('error' , 'Wrong email or password')*/;
-
+        
+        return back()->withErrors(['Invalid password'])->withInput();
     }
 
     public function register()
@@ -1731,7 +1728,7 @@ class GeneralPropertyController extends Controller
     {
         if (setting('media_chunk_enabled') != '1') {
             $validator = Validator::make($request->all(), [
-                'file.0' => 'required|image|mimes:jpg,jpeg,png',
+                'file.0' => 'required|image|mimes:jpg,jpeg,png,webp,gif,bmp',
             ]);
 
             if ($validator->fails()) {

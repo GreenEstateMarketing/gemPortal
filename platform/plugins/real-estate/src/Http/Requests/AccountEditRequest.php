@@ -21,7 +21,7 @@ class AccountEditRequest extends Request
             'username'   => 'required|max:60|min:2|unique:re_accounts,username,' . $this->route('account'),
             'email'      => 'required|max:60|min:6|email|unique:re_accounts,email,' . $this->route('account'),
             'phone' => ['required', 'regex:/^\+?[1-9][0-9]{7,14}$/'],
-            'image_path' => [new ImageDimension(500, 500)],
+            'image_path' => [new ImageDimension(5000, 5000)],
             'city_id' => ['required', 'integer', 'exists:cities,id'],
             'city_area_id' => ['required', 'array'],
             'city_area_id.*' => 'string|max:256'

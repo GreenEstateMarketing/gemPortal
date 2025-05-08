@@ -5,6 +5,7 @@ namespace Botble\RealEstate\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Botble\ACL\Traits\LogoutGuardTrait;
 use Botble\ACL\Traits\AuthenticatesUsers;
+use Botble\RealEstate\Models\Account;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Log;
@@ -122,6 +123,14 @@ class LoginController extends Controller
      */
     protected function attemptLogin(Request $request)
     {
+        $account = Account::where($this->username(), $request->input($this->username()))->first();
+
+        if (!$account) {
+            throw ValidationException::withMessages([
+                'email' => 'Invalid ' . $this->username(),
+            ]);
+        }
+
         if ($this->guard()->validate($this->credentials($request))) {
             $account = $this->guard()->getLastAttempted();
 
@@ -181,7 +190,7 @@ class LoginController extends Controller
     protected function sendFailedLoginResponse()
     {
         throw ValidationException::withMessages([
-            'email' => [trans('auth.failed')],
+            'password' => 'Invalid Password',
         ]);
     }
 }

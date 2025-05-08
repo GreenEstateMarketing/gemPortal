@@ -159,7 +159,19 @@ trait AuthenticatesUsers
     protected function sendFailedLoginResponse()
     {
         throw ValidationException::withMessages([
-            $this->username() => [trans('auth.failed')],
+            $this->username() => 'Invalid ' . $this->username(),
+        ]);
+    }
+
+    /**
+     * Get the failed login response instance.
+     *
+     * @throws ValidationException
+     */
+    protected function sendFailedLoginResponsePassword()
+    {
+        throw ValidationException::withMessages([
+            'password' => 'Invalid password',
         ]);
     }
 

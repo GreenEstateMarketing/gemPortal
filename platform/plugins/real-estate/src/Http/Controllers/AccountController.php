@@ -270,6 +270,9 @@ class AccountController extends BaseController
         if ($request['agent_area'] != "") {
             $account->agent_area = \DB::raw($ap);
             $account->save();
+        } else if ($request['agent_area_edit'] == "") {
+            $account->agent_area = null;
+            $account->save();
         }
 
         if ($request->input('is_change_password') == 1) {
