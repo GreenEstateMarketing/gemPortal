@@ -848,7 +848,7 @@
                                     </a>
                                     <span> | </span><a href="#" class="currency" id="changeCurrencylabel"
                                         data-toggle="modal"
-                                        data-target="#currency_modal">{{ __('Change Currency') }} </a>
+                                        data-target="#currency_modal">{{ __('Change Currency') }}</a>
 
                                 </div>
 
@@ -893,7 +893,7 @@
 
                     <select class="form-control" id="currency_val">
                         @foreach ($currencies as $currency)
-                            <option value="{{ $currency->order }}">{{ $currency->title }}</option>
+                            <option value="{{ $currency->id }}">{{ $currency->title }}</option>
                         @endforeach
                     </select>
                 </div>

@@ -1707,7 +1707,6 @@ class GeneralPropertyController extends Controller
 
     public function currency_unit_update(SettingStore $settingStore)
     {
-
         try {
             $currency_unit = $_GET['currency_unit'];
             $settingStore->set('currencies_is_default', $currency_unit);
@@ -1715,7 +1714,7 @@ class GeneralPropertyController extends Controller
             //set all 0 first..
             Currency::where('is_default', '=', 1)->update(['is_default' => 0]);
             //update defaulr currency
-            Currency::where('order', $currency_unit)->update(['is_default' => 1]);
+            Currency::where('id', $currency_unit)->update(['is_default' => 1]);
             $res = array('status' => true, 'message' => 'currency unit update Success');
             echo json_encode($res);
         } catch (Exception\Exception $ex) {

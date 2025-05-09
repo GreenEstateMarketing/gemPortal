@@ -68,6 +68,8 @@
             const zoomInControl = document.createElement("button");
             zoomInControl.textContent = "+";
             zoomInControl.classList.add("zoom-control");
+            zoomInControl.classList.add("btn");
+            zoomInControl.classList.add("btn-primary");
             zoomInControl.type = "button";
             map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(zoomInControl);
             zoomInControl.addEventListener("click", () => {
@@ -79,6 +81,9 @@
             zoomOutControl.textContent = "-";
             zoomOutControl.classList.add("zoom-control");
             zoomOutControl.type = "button";
+            zoomOutControl.classList.add("btn");
+            zoomOutControl.classList.add("btn-primary");
+            zoomOutControl.classList.add("mr-1");
             map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(zoomOutControl);
             zoomOutControl.addEventListener("click", () => {
                 map.setZoom(map.getZoom() - 1);

@@ -50,7 +50,7 @@
 @if (setting('google_map_api_key'))
     <label class="text-capitalize control-label">mark areas for agent</label>
     <div id="floating-panel">
-        <input id="remove-line" type="button" value="Remove" />
+        <input id="remove-line" class="btn btn-primary" type="button" value="Remove" />
 
     </div>
     <div id="map-container">

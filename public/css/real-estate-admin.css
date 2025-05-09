@@ -372,8 +372,7 @@ select option:hover{
 #remove-line{
     position: absolute !important;
     z-index: 2;
-    margin-left: 41%;
-    margin-top: 5px;
+    left: 41%;
 
 }
 .badge-success {
