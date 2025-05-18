@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-md navbar-light bg-black bb b--black-10">
     <div class="container-fluid">
         @if (theme_option('logo'))
-          <a href="{{ url('/') }}"><img src="{{ Theme::asset()->url('images/gemlogo-bk.png')  }}" alt="{{ theme_option('site_title') }}" height="35"></a>
+          <a href="{{ url('/') }}"><img src="{{ Theme::asset()->url('images/gemlogo.png')  }}" alt="{{ theme_option('site_title') }}" height="35"></a>
         @else
           <div class="brand-container tc mr2 br2">
             <a class="navbar-brand b white ma0 pa0 dib w-100" href="{{ url('/') }}" title="{{ theme_option('site_title') }}">{{ ucfirst(mb_substr(theme_option('site_title'), 0, 1, 'utf-8')) }}</a>
@@ -57,7 +57,7 @@
           <li>
             <a class="no-underline mr2 black-50 hover-black-70 pv1 ph2 db mr2" style="text-decoration: none; line-height: 32px;" href="{{ route('public.account.dashboard') }}" title="{{ trans('plugins/real-estate::dashboard.header_profile_link') }}">
               <span>
-                <img src="{{ auth('account')->user()->avatar_url }}" class="br-100 v-mid mr1" style="width: 30px;">
+                <img src="{{ auth('account')->user()->image_path ? '/storage/' . auth('account')->user()->image_path : auth('account')->user()->avatar_url }}" class="br-100 v-mid mr1" style="width: 30px;">
                 <span>{{ auth('account')->user()->getFullName() }}</span>
               </span>
             </a>

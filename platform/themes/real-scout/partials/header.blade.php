@@ -127,7 +127,7 @@
                                     <a class="dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <span>
-                                            <img src="{{ auth('account')->user()->avatar_url }}"
+                                            <img src="{{ auth('account')->user()->image_path ? 'storage/' . auth('account')->user()->image_path : auth('account')->user()->avatar_url }}"
                                                 class="br-100 v-mid mr-1" style="width: 30px;">
                                             <span
                                                 class="profile-label">{{ auth('account')->user()->getFullName() }}</span>
@@ -198,7 +198,7 @@
                                 <a class="dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button"
                                     data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                     <span>
-                                        <img src="{{ auth('account')->user()->avatar_url }}"
+                                        <img src="{{ auth('account')->user()->image_path ? 'storage/' . auth('account')->user()->image_path : auth('account')->user()->avatar_url }}"
                                             class="br-100 v-mid mr-1" style="width: 30px;">
                                         <span
                                             class="profile-label">{{ auth('account')->user()->getFullName() }}</span>

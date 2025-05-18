@@ -134,7 +134,7 @@ class AccountController extends BaseController
             }
         }
 
-        $request['city_area_id'] = implode( ',', $request['city_area_id']);
+        $request['city_area_id'] = implode(',', $request['city_area_id']);
 
         $account = Account::create($request->except('agent_area'));
         if ($request['agent_area'] != "") {
@@ -196,81 +196,53 @@ class AccountController extends BaseController
      */
     public function update($id, AccountEditRequest $request, BaseHttpResponse $response)
     {
-        // if ($request->input('is_change_password') == 1) {
-        //     $request->merge(['password' => bcrypt($request->input('password'))]);
-        //     $data = $request->input();
-        // } else {
-        //     $data = $request->except('password');
-        // }
+        $agent_area = json_decode($request->input('agent_area'));
+        $agent_area_edit = json_decode($request->input('agent_area_edit'));
+        
 
-        if ($request['agent_area'] != "") {
-            $i = 0;
-            $data_map = json_decode($request['agent_area']);
+        if (count($agent_area) > 0) {
+            $data_map = $agent_area;
 
-            $total_ar = count($data_map);
-            if ($total_ar == 1) {
-                $po = 'POLYGON((';
-            } else {
-                $kp = 'MultiPolygon((';
-            }
+            $isMulti = count($data_map) > 1;
+            $wkt = $isMulti ? 'MULTIPOLYGON(' : 'POLYGON(';
 
-            $ap = 'ST_GeomFromText(';
-            $mo = '';
-            $first = '';
-            foreach ($data_map as $k => $item) {
-                $mo .= '(';
-                $rp = '';
-                $total = count($item);
-                $q = 0;
-                foreach ($item as $w => $kk) {
-                    $first = $item[0]->lat . ' ' . $item[0]->lng;
-                    if ($total_ar == 1) {
-                        if ($i == $total - 1) {
-                            $po .= $kk->lat . ' ' . $kk->lng;
-                        } else
-                            $po .= $kk->lat . ' ' . $kk->lng;
-                        $po .= ',';
-                        $i++;
-                    } else {
-                        if ($q == $total - 1) {
-                            $rp .= $kk->lat . ' ' . $kk->lng;
-                        } else
-                            $rp .= $kk->lat . ' ' . $kk->lng;
-                        $rp .= ',';
-                        $q++;
-                    }
+            $polygons = [];
 
+            foreach ($data_map as $polygon) {
+                $coordinates = [];
+
+                foreach ($polygon as $point) {
+                    $coordinates[] = $point->lat . ' ' . $point->lng;
                 }
-                $rp .= $first;
 
-                $mo .= rtrim($rp, ',');
-                $mo .= '),';
+                // Ensure the ring is closed (first and last point must be same)
+                if ($coordinates[0] !== end($coordinates)) {
+                    $coordinates[] = $coordinates[0];
+                }
 
+                $ring = '(' . implode(',', $coordinates) . ')';
+
+                if ($isMulti) {
+                    // MULTIPOLYGON requires double parentheses per polygon
+                    $polygons[] = '(' . $ring . ')';
+                } else {
+                    // POLYGON requires single parentheses around the ring
+                    $polygons[] = $ring;
+                }
             }
-            if ($total_ar == 1) {
-                $po .= $first;
-                $ap .= "'";
-                $ap .= rtrim($po, ',');
-                $ap .= '))';
-                $ap .= "',4326)";
-            } else {
-                $kp .= rtrim($mo, ',');
-                $ap .= "'";
-                $ap .= rtrim($kp, ',');
-                $ap .= '))';
-                $ap .= "',4326)";
 
-            }
+            $wkt .= implode(',', $polygons) . ')';
+            $geom = \DB::raw("ST_GeomFromText('{$wkt}', 4326)");
         }
 
         $account = Account::find($id);
-        $request['city_area_id'] = implode( ',', $request['city_area_id']);
+        $request['city_area_id'] = implode(',', $request['city_area_id']);
 
         $account->update($request->except('agent_area', 'password'));
-        if ($request['agent_area'] != "") {
-            $account->agent_area = \DB::raw($ap);
+        if (count($agent_area) > 0) {
+            $account->agent_area = $geom;
             $account->save();
-        } else if ($request['agent_area_edit'] == "") {
+        } else if (count($agent_area_edit) == 0) {
             $account->agent_area = null;
             $account->save();
         }

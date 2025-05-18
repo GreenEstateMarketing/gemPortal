@@ -3,7 +3,7 @@
   <div   @if(Route::current()->getName()=="general-add-property" ) class="container" @else class="container-fluid" @endif>
 
         @if (theme_option('logo'))
-          <a href="{{ url('/') }}"><img src="{{ Theme::asset()->url('images/gemlogo-bk.png')  }}" alt="{{ theme_option('site_title') }}" height="35"></a>
+          <a href="{{ url('/') }}"><img src="{{ Theme::asset()->url('images/gemlogo.png')  }}" alt="{{ theme_option('site_title') }}" height="35"></a>
         @else
           <div class="brand-container tc mr2 br2">
             <a class="navbar-brand b white ma0 pa0 dib w-100" href="{{ url('/') }}" title="{{ theme_option('site_title') }}">{{ ucfirst(mb_substr(theme_option('site_title'), 0, 1, 'utf-8')) }}</a>

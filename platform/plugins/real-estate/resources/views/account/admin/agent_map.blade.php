@@ -2,111 +2,75 @@
     #map-container {
         position: relative;
         height: 400px;
-
     }
 
     #map {
         position: relative;
-        height: inherit;
-
-        width: inherit;
+        height: 100%;
+        width: 100%;
     }
 
-    .zoom-control {
-        background-color: #f3a54a; /* Set the button color to #f3a54a */
+    .map-control {
+        background-color: #f3a54a;
         border: none;
         border-radius: 50%;
         width: 40px;
         height: 40px;
         margin-right: 10px;
-        font-size: 24px;
-        color: #ffffff; /* White text for contrast */
+        font-size: 20px;
+        color: #ffffff;
         display: flex;
         justify-content: center;
         align-items: center;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         cursor: pointer;
         transition: all 0.3s ease;
-      }
+    }
 
-      /* Hover Effects */
-      .zoom-control:hover {
-        background-color: #e67e22; /* Darker shade of #f3a54a on hover */
-        color: white;
+    .map-control:hover {
+        background-color: #e67e22;
         box-shadow: 0 4px 10px rgba(230, 126, 34, 0.4);
-      }
-
-      /* Zoom In Button (Optional: Can add more distinct styles for each button) */
-      .zoom-control.zoom-in {
-        font-size: 26px; /* Slightly larger font for the zoom-in button */
-      }
-
-      /* Zoom Out Button */
-      .zoom-control.zoom-out {
-        font-size: 26px; /* Same size for both buttons */
-      }
-    </style>
+    }
 </style>
-@if (setting('google_map_api_key'))
-    <label class="text-capitalize control-label">mark areas for agent</label>
-    <div id="floating-panel">
-        <input id="remove-line" class="btn btn-primary" type="button" value="Remove" />
 
-    </div>
+@if (setting('google_map_api_key'))
+    <label class="text-capitalize control-label">Mark areas for agent</label>
     <div id="map-container">
         <div id="map"></div>
     </div>
 @endif
 
 <script async
-    src="https://maps.googleapis.com/maps/api/js?key={{ setting('google_map_api_key') }}&loading=async&libraries=drawing&callback=initMap">
-    </script>
+    src="https://maps.googleapis.com/maps/api/js?key={{ setting('google_map_api_key') }}&libraries=drawing&callback=initMap"></script>
 
 <script>
-    let coordArray = []
-    var map;
-    var selectedShape;
-    let shapesArray = []
+    let map, selectedShape;
+    let shapesArray = [];
+    let currentPolygon = null;
+    let currentPath = null;
+    let redoButton = null;
+    let drawingListener = null;
 
     function convertArray(array) {
-        // Check the nesting level of the array
-        const isNestedTwice = Array.isArray(array[0][0][0]);
-
-        if (isNestedTwice) {
-            console.log('one')
-            let retArr = array.map(outerArray =>
-                outerArray.map(innerArray =>
-                    innerArray.map(coord => ({
-                        lat: coord[1],
-                        lng: coord[0]
-                    }))
-                )
-            );
-            return retArr[0]
+        if (array.type === "Polygon" && array.coordinates) {
+            return [array.coordinates[0].map(coord => ({ lat: coord[1], lng: coord[0] }))];
+        } else if (array.type === "MultiPolygon" && array.coordinates) {
+            return array.coordinates.map(polygon => polygon[0].map(coord => ({ lat: coord[1], lng: coord[0] })));
+        } else if (Array.isArray(array)) {
+            const isNestedTwice = Array.isArray(array[0][0][0]);
+            return isNestedTwice
+                ? array.map(polygon => polygon.map(coord => ({ lat: coord[1], lng: coord[0] })))
+                : [array.map(coord => ({ lat: coord[1], lng: coord[0] }))];
         } else {
-            return array.map(innerArray =>
-                innerArray.map(coord => ({
-                    lat: coord[1],
-                    lng: coord[0]
-                }))
-            );
+            return [];
         }
     }
 
-    $(document).ready(function () {
-        let apCoordsVal = $('[name="agent_area_edit"]').val()
-        if (apCoordsVal) {
-            let apCoords = JSON.parse($('[name="agent_area_edit"]').val());
-
-            convertedArray = convertArray(apCoords.coordinates)
-
-            console.log(convertedArray)
-
-            if (convertedArray.length > 0) {
-                coordArray = convertedArray
-            }
-        }
-    })
+    function setSelection(shape) {
+        clearSelection();
+        selectedShape = shape;
+        selectedShape.setEditable(true);
+    }
 
     function clearSelection() {
         if (selectedShape) {
@@ -115,274 +79,221 @@
         }
     }
 
-    function setSelection(shape) {
-        clearSelection();
-        selectedShape = shape;
+    function addCustomControls() {
+        const controls = [
+            { text: "+", action: () => map.setZoom(map.getZoom() + 1) },
+            { text: "-", action: () => map.setZoom(map.getZoom() - 1) },
+            { text: "🗑", action: removeSelectedPolygon }
+        ];
+
+        controls.forEach(ctrl => {
+            const button = document.createElement("button");
+            button.textContent = ctrl.text;
+            button.classList.add("map-control");
+            button.type = "button";
+            if (ctrl.text === "🗑") {
+                button.style.backgroundColor = "#e74c3c";
+            }
+
+            map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(button);
+            button.addEventListener("click", ctrl.action);
+        });
+    }
+
+    function removeSelectedPolygon() {
+        if (selectedShape) {
+            selectedShape.setMap(null);
+            shapesArray = shapesArray.filter(shape => shape !== selectedShape);
+            selectedShape = null;
+            updateCoordArray();
+        } else {
+            alert("Please select a polygon to remove by clicking on it.");
+        }
+    }
+
+    function updateCoordArray() {
+        const coordArray = shapesArray.map(shape => {
+            const path = shape.getPath();
+            return Array.from({ length: path.getLength() }, (_, i) => ({
+                lat: path.getAt(i).lat(),
+                lng: path.getAt(i).lng(),
+            }));
+        });
+
+        $('input[name="agent_area"]').val(JSON.stringify(coordArray, null, 1));
+        $('input[name="agent_area_edit"]').val(JSON.stringify(coordArray, null, 1));
+    }
+
+    function drawExistingPolygons(data) {
+        const polygons = convertArray(data);
+        const bounds = new google.maps.LatLngBounds();
+
+        polygons.forEach(path => {
+            const polygon = new google.maps.Polygon({
+                paths: path,
+                strokeColor: "#FF0000",
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: "#FF0000",
+                fillOpacity: 0.35,
+                editable: false,
+                clickable: true
+            });
+            polygon.setMap(map);
+            shapesArray.push(polygon);
+
+            google.maps.event.addListener(polygon, "click", () => setSelection(polygon));
+            path.forEach(coord => bounds.extend(coord));
+        });
+
+        if (!bounds.isEmpty()) {
+            map.fitBounds(bounds);
+        }
+
+        updateCoordArray();
+    }
+
+    function createRedoButton() {
+        if (redoButton) {
+            redoButton.remove();
+        }
+        redoButton = document.createElement("button");
+        redoButton.innerText = "⤺";
+        redoButton.classList.add("map-control");
+        redoButton.style.backgroundColor = "#3498db";
+        redoButton.title = "Undo last point";
+        redoButton.onclick = () => {
+            if (currentPath && currentPath.getLength() > 0) {
+                currentPath.pop();
+            }
+        };
+        map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(redoButton);
+    }
+
+    function removeRedoButton() {
+        if (redoButton) {
+            map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].removeAt(map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].getLength() - 1);
+            redoButton = null;
+        }
+    }
+
+    function initDrawingManager() {
+        const drawingManager = new google.maps.drawing.DrawingManager({
+            drawingControl: true,
+            drawingControlOptions: {
+                position: google.maps.ControlPosition.TOP_CENTER,
+                drawingModes: [google.maps.drawing.OverlayType.POLYGON],
+            },
+            polygonOptions: {
+                fillColor: "#ffff00",
+                fillOpacity: 1,
+                strokeWeight: 5,
+                clickable: true,
+                editable: true,
+                zIndex: 1,
+            },
+        });
+        drawingManager.setMap(map);
+
+        google.maps.event.addListener(drawingManager, "overlaycomplete", (event) => {
+            if (event.type === google.maps.drawing.OverlayType.POLYGON) {
+                if (drawingListener) {
+                    google.maps.event.removeListener(drawingListener);
+                    drawingListener = null;
+                }
+                removeRedoButton();
+
+                const shape = event.overlay;
+                shape.type = event.type;
+                google.maps.event.addListener(shape, "click", () => setSelection(shape));
+                shapesArray.push(shape);
+                setSelection(shape);
+                updateCoordArray();
+            }
+        });
+
+        google.maps.event.addListener(drawingManager, "drawingmode_changed", (mode) => {
+            const currentMode = drawingManager.getDrawingMode();
+            console.log("Drawing mode changed to:", currentMode);
+            if (currentMode === google.maps.drawing.OverlayType.POLYGON) {
+                if (drawingListener) {
+                    google.maps.event.removeListener(drawingListener);
+                    drawingListener = null;
+                }
+                createRedoButton();
+
+                currentPolygon = new google.maps.Polygon({
+                    strokeColor: "#0000FF",
+                    strokeOpacity: 0.8,
+                    strokeWeight: 2,
+                    fillColor: "#0000FF",
+                    fillOpacity: 0.35,
+                    editable: true,
+                    map: map,
+                });
+
+                currentPath = currentPolygon.getPath();
+
+                drawingListener = google.maps.event.addListener(map, "click", function (e) {
+                    currentPath.push(e.latLng);
+                });
+
+                google.maps.event.addListener(currentPolygon, "dblclick", function (e) {
+                    google.maps.event.removeListener(drawingListener);
+                    drawingListener = null;
+                    removeRedoButton();
+                    shapesArray.push(currentPolygon);
+                    google.maps.event.addListener(currentPolygon, "click", () => setSelection(currentPolygon));
+                    setSelection(currentPolygon);
+                    updateCoordArray();
+                    currentPolygon = null;
+                    currentPath = null;
+                });
+            } else {
+                if (drawingListener) {
+                    google.maps.event.removeListener(drawingListener);
+                    drawingListener = null;
+                }
+                removeRedoButton();
+                if (currentPolygon) {
+                    currentPolygon.setMap(null);
+                    currentPolygon = null;
+                    currentPath = null;
+                }
+            }
+        });
     }
 
     function initMap() {
-        // Get the user's current location
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
-                    const currentLocation = {
-                        lat: position.coords.latitude,
-                        lng: position.coords.longitude,
-                    };
-
+                    const currentLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
                     map = new google.maps.Map(document.getElementById("map"), {
                         center: currentLocation,
                         zoom: 8,
                     });
 
-                    const zoomInControl = document.createElement("button");
-                    zoomInControl.textContent = "+";
-                    zoomInControl.classList.add("zoom-control");
-                    zoomInControl.type = "button";
-                    map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(zoomInControl);
-                    zoomInControl.addEventListener("click", () => {
-                        map.setZoom(map.getZoom() + 1);
-                    });
+                    addCustomControls();
+                    initDrawingManager();
 
-                    // Adding custom zoom out button
-                    const zoomOutControl = document.createElement("button");
-                    zoomOutControl.textContent = "-";
-                    zoomOutControl.classList.add("zoom-control");
-                    zoomOutControl.type = "button";
-                    map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(zoomOutControl);
-                    zoomOutControl.addEventListener("click", () => {
-                        map.setZoom(map.getZoom() - 1);
-                    });
-
-
-                    const drawingManager = new google.maps.drawing.DrawingManager({
-                        drawingMode: google.maps.drawing.OverlayType.MARKER,
-                        drawingControl: true,
-                        drawingControlOptions: {
-                            position: google.maps.ControlPosition.TOP_CENTER,
-                            drawingModes: [
-                                google.maps.drawing.OverlayType.POLYGON,
-                            ],
-                        },
-                        markerOptions: {
-                            icon: "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png",
-                        },
-                        circleOptions: {
-                            fillColor: "#ffff00",
-                            fillOpacity: 1,
-                            strokeWeight: 5,
-                            clickable: false,
-                            editable: true,
-                            zIndex: 1,
-                        },
-                        polygonOptions: {
-                            fillColor: "#ffff00",
-                            fillOpacity: 1,
-                            strokeWeight: 5,
-                            clickable: false,
-                            editable: true,
-                            zIndex: 1,
-                        },
-                    });
-
-                    drawingManager.setMap(map);
-
-                    // Event listener for capturing shape data
-                    google.maps.event.addListener(drawingManager, "overlaycomplete", (event) => {
-                        let shapeData;
-                        if (event.type === google.maps.drawing.OverlayType.CIRCLE) {
-                            const radius = event.overlay.getRadius();
-                            const center = event.overlay.getCenter();
-                            shapeData = {
-                                type: "circle",
-                                center: {
-                                    lat: center.lat(),
-                                    lng: center.lng()
-                                },
-                                radius: radius,
-                            };
-                        } else if (event.type === google.maps.drawing.OverlayType.POLYGON) {
-                            const path = event.overlay.getPath();
-                            const coordinates = [];
-                            for (let i = 0; i < path.getLength(); i++) {
-                                const latLng = path.getAt(i);
-                                coordinates.push({
-                                    lat: latLng.lat(),
-                                    lng: latLng.lng()
-                                });
-                            }
-                            shapeData = {
-                                type: "polygon",
-                                coordinates: coordinates,
-                            };
-                        }
-
-                        const shape = event.overlay;
-                        shape.type = event.type;
-                        google.maps.event.addListener(shape, "click", () => {
-                            setSelection(shape);
-                        });
-                        setSelection(shape);
-                        shapesArray.push(shape)
-
-                        const shapeBlob = new Blob([JSON.stringify(shapeData)], {
-                            type: "application/json"
-                        });
-
-                        if (shapeData) {
-                            let coords = shapeData.coordinates;
-                            coordArray.push(coords);
-                            let inJson = JSON.stringify(coordArray, null, 1)
-                            console.log(inJson);
-                            $('input[name="agent_area"]').val(inJson);
-                        }
-                    });
+                    const apCoordsVal = $('[name="agent_area_edit"]').val();
+                    if (apCoordsVal) {
+                        const data = JSON.parse(apCoordsVal);
+                        drawExistingPolygons(data);
+                    }
                 },
                 (error) => {
-                    if (error.code == error.PERMISSION_DENIED) {
-                        document.getElementById('map-container').innerHTML =
-                            '<p class="center alert alert-danger">Location access is required to display the map. Please enable location services in your browser settings.</p>';
-                        $('#remove-line').css('display', 'none')
+                    if (error.code === error.PERMISSION_DENIED) {
+                        $('#map-container').html('<p class="center alert alert-danger">Location access is required to display the map. Please enable location services in your browser settings.</p>');
                     }
-                    handleLocationError(true, map.getCenter());
+                    alert("Error: Geolocation failed.");
                 }
             );
         } else {
-            // Browser doesn't support Geolocation
-            handleLocationError(false, map.getCenter());
+            alert("Error: Your browser doesn't support geolocation.");
         }
-    }
-
-    function handleLocationError(browserHasGeolocation, pos) {
-        alert(
-            browserHasGeolocation ?
-                "Error: The Geolocation service failed." :
-                "Error: Your browser doesn't support geolocation."
-        );
     }
 
     window.initMap = initMap;
-
-    $(document).ready(function () {
-        let global_arr = []
-        let counter = 0
-        let bermudaTriangle = []
-        let count_shapes = 0
-
-        function drawPolygonArea() {
-            var agent_area_edit = $('[name="agent_area_edit"]').val();
-            var latlngbounds = new google.maps.LatLngBounds();
-            if (agent_area_edit != "") {
-                var dataObj = JSON.parse(agent_area_edit);
-                var arrlen = dataObj.length;
-                var list_data = [];
-                var one = 0;
-                var shapes = 0;
-                var objAr = dataObj.coordinates;
-                var type = dataObj.type;
-
-                $.each(dataObj.coordinates[0], function (index, data) {
-
-                    if (type == "Polygon") {
-                        var latlng = new google.maps.LatLng(data[1], data[0]);
-                        random = latlng;
-                        latlngbounds.extend(latlng);
-                        list_data[one] = {
-                            lat: data[1],
-                            lng: data[0],
-                        };
-                        one++;
-                    } else {
-                        var many = 0;
-
-                        $.each(data, function (key, data1) {
-                            var latlng = new google.maps.LatLng(data1[1], data1[0]);
-                            latlngbounds.extend(latlng);
-                            list_data[many] = {
-
-                                lat: data1[1],
-                                lng: data1[0],
-
-                            };
-                            many++;
-                            //
-
-                        });
-                        global_arr[counter] = list_data;
-                        counter++;
-                        bermudaTriangle[count_shapes] = new google.maps.Polygon({
-                            paths: list_data,
-                            strokeColor: "#FF0000",
-                            strokeOpacity: 0.8,
-                            strokeWeight: 2,
-                            fillColor: "#FF0000",
-                            fillOpacity: 0.35,
-                            clickable: true
-                        });
-                        bermudaTriangle[count_shapes].setMap(map);
-                        count_shapes++;
-                        shapes++;
-                    }
-
-                    shapes++;
-                });
-
-                if (type == "Polygon") {
-                    global_arr[counter] = list_data;
-                    counter++;
-                    bermudaTriangle[count_shapes] = new google.maps.Polygon({
-                        paths: list_data,
-                        strokeColor: "#FF0000",
-                        strokeOpacity: 0.8,
-                        strokeWeight: 2,
-                        fillColor: "#FF0000",
-                        fillOpacity: 0.35,
-                    });
-                    bermudaTriangle[count_shapes].setMap(map);
-                }
-
-                map.fitBounds(latlngbounds);
-            }
-        }
-
-        function deleteSelectedShape() {
-            let lastShape = shapesArray.pop()
-            lastShape.setMap(null)
-
-            if (counter > -1) {
-                global_arr.splice(counter - 1, 1);
-                coordArray.splice(counter - 1, 1);
-                $("input[name='agent_area']").val(JSON.stringify(global_arr, null, 1));
-            } else {
-                $("input[name='agent_area']").val("");
-            }
-
-            counter--;
-        }
-
-        $("#remove-line").click(function () {
-            var agent_area_edit = $("input[name='agent_area_edit']").val();
-
-            if (agent_area_edit != "") {
-                $.each(bermudaTriangle, function (key, value) {
-                    value.setMap(null);
-                });
-                coordArray = []
-                if (shapesArray.length > 0) {
-                    shapesArray.forEach(shape => shape.setMap(null))
-                }
-
-                $("input[name='agent_area_edit']").val('');
-            } else {
-                deleteSelectedShape();
-            }
-
-        });
-
-        $(document).ready(function () {
-            setTimeout(function() {
-                drawPolygonArea();
-            }, 2000);
-        });
-    })
 </script>
