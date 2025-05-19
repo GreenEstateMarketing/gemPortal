@@ -514,14 +514,14 @@ class GeneralPropertyController extends Controller
     {
         $member = Member::where('email', $request->email)->first();
 
-        if(!$member) {
+        if (!$member) {
             return back()->withErrors(['Invalid email'])->withInput();
         }
 
         if (Auth::guard('member')->attempt(['email' => $request->email, 'password' => $request->password])) {
             return redirect('/member/dashboard');
         }
-        
+
         return back()->withErrors(['Invalid password'])->withInput();
     }
 
@@ -829,13 +829,13 @@ class GeneralPropertyController extends Controller
 
         $property->status = $status;
 
-        if($request['renew_now'] == "1") {
+        if ($request['renew_now'] == "1") {
             $property->expire_date = Carbon::now()->addDays(45);
         }
 
         $this->propertyRepository->createOrUpdate($property);
 
-        if($request['renew_now'] == "1") {
+        if ($request['renew_now'] == "1") {
             //deduct credits
             if ($property->member_id) {
                 $member = $memberRepository->findOrFail($property->member_id);
@@ -1033,47 +1033,27 @@ class GeneralPropertyController extends Controller
             ['id', 'parent_id', 'name']
         );
 
-        $html = ' <ul class="col m-0 parent-category">';
-        $subcategory = '';
-        foreach ($categories as $key => $val) {
-            if ($key == 0)
-                $html .= '<div class="col-md-1" > <li  data-id=' . $val->id . ' data-category_name="' . $val->name . '"  style="cursor:pointer" class="label-primary p-category">
-
- ' . $val->name . '</li></div>';
-            else
-                $html .= '<div class="col-md-1" > <li  data-category_name="' . $val->name . '"  data-id=' . $val->id . ' style="cursor:pointer" class="label-secondary p-category">' . $val->name . '</li></div>';
-
-            // create hiddenly list here of each categories
-            $subcategory .= '<div class="offset-md-1 col-md-6 p' . $val->id . '" style="display:none"><ul class="sub-category">';
-            $sub_categories = $this->categoryRepository->allBy(
-                ['status' => BaseStatusEnum::PUBLISHED, 'parent_id' => $val->id],
+        // Prepare subcategories for each category
+        $categories = $categories->map(function ($cat) {
+            $cat->subcategories = $this->categoryRepository->allBy(
+                ['status' => BaseStatusEnum::PUBLISHED, 'parent_id' => $cat->id],
                 [],
                 ['id', 'parent_id', 'name']
             );
+            return $cat;
+        });
 
-
-            foreach ($sub_categories as $key1 => $val1) {
-
-                $subcategory .= '<li class="label-sub-category p-subcategory"   data-parent-name="' . $val->name . '"  data-id=' . $val1->id . ' data-category_name="' . $val1->name . '"  style="cursor:pointer" >' . $val1->name . '</li>';
-            }
-            $subcategory .= '</ul></div>';
-
-        }
-        $html .= '</ul>';
         $cities = $this->cityRepository->allBy(
             ['status' => BaseStatusEnum::PUBLISHED],
             ['state', 'country'],
             ['cities.name', 'cities.state_id', 'cities.country_id', 'cities.id']
         );
 
-
         $cityChoices = [];
-
         foreach ($cities as $city) {
             if ($city->state->status != BaseStatusEnum::PUBLISHED || $city->country->status != BaseStatusEnum::PUBLISHED) {
                 continue;
             }
-
             $cityChoices[$city->id] = $city->name . ($city->state->name ? ' (' . $city->state->name . ')' : '');
         }
 
@@ -1084,20 +1064,23 @@ class GeneralPropertyController extends Controller
         );
 
         $projectChoices = [];
-
         foreach ($projects as $project) {
             $projectChoices[$project->id] = $project->name;
         }
 
-        $data = array('html' => $html, 'sub_category' => $subcategory, 'city' => $cityChoices, 'projects' => $projectChoices);
+        $data = [
+            'categories' => $categories,
+            'city' => $cityChoices,
+            'projects' => $projectChoices,
+        ];
 
         if (view()->exists(Theme::getThemeNamespace() . '::views.real-estate.member.wanted')) {
-
             return Theme::scope('real-estate.member.wanted', $data)->render();
         }
 
         return view('plugins/real-estate::member.wanted', $data);
     }
+
 
     public function getSettings()
     {
@@ -1402,7 +1385,7 @@ class GeneralPropertyController extends Controller
                     'O' => $_GET['O'],
                     'TS' => $_GET['TS'],
                 ]));
-        } else if(auth('account')->user()) {
+        } else if (auth('account')->user()) {
             return $response
                 ->setNextUrl(route('public.account.package.callback', [
                     'O' => $_GET['O'],
@@ -1428,7 +1411,7 @@ class GeneralPropertyController extends Controller
             if ($transactionStatus == 'P') {
 
                 //Temporarry, need to change before comminging
-               $payment = $paymentRepository->getFirstBy(['charge_id' => $orderId]);
+                $payment = $paymentRepository->getFirstBy(['charge_id' => $orderId]);
                 // $payment = $paymentRepository->getLastRecord();
                 $package = $packageRepository->findById($payment->package_id);
 
