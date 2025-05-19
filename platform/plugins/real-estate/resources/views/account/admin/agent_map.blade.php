@@ -25,11 +25,22 @@
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         cursor: pointer;
         transition: all 0.3s ease;
+        z-index: 999;
     }
 
     .map-control:hover {
         background-color: #e67e22;
         box-shadow: 0 4px 10px rgba(230, 126, 34, 0.4);
+    }
+
+    /* Floating redo button style (extra specific for visibility) */
+    #floating-redo {
+        position: absolute;
+        bottom: 15px;
+        right: 60px;
+        z-index: 9999;
+        background-color: #3498db !important;
+        display: none;
     }
 </style>
 
@@ -37,18 +48,19 @@
     <label class="text-capitalize control-label">Mark areas for agent</label>
     <div id="map-container">
         <div id="map"></div>
+        <!-- Floating Redo Button -->
+{{--        <button id="floating-redo" type="button" class="map-control" title="Undo last point">⤺</button>--}}
     </div>
 @endif
 
 <script async
-    src="https://maps.googleapis.com/maps/api/js?key={{ setting('google_map_api_key') }}&libraries=drawing&callback=initMap"></script>
+        src="https://maps.googleapis.com/maps/api/js?key={{ setting('google_map_api_key') }}&libraries=drawing&callback=initMap"></script>
 
 <script>
     let map, selectedShape;
     let shapesArray = [];
     let currentPolygon = null;
     let currentPath = null;
-    let redoButton = null;
     let drawingListener = null;
 
     function convertArray(array) {
@@ -153,27 +165,25 @@
         updateCoordArray();
     }
 
+    // --- Updated redo button functions ---
+
     function createRedoButton() {
-        if (redoButton) {
-            redoButton.remove();
+        const redoBtn = document.getElementById("floating-redo");
+        if (redoBtn) {
+            redoBtn.style.display = "block";
+            redoBtn.onclick = () => {
+                if (currentPath && currentPath.getLength() > 0) {
+                    currentPath.pop();
+                }
+            };
         }
-        redoButton = document.createElement("button");
-        redoButton.innerText = "⤺";
-        redoButton.classList.add("map-control");
-        redoButton.style.backgroundColor = "#3498db";
-        redoButton.title = "Undo last point";
-        redoButton.onclick = () => {
-            if (currentPath && currentPath.getLength() > 0) {
-                currentPath.pop();
-            }
-        };
-        map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(redoButton);
     }
 
     function removeRedoButton() {
-        if (redoButton) {
-            map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].removeAt(map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].getLength() - 1);
-            redoButton = null;
+        const redoBtn = document.getElementById("floating-redo");
+        if (redoBtn) {
+            redoBtn.style.display = "none";
+            redoBtn.onclick = null;
         }
     }
 
@@ -201,7 +211,7 @@
                     google.maps.event.removeListener(drawingListener);
                     drawingListener = null;
                 }
-                removeRedoButton();
+                // removeRedoButton();
 
                 const shape = event.overlay;
                 shape.type = event.type;
@@ -214,13 +224,12 @@
 
         google.maps.event.addListener(drawingManager, "drawingmode_changed", (mode) => {
             const currentMode = drawingManager.getDrawingMode();
-            console.log("Drawing mode changed to:", currentMode);
+            // createRedoButton();
             if (currentMode === google.maps.drawing.OverlayType.POLYGON) {
                 if (drawingListener) {
                     google.maps.event.removeListener(drawingListener);
                     drawingListener = null;
                 }
-                createRedoButton();
 
                 currentPolygon = new google.maps.Polygon({
                     strokeColor: "#0000FF",
@@ -241,7 +250,7 @@
                 google.maps.event.addListener(currentPolygon, "dblclick", function (e) {
                     google.maps.event.removeListener(drawingListener);
                     drawingListener = null;
-                    removeRedoButton();
+                    // removeRedoButton();
                     shapesArray.push(currentPolygon);
                     google.maps.event.addListener(currentPolygon, "click", () => setSelection(currentPolygon));
                     setSelection(currentPolygon);
@@ -254,7 +263,7 @@
                     google.maps.event.removeListener(drawingListener);
                     drawingListener = null;
                 }
-                removeRedoButton();
+                // removeRedoButton();
                 if (currentPolygon) {
                     currentPolygon.setMap(null);
                     currentPolygon = null;
