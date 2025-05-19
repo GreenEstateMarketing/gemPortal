@@ -1,5 +1,4 @@
-<script src="https://maps.googleapis.com/maps/api/js?key={{ setting('google_map_api_key') }}&libraries=places,geometry">
-</script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ setting('google_map_api_key') }}&libraries=places,geometry"></script>
 
 <script type="text/javascript">
     "use strict";
@@ -17,6 +16,7 @@
     var count_shapes = 0;
     var random;
     var currentPolygon;
+    var polygonDrawn = false; // <-- Track when polygon is drawn
 
     navigator.geolocation.getCurrentPosition(
         function (position) {
@@ -65,25 +65,20 @@
 
             map = new google.maps.Map(document.getElementById("map"), mapOptions);
 
+            // Custom zoom controls
             const zoomInControl = document.createElement("button");
             zoomInControl.textContent = "+";
-            zoomInControl.classList.add("zoom-control");
-            zoomInControl.classList.add("btn");
-            zoomInControl.classList.add("btn-primary");
+            zoomInControl.classList.add("zoom-control", "btn", "btn-primary");
             zoomInControl.type = "button";
             map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(zoomInControl);
             zoomInControl.addEventListener("click", () => {
                 map.setZoom(map.getZoom() + 1);
             });
 
-            // Adding custom zoom out button
             const zoomOutControl = document.createElement("button");
             zoomOutControl.textContent = "-";
-            zoomOutControl.classList.add("zoom-control");
+            zoomOutControl.classList.add("zoom-control", "btn", "btn-primary", "mr-1");
             zoomOutControl.type = "button";
-            zoomOutControl.classList.add("btn");
-            zoomOutControl.classList.add("btn-primary");
-            zoomOutControl.classList.add("mr-1");
             map.controls[google.maps.ControlPosition.BOTTOM_RIGHT].push(zoomOutControl);
             zoomOutControl.addEventListener("click", () => {
                 map.setZoom(map.getZoom() - 1);
@@ -106,9 +101,7 @@
 
             attachDragEndListener(marker);
 
-            geocoder.geocode({
-                'latLng': myLatlng
-            }, function (results, status) {
+            geocoder.geocode({'latLng': myLatlng}, function (results, status) {
                 if (status === google.maps.GeocoderStatus.OK && results[0]) {
                     $('#latitude,#longitude').show();
                     $('#location').val(results[0].formatted_address);
@@ -130,15 +123,10 @@
             let markers = [];
             searchBox.addListener("places_changed", () => {
                 const places = searchBox.getPlaces();
-                if (places.length == 0) {
-                    return;
-                }
+                if (places.length == 0) return;
 
-                markers.forEach((m) => {
-                    m.setMap(null);
-                });
+                markers.forEach((m) => m.setMap(null));
                 markers = [];
-
                 const bounds = new google.maps.LatLngBounds();
 
                 places.forEach((place) => {
@@ -146,11 +134,10 @@
                         console.log("Returned place contains no geometry");
                         return;
                     }
-
-                    const location = place.geometry.location; // ✅ correct location
+                    const location = place.geometry.location;
 
                     var agent_area_edit = $("#agent_area").val();
-                    if (agent_area_edit != "") {
+                    if (agent_area_edit != "" && bermudaTriangle.length > 0) {
                         var isWithInPolygon = false;
                         for (var i = 0; i < bermudaTriangle.length; i++) {
                             if (google.maps.geometry.poly.containsLocation(location, bermudaTriangle[i])) {
@@ -162,27 +149,13 @@
                         if (isWithInPolygon) {
                             $(":submit").prop('disabled', false);
                             $("#messageText").addClass("d-none");
-
-                            // Place marker at searched location
-                            if (marker) {
-                                marker.setMap(null);
-                            }
-
-                            var iconBase = '/themes/real-scout/images/generic-3.png';
-                            var icon = {
-                                url: iconBase,
-                                scaledSize: new google.maps.Size(32, 37),
-                                origin: new google.maps.Point(0, 0),
-                                anchor: new google.maps.Point(0, 0)
-                            };
-
+                            if (marker) marker.setMap(null);
                             marker = new google.maps.Marker({
                                 map: map,
                                 position: location,
                                 draggable: true,
                                 icon: icon
                             });
-
                             attachDragEndListener(marker);
 
                             geocoder.geocode({'latLng': location}, function (results, status) {
@@ -195,7 +168,6 @@
                                     $('#latitude').trigger('change');
                                 }
                             });
-
                         } else {
                             handleMarkerOutsidePolygon();
                         }
@@ -211,9 +183,18 @@
                 map.fitBounds(bounds);
             });
 
+            // Only enable map clicks after polygon is drawn
+            map.addListener('click', function (event) {
+                console.log('clicked the map', polygonDrawn, bermudaTriangle.length, event.latLng.lat(), event.latLng.lng());
+                if (!polygonDrawn || bermudaTriangle.length === 0) {
+                    $("#messageText").removeClass("d-none");
+                    $("#messageText").text("Please select an area first.");
+                    return;
+                } else {
+                    $("#messageText").addClass("d-none");
+                    $("#messageText").text("");
+                }
 
-            google.maps.event.addListener(map, 'click', function (event) {
-                console.log('click event');
                 var isWithInPolygon = false;
                 for (var i = 0; i < bermudaTriangle.length; i++) {
                     if (google.maps.geometry.poly.containsLocation(event.latLng, bermudaTriangle[i])) {
@@ -221,43 +202,20 @@
                         break;
                     }
                 }
-
-                console.log('isWithInPolygon', isWithInPolygon);
-
                 if (isWithInPolygon) {
-                    // ✅ Inside polygon
                     $(":submit").prop('disabled', false);
                     $("#messageText").addClass("d-none");
-
-                    // Remove the old marker if needed
-                    if (marker) {
-                        marker.setMap(null);
-                    }
-
-                    // Create a fresh marker at clicked position
-                    var iconBase = '/themes/real-scout/images/generic-3.png';
-                    var icon = {
-                        url: iconBase,
-                        scaledSize: new google.maps.Size(32, 37),
-                        origin: new google.maps.Point(0, 0),
-                        anchor: new google.maps.Point(0, 0)
-                    };
-
+                    if (marker) marker.setMap(null);
                     marker = new google.maps.Marker({
                         map: map,
                         position: event.latLng,
                         draggable: true,
                         icon: icon
                     });
-
                     attachDragEndListener(marker);
-
-                    // Also update latitude/longitude fields
                     $('#latitude').val(event.latLng.lat());
                     $('#longitude').val(event.latLng.lng());
                     $('#latitude').trigger('change');
-
-                    // Optional: Reverse geocode the address
                     geocoder.geocode({'latLng': event.latLng}, function (results, status) {
                         if (status === google.maps.GeocoderStatus.OK && results[0]) {
                             $('#location').val(results[0].formatted_address);
@@ -265,7 +223,6 @@
                             infowindow.open(map, marker);
                         }
                     });
-
                 } else {
                     handleMarkerOutsidePolygon();
                 }
@@ -276,8 +233,8 @@
             google.maps.event.addListener(marker, 'dragend', function (event) {
                 var coordinate = marker.getPosition();
                 var agent_area_edit = $("#agent_area").val();
-                if (agent_area_edit != "") {
-                    var isWithInPolygon = false;
+                var isWithInPolygon = false;
+                if (agent_area_edit != "" && bermudaTriangle.length > 0) {
                     for (var i = 0; i < bermudaTriangle.length; i++) {
                         isWithInPolygon = google.maps.geometry.poly.containsLocation(
                             event.latLng,
@@ -292,9 +249,7 @@
                         handleMarkerOutsidePolygon();
                     }
                 }
-                geocoder.geocode({
-                    'latLng': marker.getPosition()
-                }, function (results, status) {
+                geocoder.geocode({'latLng': marker.getPosition()}, function (results, status) {
                     if (status === google.maps.GeocoderStatus.OK && results[0]) {
                         $('#location').val(results[0].formatted_address);
                         $('#latitude').val(marker.getPosition().lat());
@@ -312,9 +267,12 @@
             $("#messageText").removeClass("d-none");
             $("#messageText").text("Please Select Location Inside the polygon");
 
-            if (marker) {
-                marker.setMap(null);
-            }
+            if (marker) marker.setMap(null);
+
+            // Set fallback to first point in first polygon, or map center
+            var fallback = (bermudaTriangle.length > 0 && bermudaTriangle[0].getPath().getLength() > 0)
+                ? bermudaTriangle[0].getPath().getAt(0)
+                : map.getCenter();
 
             var iconBase = '/themes/real-scout/images/generic-3.png';
             var icon = {
@@ -326,7 +284,7 @@
 
             marker = new google.maps.Marker({
                 map: map,
-                position: random,
+                position: fallback,
                 draggable: true,
                 icon: icon
             });
@@ -337,81 +295,79 @@
         initMap();
 
         function drawPolygonArea() {
+            // Reset polygons if already drawn
+            bermudaTriangle.forEach(poly => poly.setMap(null));
+            bermudaTriangle = [];
+            global_arr = [];
+            counter = 0;
+            count_shapes = 0;
+            random = null;
+            polygonDrawn = false;
+
             var agent_area_edit = $("#agent_area").val();
             var latlngbounds = new google.maps.LatLngBounds();
             if (agent_area_edit != "") {
                 var dataObj = JSON.parse(agent_area_edit);
-                var list_data = [];
-                var one = 0;
-                var shapes = 0;
                 var type = dataObj.type;
 
-                $.each(dataObj.coordinates[0], function (index, data) {
-                    if (type == "Polygon") {
+                // For MultiPolygon or Polygon
+                if (type === "Polygon") {
+                    var list_data = [];
+                    $.each(dataObj.coordinates[0], function (index, data) {
+                        // Assuming GeoJSON [lng, lat] format
                         var latlng = new google.maps.LatLng(data[1], data[0]);
-                        random = latlng;
+                        list_data.push({lat: data[1], lng: data[0]});
                         latlngbounds.extend(latlng);
-                        list_data[one] = {
-                            lat: data[1],
-                            lng: data[0],
-                        };
-                        one++;
-                    } else {
-                        var many = 0;
-                        $.each(data, function (key, data1) {
-                            var latlng = new google.maps.LatLng(data1[1], data1[0]);
-                            latlngbounds.extend(latlng);
-                            list_data[many] = {
-                                lat: data1[1],
-                                lng: data1[0],
-                            };
-                            many++;
-                        });
-                        global_arr[counter] = list_data;
-                        counter++;
-                        bermudaTriangle[count_shapes] = new google.maps.Polygon({
-                            paths: list_data,
-                            strokeColor: "#FF0000",
-                            strokeOpacity: 0.8,
-                            strokeWeight: 2,
-                            fillColor: "#FF0000",
-                            fillOpacity: 0.35,
-                            clickable: false
-                        });
-                        bermudaTriangle[count_shapes].setMap(map);
-                        count_shapes++;
-                        shapes++;
-                    }
-                    shapes++;
-                });
+                    });
+                    random = new google.maps.LatLng(list_data[0].lat, list_data[0].lng);
 
-                if (type == "Polygon") {
-                    global_arr[counter] = list_data;
-                    counter++;
-                    bermudaTriangle[count_shapes] = new google.maps.Polygon({
+                    var polygon = new google.maps.Polygon({
                         paths: list_data,
                         strokeColor: "#FF0000",
                         strokeOpacity: 0.8,
                         strokeWeight: 2,
                         fillColor: "#FF0000",
                         fillOpacity: 0.35,
-                        clickable: false
+                        clickable: false,
+                        zIndex: 1 // help with event propagation
                     });
-                    bermudaTriangle[count_shapes].setMap(map);
+                    polygon.setMap(map);
+                    bermudaTriangle.push(polygon);
+                } else {
+                    // Handle MultiPolygon if needed
+                    $.each(dataObj.coordinates, function (polygonIndex, polyCoords) {
+                        var list_data = [];
+                        $.each(polyCoords[0], function (index, data) {
+                            var latlng = new google.maps.LatLng(data[1], data[0]);
+                            list_data.push({lat: data[1], lng: data[0]});
+                            latlngbounds.extend(latlng);
+                        });
+                        if (!random) random = new google.maps.LatLng(list_data[0].lat, list_data[0].lng);
+                        var polygon = new google.maps.Polygon({
+                            paths: list_data,
+                            strokeColor: "#FF0000",
+                            strokeOpacity: 0.8,
+                            strokeWeight: 2,
+                            fillColor: "#FF0000",
+                            fillOpacity: 0.35,
+                            clickable: false,
+                            zIndex: 1
+                        });
+                        polygon.setMap(map);
+                        bermudaTriangle.push(polygon);
+                    });
                 }
-
                 map.fitBounds(latlngbounds);
+                polygonDrawn = true;
             }
         }
 
-        var agent_area_edit = $("#agent_area").val();
-        if (agent_area_edit != "") {
-            $(document).ready(function () {
-                setTimeout(function() {
-                    drawPolygonArea();
-                }, 2000);
-            });
-            marker.setMap(null);
+        // Listen to area selection dropdown change
+        $('#agent_area').on('change', function () {
+            drawPolygonArea();
+
+            // Move marker to a valid spot
+            if (marker) marker.setMap(null);
             var iconBase = '/themes/real-scout/images/generic-3.png';
             var icon = {
                 url: iconBase,
@@ -421,13 +377,42 @@
             };
             marker = new google.maps.Marker({
                 map: map,
-                position: random,
+                position: random || map.getCenter(),
                 draggable: true,
                 icon: icon
             });
             attachDragEndListener(marker);
+            $("#messageText").addClass("d-none");
+            $(":submit").prop('disabled', false);
+        });
+
+        // Initial polygon drawing if value already present
+        var agent_area_edit = $("#agent_area").val();
+        if (agent_area_edit != "") {
+            drawPolygonArea();
+
+            // Move marker to a valid spot
+            if (marker) marker.setMap(null);
+            var iconBase = '/themes/real-scout/images/generic-3.png';
+            var icon = {
+                url: iconBase,
+                scaledSize: new google.maps.Size(32, 37),
+                origin: new google.maps.Point(0, 0),
+                anchor: new google.maps.Point(0, 0)
+            };
+            marker = new google.maps.Marker({
+                map: map,
+                position: random || map.getCenter(),
+                draggable: true,
+                icon: icon
+            });
+            attachDragEndListener(marker);
+            polygonDrawn = true;
+            $("#messageText").addClass("d-none");
+            $(":submit").prop('disabled', false);
         }
 
+        // Fallback: draw a circle for city/area if polygon not set
         function drawPolygonAreaForSelectedArea(address) {
             const geocoder = new google.maps.Geocoder();
 
@@ -446,57 +431,73 @@
                     const ne = bounds.getNorthEast();  // North-East corner
                     const sw = bounds.getSouthWest();  // South-West corner
 
-                    // Draw the polygon using these bounds
+                    // Draw the rectangle as a polygon
                     const polygonCoords = [
                         {lat: ne.lat(), lng: ne.lng()},
                         {lat: ne.lat(), lng: sw.lng()},
                         {lat: sw.lat(), lng: sw.lng()},
-                        {lat: sw.lat(), lng: ne.lng()}
+                        {lat: sw.lat(), lng: ne.lng()},
+                        {lat: ne.lat(), lng: ne.lng()} // Close the polygon
                     ];
 
-                    const radius = google.maps.geometry.spherical.computeDistanceBetween(ne, sw) / 3; // Radius in meters
+                    // Remove previous
+                    bermudaTriangle.forEach(poly => poly.setMap(null));
+                    bermudaTriangle = [];
+                    polygonDrawn = false;
 
-                    if (currentPolygon) {
-                        currentPolygon.setMap(null);
-                    }
-
-                    currentPolygon = new google.maps.Circle({
-                        center: location,
-                        radius: radius,  // Radius in meters
-                        strokeColor: '#f57070',
+                    var rectanglePolygon = new google.maps.Polygon({
+                        paths: polygonCoords,
+                        strokeColor: "#FF0000",
                         strokeOpacity: 0.8,
                         strokeWeight: 2,
-                        fillColor: '#f57070',
-                        fillOpacity: 0.35
+                        fillColor: "#FF0000",
+                        fillOpacity: 0.35,
+                        clickable: false,
+                        zIndex: 1
                     });
+                    rectanglePolygon.setMap(map);
+                    bermudaTriangle.push(rectanglePolygon);
+                    polygonDrawn = true;
 
-                    currentPolygon.setMap(map);
+                    // Optionally: reset marker to center
+                    if (marker) marker.setMap(null);
+                    var iconBase = '/themes/real-scout/images/generic-3.png';
+                    var icon = {
+                        url: iconBase,
+                        scaledSize: new google.maps.Size(32, 37),
+                        origin: new google.maps.Point(0, 0),
+                        anchor: new google.maps.Point(0, 0)
+                    };
+                    marker = new google.maps.Marker({
+                        map: map,
+                        position: location,
+                        draggable: true,
+                        icon: icon
+                    });
+                    attachDragEndListener(marker);
                 } else {
-                    currentPolygon.setMap(null);
+                    bermudaTriangle.forEach(poly => poly.setMap(null));
+                    bermudaTriangle = [];
+                    polygonDrawn = false;
+                    if (currentPolygon) currentPolygon.setMap(null);
                     console.error('Geocode failed: ' + status);
                 }
             });
         }
 
+
         if (agent_area_edit === "") {
             let alreadySaved = $('#city_area_id').val();
-
             if (alreadySaved !== 0) {
                 var cityAreaValue = $('#city_area_id').find('option:selected').text();
-                ;
                 var cityValue = $('#city_id').find('option:selected').text();
-
                 let address = cityAreaValue + ' ' + cityValue
-
                 drawPolygonAreaForSelectedArea(address);
             }
-
             $('#city_area_id').on('change', function () {
                 var cityAreaValue = $('#city_area_id').find('option:selected').text();
                 var cityValue = $('#city_id').find('option:selected').text();
-
                 let address = cityAreaValue + ' ' + cityValue
-
                 drawPolygonAreaForSelectedArea(address);
             });
         }

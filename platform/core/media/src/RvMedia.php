@@ -63,11 +63,12 @@ class RvMedia
      * @param ThumbnailService $thumbnailService
      */
     public function __construct(
-        MediaFileInterface $fileRepository,
+        MediaFileInterface   $fileRepository,
         MediaFolderInterface $folderRepository,
-        UploadsManager $uploadManager,
-        ThumbnailService $thumbnailService
-    ) {
+        UploadsManager       $uploadManager,
+        ThumbnailService     $thumbnailService
+    )
+    {
         $this->fileRepository = $fileRepository;
         $this->folderRepository = $folderRepository;
         $this->uploadManager = $uploadManager;
@@ -232,7 +233,7 @@ class RvMedia
             return $path;
         }
 
-        if (config('filesystems.default') === 'do_spaces' && (int) setting('media_do_spaces_cdn_enabled')) {
+        if (config('filesystems.default') === 'do_spaces' && (int)setting('media_do_spaces_cdn_enabled')) {
             $customDomain = setting('media_do_spaces_cdn_custom_domain');
 
             if ($customDomain) {
@@ -462,7 +463,7 @@ class RvMedia
 
             $maxSize = $this->getServerConfigMaxUploadFileSize();
 
-            if ($fileUpload->getSize() / 1024 > (int) $maxSize) {
+            if ($fileUpload->getSize() / 1024 > (int)$maxSize) {
                 return [
                     'error' => true,
                     'message' => trans('core/media::media.file_too_big', ['size' => human_file_size($maxSize)]),
@@ -539,7 +540,7 @@ class RvMedia
 
             $this->generateThumbnails($file);
 
-          $this->watermarkImage($folderPath, $fileName);
+//            $this->watermarkImage($folderPath, $fileName);
 
             return [
                 'error' => false,
@@ -555,61 +556,35 @@ class RvMedia
 
     public function watermarkImage($folderPath, $fileName): void
     {
-        $fileNameArray = explode('.', $fileName);
-        $fileNameWithoutExtension = $fileNameArray[0];
-        $extension = $fileNameArray[1];
+        if (setting('media_watermark_enabled', config('core.media.media.watermark.enabled'))) {
+            $fileNameArray = explode('.', $fileName);
 
-        $filePathFull = Storage::path($folderPath) . '/' . $fileName;
-        $image = InImage::make($filePathFull);
+            $filePathFull = Storage::path($folderPath) . '/' . $fileName;
+            $image = InImage::make($filePathFull);
 
-        $watermarkPath = public_path('storage/watermark/gem-w.png');
-        $watermark = InImage::make($watermarkPath);
+            $watermark = Image::make($this->getRealPath(setting(
+                'media_watermark_source',
+                config('core.media.media.watermark.source')
+            )));
 
-        $watermark->resize(
-            intval($image->width() * 0.3), // 30% of the image width
-            intval($image->height() * 0.3), // 30% of the image height
-            function ($constraint) {
-                $constraint->aspectRatio(); // Maintain aspect ratio
-                $constraint->upsize(); // Prevent upsizing if the watermark is smaller
-            }
-        );
+            $watermark->resize(
+                intval($image->width() * 0.3), // 30% of the image width
+                intval($image->height() * 0.3), // 30% of the image height
+                function ($constraint) {
+                    $constraint->aspectRatio(); // Maintain aspect ratio
+                    $constraint->upsize(); // Prevent upsizing if the watermark is smaller
+                }
+            );
 
-        $image->insert($watermark, 'center');
-        $image->save($filePathFull);
+            $image->insert(
+                $watermark,
+                setting('media_watermark_position', config('core.media.media.watermark.position')),
+                setting('watermark_position_x', config('core.media.media.watermark.x')),
+                setting('watermark_position_y', config('core.media.media.watermark.y'))
+            );
 
-        $watermark1Path = public_path('storage/watermark/gem-w-150x150.png');
-        $watermark1 = InImage::make($watermark1Path);
-
-        $watermark1->resize(
-            intval($image->width() * 0.3), // 30% of the image width
-            intval($image->height() * 0.3), // 30% of the image height
-            function ($constraint) {
-                $constraint->aspectRatio(); // Maintain aspect ratio
-                $constraint->upsize(); // Prevent upsizing if the watermark is smaller
-            }
-        );
-
-        $thumbnail1Full = Storage::path($folderPath) . '/' . $fileNameWithoutExtension . '-150x150.' . $extension;
-        $thumbnail1 = InImage::make($thumbnail1Full);
-        $thumbnail1->insert($watermark1, 'center');
-        $thumbnail1->save($thumbnail1Full);
-
-        $watermark2Path = public_path('storage/watermark/gem-w-410x270.png');
-        $watermark2 = InImage::make($watermark2Path);
-
-        $watermark2->resize(
-            intval($image->width() * 0.3), // 30% of the image width
-            intval($image->height() * 0.3), // 30% of the image height
-            function ($constraint) {
-                $constraint->aspectRatio(); // Maintain aspect ratio
-                $constraint->upsize(); // Prevent upsizing if the watermark is smaller
-            }
-        );
-
-        $thumbnail2Full = Storage::path($folderPath) . '/' . $fileNameWithoutExtension . '-410x270.' . $extension;
-        $thumbnail2 = InImage::make($thumbnail2Full);
-        $thumbnail2->insert($watermark2, 'center');
-        $thumbnail2->save($thumbnail2Full);
+            $image->save($filePathFull);
+        }
     }
 
     /**
@@ -677,9 +652,9 @@ class RvMedia
             // 10% less then an actual image (play with this value)
             // Watermark will be 10 less then the actual width of the image
             $watermarkSize = round($image->width() * (setting(
-                'media_watermark_size',
-                config('core.media.media.watermark.size')
-            ) / 100), 2);
+                        'media_watermark_size',
+                        config('core.media.media.watermark.size')
+                    ) / 100), 2);
 
             // Resize watermark width keep height auto
             $watermark
