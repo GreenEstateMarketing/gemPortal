@@ -51,8 +51,10 @@ class DocumentForm extends FormAbstract
                 ],
                 'attr' => [
                     'class' => 'form-control select-full',
+                    'multiple' => 'multiple',
                 ],
                 'choices' => $types,
+                'selected' => explode(',', $this->getModel()->type)
             ]);
     }
 }

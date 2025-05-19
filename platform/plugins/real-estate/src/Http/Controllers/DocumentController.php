@@ -51,7 +51,12 @@ class DocumentController extends BaseController
 
     public function store(DocumentRequest $request, BaseHttpResponse $response)
     {
-        $document = $this->documentRepo->createOrUpdate($request->input());
+        $data = [
+            'name' => $request->input('name'),
+            'type' => implode(',', $request->input('type')),
+        ];
+
+        $document = $this->documentRepo->createOrUpdate($data);
 
         event(new CreatedContentEvent(DOCUMENT_MODULE_SCREEN_NAME, $request, $document));
 
@@ -82,7 +87,12 @@ class DocumentController extends BaseController
     {
         $document = $this->documentRepo->findOrFail($id);
 
-        $document->fill($request->input());
+        $data = [
+            'name' => $request->input('name'),
+            'type' => implode(',', $request->input('type')),
+        ];
+
+        $document->fill($data);
 
         $this->documentRepo->createOrUpdate($document);
 

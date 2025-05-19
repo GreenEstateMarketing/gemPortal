@@ -128,7 +128,6 @@ class AccountForm extends FormAbstract
             'label_attr' => ['class' => 'control-label required'],
             'wrapper' => [
                 'class' => 'form-group col-md-6',
-
             ],
             'attr' => [
                 'class' => 'form-control select-search-full city_id',
