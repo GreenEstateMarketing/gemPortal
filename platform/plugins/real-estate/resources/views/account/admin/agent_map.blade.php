@@ -54,7 +54,8 @@
 @endif
 
 <script async
-        src="https://maps.googleapis.com/maps/api/js?key={{ setting('google_map_api_key') }}&libraries=drawing&callback=initMap"></script>
+src="https://maps.googleapis.com/maps/api/js?key={{ setting('google_map_api_key') }}&libraries=places,geometry,drawing&v=3.64&callback=initMap">
+</script>
 
 <script>
     let map, selectedShape;
