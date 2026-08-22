@@ -42,7 +42,7 @@ services:
     restart: unless-stopped
 
     ports:
-      - "9001:80"
+      - "80:80"
 
     volumes:
       - ./:/var/www/html
