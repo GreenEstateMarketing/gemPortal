@@ -1,7 +1,6 @@
 @if (theme_option('favicon'))
-    <link rel="shortcut icon" href="{{ RvMedia::getImageUrl(theme_option('favicon')) }}">
+    <link rel="shortcut icon" type="image/png" href="{{ RvMedia::getImageUrl(theme_option('favicon')) }}">
 @endif
-
 {!! SeoHelper::render() !!}
 
 {!! Theme::asset()->styles() !!}
