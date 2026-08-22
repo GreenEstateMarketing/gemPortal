@@ -69,13 +69,12 @@ class ResetPasswordController extends Controller
     }
 
     public function reset(Request $request)
-    {
+    { 
         $request->validate([
             'token' => 'required',
             'email' => 'required|email',
             'password' => 'required|min:6|confirmed',
         ]);
-
         $type = null;
         $email = $request->get('email');
         $agent = Account::where('email', $email)->first();
@@ -101,18 +100,19 @@ class ResetPasswordController extends Controller
                 ? redirect('/login')->with('status', __($status))
                 : back()->withErrors(['email' => [__($status)]]);
         } else {
-            $status = Password::broker('members')->reset(
-                $request->only('email', 'password', 'password_confirmation', 'token'),
-                function (Member $member, string $password) {
-                    $member->forceFill([
-                        'password' => Hash::make($password)
-                    ])->setRememberToken(Str::random(60));
+          $status = Password::broker('members')->reset(
+    $request->only('email', 'password', 'password_confirmation', 'token'),
+    function (Member $member, string $password) {
+        $member->forceFill([
+            'password' => Hash::make($password)
+        ])->setRememberToken(Str::random(60));
 
-                    $member->save();
+        $member->save();
 
-                    event(new PasswordReset($member));
-                }
-            );
+        event(new PasswordReset($member));
+    }
+);
+
 
             return $status === Password::PASSWORD_RESET
                 ? redirect()->route('member.login')->with('status', __($status))

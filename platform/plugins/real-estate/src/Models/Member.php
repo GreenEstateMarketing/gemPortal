@@ -25,8 +25,11 @@ class Member extends Authenticatable
         'mobile_no',
         'password',
         'credits',
-        'remember_token'
+        'remember_token',
+        'verification_token',
+        'email_verified',
     ];
+
     public function properties()
     {
         return $this->hasMany(Property::class, 'member_id', 'id');

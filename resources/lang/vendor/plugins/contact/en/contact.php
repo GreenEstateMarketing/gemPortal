@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'menu'                  => 'Contact',
+    'menu'                  => 'Inquiries',
     'edit'                  => 'View contact',
     'tables'                => [
         'phone'     => 'Phone',

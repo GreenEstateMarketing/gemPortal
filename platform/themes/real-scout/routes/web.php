@@ -26,6 +26,8 @@ Route::group(['namespace' => 'Theme\FlexHome\Http\Controllers', 'middleware' => 
         Route::get('get-search-area','FlexHomeController@getSearchAreaList');
         Route::get('ajax/projects', 'FlexHomeController@ajaxGetProjects')->name('public.ajax.projects');
         Route::get('/ajax/get-city-areas', 'FlexHomeController@getCityAreaListByCity');
+        Route::get('/ajax/get-states', 'FlexHomeController@getStateListByCountry');
+Route::get('/ajax/get-cities', 'FlexHomeController@getCityListByState');
         Route::get('ajax/get-parent-categories', 'FlexHomeController@ajaxGetParentCategories')->name('public.ajax.parent-categories');
         Route::get('ajax/get-child-categories', 'FlexHomeController@ajaxGetChildCategories')->name('public.ajax.child-categories');
     });

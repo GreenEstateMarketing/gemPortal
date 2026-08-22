@@ -42,7 +42,7 @@ class PageServiceProvider extends ServiceProvider
         Event::listen(RouteMatched::class, function () {
             dashboard_menu()->registerItem([
                 'id'          => 'cms-core-page',
-                'priority'    => 2,
+                'priority'    => 1000,
                 'parent_id'   => null,
                 'name'        => 'packages/page::pages.menu_name',
                 'icon'        => 'fa fa-book',

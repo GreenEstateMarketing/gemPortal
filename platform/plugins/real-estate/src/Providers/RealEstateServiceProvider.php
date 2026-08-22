@@ -403,7 +403,7 @@ class RealEstateServiceProvider extends ServiceProvider
                     'id' => 'cms-plugins-wanted',
                     'priority' => 28,
                     'parent_id' => null,
-                    'name' => 'Wanted',
+                    'name' => 'Leads',
                     'icon' => 'fas fa-file-alt',
                     'url' => route('wanted.index'),
                     'permissions' => ['wanted.index'],
@@ -449,8 +449,8 @@ class RealEstateServiceProvider extends ServiceProvider
 
         $this->app->register(EventServiceProvider::class);
 
-        if (is_plugin_active('rss-feed')) {
-            \RssFeed::addFeedLink(route('feeds.properties'), 'Properties feed');
-        }
+        if (is_plugin_active('rss-feed') && \Route::has('feeds.properties')) {
+    \RssFeed::addFeedLink(route('feeds.properties'), 'Properties feed');
+}
     }
 }

@@ -526,7 +526,11 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
             ->name('general-add-property');
         Route::POST('member-property-save', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'store'])
             ->name('general-save-property');
+Route::get('ajax/states', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'getStates'])
+    ->name('ajax.states');
 
+Route::get('ajax/property-cities', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'getCities'])
+    ->name('ajax.property-cities');
         //////////////////////////////members////////////////////////
         /// middleware set here for member////////
         Route::get('member-login', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'login'])
@@ -538,6 +542,22 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
             ->name('member.register');
         Route::post('member-signup', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'createMember'])
             ->name('member.register.save');
+        Route::get('/member/verify/{token}', function ($token) {
+
+    $member = \Botble\RealEstate\Models\Member::where('verification_token', $token)->first();
+
+    if (!$member) {
+        return redirect('/member-login')
+            ->with('error_msg', 'Invalid verification link.');
+    }
+
+    $member->email_verified = 1;
+    $member->verification_token = null;
+    $member->save();
+
+    return redirect('/member-login')
+        ->with('success_msg', 'Email verified successfully. You may now login.');
+})->name('member.verify');    
         Route::get('wanted', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'wanted'])
             ->name('wanted');
         Route::get('/property/{property:name}', 'PostController@show')->name('post.show');
@@ -575,6 +595,7 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                 'as' => 'activity-logs',
                 'uses' => 'GeneralPropertyController@getActivityLogs',
             ]);
+
             Route::post(
                 'checkout-discount-apply',
                 [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'postcheckout']

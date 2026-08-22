@@ -71,7 +71,7 @@ class BlogServiceProvider extends ServiceProvider
             dashboard_menu()
                 ->registerItem([
                     'id'          => 'cms-plugins-blog',
-                    'priority'    => 3,
+                    'priority'    => 1003,
                     'parent_id'   => null,
                     'name'        => 'plugins/blog::base.menu_name',
                     'icon'        => 'fa fa-edit',

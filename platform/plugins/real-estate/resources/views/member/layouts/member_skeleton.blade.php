@@ -89,11 +89,46 @@
   <!-- <script src="{{ asset('/js/app.js') }}"></script> -->
 
 
-  {!! Assets::renderFooter() !!}
-  @stack('scripts')
-  @stack('footer')
-  <script src="{{ asset('/js/jquery.validate.min.js') }}"></script>
-  <script src="{{ asset('/js/additional-methods.min.js') }}"></script>
-  <script src="{{ asset('/js/checkout.js') }}"></script>
+ {!! Assets::renderFooter() !!}
+@stack('scripts')
+@stack('footer')
+<script src="{{ asset('/js/jquery.validate.min.js') }}"></script>
+<script src="{{ asset('/js/additional-methods.min.js') }}"></script>
+<script src="{{ asset('/js/checkout.js') }}"></script>
+
+<!-- WhatsApp Floating Button -->
+<a href="https://wa.me/923001234567"
+   target="_blank"
+   class="whatsapp-float"
+   title="Chat with us on WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+</a>
+
+<style>
+.whatsapp-float{
+    position:fixed;
+    width:60px;
+    height:60px;
+    bottom:25px;
+    right:25px;
+    background:#25D366;
+    color:#FFF;
+    border-radius:50%;
+    text-align:center;
+    font-size:34px;
+    line-height:60px;
+    box-shadow:0 4px 10px rgba(0,0,0,.3);
+    z-index:999999;
+    transition:.3s;
+}
+
+.whatsapp-float:hover{
+    background:#1EBE5D;
+    color:#fff;
+    text-decoration:none;
+    transform:scale(1.08);
+}
+</style>
+
 </body>
 </html>

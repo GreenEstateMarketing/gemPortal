@@ -10,7 +10,8 @@ use Botble\RealEstate\Models\Account;
 use Throwable;
 use Botble\Location\Repositories\Interfaces\CityInterface;
 use Botble\Location\Repositories\Interfaces\CityAreaInterface;
-
+use Botble\Location\Repositories\Interfaces\CountryInterface;
+use Botble\Location\Repositories\Interfaces\StateInterface;
 class AccountForm extends FormAbstract
 {
 
@@ -28,15 +29,20 @@ class AccountForm extends FormAbstract
      * @var CityAreaInterface
      */
     protected $cityAreaRepository;
-
+protected $countryRepository;
+protected $stateRepository;
     public function __construct(
-        CityInterface $cityRepository,
-        CityAreaInterface $cityAreaRepository
-    ) {
+    CountryInterface $countryRepository,
+    StateInterface $stateRepository,
+    CityInterface $cityRepository,
+    CityAreaInterface $cityAreaRepository
+) {
         parent::__construct();
 
-        $this->cityRepository = $cityRepository;
-        $this->cityAreaRepository = $cityAreaRepository;
+       $this->countryRepository = $countryRepository;
+$this->stateRepository = $stateRepository;
+$this->cityRepository = $cityRepository;
+$this->cityAreaRepository = $cityAreaRepository;
 
     }
 
@@ -95,45 +101,51 @@ class AccountForm extends FormAbstract
                     'data-counter' => 60,
                 ],
             ]);
+$countries = $this->countryRepository
+    ->pluck('countries.name', 'countries.id');
 
-        $cities = $this->cityRepository->allBy(
-            ['status' => BaseStatusEnum::PUBLISHED],
-            ['state', 'country'],
-            ['cities.name', 'cities.state_id', 'cities.country_id', 'cities.id']
-        );
+$states = [];
+       $cityChoices = [];
+$this->add('country_id', 'customSelect', [
+    'label' => 'Country',
+    'label_attr' => ['class' => 'control-label required'],
+    'wrapper' => [
+        'class' => 'form-group col-md-6',
+    ],
+    'attr' => [
+        'id' => 'country_id',
+        'class' => 'form-control select-search-full',
+        'data-change-country-url' => url('/ajax/get-states'),
+    ],
+'choices' => ['' => 'Select Country'] + $countries,
+])
 
-        $cityareas = [];
-        if ($this->getModel()->city_id > 0) {
-            $cityareas = $this->cityAreaRepository->allBy(['city_id' => $this->getModel()->city_id]);
-        }
-
-
-        $cityChoices = [];
-        $cityAreaChoices = [];
-        //for getting published cities
-        foreach ($cities as $city) {
-            if ($city->state->status != BaseStatusEnum::PUBLISHED || $city->country->status != BaseStatusEnum::PUBLISHED) {
-                continue;
-            }
-            $cityChoices[$city->id] = $city->name . ($city->state->name ? ' (' . $city->state->name . ')' : '');
-        }
-
-        //for getting city areas for selected cities
-        foreach ($cityareas as $area) {
-            $cityAreaChoices[$area->id] = $area->city_area_name;
-        }
-
+->add('state_id', 'customSelect', [
+    'label' => 'State',
+    'label_attr' => ['class' => 'control-label required'],
+    'wrapper' => [
+        'class' => 'form-group col-md-6',
+    ],
+    'attr' => [
+        'id' => 'state_id',
+        'class' => 'form-control select-search-full',
+        'data-change-state-url' => url('/ajax/get-cities'),
+    ],
+    'choices' => $states,
+]);
         $this->add('city_id', 'customSelect', [
             'label' => trans('plugins/real-estate::property.form.city'),
             'label_attr' => ['class' => 'control-label required'],
             'wrapper' => [
                 'class' => 'form-group col-md-6',
             ],
-            'attr' => [
-                'class' => 'form-control select-search-full city_id',
-            ],
-            'choices' => [0 => trans('plugins/real-estate::property.select_city')] + $cityChoices,
-        ])
+           'attr' => [
+    'id' => 'city_id',
+    'class' => 'form-control select-search-full city_id',
+],
+'choices' => [
+    '' => trans('plugins/real-estate::property.select_city'),
+],        ])
         ->add('city_area_id', 'customSelect', [
             'label' => trans('plugins/real-estate::property.form.city_area'),
             'label_attr' => ['class' => 'control-label required'],
@@ -146,7 +158,7 @@ class AccountForm extends FormAbstract
                 'multiple' => 'multiple',
                 'name' => 'city_area_id[]'
             ],
-            'choices' => $cityAreaChoices,
+'choices' => [],
             'selected' => explode(',', $this->getModel()->city_area_id)
         ]);
         

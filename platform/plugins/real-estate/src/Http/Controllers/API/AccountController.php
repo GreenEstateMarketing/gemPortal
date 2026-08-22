@@ -188,43 +188,45 @@ class AccountController extends Controller
 
         return $response->setMessage(trans('core/acl::users.password_update_success'));
     }
-    public function agent_list(Request $request)
-    {
-        $lat = $request->latitude;
-        $lng = $request->longitude;
-        if ($lat && $lng) {
-            $po = "'" . 'POINT(' . $lat . ' ' . $lng . ')' . "'";
-            //SELECT ST_Within(ST_GEOMFROMTEXT('POINT($lat $lng)'),agent_area) as ceck,id FROM `re_accounts` WHERE id=33
-            $col = '*,ST_Within(ST_GEOMFROMTEXT(' . $po . '),agent_area) as ceck,id';
-            $w = 'ST_Within(ST_GEOMFROMTEXT(' . $po . ',4326),agent_area)=1';
+  public function agent_list(Request $request)
+{
+    $lat = $request->latitude;
+    $lng = $request->longitude;
 
-//            $res = Account::select(['re_accounts.id', 'first_name', 'last_name', 'rating'])->leftJoin('ratings', 're_accounts.id', '=', 'ratings.agent_id')->whereNotNull('confirmed_at')->whereRaw($w)->groupBy('re_accounts.id')->orderBy('rating', 'DESC')->get();
+    if ($lat && $lng) {
 
-            $res = Account::select([
+        // WKT uses LONGITUDE LATITUDE
+        $po = "'POINT(" . $lng . " " . $lat . ")'";
+
+        $w = "ST_Within(ST_GeomFromText($po,4326), agent_area)=1";
+
+        $res = Account::select([
                 're_accounts.id',
                 'first_name',
                 'last_name',
-                \DB::raw('ROUND(AVG(ratings.rating), 1) as rating')
+                DB::raw('ROUND(AVG(ratings.rating), 1) as rating')
             ])
-                ->leftJoin('ratings', 're_accounts.id', '=', 'ratings.agent_id')
-                ->whereNotNull('confirmed_at')
-                ->whereRaw($w)
-                ->groupBy('re_accounts.id', 'first_name', 'last_name')
-                ->orderBy('rating', 'DESC')
-                ->get();
+            ->leftJoin('ratings', 're_accounts.id', '=', 'ratings.agent_id')
+            ->whereNotNull('confirmed_at')
+            ->whereRaw($w)
+            ->groupBy('re_accounts.id', 'first_name', 'last_name')
+            ->orderByDesc('rating')
+            ->get();
 
-            foreach ($res as $k => $val) {
-                $res[$k]->img_src = $val->getAvatarUrlAttribute();
-                if(strlen($val->first_name) + strlen($val->last_name) > 10) {
-                    $val->first_name = $val->first_name[0];
-                }
+        foreach ($res as $k => $val) {
+
+            $res[$k]->img_src = $val->getAvatarUrlAttribute();
+
+            if (strlen($val->first_name) + strlen($val->last_name) > 10) {
+                $res[$k]->first_name = substr($val->first_name, 0, 1);
             }
-            echo json_encode($res);
-        } else {
-            echo json_encode([]);
         }
 
+        return response()->json($res);
     }
+
+    return response()->json([]);
+}
     public function agent_data(Request $request)
     {
         $id = $request->id;

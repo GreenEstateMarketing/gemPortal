@@ -99,9 +99,19 @@ class ProjectForm extends FormAbstract
             ->addStylesDirectly('vendor/core/plugins/real-estate/css/real-estate.css');
 
         $investors = $this->investorRepository->pluck('re_investors.name', 're_investors.id');
+        $countries = app(\Botble\Location\Repositories\Interfaces\CountryInterface::class)
+    ->pluck('countries.name', 'countries.id');
         $currencies = $this->currencyRepository->pluck('re_currencies.title', 're_currencies.id');
-        $cities = $this->cityRepository->pluck('cities.name', 'cities.id');
-        $categories = $this->categoryRepository->pluck('re_categories.name', 're_categories.id');
+$cities = [];
+
+if ($this->getModel() && $this->getModel()->city_id) {
+
+    $city = $this->cityRepository->findById($this->getModel()->city_id);
+
+    if ($city) {
+        $cities[$city->id] = $city->name;
+    }
+}        $categories = $this->categoryRepository->pluck('re_categories.name', 're_categories.id');
         $cityareas = [];
         if ($this->getModel()) {
             $cityareas = $this->cityAreaRepository->allBy(['city_id' => $this->getModel()->city_id]);
@@ -170,6 +180,47 @@ class ProjectForm extends FormAbstract
                     'required' => true,
                 ],
             ])
+ ->add('country_dummy', 'customSelect', [
+
+    'label' => 'Country',
+
+    'label_attr' => ['class' => 'control-label'],
+
+    'choices' => [0 => 'Select Country'] + $countries,
+    'attr' => [
+
+        'id' => 'country_id',
+
+        'class' => 'form-control select-search-full',
+
+        'data-change-country-url' => url('/ajax/get-states'),
+
+    ],
+
+])
+->add('state_dummy', 'customSelect', [
+
+    'label' => 'State',
+
+    'label_attr' => ['class' => 'control-label'],
+
+    'choices' => [
+
+        0 => 'Select State'
+
+    ],
+
+    'attr' => [
+
+        'id' => 'state_id',
+
+        'class' => 'form-control select-search-full',
+
+        'data-change-state-url' => url('/ajax/get-cities'),
+
+    ],
+
+])
             ->add('city_id', 'customSelect', [
                 'label'      => trans('plugins/real-estate::project.form.city'),
                 'label_attr' => ['class' => 'control-label required'],

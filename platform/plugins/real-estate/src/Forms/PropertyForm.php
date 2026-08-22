@@ -17,6 +17,8 @@ use Botble\RealEstate\Forms\Fields\LocationField;
 use Botble\RealEstate\Forms\Fields\MediaFileField1;
 use Botble\RealEstate\Http\Requests\PropertyRequest;
 use Botble\RealEstate\Models\Buyer;
+use Botble\Location\Models\Country;
+use Botble\Location\Models\State;
 use Botble\RealEstate\Models\Property;
 use Botble\RealEstate\Repositories\Interfaces\AccountInterface;
 use Botble\RealEstate\Repositories\Interfaces\CategoryDocumentInterface;
@@ -143,26 +145,70 @@ class PropertyForm extends FormAbstract
         }
 
         $currencies = $this->currencyRepository->pluck('re_currencies.title', 're_currencies.id');
-        $cities = $this->cityRepository->allBy(
-            ['status' => BaseStatusEnum::PUBLISHED],
-            ['state', 'country'],
-            ['cities.name', 'cities.state_id', 'cities.country_id', 'cities.id']
-        );
-        $areaUnits = array('ft²' => 'Square Feet', 'm²' => 'Square Meter', 'yards' => 'Yards', 'marla' => 'Marla', 'kanal' => 'Kanal');
-        $res_data = description_template::where('status', 1)->first();
+        $countries = Country::where('status', BaseStatusEnum::PUBLISHED)
+    ->orderBy('name')
+    ->get();
 
-        $properties = $this->getModel();
+$countryChoices = [];
 
-        $cityChoices = [];
-        $cityAreaChoices = [];
-        //for getting published cities
-        foreach ($cities as $city) {
-            if ($city->state->status != BaseStatusEnum::PUBLISHED || $city->country->status != BaseStatusEnum::PUBLISHED) {
-                continue;
-            }
+foreach ($countries as $country) {
+    $countryChoices[$country->id] = $country->name;
+}
+      $countries = \Botble\Location\Models\Country::where('status', BaseStatusEnum::PUBLISHED)
+    ->orderBy('name')
+    ->get();
 
-            $cityChoices[$city->id] = $city->name . ($city->state->name ? ' (' . $city->state->name . ')' : '');
+$areaUnits = array(
+    'ft²' => 'Square Feet',
+    'm²' => 'Square Meter',
+    'yards' => 'Yards',
+    'marla' => 'Marla',
+    'kanal' => 'Kanal'
+);
+
+$res_data = description_template::where('status', 1)->first();
+
+$properties = $this->getModel();
+
+$countryChoices = [];
+$stateChoices = [];
+$cityChoices = [];
+$cityAreaChoices = [];
+
+$selectedCountry = null;
+$selectedState = null;
+$selectedCity = null;
+
+if ($properties) {
+    $selectedCountry = $properties->country_id;
+    $selectedState   = $properties->state_id;
+    $selectedCity    = $properties->city_id;
+
+    if ($selectedCountry) {
+        $states = \Botble\Location\Models\State::where('country_id', $selectedCountry)
+            ->where('status', BaseStatusEnum::PUBLISHED)
+            ->orderBy('name')
+            ->get();
+
+        foreach ($states as $state) {
+            $stateChoices[$state->id] = $state->name;
         }
+    }
+
+    if ($selectedState) {
+        $cities = \Botble\Location\Models\City::where('state_id', $selectedState)
+            ->where('status', BaseStatusEnum::PUBLISHED)
+            ->orderBy('name')
+            ->get();
+
+        foreach ($cities as $city) {
+            $cityChoices[$city->id] = $city->name;
+        }
+    }
+}
+foreach ($countries as $country) {
+    $countryChoices[$country->id] = $country->name;
+}
 
         //for getting city areas for selected cities
         foreach ($cityareas as $area) {
@@ -524,7 +570,38 @@ class PropertyForm extends FormAbstract
                 ],
                 'choices' => [0 => trans('plugins/real-estate::property.select_project')] + $projects,
             ]);
-
+$this->add('country_id', 'customSelect', [
+    'label' => 'Country',
+    'label_attr' => ['class' => 'control-label required'],
+    'wrapper' => [
+        'class' => 'form-group col-md-6',
+    ],
+    'attr' => [
+        'class' => 'form-control select-search-full',
+        'id' => 'country_id',
+        'required' => true,
+    ],
+    'choices' => [
+        '' => 'Select Country'
+    ] + $countryChoices,
+    'selected' => $selectedCountry,
+]);
+$this->add('state_id', 'customSelect', [
+    'label' => 'State',
+    'label_attr' => ['class' => 'control-label required'],
+    'wrapper' => [
+        'class' => 'form-group col-md-6',
+    ],
+    'attr' => [
+        'class' => 'form-control select-search-full',
+        'id' => 'state_id',
+        'required' => true,
+    ],
+    'choices' => [
+        '' => 'Select State'
+    ] + $stateChoices,
+    'selected' => $selectedState,
+]);
         if ($cityId > 0) {
             $this->add('city_id', 'hidden', [
                 'value' => $cityId,
@@ -553,8 +630,7 @@ class PropertyForm extends FormAbstract
                     'class' => 'form-control select-search-full city_id',
                 ],
                 'choices' => [0 => trans('plugins/real-estate::property.select_city')] + $cityChoices,
-                'selected' => $this->getModel()->city_id ? $this->getModel()->city_id : '',
-            ]);
+'selected' => $selectedCity,            ]);
         }
 
         if ($cityAreaId > 0) {
@@ -616,7 +692,7 @@ class PropertyForm extends FormAbstract
                 'attr' => [
                     'rows' => 4,
                     'placeholder' => trans('core/base::forms.description_placeholder'),
-                    'readonly' => true
+                    'readonly' => false
 
                 ]
             ])

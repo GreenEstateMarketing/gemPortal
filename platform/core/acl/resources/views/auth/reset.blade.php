@@ -2,10 +2,7 @@
 @section('content')
     <p>{{ trans('core/acl::auth.reset_password') }}:</p>
     {!! Form::open(['route' => 'access.password.reset.post', 'method' => 'POST', 'class' => 'login-form']) !!}
-        <div class="form-group has-feedback{{ $errors->has('email') ? ' has-error' : '' }}" id="emailGroup">
-            <label>{{ trans('core/acl::auth.reset.email') }}</label>
-            {!! Form::text('email', old('email', $email), ['class' => 'form-control', 'placeholder' => trans('core/acl::auth.reset.email')]) !!}
-        </div>
+        {!! Form::hidden('email', old('email', $email)) !!}
 
         <div class="form-group has-feedback{{ $errors->has('password') ? ' has-error' : '' }}" id="passwordGroup">
             <label>{{ trans('core/acl::auth.reset.new_password') }}</label>
@@ -26,33 +23,27 @@
 @stop
 
 @push('footer')
-    <script>
-        var email = document.querySelector('[name="email"]');
-        var password = document.querySelector('[name="password"]');
-        var passwordConfirmation = document.querySelector('[name="password_confirmation"]');
-        email.focus();
-        document.getElementById('emailGroup').classList.add('focused');
+   <script>
+    var password = document.querySelector('[name="password"]');
+    var passwordConfirmation = document.querySelector('[name="password_confirmation"]');
 
-        // Focus events for email and password fields
-        email.addEventListener('focusin', function(){
-            document.getElementById('emailGroup').classList.add('focused');
-        });
-        email.addEventListener('focusout', function(){
-            document.getElementById('emailGroup').classList.remove('focused');
-        });
+    password.focus();
+    document.getElementById('passwordGroup').classList.add('focused');
 
-        password.addEventListener('focusin', function(){
-            document.getElementById('passwordGroup').classList.add('focused');
-        });
-        password.addEventListener('focusout', function(){
-            document.getElementById('passwordGroup').classList.remove('focused');
-        });
+    password.addEventListener('focusin', function () {
+        document.getElementById('passwordGroup').classList.add('focused');
+    });
 
-        passwordConfirmation.addEventListener('focusin', function(){
-            document.getElementById('passwordConfirmationGroup').classList.add('focused');
-        });
-        passwordConfirmation.addEventListener('focusout', function(){
-            document.getElementById('passwordConfirmationGroup').classList.remove('focused');
-        });
-    </script>
+    password.addEventListener('focusout', function () {
+        document.getElementById('passwordGroup').classList.remove('focused');
+    });
+
+    passwordConfirmation.addEventListener('focusin', function () {
+        document.getElementById('passwordConfirmationGroup').classList.add('focused');
+    });
+
+    passwordConfirmation.addEventListener('focusout', function () {
+        document.getElementById('passwordConfirmationGroup').classList.remove('focused');
+    });
+</script>
 @endpush

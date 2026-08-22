@@ -55,7 +55,7 @@
                     <li><a href="/faq">FAQ</a></li>
                     <li><a href="/return-policy">Return Policy</a></li>
                     <li><a href="/shipping-policy">Shipping/Delivery Policy</a></li>
-                    <li><a href="/gem-portal-disclaimer">GEM Portal Disclaimer</a></li>
+                    <li><a href="/gem-portal-disclaimer">Disclaimer</a></li>
                 </ul>
             </div>
             <!-- end col-2 -->
@@ -75,10 +75,38 @@
                     <h3>{{ theme_option('hotline') }}</h3>
                     <p><a href="#">{{ theme_option('email') }}</a></p>
                     <ul>
-                        <li><a href="{{ theme_option('facebook') }}"><i class="fab fa-facebook-f"></i></a></li>
+                        <!-- <li><a href="{{ theme_option('facebook') }}"><i class="fab fa-facebook-f"></i></a></li>
                         <li><a href="{{ theme_option('twitter') }}"><i class="fab fa-twitter"></i></a></li>
                         <li><a href="{{ theme_option('youtube') }}"><i class="fab fa-youtube"></i></a></li>
-                        <li><a href="{{ theme_option('linkedin') }}"><i class="fab fa-linkedin"></i></a></li>
+                        <li><a href="{{ theme_option('linkedin') }}"><i class="fab fa-linkedin"></i></a></li> -->
+                        <li>
+    <a href="https://www.facebook.com/profile.php?id=61573161165755" target="_blank" rel="noopener noreferrer">
+        <i class="fab fa-facebook-f"></i>
+    </a>
+</li>
+
+<li>
+    <a href="https://x.com/Greens_GEM" target="_blank" rel="noopener noreferrer">
+        <i class="fab fa-twitter"></i>
+    </a>
+</li>
+
+<li>
+    <a href="https://www.youtube.com/@GreensGEM" target="_blank" rel="noopener noreferrer">
+        <i class="fab fa-youtube"></i>
+    </a>
+</li>
+
+<li>
+    <a href="https://g.co/kgs/o1qyAyp" target="_blank" rel="noopener noreferrer">
+        <i class="fab fa-google"></i>
+    </a>
+</li>
+                        <li>
+    <a href="https://wa.me/923068675133" target="_blank">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+</li>
                     </ul>
                 </div>
                 <!-- end contact-box -->
@@ -93,6 +121,42 @@
     </div>
     <!-- end container -->
 </footer>
+<!-- WhatsApp Floating Button -->
+<a href="https://wa.me/923068675133"
+   class="gem-whatsapp"
+   target="_blank"
+   aria-label="Chat on WhatsApp">
+    <svg xmlns="http://www.w3.org/2000/svg"
+         width="32"
+         height="32"
+         fill="white"
+         viewBox="0 0 24 24">
+        <path d="M20.52 3.48A11.82 11.82 0 0012.06 0C5.5 0 .16 5.34.16 11.9c0 2.1.55 4.15 1.6 5.96L0 24l6.33-1.66a11.9 11.9 0 005.73 1.46h.01c6.56 0 11.9-5.34 11.9-11.9a11.8 11.8 0 00-3.45-8.42zM12.07 21.8a9.82 9.82 0 01-5.01-1.37l-.36-.21-3.76.99 1-3.67-.23-.38a9.83 9.83 0 01-1.5-5.25c0-5.42 4.42-9.83 9.86-9.83 2.63 0 5.1 1.03 6.95 2.88a9.77 9.77 0 012.89 6.95c0 5.43-4.43 9.84-9.84 9.84zm5.39-7.37c-.29-.14-1.72-.85-1.99-.95-.27-.1-.47-.14-.67.15-.2.29-.77.95-.95 1.15-.17.2-.35.22-.64.07-.29-.14-1.24-.45-2.36-1.44-.87-.77-1.46-1.71-1.63-2-.17-.29-.02-.45.13-.6.14-.14.29-.35.43-.52.14-.17.19-.29.29-.48.1-.2.05-.36-.02-.5-.07-.14-.67-1.62-.92-2.22-.24-.58-.48-.5-.67-.5h-.57c-.2 0-.5.07-.77.36-.27.29-1.04 1.02-1.04 2.48 0 1.46 1.07 2.87 1.22 3.07.14.2 2.1 3.21 5.08 4.5.71.31 1.27.49 1.71.63.72.23 1.38.2 1.9.12.58-.09 1.72-.7 1.96-1.37.24-.67.24-1.24.17-1.37-.07-.12-.26-.2-.55-.34z"/>
+    </svg>
+</a>
+
+<style>
+.gem-whatsapp{
+    position:fixed;
+    bottom:25px;
+    right:25px;
+    width:60px;
+    height:60px;
+    border-radius:50%;
+    background:#25D366;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 6px 20px rgba(0,0,0,.35);
+    z-index:99999;
+    transition:.3s;
+}
+
+.gem-whatsapp:hover{
+    transform:scale(1.1);
+    background:#20ba5a;
+}
+</style>
 <!-- end footer -->
 
 <!--FOOTER-->

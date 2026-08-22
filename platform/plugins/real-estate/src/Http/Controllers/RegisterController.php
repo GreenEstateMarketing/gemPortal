@@ -130,7 +130,7 @@ class RegisterController extends Controller
                 ->setError()
                 ->setMessage(__('Cannot find this account!'));
         }
-
+\Log::info('Sending confirmation email to: ' . $account->email);
         $this->sendConfirmationToUser($account);
 
         return $response
@@ -166,6 +166,7 @@ class RegisterController extends Controller
         event(new Registered($account = $this->create($request->input())));
 
         if (setting('verify_account_email', config('plugins.real-estate.real-estate.verify_email'))) {
+            \Log::info('Sending confirmation email to: ' . $account->email);
             $this->sendConfirmationToUser($account);
             return $this->registered($request, $account)
                 ?: $response->setNextUrl($this->redirectPath())

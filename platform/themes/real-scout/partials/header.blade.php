@@ -284,21 +284,22 @@
                             {{ theme_option('home_banner_description') }}</h1>
                     @endif
                     @if (is_plugin_active('real-estate'))
-                        <form action="{{ route('public.projects') }}" method="GET" id="frmhomesearch">
+                        <form action="{{ route('public.properties') }}" method="GET" id="frmhomesearch">
                             <div class="typesearch" id="hometypesearch">
-                                <a href="javascript:void(0)" class="active top-left-radius" rel="project"
-                                    data-url="{{ route('public.projects') }}">{{ __('Projects') }}</a>
-                                <a href="javascript:void(0)" rel="sale"
+                                
+                                <a href="javascript:void(0)" class="active top-left-radius" rel="sale"
                                     data-url="{{ route('public.properties') }}">{{ __('Buy') }}</a>
-                                <a href="javascript:void(0)" rel="rent" class="top-right-radius"
+                                <a href="javascript:void(0)" rel="rent"
                                     data-url="{{ route('public.properties') }}">{{ __('Rent') }}</a>
+                                    <a href="javascript:void(0)" class="top-right-radius" rel="project"
+                                    data-url="{{ route('public.projects') }}">{{ __('Projects') }}</a>
                             </div>
                             <input type="hidden" id="selected-unit" name="selected-unit"
                                 value="{{ getDefaultAreaByUnitForNextPage() }}" />
                             <!-- <input type="hidden" id="sub-cat" name="child_category_id" value="" >
                             <input type="hidden" id="p-cat" name="p_category_id" value="" > -->
                             <div class="input-group input-group-lg">
-                                <input type="hidden" name="type" value="project" id="txttypesearch">
+                                <input type="hidden" name="type" value="sale" id="txttypesearch">
                                 <div class="input-group-prepend">
                                     <span style="border-radius: 5px 0px 0px 5px !important"
                                         class="input-group-text"><i class="far fa-search"></i></span>
@@ -346,7 +347,15 @@
                                         autocomplete="off" />
                                     <select class="form-control" id='city_id' name="city_id">
                                         <option value="0">Select city...</option>
-                                        @foreach (app(\Botble\Location\Repositories\Interfaces\CityInterface::class)->allBy(['status' => \Botble\Base\Enums\BaseStatusEnum::PUBLISHED], ['state', 'country'], ['cities.name', 'cities.state_id', 'cities.country_id', 'cities.id']) as $city)
+                                       @foreach (app(\Botble\Location\Repositories\Interfaces\CityInterface::class)
+->allBy(
+[
+'status' => \Botble\Base\Enums\BaseStatusEnum::PUBLISHED,
+'country_id' => 166
+],
+['state','country'],
+['cities.name','cities.state_id','cities.country_id','cities.id']
+) as $city)
                                             <option value={{ $city->id }}>
                                                 {{ $city->name . ($city->state->name ? ' (' . $city->state->name . ')' : '') }}
                                             </option>

@@ -23,8 +23,8 @@ class RssFeedServiceProvider extends ServiceProvider
             ->loadRoutes(['web'])
             ->loadAndPublishViews();
 
-        if (is_plugin_active('blog')) {
-            RssFeed::addFeedLink(route('feeds.posts'), 'Posts feed');
-        }
+        if (is_plugin_active('blog') && \Route::has('feeds.posts')) {
+    \RssFeed::addFeedLink(route('feeds.posts'), 'Posts feed');
+}
     }
 }

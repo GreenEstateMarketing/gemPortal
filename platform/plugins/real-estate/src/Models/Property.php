@@ -48,6 +48,8 @@ class Property extends BaseModel
         'status',
         'is_featured',
         'currency_id',
+        'country_id', 
+        'state_id',
         'city_id',
         'city_area_id',
         'period',

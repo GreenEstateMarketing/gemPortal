@@ -25,6 +25,8 @@ class PropertyRequest extends Request
             'number_floor' => 'numeric|min:0|max:10000|nullable',
             'square' => 'required|min:0|max:99999999',
             'price' => 'required|min:0|max:999999999999999',
+             'country_id' => 'required|not_in:0',
+        'state_id'   => 'required|not_in:0',
             'city_id' => 'required|not_in:0',
             'city_area_id' => 'required|not_in:0',
             'location' => 'required|string',
@@ -40,6 +42,8 @@ class PropertyRequest extends Request
         return [
             'city_id.not_in' => 'Choose city from list',
             'city_area_id.not_in' => 'Choose city area from list',
+            'state_id.required' => 'Please select a state.',
+        'state_id.not_in'   => 'Please select a state.',
             'reject_reason.required_if' => 'Please enter reject reason',
         ];
     }

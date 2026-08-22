@@ -71,104 +71,132 @@ class AccountController extends BaseController
      * @return BaseHttpResponse
      */
     public function store(AccountCreateRequest $request, BaseHttpResponse $response)
-    {
-        $pass = $request->input('password');
-        $request->merge([
-            'password' => bcrypt($pass),
-            'confirmed_at' => Carbon::now()->format('Y-m-d H:i:s')
-        ]);
-        $data = json_decode($request['agent_area']);
-        $i = 0;
-        if ($request['agent_area'] != "") {
-            $total_ar = count($data);
-            if ($total_ar == 1)
-                $po = 'POLYGON((';
-            else
-                $kp = 'MultiPolygon((';
-            $ap = 'ST_GeomFromText(';
-            $mo = '';
-            $first = '';
-            foreach ($data as $k => $item) {
-                $mo .= '(';
-                $rp = '';
-                $total = count($item);
-                $q = 0;
-                foreach ($item as $w => $kk) {
-                    $first = $item[0]->lat . ' ' . $item[0]->lng;
-                    if ($total_ar == 1) {
-                        if ($i == $total - 1) {
-                            $po .= $kk->lat . ' ' . $kk->lng;
-                        } else
-                            $po .= $kk->lat . ' ' . $kk->lng;
-                        $po .= ',';
-                        $i++;
+{
+    $pass = $request->input('password');
+
+    $request->merge([
+        'password' => bcrypt($pass),
+        'confirmed_at' => Carbon::now()->format('Y-m-d H:i:s')
+    ]);
+
+    $data = json_decode($request['agent_area']);
+    $i = 0;
+
+    if ($request['agent_area'] != "") {
+
+        $total_ar = count($data);
+
+        if ($total_ar == 1)
+            $po = 'POLYGON((';
+        else
+            $kp = 'MultiPolygon((';
+
+        $ap = 'ST_GeomFromText(';
+        $mo = '';
+        $first = '';
+
+        foreach ($data as $k => $item) {
+
+            $mo .= '(';
+            $rp = '';
+            $total = count($item);
+            $q = 0;
+
+            foreach ($item as $w => $kk) {
+
+                // FIXED: Store as longitude latitude
+                $first = $item[0]->lng . ' ' . $item[0]->lat;
+
+                if ($total_ar == 1) {
+
+                    if ($i == $total - 1) {
+                        // FIXED
+                        $po .= $kk->lng . ' ' . $kk->lat;
                     } else {
-                        if ($q == $total - 1) {
-                            $rp .= $kk->lat . ' ' . $kk->lng;
-                        } else
-                            $rp .= $kk->lat . ' ' . $kk->lng;
-                        $rp .= ',';
-                        $q++;
+                        // FIXED
+                        $po .= $kk->lng . ' ' . $kk->lat;
                     }
 
+                    $po .= ',';
+                    $i++;
+
+                } else {
+
+                    if ($q == $total - 1) {
+                        // FIXED
+                        $rp .= $kk->lng . ' ' . $kk->lat;
+                    } else {
+                        // FIXED
+                        $rp .= $kk->lng . ' ' . $kk->lat;
+                    }
+
+                    $rp .= ',';
+                    $q++;
                 }
-                $rp .= $first;
-
-                $mo .= rtrim($rp, ',');
-                $mo .= '),';
-
             }
-            if ($total_ar == 1) {
-                $po .= $first;
-                $ap .= "'";
-                $ap .= rtrim($po, ',');
-                $ap .= '))';
-                $ap .= "',4326)";
-            } else {
-                $kp .= rtrim($mo, ',');
-                $ap .= "'";
-                $ap .= rtrim($kp, ',');
-                $ap .= '))';
-                $ap .= "',4326)";
 
-            }
+            $rp .= $first;
+
+            $mo .= rtrim($rp, ',');
+            $mo .= '),';
         }
 
-        $request['city_area_id'] = implode(',', $request['city_area_id']);
+        if ($total_ar == 1) {
 
-        $account = Account::create($request->except('agent_area'));
-        if ($request['agent_area'] != "") {
-            $account->agent_area = \DB::raw($ap);
-            $account->save();
+            $po .= $first;
+
+            $ap .= "'";
+            $ap .= rtrim($po, ',');
+            $ap .= '))';
+            $ap .= "',4326)";
+
+        } else {
+
+            $kp .= rtrim($mo, ',');
+
+            $ap .= "'";
+            $ap .= rtrim($kp, ',');
+            $ap .= '))';
+            $ap .= "',4326)";
         }
-        $account->confirmed_at = Carbon::now()->format('Y-m-d H:i:s');
-
-        $account->save();
-
-        event(new CreatedContentEvent(ACCOUNT_MODULE_SCREEN_NAME, $request, $account));
-
-        EmailHandler::setModule(ACCOUNT_MODULE_SCREEN_NAME)
-            ->addVariables([
-                'account_name' => 'Account Name',
-                'username' => 'Username',
-                'password' => 'Password',
-                'phone' => 'Phone',
-                'login_url' => 'Login'
-            ])
-            ->setVariableValues([
-                'account_name' => $account->first_name . ' ' . $account->last_name,
-                'username' => $account->username,
-                'password' => $pass,
-                'phone' => $account->phone,
-                'login_url' => route('public.account.login'),
-            ])
-            ->sendUsingTemplate('accountcreated', $account->email, [], false, 'plugins', 'Agent Account Created');
-
-        return $response
-            ->setPreviousUrl(route('account.index'))
-            ->setNextUrl(route('account.edit', $account->id))
-            ->setMessage(trans('core/base::notices.create_success_message'));
     }
+
+    $request['city_area_id'] = implode(',', $request['city_area_id']);
+
+    $account = Account::create($request->except('agent_area'));
+
+    if ($request['agent_area'] != "") {
+        $account->agent_area = \DB::raw($ap);
+        $account->save();
+    }
+
+    $account->confirmed_at = Carbon::now()->format('Y-m-d H:i:s');
+    $account->save();
+
+    event(new CreatedContentEvent(ACCOUNT_MODULE_SCREEN_NAME, $request, $account));
+
+    EmailHandler::setModule(ACCOUNT_MODULE_SCREEN_NAME)
+        ->addVariables([
+            'account_name' => 'Account Name',
+            'username' => 'Username',
+            'password' => 'Password',
+            'phone' => 'Phone',
+            'login_url' => 'Login'
+        ])
+        ->setVariableValues([
+            'account_name' => $account->first_name . ' ' . $account->last_name,
+            'username' => $account->username,
+            'password' => $pass,
+            'phone' => $account->phone,
+            'login_url' => route('public.account.login'),
+        ])
+        ->sendUsingTemplate('accountcreated', $account->email, [], false, 'plugins', 'Agent Account Created');
+
+    return $response
+        ->setPreviousUrl(route('account.index'))
+        ->setNextUrl(route('account.edit', $account->id))
+        ->setMessage(trans('core/base::notices.create_success_message'));
+}
 
     /**
      * @param $id
@@ -195,68 +223,71 @@ class AccountController extends BaseController
      * @return BaseHttpResponse
      */
     public function update($id, AccountEditRequest $request, BaseHttpResponse $response)
-    {
-        $agent_area = json_decode($request->input('agent_area'));
-        $agent_area_edit = json_decode($request->input('agent_area_edit'));
-        
+{
+    $agent_area = json_decode($request->input('agent_area'));
+    $agent_area_edit = json_decode($request->input('agent_area_edit'));
 
-        if (count($agent_area) > 0) {
-            $data_map = $agent_area;
+    if (count($agent_area) > 0) {
 
-            $isMulti = count($data_map) > 1;
-            $wkt = $isMulti ? 'MULTIPOLYGON(' : 'POLYGON(';
+        $isMulti = count($agent_area) > 1;
+        $wkt = $isMulti ? 'MULTIPOLYGON(' : 'POLYGON(';
 
-            $polygons = [];
+        $polygons = [];
 
-            foreach ($data_map as $polygon) {
-                $coordinates = [];
+        foreach ($agent_area as $polygon) {
 
-                foreach ($polygon as $point) {
-                    $coordinates[] = $point->lat . ' ' . $point->lng;
-                }
+            $coordinates = [];
 
-                // Ensure the ring is closed (first and last point must be same)
-                if ($coordinates[0] !== end($coordinates)) {
-                    $coordinates[] = $coordinates[0];
-                }
-
-                $ring = '(' . implode(',', $coordinates) . ')';
-
-                if ($isMulti) {
-                    // MULTIPOLYGON requires double parentheses per polygon
-                    $polygons[] = '(' . $ring . ')';
-                } else {
-                    // POLYGON requires single parentheses around the ring
-                    $polygons[] = $ring;
-                }
+            foreach ($polygon as $point) {
+                // IMPORTANT:
+                // Store as LONGITUDE LATITUDE
+                $coordinates[] = $point->lng . ' ' . $point->lat;
             }
 
-            $wkt .= implode(',', $polygons) . ')';
-            $geom = \DB::raw("ST_GeomFromText('{$wkt}', 4326)");
+            // Close polygon if needed
+            if ($coordinates[0] !== end($coordinates)) {
+                $coordinates[] = $coordinates[0];
+            }
+
+            $ring = '(' . implode(',', $coordinates) . ')';
+
+            if ($isMulti) {
+                $polygons[] = '(' . $ring . ')';
+            } else {
+                $polygons[] = $ring;
+            }
         }
 
-        $account = Account::find($id);
-        $request['city_area_id'] = implode(',', $request['city_area_id']);
+        $wkt .= implode(',', $polygons) . ')';
 
-        $account->update($request->except('agent_area', 'password'));
-        if (count($agent_area) > 0) {
-            $account->agent_area = $geom;
-            $account->save();
-        } else if (count($agent_area_edit) == 0) {
-            $account->agent_area = null;
-            $account->save();
-        }
-
-        if ($request->input('is_change_password') == 1) {
-            $account->password = \bcrypt($request->input('password'));
-            $account->save();
-        }
-        event(new UpdatedContentEvent(ACCOUNT_MODULE_SCREEN_NAME, $request, $account));
-
-        return $response
-            ->setPreviousUrl(route('account.index'))
-            ->setMessage(trans('core/base::notices.update_success_message'));
+        $geom = DB::raw("ST_GeomFromText('{$wkt}',4326)");
     }
+
+    $account = Account::findOrFail($id);
+
+    $request['city_area_id'] = implode(',', $request['city_area_id']);
+
+    $account->update($request->except('agent_area', 'password'));
+
+    if (count($agent_area) > 0) {
+        $account->agent_area = $geom;
+        $account->save();
+    } elseif (count($agent_area_edit) == 0) {
+        $account->agent_area = null;
+        $account->save();
+    }
+
+    if ($request->input('is_change_password') == 1) {
+        $account->password = bcrypt($request->input('password'));
+        $account->save();
+    }
+
+    event(new UpdatedContentEvent(ACCOUNT_MODULE_SCREEN_NAME, $request, $account));
+
+    return $response
+        ->setPreviousUrl(route('account.index'))
+        ->setMessage(trans('core/base::notices.update_success_message'));
+}
 
     /**
      * @param Request $request

@@ -5,10 +5,12 @@
                 <div class="card-body">
                     <h4 class="text-center">{{ trans('plugins/real-estate::dashboard.reset-password-title') }}</h4>
                     <br>
+                    <pre>
+</pre>
                     <form method="POST" action="{{ route('public.account.password.update') }}">
                         @csrf
                         <input type="hidden" name="token" value="{{ $token }}">
-                        <div class="form-group">
+                        <!-- <div class="form-group">
                             <input id="email" type="email"
                                    class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}"
                                    name="email" value="{{ $email or old('email') }}" required autofocus
@@ -18,7 +20,8 @@
                                     <strong>{{ $errors->first('email') }}</strong>
                                     </span>
                             @endif
-                        </div>
+                        </div> -->
+                        {!! Form::hidden('email', $email) !!}
                         <div class="form-group">
                             <input id="password" type="password"
                                    class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}"

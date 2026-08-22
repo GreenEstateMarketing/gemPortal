@@ -173,11 +173,9 @@
                                             </div>
                                         @endif
                                     </div>
-                                    <div role="tabpanel" class="tab-pane fade" id="Section3">
-
-                                        {!! Theme::partial('mortage_calculator') !!}
-
-                                    </div>
+                                   @if(isset($property))
+    {!! Theme::partial('mortage_calculator', compact('property')) !!}
+@endif
                                     <div role="tabpanel" class="tab-pane fade" id="Section4">
 
                                         Comming Soon

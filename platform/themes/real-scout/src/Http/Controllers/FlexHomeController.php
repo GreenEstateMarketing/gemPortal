@@ -435,7 +435,28 @@ class FlexHomeController extends PublicController
 
         return $response->setData($cityAreas);
     }
+public function getStateListByCountry(Request $request)
+{
+    $states = \Botble\Location\Models\State::where('country_id', $request->country_id)
+        ->orderBy('name')
+        ->get(['id', 'name']);
 
+    return response()->json([
+        'error' => false,
+        'data' => $states,
+    ]);
+}
+public function getCityListByState(Request $request)
+{
+    $cities = \Botble\Location\Models\City::where('state_id', $request->state_id)
+        ->orderBy('name')
+        ->get(['id', 'name']);
+
+    return response()->json([
+        'error' => false,
+        'data' => $cities,
+    ]);
+}
     public function getSearchAreaList(Request $request, PropertyInterface $propertyRepository, ProjectInterface $projectRepository, BaseHttpResponse $response)
     {
         if (!$request->ajax()) {

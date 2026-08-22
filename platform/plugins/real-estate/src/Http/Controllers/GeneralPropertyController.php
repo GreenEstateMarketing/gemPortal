@@ -68,7 +68,12 @@ use RvMedia;
 use SeoHelper;
 use Theme;
 use URL;
-
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use Botble\Location\Models\State;
+use Botble\Location\Models\City;
+use Botble\Location\Repositories\Interfaces\CountryInterface;
+use Botble\Location\Repositories\Interfaces\StateInterface;
 class GeneralPropertyController extends Controller
 {
     /**
@@ -77,7 +82,8 @@ class GeneralPropertyController extends Controller
     protected $memberRepository;
     protected $cityRepository;
     protected $cityAreaRepository;
-
+protected $countryRepository;
+protected $stateRepository;
     /**
      * @var PropertyInterface
      */
@@ -106,6 +112,8 @@ class GeneralPropertyController extends Controller
         AccountActivityLogInterface $accountActivityLogRepository,
         CategoryInterface           $categoryRepository,
         CityInterface               $cityRepository,
+        CountryInterface           $countryRepository,
+        StateInterface              $stateRepository,
         CityAreaInterface           $cityAreaRepository,
         MemberActivityLogInterface  $memberActivityLogRepository,
         ProjectInterface            $projectRepository
@@ -115,6 +123,8 @@ class GeneralPropertyController extends Controller
         $this->propertyRepository = $propertyRepository;
         $this->cityRepository = $cityRepository;
         $this->cityAreaRepository = $cityAreaRepository;
+          $this->countryRepository = $countryRepository;
+          $this->stateRepository = $stateRepository;
         $this->categoryRepository = $categoryRepository;
         $this->activityLogRepository = $accountActivityLogRepository;
         $this->memberLogRepository = $memberActivityLogRepository;
@@ -512,11 +522,17 @@ class GeneralPropertyController extends Controller
 
     public function attemptLogin(Request $request)
     {
-        $member = Member::where('email', $request->email)->first();
+      $member = Member::where('email', $request->email)->first();
 
-        if (!$member) {
-            return back()->withErrors(['Invalid email'])->withInput();
-        }
+if (!$member) {
+    return back()->withErrors(['Invalid email'])->withInput();
+}
+
+if (!$member->email_verified) {
+    return back()->withErrors([
+        'Please verify your email before logging in.'
+    ]);
+}
 
         if (Auth::guard('member')->attempt(['email' => $request->email, 'password' => $request->password])) {
             return redirect('/member/dashboard');
@@ -555,28 +571,43 @@ class GeneralPropertyController extends Controller
         if (Member::where('email', $request['email'])->first()) {
             return redirect()->back()->with(array('error_msg' => 'Email already exists.'));
         } else {
-            $member = Member::create([
-                'full_name' => $request['full_name'],
-                'email' => $request['email'],
-                'mobile_no' => $request['mobile_no'],
-                'password' => Hash::make($request['password']),
-            ]);
+          $token = Str::random(64);
+
+$member = Member::create([
+    'full_name' => $request['full_name'],
+    'email' => $request['email'],
+    'mobile_no' => $request['mobile_no'],
+    'password' => Hash::make($request['password']),
+    'verification_token' => $token,
+    'email_verified' => 0,
+]);
         }
 
-        EmailHandler::setModule('real-estate')
-            ->addVariables([
-                'member_name' => 'Member Name',
-                'login_url' => 'Login'
-            ])
-            ->setVariableValues([
-                'member_name' => $member->full_name,
-                'login_url' => route('member.login')
-            ])
-            ->sendUsingTemplate('memberregistered', $member->email, [], false, 'plugins', 'Account Created');
+        // EmailHandler::setModule('real-estate')
+        //     ->addVariables([
+        //         'member_name' => 'Member Name',
+        //         'login_url' => 'Login'
+        //     ])
+        //     ->setVariableValues([
+        //         'member_name' => $member->full_name,
+        //         'login_url' => route('member.login')
+        //     ])
+        //     ->sendUsingTemplate('memberregistered', $member->email, [], false, 'plugins', 'Account Created');
+$link = url('/member/verify/' . $token);
 
-
-        return redirect()->intended('member-login')->with(array('success_msg' => 'Registered Success!'));
+Mail::send(
+    'plugins/real-estate::account.emails.verify-email',
+    [
+        'link' => $link,
+    ],
+    function ($message) use ($member) {
+        $message->to($member->email)
+                ->subject('Verify Your Email');
     }
+  );
+
+  return redirect()->intended('member-login')
+    ->with('success_msg', 'Registration successful. Please check your email to verify your account.');    }
 
     public function dashboard()
     {
@@ -1043,20 +1074,18 @@ class GeneralPropertyController extends Controller
             return $cat;
         });
 
-        $cities = $this->cityRepository->allBy(
-            ['status' => BaseStatusEnum::PUBLISHED],
-            ['state', 'country'],
-            ['cities.name', 'cities.state_id', 'cities.country_id', 'cities.id']
-        );
+       $countries = $this->countryRepository->pluck(
+    'countries.name',
+    'countries.id'
+);
 
-        $cityChoices = [];
-        foreach ($cities as $city) {
-            if ($city->state->status != BaseStatusEnum::PUBLISHED || $city->country->status != BaseStatusEnum::PUBLISHED) {
-                continue;
-            }
-            $cityChoices[$city->id] = $city->name . ($city->state->name ? ' (' . $city->state->name . ')' : '');
-        }
+$states = [];
 
+$cityChoices = \Botble\Location\Models\City::where('country_id', 166)
+    ->where('status', BaseStatusEnum::PUBLISHED)
+    ->orderBy('name')
+    ->pluck('name', 'id')
+    ->toArray();
         $projects = $this->projectRepository->allBy(
             [],
             [],
@@ -1070,7 +1099,9 @@ class GeneralPropertyController extends Controller
 
         $data = [
             'categories' => $categories,
-            'city' => $cityChoices,
+             'countries' => $countries,
+              'states' => $states,
+               'city' => $cityChoices,
             'projects' => $projectChoices,
         ];
 
@@ -1126,7 +1157,7 @@ class GeneralPropertyController extends Controller
     {
         SeoHelper::setTitle(trans('plugins/real-estate::account.packages'));
 
-//        Assets::addScriptsDirectly('vendor/core/plugins/real-estate/js/components.js');
+        //        Assets::addScriptsDirectly('vendor/core/plugins/real-estate/js/components.js');
         Assets::addScriptsDirectly('js/app.js');
 
         return view('plugins/real-estate::member.settings.package');
@@ -1755,4 +1786,24 @@ class GeneralPropertyController extends Controller
             return $response->setError(true)->setMessage($exception->getMessage());
         }
     }
+    public function getStates(Request $request)
+{
+    return State::where('country_id', $request->country_id)
+        ->where('status', BaseStatusEnum::PUBLISHED)
+        ->orderBy('name')
+        ->get([
+            'id',
+            'name'
+        ]);
+}
+public function getCities(Request $request)
+{
+    return City::where('state_id', $request->state_id)
+        ->where('status', BaseStatusEnum::PUBLISHED)
+        ->orderBy('name')
+        ->get([
+            'id',
+            'name'
+        ]);
+}
 }

@@ -47,7 +47,7 @@ class CareerServiceProvider extends ServiceProvider
         Event::listen(RouteMatched::class, function () {
             dashboard_menu()->registerItem([
                 'id'          => 'cms-plugins-career',
-                'priority'    => 5,
+                'priority'    => 1002,
                 'parent_id'   => null,
                 'name'        => 'plugins/career::career.name',
                 'icon'        => 'far fa-newspaper',

@@ -42,10 +42,13 @@ class ResetPasswordNotification extends Notification
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
     public function toMail($notifiable)
-    {
-        return (new MailMessage)
-            ->view('plugins/real-estate::account.emails.reminder', [
-                'link' => route('public.account.password.reset', ['token' => $this->token]),
-            ]);
-    }
+{
+    return (new MailMessage)
+        ->view('plugins/real-estate::account.emails.reminder', [
+            'link' => route('public.account.password.reset', [
+                'token' => $this->token,
+                'email' => $notifiable->email,
+            ]),
+        ]);
+}
 }

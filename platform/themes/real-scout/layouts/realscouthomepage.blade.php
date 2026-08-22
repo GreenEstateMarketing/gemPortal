@@ -177,36 +177,7 @@
     <!-- end container -->
 </section>
 <!-- end recent-gallery -->
-<section class="property-calculator">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6">
-                <figure>
-                    <div class="pattern-bg" data-stellar-ratio="1.03"></div>
-                    <!-- end pattern-bg -->
-                    <div class="holder" data-stellar-ratio="1.07"> <img
-                            src="{{ Theme::asset()->url('images/side-image02.jpg') }}" alt="Image"></div>
-                    <!-- end holder -->
-                </figure>
-            </div>
-            <!-- end col-6 -->
-            <div class="col-lg-6 wow fadeInUp">
-                <div class="content-box">
-                    <h4><span>GEM</span> Property Living Spaces</h4>
-                    <h3>Decorated flats in Pakistan-ISB</h3>
-                    <p>Golf Floras - Your gateway to ultimate luxury! Located at Bahria Town (Garden City) Islamabad.
-                    </p>
 
-                    <a href="/projects" class="link">SEE OUR PROJECTS <i class="fas fa-caret-right"></i></a>
-                </div>
-                <!-- end content-box -->
-            </div>
-            <!-- end col-6 -->
-        </div>
-        <!-- end row -->
-    </div>
-    <!-- end container -->
-</section>
 <!-- for vue components -->
 <div id="app">
 
