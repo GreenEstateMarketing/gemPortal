@@ -6,21 +6,12 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Change Area sdfsUnit</h5>
-            <button
-              type="button"
-              class="close"
-              data-dismiss="modal"
-              aria-label="Close"
-            >
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-body">
-            <select
-              class="form-control"
-              id="area_units-val"
-              @change="selectedUnit($event)"
-            >
+            <select class="form-control" id="area_units-val" @change="selectedUnit($event)">
               <option value="m²">Square Meter</option>
               <option value="ft²" selected>Square Feet</option>
               <option value="yards">Yards</option>
@@ -29,20 +20,11 @@
             </select>
           </div>
           <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary btn-sm"
-              data-dismiss="modal"
-            >
+            <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal">
               Close
             </button>
-            <button
-              type="button"
-              data-dismiss="modal"
-              id="save-changes"
-              class="btn btn-primary btn-sm"
-              style="height: 31px"
-            >
+            <button type="button" data-dismiss="modal" id="save-changes" class="btn btn-primary btn-sm"
+              style="height: 31px">
               Save changes
             </button>
           </div>
@@ -55,13 +37,7 @@
     <div class="modal" tabindex="-1" id="filterModal" role="dialog">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
-          <p
-            type="hidden"
-            class="close"
-            data-dismiss="modal"
-            id="close"
-            aria-label="Close"
-          >
+          <p type="hidden" class="close" data-dismiss="modal" id="close" aria-label="Close">
             <span aria-hidden="true" style="display: none">&times;</span>
           </p>
           <h3 class="ml-4">Advance Search</h3>
@@ -70,39 +46,21 @@
               <div class="row">
                 <div class="col-md-6 pl-auto col-md-6 mt-3 border-0">
                   <label class="mx-left">Property Type</label>
-                  <select
-                    name="category_id"
-                    v-model="category_id"
-                    class="form-control filter-input"
-                    @change="
-                      getChildCategories(
-                        $event.target.options[$event.target.selectedIndex]
-                          .dataset.value,
-                      )
-                    "
-                  >
-                    <option
-                      :key="index"
-                      :data-value="index"
-                      :value="index"
-                      v-for="(item, index) in parent_categories"
-                    >
+                  <select name="category_id" v-model="category_id" class="form-control filter-input" @change="
+                    getChildCategories(
+                      $event.target.options[$event.target.selectedIndex]
+                        .dataset.value,
+                    )
+                    ">
+                    <option :key="index" :data-value="index" :value="index" v-for="(item, index) in parent_categories">
                       {{ item }}
                     </option>
                   </select>
                 </div>
                 <div class="col-md-6 pl-auto col-md-6 mt-3 border-0">
                   <label class="mx-left">Sub Type</label>
-                  <select
-                    name="sub_category_id"
-                    v-model="child_category_id"
-                    class="form-control filter-input"
-                  >
-                    <option
-                      :data-value="index"
-                      :value="index"
-                      v-for="(item, index) in child_categories"
-                    >
+                  <select name="sub_category_id" v-model="child_category_id" class="form-control filter-input">
+                    <option :data-value="index" :value="index" v-for="(item, index) in child_categories">
                       {{ item }}
                     </option>
                   </select>
@@ -110,15 +68,9 @@
                 <div class="price-dropdown pl-auto col-md-6 mt-3 border-0">
                   <label>Price</label>
                   <div class="price-placeholder">
-                    <a
-                      class="form-control-2 dropdown-toggle border-0 text-left"
-                      href="#"
-                      data-toggle="dropdown"
-                      aria-haspopup="true"
-                      aria-expanded="false"
-                      >Price
-                      <span class="currency">({{ current_currency }})</span
-                      ><strong class="caret"></strong>
+                    <a class="form-control-2 dropdown-toggle border-0 text-left" href="#" data-toggle="dropdown"
+                      aria-haspopup="true" aria-expanded="false">Price
+                      <span class="currency">({{ current_currency }})</span><strong class="caret"></strong>
                     </a>
                     <div class="row price-from-to-vue modalclass p-0">
                       <div class="col-md-5">
@@ -129,87 +81,54 @@
                         <span class="max_price_text">Any</span>
                       </div>
                     </div>
-                    <div
-                      class="dropdown-menu dropdown-menu-2"
-                      style="padding: 10px; width: 100%"
-                    >
+                    <div class="dropdown-menu dropdown-menu-2" style="padding: 10px; width: 100%">
                       <div class="row justify-content-center">
                         <div class="col-6">
-                          <input
-                            class="form-control price-label filter-input"
-                            style="border: 1px solid #a0a0a0 !important"
-                            name="min_price"
-                            v-model="min_price"
-                            placeholder="Min"
-                            data-dropdown-id="price-min"
-                            value=""
-                          />
+                          <input class="form-control price-label filter-input"
+                            style="border: 1px solid #a0a0a0 !important" name="min_price" v-model="min_price"
+                            placeholder="Min" data-dropdown-id="price-min" value="" />
                         </div>
 
                         <div class="col-6">
-                          <input
-                            class="form-control price-label filter-input"
-                            style="border: 1px solid #a0a0a0 !important"
-                            name="max_price"
-                            v-model="max_price"
-                            placeholder="Max"
-                            data-dropdown-id="price-max"
-                            value=""
-                          />
+                          <input class="form-control price-label filter-input"
+                            style="border: 1px solid #a0a0a0 !important" name="max_price" v-model="max_price"
+                            placeholder="Max" data-dropdown-id="price-max" value="" />
                         </div>
                       </div>
                       <div class="clearfix"></div>
                       <div class="row mt-2 justify-content-center">
                         <div class="col-md-6">
-                          <ul
-                            class="price-range col-md-12 price-min-ul list-unstyled"
-                            style="
+                          <ul class="price-range col-md-12 price-min-ul list-unstyled" style="
                               width: 250px;
                               height: 150px;
                               overflow-y: auto;
                               overflow-x: hidden;
                               margin-left: 1rem;
                               cursor: pointer;
-                            "
-                          >
-                            <li
-                              class="price-li-item"
-                              :data-value="index"
-                              v-for="(item, index) in price_list"
-                            >
+                            ">
+                            <li class="price-li-item" :data-value="index" v-for="(item, index) in price_list">
                               {{ item }}
                             </li>
                           </ul>
                         </div>
 
                         <div class="col-md-6">
-                          <ul
-                            class="price-range col-md-12 price-max-ul list-unstyled"
-                            style="
+                          <ul class="price-range col-md-12 price-max-ul list-unstyled" style="
                               width: 250px;
                               height: 150px;
                               overflow-y: auto;
                               overflow-x: hidden;
                               margin-left: 1rem;
                               cursor: pointer;
-                            "
-                          >
-                            <li
-                              class="price-li-item"
-                              :data-value="index"
-                              v-for="(item, index) in price_list"
-                            >
+                            ">
+                            <li class="price-li-item" :data-value="index" v-for="(item, index) in price_list">
                               {{ item }}
                             </li>
                           </ul>
                         </div>
                       </div>
-                      <button
-                        type="button"
-                        class="btn btn-primary btn-reset-price"
-                        @click="resetPriceFilters"
-                        style="margin: 10px; height: 35px !important"
-                      >
+                      <button type="button" class="btn btn-primary btn-reset-price" @click="resetPriceFilters"
+                        style="margin: 10px; height: 35px !important">
                         Reset
                       </button>
                     </div>
@@ -218,16 +137,9 @@
 
                 <!--                        </div>
                                                             <div class="row mt-3">-->
-                <div
-                  class="col-md-6 mt-3"
-                  v-if="parent_id == 1 || (parent_id == 0 && category_id == 1)"
-                >
+                <div class="col-md-6 mt-3" v-if="parent_id == 1 || (parent_id == 0 && category_id == 1)">
                   <label class="mx-left">Beds</label>
-                  <select
-                    name="bedroom"
-                    v-model="bedroom"
-                    class="form-control select-bedroom filter-input"
-                  >
+                  <select name="bedroom" v-model="bedroom" class="form-control select-bedroom filter-input">
                     <option value="">Any</option>
                     <option value="1">1 room</option>
                     <option value="2">2 rooms</option>
@@ -236,16 +148,9 @@
                     <option value="5">5+ rooms</option>
                   </select>
                 </div>
-                <div
-                  class="col-md-6 mt-3"
-                  v-if="parent_id == 1 || (parent_id == 0 && category_id == 1)"
-                >
+                <div class="col-md-6 mt-3" v-if="parent_id == 1 || (parent_id == 0 && category_id == 1)">
                   <label class="mx-left">Baths</label>
-                  <select
-                    name="bathroom"
-                    v-model="bathroom"
-                    class="form-control filter-input"
-                  >
+                  <select name="bathroom" v-model="bathroom" class="form-control filter-input">
                     <option value="">Any</option>
                     <option value="1">1 room</option>
                     <option value="2">2 rooms</option>
@@ -257,134 +162,80 @@
                 <div class="price-dropdown pl-auto col-md-6 mt-3 border-0">
                   <label>Area</label>
                   <div class="price-placeholder">
-                    <a
-                      class="form-control-2 dropdown-toggle border-0 text-left"
-                      href="#"
-                      data-toggle="dropdown"
-                      aria-haspopup="true"
-                      aria-expanded="false"
-                      >Unit
+                    <a class="form-control-2 dropdown-toggle border-0 text-left" href="#" data-toggle="dropdown"
+                      aria-haspopup="true" aria-expanded="false">Unit
                       <span class="currency">{{
                         current_unit ? current_unit : "(Square feet)"
-                      }}</span
-                      ><strong class="caret"></strong>
+                      }}</span><strong class="caret"></strong>
                     </a>
                     <div class="row price-from-to-vue modalclass p-0">
                       <div class="col-md-5">
-                        <span
-                          class="min_unit_text"
-                          style="margin-right: 4rem !important"
-                          >{{ this.min_unit }}</span
-                        >
+                        <span class="min_unit_text" style="margin-right: 4rem !important">{{ this.min_unit }}</span>
                       </div>
                       <div class="col-md-2 price_to_text">to</div>
                       <div class="col-md-5">
                         <span class="max_unit_text">{{ this.max_unit }}</span>
                       </div>
                     </div>
-                    <div
-                      class="dropdown-menu dropdown-menu-2"
-                      style="padding: 10px; width: 100%"
-                    >
+                    <div class="dropdown-menu dropdown-menu-2" style="padding: 10px; width: 100%">
                       <div class="row">
                         <div class="col-md-12">
-                          <small
-                            style="
+                          <small style="
                               color: #363666;
                               text-decoration: underline;
                               margin-left: 5px;
                               margin-bottom: 5px;
-                            "
-                            ><a
-                              href="#"
-                              class="area-unit"
-                              id="changeAreaUnitlabel"
-                              data-toggle="modal"
-                              data-target="#area_modal"
-                              >Change Area Unit</a
-                            ></small
-                          >
+                            "><a href="#" class="area-unit" id="changeAreaUnitlabel" data-toggle="modal"
+                              data-target="#area_modal">Change Area Unit</a></small>
                         </div>
                       </div>
                       <div class="row justify-content-center">
                         <div class="col-6">
-                          <input
-                            class="form-control price-label filter-input"
-                            id="input_min_unit"
-                            style="border: 1px solid #a0a0a0 !important"
-                            name="min_unit"
-                            v-model="min_unit"
-                            placeholder="Min"
-                            data-dropdown-id="unit-min"
-                            value=""
-                          />
+                          <input class="form-control price-label filter-input" id="input_min_unit"
+                            style="border: 1px solid #a0a0a0 !important" name="min_unit" v-model="min_unit"
+                            placeholder="Min" data-dropdown-id="unit-min" value="" />
                         </div>
 
                         <div class="col-6">
-                          <input
-                            class="form-control price-label filter-input"
-                            id="input_max_unit"
-                            style="border: 1px solid #a0a0a0 !important"
-                            name="max_unit"
-                            v-model="max_unit"
-                            placeholder="Max"
-                            data-dropdown-id="unit-max"
-                            value=""
-                          />
+                          <input class="form-control price-label filter-input" id="input_max_unit"
+                            style="border: 1px solid #a0a0a0 !important" name="max_unit" v-model="max_unit"
+                            placeholder="Max" data-dropdown-id="unit-max" value="" />
                         </div>
                       </div>
                       <div class="clearfix"></div>
                       <div class="row mt-2 justify-content-center">
                         <div class="col-md-6">
-                          <ul
-                            class="units-range col-md-12 unit-min-ul list-unstyled"
-                            style="
+                          <ul class="units-range col-md-12 unit-min-ul list-unstyled" style="
                               width: 250px;
                               height: 150px;
                               overflow-y: auto;
                               overflow-x: hidden;
                               margin-left: 1rem;
                               cursor: pointer;
-                            "
-                          >
-                            <li
-                              class="unit-li-item"
-                              :data-value="units.key"
-                              v-for="units in area_units"
-                            >
+                            ">
+                            <li class="unit-li-item" :data-value="units.key" v-for="units in area_units">
                               {{ units.value }}
                             </li>
                           </ul>
                         </div>
 
                         <div class="col-md-6">
-                          <ul
-                            class="units-range col-md-12 unit-max-ul list-unstyled"
-                            style="
+                          <ul class="units-range col-md-12 unit-max-ul list-unstyled" style="
                               width: 250px;
                               height: 150px;
                               overflow-y: auto;
                               overflow-x: hidden;
                               margin-left: 1rem;
                               cursor: pointer;
-                            "
-                          >
-                            <li
-                              class="unit-li-item"
-                              :data-value="units.key"
-                              v-for="units in area_units"
-                            >
+                            ">
+                            <li class="unit-li-item" :data-value="units.key" v-for="units in area_units">
                               {{ units.value }}
                             </li>
                           </ul>
                         </div>
                       </div>
-                      <button
-                        type="button"
-                        class="btn btn-primary btn-reset-unit"
-                        @click="resetUnitFilters"
-                        style="margin: 10px; height: 35px !important"
-                      >
+                      <button type="button" class="btn btn-primary btn-reset-unit" @click="resetUnitFilters"
+                        style="margin: 10px; height: 35px !important">
                         Reset
                       </button>
                     </div>
@@ -394,18 +245,10 @@
             </center>
           </div>
           <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-reset-modal"
-              @click="resetFilters"
-            >
+            <button type="button" class="btn btn-reset-modal" @click="resetFilters">
               Reset
             </button>
-            <button
-              type="button"
-              class="btn btn-info-modal"
-              @click="getProperties"
-            >
+            <button type="button" class="btn btn-info-modal" @click="getProperties">
               Search
             </button>
           </div>
@@ -418,31 +261,16 @@
           <div class="col">
             <div id="parentChipContainer" class="parent-chip-container mr-0">
               <div id="chipContainer">
-                <div
-                  class="position-relative input-field-container"
-                  style="max-height: 32px; max-width: 60%"
-                >
-                  <input
-                    placeholder="Location"
-                    class="form-control projects-keyword"
-                    type="text"
-                    name=""
-                    id="autocomplete-ajax"
-                    style="
+                <div class="position-relative input-field-container" style="max-height: 32px; max-width: 60%">
+                  <input placeholder="Location" class="form-control projects-keyword" type="text" name=""
+                    id="autocomplete-ajax" style="
                       position: absolute;
                       z-index: 2;
                       background: transparent;
                       width: auto !important;
-                    "
-                  />
-                  <input
-                    class="form-control projects-keyword"
-                    type="text"
-                    name=""
-                    id="autocomplete-ajax-x"
-                    disabled="disabled"
-                    style="color: #ccc; background: transparent; z-index: 1"
-                  />
+                    " />
+                  <input class="form-control projects-keyword" type="text" name="" id="autocomplete-ajax-x"
+                    disabled="disabled" style="color: #ccc; background: transparent; z-index: 1" />
                 </div>
                 <div id="chipViewMore" class="chip" style="display: none">
                   <div class="chip-content"></div>
@@ -452,44 +280,22 @@
           </div>
           <div class="col-md-auto">
             <div class="" style="background-color: white; height: 100%">
-              <input
-                id="city-name-from-map"
-                type="hidden"
-                class="select-city-state form-control"
-                autocomplete="off"
-              />
-              <select
-                class="form-control getlocation"
-                v-model="city_id"
-                id="city_id"
-                name="city_id"
-                style="visibility: hidden"
-              >
+              <input id="city-name-from-map" type="hidden" class="select-city-state form-control" autocomplete="off" />
+              <select class="form-control getlocation" v-model="city_id" id="city_id" name="city_id"
+                style="visibility: hidden">
                 <option value="">Select city...</option>
-                <option
-                  v-for="(city, index) in cities"
-                  :key="index"
-                  :value="city.id"
-                >
+                <option v-for="(city, index) in cities" :key="index" :value="city.id">
                   {{ city.name }}
                 </option>
               </select>
             </div>
           </div>
           <div class="col-md-auto">
-            <div
-              class="price-dropdown layout-col ml-0"
-              style="font-weight: 400 !important"
-            >
+            <div class="price-dropdown layout-col ml-0" style="font-weight: 400 !important">
               <div class="dropdown input-group">
-                <a
-                  class="form-control-2 dropdown-toggle border-0 text-left"
-                  href="#"
-                  data-toggle="dropdown"
-                  aria-haspopup="true"
-                  aria-expanded="false"
-                  >Price <span class="currency">({{ current_currency }})</span
-                  ><strong class="caret"></strong>
+                <a class="form-control-2 dropdown-toggle border-0 text-left" href="#" data-toggle="dropdown"
+                  aria-haspopup="true" aria-expanded="false">Price <span class="currency">({{ current_currency
+                    }})</span><strong class="caret"></strong>
                 </a>
                 <div class="row price-from-to-vue modalclass p-0">
                   <div class="col-md-4">
@@ -500,77 +306,46 @@
                     <span class="max_price_text">{{ max_price }}</span>
                   </div>
                 </div>
-                <div
-                  class="dropdown-menu dropdown-menu-2"
-                  style="padding: 10px; width: 100%"
-                >
+                <div class="dropdown-menu dropdown-menu-2" style="padding: 10px; width: 100%">
                   <div class="row justify-content-center">
                     <div class="col-6">
-                      <input
-                        class="form-control price-label filter-input"
-                        style="border: 1px solid #a0a0a0 !important"
-                        name="min_price"
-                        id="input_min_price"
-                        v-model="min_price"
-                        placeholder="Min"
-                        data-dropdown-id="price-min"
-                        value=""
-                      />
+                      <input class="form-control price-label filter-input" style="border: 1px solid #a0a0a0 !important"
+                        name="min_price" id="input_min_price" v-model="min_price" placeholder="Min"
+                        data-dropdown-id="price-min" value="" />
                     </div>
 
                     <div class="col-6">
-                      <input
-                        class="form-control price-label filter-input"
-                        style="border: 1px solid #a0a0a0 !important"
-                        name="max_price"
-                        id="input_max_price"
-                        v-model="max_price"
-                        placeholder="Max"
-                        data-dropdown-id="price-max"
-                        value=""
-                      />
+                      <input class="form-control price-label filter-input" style="border: 1px solid #a0a0a0 !important"
+                        name="max_price" id="input_max_price" v-model="max_price" placeholder="Max"
+                        data-dropdown-id="price-max" value="" />
                     </div>
 
                     <div class="clearfix"></div>
                     <div class="row mt-2 justify-content-center">
                       <div class="col-md-6">
-                        <ul
-                          class="price-range col-md-12 price-min-ul list-unstyled"
-                          style="
+                        <ul class="price-range col-md-12 price-min-ul list-unstyled" style="
                             width: 250px;
                             height: 150px;
                             overflow-y: auto;
                             overflow-x: hidden;
                             margin-left: 1rem;
                             cursor: pointer;
-                          "
-                        >
-                          <li
-                            class="price-li-item"
-                            :data-value="index"
-                            v-for="(item, index) in price_list"
-                          >
+                          ">
+                          <li class="price-li-item" :data-value="index" v-for="(item, index) in price_list">
                             {{ item }}
                           </li>
                         </ul>
                       </div>
 
                       <div class="col-md-6">
-                        <ul
-                          class="price-range col-md-12 price-max-ul list-unstyled"
-                          style="
+                        <ul class="price-range col-md-12 price-max-ul list-unstyled" style="
                             width: 250px;
                             height: 150px;
                             overflow-y: auto;
                             overflow-x: hidden;
                             cursor: pointer;
-                          "
-                        >
-                          <li
-                            class="price-li-item"
-                            :data-value="index"
-                            v-for="(item, index) in price_list"
-                          >
+                          ">
+                          <li class="price-li-item" :data-value="index" v-for="(item, index) in price_list">
                             {{ item }}
                           </li>
                         </ul>
@@ -578,12 +353,8 @@
                     </div>
                   </div>
 
-                  <button
-                    type="button"
-                    class="btn btn-primary btn-reset-price"
-                    @click="resetPriceFilters"
-                    style="margin: 10px; height: 35px !important"
-                  >
+                  <button type="button" class="btn btn-primary btn-reset-price" @click="resetPriceFilters"
+                    style="margin: 10px; height: 35px !important">
                     Reset
                   </button>
                 </div>
@@ -595,12 +366,7 @@
           </div>
           <div class="col-md-auto">
             <div class="filter-wrap align-self-center filter-btn">
-              <button
-                class="btn btn-primary"
-                data-toggle="modal"
-                data-target="#filterModal"
-                type="button"
-              >
+              <button class="btn btn-primary" data-toggle="modal" data-target="#filterModal" type="button">
                 Filter <i class="fa fa-list pl-2"></i>
               </button>
             </div>
@@ -613,18 +379,10 @@
 
     <div class="bs-example">
       <div class="btn-group btn-group-toggle toggleBtn" data-toggle="buttons">
-        <label
-          class="btn btn-primary active clickBtn"
-          data-attr="map"
-          style="cursor: pointer"
-        >
+        <label class="btn btn-primary active clickBtn" data-attr="map" style="cursor: pointer">
           Map
         </label>
-        <label
-          class="btn btn-primary clickBtn"
-          data-attr="list"
-          style="cursor: pointer"
-        >
+        <label class="btn btn-primary clickBtn" data-attr="list" style="cursor: pointer">
           List
         </label>
       </div>
@@ -639,13 +397,7 @@
           <div class="sort-by">
             <span class="ml-3 bold">Sort By</span>
 
-            <select
-              @change="getProperties"
-              v-model="sort_by"
-              name="sort_by"
-              id="sort_by"
-              class="p-1 bg-white"
-            >
+            <select @change="getProperties" v-model="sort_by" name="sort_by" id="sort_by" class="p-1 bg-white">
               <option value="default_sorting">Default</option>
               <option value="date_asc">Oldest</option>
               <option value="date_desc">Newest</option>
@@ -662,37 +414,21 @@
             <div class="circle circle-1"></div>
             <div class="circle circle-2"></div>
           </div>
-          <div
-            v-show="show_empty_string && !isLoading && !data.length"
-            class="col-12 text-center"
-          >
+          <div v-show="show_empty_string && !isLoading && !data.length" class="col-12 text-center">
             <span>{{ __("No property found") }}!</span>
           </div>
           <!--                    v-favorites-->
-          <div
-            v-for="item in data"
-            :key="item.id"
-            v-show="!isLoading && data.length"
-          >
+          <div v-for="item in data" :key="item.id" v-show="!isLoading && data.length">
             <div class="pl-0">
               <div class="wishlist-wrap">
-                <a
-                  href="#"
-                  :data-id="item.id"
-                  :title="__('I care about this property!!!')"
-                  class="text-orange heart add-to-wishlist"
-                >
+                <a href="#" :data-id="item.id" :title="__('I care about this property!!!')"
+                  class="text-orange heart add-to-wishlist">
                   <i class="far fa-heart"></i>
                 </a>
               </div>
               <div class="d-flex justify-content-around">
                 <a :href="item.url">
-                  <img
-                    :data-src="item.image"
-                    :src="item.image"
-                    :alt="item.name"
-                    class="thumb img-fluid img-size"
-                /></a>
+                  <img :data-src="item.image" :src="item.image" :alt="item.name" class="thumb img-fluid img-size" /></a>
 
                 <div class="listing-type-side">
                   <a :href="item.url">
@@ -705,47 +441,28 @@
               </div>
               <div v-if="item.category_parent_id == '1'">
                 <div class="room-info mg-left pt-3">
-                  <i
-                    class="fa fa-bed fa-2x bed-icon pr-2"
-                    aria-hidden="true"
-                  ></i
-                  ><b class="bed-no pr-2">{{ item.number_bedroom }}</b
-                  ><i
-                    class="fa fa-bath fa-2x bath-icon pr-2"
-                    aria-hidden="true"
-                  ></i
-                  ><b class="bed-no pr-2">{{ item.number_bathroom }}</b
-                  ><i
-                    class="fas fa-ruler-combined fa-2x pr-2 square-icon"
-                    aria-hidden="true"
-                  ></i
-                  ><b class="square-no pr-2">{{ item.square_text }}</b>
+                  <i class="fa fa-bed fa-2x bed-icon pr-2" aria-hidden="true"></i><b class="bed-no pr-2">{{
+                    item.number_bedroom }}</b><i class="fa fa-bath fa-2x bath-icon pr-2" aria-hidden="true"></i><b
+                    class="bed-no pr-2">{{ item.number_bathroom }}</b><i
+                    class="fas fa-ruler-combined fa-2x pr-2 square-icon" aria-hidden="true"></i><b
+                    class="square-no pr-2">{{ item.square_text }}</b>
                 </div>
               </div>
               <div v-else>
                 <div class="room-info mg-left pt-3">
-                  <i
-                    class="fas fa-ruler-combined square-icon pr-2"
-                    aria-hidden="true"
-                  ></i
-                  ><b class="square-no pr-2">{{ item.square_text }}</b>
+                  <i class="fas fa-ruler-combined square-icon pr-2" aria-hidden="true"></i><b class="square-no pr-2">{{
+                    item.square_text }}</b>
                 </div>
               </div>
             </div>
             <hr />
           </div>
-          <pagination
-            :data="links"
-            @pagination-change-page="getProperties"
-          ></pagination>
+          <pagination :data="links" @pagination-change-page="getProperties"></pagination>
         </div>
       </div>
 
       <div id="map-container" style="height: 708.5px; position: relative">
-        <div
-          id="property_search_map"
-          style="height: 708.5px; position: relative"
-        ></div>
+        <div id="property_search_map" style="height: 708.5px; position: relative"></div>
       </div>
     </div>
     <div class="container porperties_list">
@@ -756,13 +473,8 @@
             <div class="row align-items-center d-flex">
               <div class="col-md-2"><label>Sort By:</label></div>
               <div class="col-md-10">
-                <select
-                  @change="getProperties"
-                  v-model="sort_by"
-                  style="width: 50% !important"
-                  name="sort_by"
-                  class="bg-white p-1 sort_by p-select-list form-control"
-                >
+                <select @change="getProperties" v-model="sort_by" style="width: 50% !important" name="sort_by"
+                  class="bg-white p-1 sort_by p-select-list form-control">
                   <option value="default_sorting">Default</option>
                   <option value="date_asc">Oldest</option>
                   <option value="date_desc">Newest</option>
@@ -781,26 +493,14 @@
           <div class="circle circle-1"></div>
           <div class="circle circle-2"></div>
         </div>
-        <div
-          v-if="show_empty_string && !isLoading && !data.length"
-          class="col-12 text-center"
-        >
+        <div v-if="show_empty_string && !isLoading && !data.length" class="col-12 text-center">
           <span>{{ __("No property found") }}!</span>
         </div>
-        <div
-          class="col-sm-4 col-md-3 colm10"
-          v-for="item in data"
-          :key="item.id"
-        >
+        <div class="col-sm-4 col-md-3 colm10" v-for="item in data" :key="item.id">
           <div class="hourseitem">
             <div class="blii">
               <div class="img">
-                <img
-                  class="thumb"
-                  :data-src="item.image"
-                  :src="item.image"
-                  :alt="item.name"
-                />
+                <img class="thumb" :data-src="item.image" :src="item.image" :alt="item.name" />
               </div>
               <a :href="item.url" class="linkdetail"></a>
               <div class="media-count-wrapper">
@@ -808,15 +508,11 @@
                   <span>{{ item.images.length }}</span>
                 </div>
               </div>
-              <div
-                class="status"
-                v-html="
-                  $sanitize(item.status_html, {
-                    allowedTags: ['span'],
-                    allowedAttributes: { span: ['class'] },
-                  })
-                "
-              ></div>
+              <div class="status" v-html="$sanitize(item.status_html, {
+                allowedTags: ['span'],
+                allowedAttributes: { span: ['class'] },
+              })
+                "></div>
               <ul class="item-price-wrap hide-on-list">
                 <li class="h-type">
                   <span>{{ item.category_name }}</span>
@@ -832,13 +528,8 @@
                   </h3>
                 </div>
                 <div class="col-md-2" style="position: static !important">
-                  <a
-                    href="#"
-                    class="text-orange heart add-to-wishlist"
-                    :data-id="item.id"
-                    :title="__('I care about this property!!!')"
-                    ><i class="far fa-heart"></i
-                  ></a>
+                  <a href="#" class="text-orange heart add-to-wishlist" :data-id="item.id"
+                    :title="__('I care about this property!!!')"><i class="far fa-heart"></i></a>
                 </div>
               </div>
               <p class="city">
@@ -848,39 +539,23 @@
               <div class="threemt bold500"></div>
               <div v-if="item.category_parent_id == '1'">
                 <div class="room-info pt-3">
-                  <i
-                    class="fa fa-bed fa-2x pr-2 bed-icon"
-                    aria-hidden="true"
-                  ></i
-                  ><b class="bed-no pr-2">{{ item.number_bedroom }}</b
-                  ><i
-                    class="fa fa-bath fa-2x pr-2 bath-icon"
-                    aria-hidden="true"
-                  ></i
-                  ><b class="bed-no pr-2">{{ item.number_bathroom }}</b
-                  ><i
-                    class="fas fa-ruler-combined pr-2 fa-2x square-icon"
-                    aria-hidden="true"
-                  ></i
-                  ><b class="square-no pr-2">{{ item.square_text }}</b>
+                  <i class="fa fa-bed fa-2x pr-2 bed-icon" aria-hidden="true"></i><b class="bed-no pr-2">{{
+                    item.number_bedroom }}</b><i class="fa fa-bath fa-2x pr-2 bath-icon" aria-hidden="true"></i><b
+                    class="bed-no pr-2">{{ item.number_bathroom }}</b><i
+                    class="fas fa-ruler-combined pr-2 fa-2x square-icon" aria-hidden="true"></i><b
+                    class="square-no pr-2">{{ item.square_text }}</b>
                 </div>
               </div>
               <div v-else>
                 <div class="room-info text-left pt-3">
-                  <i
-                    class="fas fa-ruler-combined fa-2x pr-2 square-icon"
-                    aria-hidden="true"
-                  ></i
-                  ><b class="square-no pr-2">{{ item.square_text }}</b>
+                  <i class="fas fa-ruler-combined fa-2x pr-2 square-icon" aria-hidden="true"></i><b
+                    class="square-no pr-2">{{ item.square_text }}</b>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <pagination
-          :data="links"
-          @pagination-change-page="getProperties"
-        ></pagination>
+        <pagination :data="links" @pagination-change-page="getProperties"></pagination>
       </div>
     </div>
   </div>
