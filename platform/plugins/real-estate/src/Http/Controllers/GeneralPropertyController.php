@@ -1704,21 +1704,33 @@ $cityChoices = \Botble\Location\Models\City::where('country_id', 166)
         }
     }
 
-    public function area_unit_update(SettingStore $settingStore)
-    {
+   public function area_unit_update(SettingStore $settingStore)
+{
+    try {
+        $area_unit = $_GET['area_unit'] ?? null;
 
-        try {
-            $area_unit = $_GET['area_unit'];
-            $settingStore->set('real_estate_square_unit', $area_unit);
-            $settingStore->save();
-            $res = array('status' => true, 'message' => 'Area unit update  Success');
-            echo json_encode($res);
-        } catch (Exception\Exception $ex) {
-            $data = array('status' => false, 'message' => $ex->getMessage());
-            echo json_encode($data);
+        if (!$area_unit) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Area unit is missing.',
+            ]);
         }
-    }
 
+        $settingStore->set('real_estate_square_unit', $area_unit);
+        $settingStore->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Area unit update Success',
+        ]);
+
+    } catch (Exception\Exception $ex) {
+        return response()->json([
+            'status' => false,
+            'message' => $ex->getMessage(),
+        ]);
+    }
+}
     public function currency_unit_update(SettingStore $settingStore)
     {
         try {
