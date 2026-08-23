@@ -1368,7 +1368,7 @@ export default {
       let url = "ajax/area_unit_update?area_unit=" + event.target.value;
 
       axios.get(url).then((res) => {
-        console.log("area unit updated system wide");
+        console.log("Area unit updated successfully!");
       });
 
       if (event.target.value == "ft²") {
