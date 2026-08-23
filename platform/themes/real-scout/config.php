@@ -44,7 +44,7 @@ return [
         // this event should call to assign some assets,
         // breadcrumb template.
         'beforeRenderTheme' => function (Theme $theme) {
-            $version = '1.0.0';
+            $version = filemtime(public_path('js/app.js'));
 
             // You may use this event to set up your assets.
             $theme->asset()->usePath()->add('bootstrap-css', 'libraries/bootstrap/bootstrap.min.v4.css');
@@ -96,7 +96,7 @@ return [
             $theme->asset()->container('footer')->usePath()->add('components-js', 'js/components.js', [], [], $version);
             $theme->asset()->container('footer')->usePath()->add('wishlist', 'js/wishlist.js', [], [], $version);
 
-            $theme->asset()->container('footer')->add('custom-app-js', '/js/app.js');
+            $theme->asset()->container('footer')->add('custom-app-js', '/js/app.js', [], [], $version);
             $theme->asset()->container('footer')->usePath()->add('jquery-js', 'js/jquery.min.js');
             $theme->asset()->container('footer')->usePath()->add('proper-js', 'js/popper.min.js');
             $theme->asset()->container('footer')->usePath()->add('bootstrap-js', 'js/bootstrap.min.js');
