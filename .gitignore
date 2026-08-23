@@ -11,3 +11,6 @@ storage/*.key
 /public/storage/
 .idea
 
+/public/js/app.js
+/public/js/app.js.LICENSE.txt
+/public/js/app.js.map
