@@ -74,6 +74,8 @@ use Botble\Location\Models\State;
 use Botble\Location\Models\City;
 use Botble\Location\Repositories\Interfaces\CountryInterface;
 use Botble\Location\Repositories\Interfaces\StateInterface;
+use Botble\RealEstate\Repositories\Interfaces\FavouritePropertyInterface;
+
 class GeneralPropertyController extends Controller
 {
     /**
@@ -82,8 +84,8 @@ class GeneralPropertyController extends Controller
     protected $memberRepository;
     protected $cityRepository;
     protected $cityAreaRepository;
-protected $countryRepository;
-protected $stateRepository;
+    protected $countryRepository;
+    protected $stateRepository;
     /**
      * @var PropertyInterface
      */
@@ -106,25 +108,24 @@ protected $stateRepository;
      * @param AccountActivityLogInterface $accountActivityLogRepository
      */
     public function __construct(
-        Repository                  $config,
-        MemberInterface             $memberRepository,
-        PropertyInterface           $propertyRepository,
+        Repository $config,
+        MemberInterface $memberRepository,
+        PropertyInterface $propertyRepository,
         AccountActivityLogInterface $accountActivityLogRepository,
-        CategoryInterface           $categoryRepository,
-        CityInterface               $cityRepository,
-        CountryInterface           $countryRepository,
-        StateInterface              $stateRepository,
-        CityAreaInterface           $cityAreaRepository,
-        MemberActivityLogInterface  $memberActivityLogRepository,
-        ProjectInterface            $projectRepository
-    )
-    {
+        CategoryInterface $categoryRepository,
+        CityInterface $cityRepository,
+        CountryInterface $countryRepository,
+        StateInterface $stateRepository,
+        CityAreaInterface $cityAreaRepository,
+        MemberActivityLogInterface $memberActivityLogRepository,
+        ProjectInterface $projectRepository
+    ) {
         $this->memberRepository = $memberRepository;
         $this->propertyRepository = $propertyRepository;
         $this->cityRepository = $cityRepository;
         $this->cityAreaRepository = $cityAreaRepository;
-          $this->countryRepository = $countryRepository;
-          $this->stateRepository = $stateRepository;
+        $this->countryRepository = $countryRepository;
+        $this->stateRepository = $stateRepository;
         $this->categoryRepository = $categoryRepository;
         $this->activityLogRepository = $accountActivityLogRepository;
         $this->memberLogRepository = $memberActivityLogRepository;
@@ -377,7 +378,7 @@ protected $stateRepository;
         $property->fill($request->except(['expire_date']));
         $area_value = $request['square'];
         $area_units = $request['area_units'];
-        $old_arr = (array)$old_documents;
+        $old_arr = (array) $old_documents;
         $jsonArr = array();
 
         $ids = array_column($old_arr, 'id');
@@ -522,17 +523,17 @@ protected $stateRepository;
 
     public function attemptLogin(Request $request)
     {
-      $member = Member::where('email', $request->email)->first();
+        $member = Member::where('email', $request->email)->first();
 
-if (!$member) {
-    return back()->withErrors(['Invalid email'])->withInput();
-}
+        if (!$member) {
+            return back()->withErrors(['Invalid email'])->withInput();
+        }
 
-if (!$member->email_verified) {
-    return back()->withErrors([
-        'Please verify your email before logging in.'
-    ]);
-}
+        if (!$member->email_verified) {
+            return back()->withErrors([
+                'Please verify your email before logging in.'
+            ]);
+        }
 
         if (Auth::guard('member')->attempt(['email' => $request->email, 'password' => $request->password])) {
             return redirect('/member/dashboard');
@@ -571,16 +572,16 @@ if (!$member->email_verified) {
         if (Member::where('email', $request['email'])->first()) {
             return redirect()->back()->with(array('error_msg' => 'Email already exists.'));
         } else {
-          $token = Str::random(64);
+            $token = Str::random(64);
 
-$member = Member::create([
-    'full_name' => $request['full_name'],
-    'email' => $request['email'],
-    'mobile_no' => $request['mobile_no'],
-    'password' => Hash::make($request['password']),
-    'verification_token' => $token,
-    'email_verified' => 0,
-]);
+            $member = Member::create([
+                'full_name' => $request['full_name'],
+                'email' => $request['email'],
+                'mobile_no' => $request['mobile_no'],
+                'password' => Hash::make($request['password']),
+                'verification_token' => $token,
+                'email_verified' => 0,
+            ]);
         }
 
         // EmailHandler::setModule('real-estate')
@@ -593,21 +594,22 @@ $member = Member::create([
         //         'login_url' => route('member.login')
         //     ])
         //     ->sendUsingTemplate('memberregistered', $member->email, [], false, 'plugins', 'Account Created');
-$link = url('/member/verify/' . $token);
+        $link = url('/member/verify/' . $token);
 
-Mail::send(
-    'plugins/real-estate::account.emails.verify-email',
-    [
-        'link' => $link,
-    ],
-    function ($message) use ($member) {
-        $message->to($member->email)
-                ->subject('Verify Your Email');
+        Mail::send(
+            'plugins/real-estate::account.emails.verify-email',
+            [
+                'link' => $link,
+            ],
+            function ($message) use ($member) {
+                $message->to($member->email)
+                    ->subject('Verify Your Email');
+            }
+        );
+
+        return redirect()->intended('member-login')
+            ->with('success_msg', 'Registration successful. Please check your email to verify your account.');
     }
-  );
-
-  return redirect()->intended('member-login')
-    ->with('success_msg', 'Registration successful. Please check your email to verify your account.');    }
 
     public function dashboard()
     {
@@ -784,8 +786,7 @@ Mail::send(
         AccountInterface $accountRepository,
         SaveFacilitiesService $saveFacilitiesService,
         MemberInterface $memberRepository
-    )
-    {
+    ) {
         $property = $this->propertyRepository->getFirstBy([
             'id' => $id,
             'member_id' => auth('member')->user()->getAuthIdentifier()
@@ -800,7 +801,7 @@ Mail::send(
         $old_documents = json_decode($property->documents);
 
         $property->fill($request->except(['expire_date']));
-        $old_arr = (array)$old_documents;
+        $old_arr = (array) $old_documents;
         $jsonArr = array();
 
         $ids = array_column($old_arr, 'id');
@@ -1074,18 +1075,18 @@ Mail::send(
             return $cat;
         });
 
-       $countries = $this->countryRepository->pluck(
-    'countries.name',
-    'countries.id'
-);
+        $countries = $this->countryRepository->pluck(
+            'countries.name',
+            'countries.id'
+        );
 
-$states = [];
+        $states = [];
 
-$cityChoices = \Botble\Location\Models\City::where('country_id', 166)
-    ->where('status', BaseStatusEnum::PUBLISHED)
-    ->orderBy('name')
-    ->pluck('name', 'id')
-    ->toArray();
+        $cityChoices = \Botble\Location\Models\City::where('country_id', 166)
+            ->where('status', BaseStatusEnum::PUBLISHED)
+            ->orderBy('name')
+            ->pluck('name', 'id')
+            ->toArray();
         $projects = $this->projectRepository->allBy(
             [],
             [],
@@ -1099,9 +1100,9 @@ $cityChoices = \Botble\Location\Models\City::where('country_id', 166)
 
         $data = [
             'categories' => $categories,
-             'countries' => $countries,
-              'states' => $states,
-               'city' => $cityChoices,
+            'countries' => $countries,
+            'states' => $states,
+            'city' => $cityChoices,
             'projects' => $projectChoices,
         ];
 
@@ -1176,9 +1177,9 @@ $cityChoices = \Botble\Location\Models\City::where('country_id', 166)
 
         $packages = $packages->filter(function ($package) use ($member) {
             return $package->account_limit === null || $member->packages->where(
-                    'id',
-                    $package->id
-                )->count() < $package->account_limit;
+                'id',
+                $package->id
+            )->count() < $package->account_limit;
         });
 
         return $response->setData([
@@ -1206,12 +1207,11 @@ $cityChoices = \Botble\Location\Models\City::where('country_id', 166)
     }
 
     public function ajaxSubscribePackage(
-        Request              $request,
-        PackageInterface     $packageRepository,
-        BaseHttpResponse     $response,
+        Request $request,
+        PackageInterface $packageRepository,
+        BaseHttpResponse $response,
         TransactionInterface $transactionRepository
-    )
-    {
+    ) {
         $package = $packageRepository->findOrFail($request->input('id'));
         $member = $this->memberRepository->findOrFail(auth('member')->user()->getAuthIdentifier());
 
@@ -1264,8 +1264,7 @@ $cityChoices = \Botble\Location\Models\City::where('country_id', 166)
         $id,
         PackageInterface $packageRepository,
         PaymentInterface $paymentRepository
-    )
-    {
+    ) {
         $package = $packageRepository->findOrFail($id);
         $total_price = $package->price;
         $voucher = false;
@@ -1429,12 +1428,11 @@ $cityChoices = \Botble\Location\Models\City::where('country_id', 166)
     }
 
     public function packageCallback(
-        BaseHttpResponse     $response,
-        PaymentInterface     $paymentRepository,
+        BaseHttpResponse $response,
+        PaymentInterface $paymentRepository,
         TransactionInterface $transactionRepository,
-        PackageInterface     $packageRepository
-    )
-    {
+        PackageInterface $packageRepository
+    ) {
         $orderId = $_GET['O'];
         $transactionStatus = $_GET['TS'];
 
@@ -1501,8 +1499,7 @@ $cityChoices = \Botble\Location\Models\City::where('country_id', 166)
         PackageInterface $packageRepository,
         TransactionInterface $transactionRepository,
         BaseHttpResponse $response
-    )
-    {
+    ) {
         $package = $packageRepository->findOrFail($packageId);
 
         if ($request->input('type') == PaymentMethodEnum::PAYPAL) {
@@ -1787,23 +1784,97 @@ $cityChoices = \Botble\Location\Models\City::where('country_id', 166)
         }
     }
     public function getStates(Request $request)
-{
-    return State::where('country_id', $request->country_id)
-        ->where('status', BaseStatusEnum::PUBLISHED)
-        ->orderBy('name')
-        ->get([
-            'id',
-            'name'
+    {
+        return State::where('country_id', $request->country_id)
+            ->where('status', BaseStatusEnum::PUBLISHED)
+            ->orderBy('name')
+            ->get([
+                'id',
+                'name'
+            ]);
+    }
+    public function getCities(Request $request)
+    {
+        return City::where('state_id', $request->state_id)
+            ->where('status', BaseStatusEnum::PUBLISHED)
+            ->orderBy('name')
+            ->get([
+                'id',
+                'name'
+            ]);
+    }
+
+    public function getFavouriteProperties(Request $request, FavouritePropertyInterface $favouritePropertyRepository, BaseHttpResponse $response)
+    {
+        $userType = 'member';
+        $userId = auth('member')->user()->getAuthIdentifier();
+
+        if (!$userId) {
+            $userId = auth('account')->user()->getAuthIdentifier();
+            $userType = 'agent';
+        }
+
+        if (!$userId) {
+            return $response->setError()->setMessage('User not authenticated');
+        }
+
+        $favouriteProperties = $favouritePropertyRepository->getFavouritePropertiesByUser($userId, $userType);
+
+        return $response->setData($favouriteProperties);
+    }
+
+    public function toggleFavouriteProperty(Request $request, FavouritePropertyInterface $favouritePropertyRepository, BaseHttpResponse $response)
+    {
+        $userType = 'member';
+        $userId = auth('member')->user()->getAuthIdentifier();
+
+        if (!$userId) {
+            $userId = auth('account')->user()->getAuthIdentifier();
+            $userType = 'agent';
+        }
+
+        if (!$userId) {
+            return $response->setError()->setMessage('User not authenticated');
+        }
+
+        $propertyId = $request->input('property_id');
+
+        if ($favouritePropertyRepository->isFavourite($userId, $propertyId, $userType)) {
+            $favouritePropertyRepository->deleteBy([
+                'user_id' => $userId,
+                'property_id' => $propertyId,
+                'user_type' => $userType,
+            ]);
+            return $response->setMessage('Property removed from favourites successfully');
+        }
+
+        $favouritePropertyRepository->create([
+            'user_id' => $userId,
+            'property_id' => $propertyId,
+            'user_type' => $userType,
         ]);
-}
-public function getCities(Request $request)
-{
-    return City::where('state_id', $request->state_id)
-        ->where('status', BaseStatusEnum::PUBLISHED)
-        ->orderBy('name')
-        ->get([
-            'id',
-            'name'
-        ]);
-}
+
+        return $response->setMessage('Property added to favourites successfully');
+    }
+
+    public function isFavouriteProperty(Request $request, FavouritePropertyInterface $favouritePropertyRepository, BaseHttpResponse $response)
+    {
+        $userType = 'member';
+        $userId = auth('member')->user()->getAuthIdentifier();
+
+        if (!$userId) {
+            $userId = auth('account')->user()->getAuthIdentifier();
+            $userType = 'agent';
+        }
+
+        if (!$userId) {
+            return $response->setError()->setMessage('User not authenticated');
+        }
+
+        $propertyId = $request->input('property_id');
+
+        $isFavourite = $favouritePropertyRepository->isFavourite($userId, $propertyId, $userType);
+
+        return $response->setData(['is_favourite' => $isFavourite]);
+    }
 }

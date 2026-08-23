@@ -526,11 +526,15 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
             ->name('general-add-property');
         Route::POST('member-property-save', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'store'])
             ->name('general-save-property');
-Route::get('ajax/states', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'getStates'])
-    ->name('ajax.states');
 
-Route::get('ajax/property-cities', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'getCities'])
-    ->name('ajax.property-cities');
+        Route::get('get-favourite-properties', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'getFavouriteProperties'])
+            ->name('get-favourite-properties');
+
+        Route::get('ajax/states', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'getStates'])
+            ->name('ajax.states');
+
+        Route::get('ajax/property-cities', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'getCities'])
+            ->name('ajax.property-cities');
         //////////////////////////////members////////////////////////
         /// middleware set here for member////////
         Route::get('member-login', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'login'])
@@ -544,20 +548,20 @@ Route::get('ajax/property-cities', [\Botble\RealEstate\Http\Controllers\GeneralP
             ->name('member.register.save');
         Route::get('/member/verify/{token}', function ($token) {
 
-    $member = \Botble\RealEstate\Models\Member::where('verification_token', $token)->first();
+            $member = \Botble\RealEstate\Models\Member::where('verification_token', $token)->first();
 
-    if (!$member) {
-        return redirect('/member-login')
-            ->with('error_msg', 'Invalid verification link.');
-    }
+            if (!$member) {
+                return redirect('/member-login')
+                    ->with('error_msg', 'Invalid verification link.');
+            }
 
-    $member->email_verified = 1;
-    $member->verification_token = null;
-    $member->save();
+            $member->email_verified = 1;
+            $member->verification_token = null;
+            $member->save();
 
-    return redirect('/member-login')
-        ->with('success_msg', 'Email verified successfully. You may now login.');
-})->name('member.verify');    
+            return redirect('/member-login')
+                ->with('success_msg', 'Email verified successfully. You may now login.');
+        })->name('member.verify');
         Route::get('wanted', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'wanted'])
             ->name('wanted');
         Route::get('/property/{property:name}', 'PostController@show')->name('post.show');
