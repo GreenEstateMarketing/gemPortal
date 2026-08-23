@@ -29,20 +29,20 @@ class AccountForm extends FormAbstract
      * @var CityAreaInterface
      */
     protected $cityAreaRepository;
-protected $countryRepository;
-protected $stateRepository;
+    protected $countryRepository;
+    protected $stateRepository;
     public function __construct(
-    CountryInterface $countryRepository,
-    StateInterface $stateRepository,
-    CityInterface $cityRepository,
-    CityAreaInterface $cityAreaRepository
-) {
+        CountryInterface $countryRepository,
+        StateInterface $stateRepository,
+        CityInterface $cityRepository,
+        CityAreaInterface $cityAreaRepository
+    ) {
         parent::__construct();
 
-       $this->countryRepository = $countryRepository;
-$this->stateRepository = $stateRepository;
-$this->cityRepository = $cityRepository;
-$this->cityAreaRepository = $cityAreaRepository;
+        $this->countryRepository = $countryRepository;
+        $this->stateRepository = $stateRepository;
+        $this->cityRepository = $cityRepository;
+        $this->cityAreaRepository = $cityAreaRepository;
 
     }
 
@@ -101,67 +101,69 @@ $this->cityAreaRepository = $cityAreaRepository;
                     'data-counter' => 60,
                 ],
             ]);
-$countries = $this->countryRepository
-    ->pluck('countries.name', 'countries.id');
 
-$states = [];
-       $cityChoices = [];
-$this->add('country_id', 'customSelect', [
-    'label' => 'Country',
-    'label_attr' => ['class' => 'control-label required'],
-    'wrapper' => [
-        'class' => 'form-group col-md-6',
-    ],
-    'attr' => [
-        'id' => 'country_id',
-        'class' => 'form-control select-search-full',
-        'data-change-country-url' => url('/ajax/get-states'),
-    ],
-'choices' => ['' => 'Select Country'] + $countries,
-])
+        $countries = $this->countryRepository
+            ->pluck('countries.name', 'countries.id');
 
-->add('state_id', 'customSelect', [
-    'label' => 'State',
-    'label_attr' => ['class' => 'control-label required'],
-    'wrapper' => [
-        'class' => 'form-group col-md-6',
-    ],
-    'attr' => [
-        'id' => 'state_id',
-        'class' => 'form-control select-search-full',
-        'data-change-state-url' => url('/ajax/get-cities'),
-    ],
-    'choices' => $states,
-]);
+        $states = [];
+        $cityChoices = [];
+        $this->add('country_id', 'customSelect', [
+            'label' => 'Country',
+            'label_attr' => ['class' => 'control-label required'],
+            'wrapper' => [
+                'class' => 'form-group col-md-6',
+            ],
+            'attr' => [
+                'id' => 'country_id',
+                'class' => 'form-control select-search-full',
+                'data-change-country-url' => url('/ajax/get-states'),
+            ],
+            'choices' => ['' => 'Select Country'] + $countries,
+        ])
+
+            ->add('state_id', 'customSelect', [
+                'label' => 'State',
+                'label_attr' => ['class' => 'control-label required'],
+                'wrapper' => [
+                    'class' => 'form-group col-md-6',
+                ],
+                'attr' => [
+                    'id' => 'state_id',
+                    'class' => 'form-control select-search-full',
+                    'data-change-state-url' => url('/ajax/get-cities'),
+                ],
+                'choices' => $states,
+            ]);
         $this->add('city_id', 'customSelect', [
             'label' => trans('plugins/real-estate::property.form.city'),
             'label_attr' => ['class' => 'control-label required'],
             'wrapper' => [
                 'class' => 'form-group col-md-6',
             ],
-           'attr' => [
-    'id' => 'city_id',
-    'class' => 'form-control select-search-full city_id',
-],
-'choices' => [
-    '' => trans('plugins/real-estate::property.select_city'),
-],        ])
-        ->add('city_area_id', 'customSelect', [
-            'label' => trans('plugins/real-estate::property.form.city_area'),
-            'label_attr' => ['class' => 'control-label required'],
-            'wrapper' => [
-                'class' => 'form-group col-md-6',
-            ],
             'attr' => [
-                'id' => 'city_area_id',
-                'class' => 'form-control select-search-full',
-                'multiple' => 'multiple',
-                'name' => 'city_area_id[]'
+                'id' => 'city_id',
+                'class' => 'form-control select-search-full city_id',
             ],
-'choices' => [],
-            'selected' => explode(',', $this->getModel()->city_area_id)
-        ]);
-        
+            'choices' => [
+                '' => trans('plugins/real-estate::property.select_city'),
+            ],
+        ])
+            ->add('city_area_id', 'customSelect', [
+                'label' => trans('plugins/real-estate::property.form.city_area'),
+                'label_attr' => ['class' => 'control-label required'],
+                'wrapper' => [
+                    'class' => 'form-group col-md-6',
+                ],
+                'attr' => [
+                    'id' => 'city_area_id',
+                    'class' => 'form-control select-search-full',
+                    'multiple' => 'multiple',
+                    'name' => 'city_area_id[]'
+                ],
+                'choices' => [],
+                'selected' => explode(',', $this->getModel()->city_area_id)
+            ]);
+
 
 
         $this->add('is_change_password', 'checkbox', [

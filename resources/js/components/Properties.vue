@@ -1343,15 +1343,6 @@ export default {
       this.markerBounds = new google.maps.LatLngBounds();
     },
     changeAreaUnit: function () {
-      if (this.current_unit === "(Square feet)") {
-        let area_unit = "ft²";
-        let url = "ajax/area_unit_update?area_unit=" + area_unit;
-
-        axios.get(url).then((res) => {
-          console.log("area unit updated system wide");
-        });
-      }
-
       $(".area-unit").on("click", function () {
         $("#filterModal").hide();
         $("#filterModal").removeClass("fade");
