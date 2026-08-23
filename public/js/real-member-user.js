@@ -302,58 +302,96 @@ function validateDocuments() {
 
 $("#btnSave").click(function (e) {
   console.log("REAL MEMBER USER JS CLICK HANDLER");
-  $(window).off("beforeunload");
 
+  $(window).off("beforeunload");
   e.preventDefault();
 
   removeErrors();
+
+  let errors = [];
+  let firstErrorElement = null;
+
+  //----------------------------------------------------------
+  // Helper
+  //----------------------------------------------------------
+
+  function addError(element, message) {
+    element = $(element);
+
+    if (!element.length) {
+      return;
+    }
+
+    errors.push({
+      element: element,
+      message: message,
+    });
+
+    if (!firstErrorElement) {
+      firstErrorElement = element;
+    }
+  }
 
   //----------------------------------------------------------
   // Property Information
   //----------------------------------------------------------
 
   // Title
-  if (!validateRequiredInput("#name", "Title is required")) return;
+  if ($.trim($("#name").val()) === "") {
+    addError("#name", "Title is required");
+  }
+
   // Country
-  if (!validateSelect2("#country_id", "Please select Country")) return;
+  if (!$("#country_id").val()) {
+    addError("#country_id", "Please select Country");
+  }
 
   // State
-  if (!validateSelect2("#state_id", "Please select State")) return;
+  if (!$("#state_id").val()) {
+    addError("#state_id", "Please select State");
+  }
+
   // City
-  if (!validateSelect2("#city_id", "Please select City")) return;
+  if (!$("#city_id").val()) {
+    addError("#city_id", "Please select City");
+  }
 
   // City Area
-  if (!validateSelect2("#city_area_id", "Please select City Area")) return;
-  // Property Images (Dropzone)
-  if (!validateDropzone()) return;
+  if (!$("#city_area_id").val()) {
+    addError("#city_area_id", "Please select City Area");
+  }
+
+  // Property Images
+  if (!validateDropzone()) {
+    addError(".dz-message.member", "Please upload Property Images.");
+  }
+
   // Property Location
   if (
-    $.trim($("#location").val()) == "" ||
-    $("#latitude").val() == "" ||
-    $("#longitude").val() == ""
+    $.trim($("#location").val()) === "" ||
+    $("#latitude").val() === "" ||
+    $("#longitude").val() === ""
   ) {
-    $(".validation").remove();
-
-    $("#location").after(
-      '<ul class="validation"><li>Please select Property Location.</li></ul>',
-    );
-
-    scrollToElement($("#location"));
-
-    return;
+    addError("#location", "Please select Property Location.");
   }
+
   // Required Documents
-  if (!validateDocuments()) return;
+  $("input[name='documents[]']").each(function () {
+    if ($(this).data("required") === "required") {
+      if ($(this).val() === "" && $(this).prev().attr("data-src") === "") {
+        addError(this, "This document is required.");
+      }
+    }
+  });
+
   // Area
-  if ($("#square").val().replace(/,/g, "").trim() == "") {
-    showError($("#square"), "Area is required");
-    return;
+  if ($("#square").val().replace(/,/g, "").trim() === "") {
+    addError("#square", "Area is required");
   }
 
   // Price
-  if ($("#price-number").val().replace(/,/g, "").trim() == "") {
-    showError($("#price-number"), "Price is required");
-    return;
+  if ($("#price-number").val().replace(/,/g, "").trim() === "") {
+    addError("#price-number", "Price is required");
   }
 
   //----------------------------------------------------------
@@ -362,62 +400,84 @@ $("#btnSave").click(function (e) {
 
   var member_status = $("input[name='member_status']:checked").val();
 
-  if (member_status == "existing_user") {
-    if (!validateRequiredInput("#email", "Email is required")) return;
-
-    // Email format
+  if (member_status === "existing_user") {
+    // Email
     var email = $("#email").val().trim();
-    var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!emailPattern.test(email)) {
-      showError($("#email"), "Please enter a valid email address.");
-      return;
+    if (email === "") {
+      addError("#email", "Email is required");
+    } else {
+      var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!emailPattern.test(email)) {
+        addError("#email", "Please enter a valid email address.");
+      }
     }
 
-    if (!validateRequiredInput("#password", "Password is required")) return;
+    // Password
+    if ($("#password").val().trim() === "") {
+      addError("#password", "Password is required");
+    }
   }
 
-  if (member_status == "new_user") {
-    if (!validateRequiredInput("#full_name", "Full Name is required")) return;
-
-    if (!validateRequiredInput("#new_email", "Email is required")) return;
-
-    // Email format
-    var newEmail = $("#new_email").val().trim();
-    var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!emailPattern.test(newEmail)) {
-      showError($("#new_email"), "Please enter a valid email address.");
-      return;
+  if (member_status === "new_user") {
+    // Full Name
+    if ($("#full_name").val().trim() === "") {
+      addError("#full_name", "Full Name is required");
     }
 
-    if (!validateRequiredInput("#mobile_number", "Mobile Number is required"))
-      return;
+    // Email
+    var newEmail = $("#new_email").val().trim();
 
-    // Mobile number should contain only digits
+    if (newEmail === "") {
+      addError("#new_email", "Email is required");
+    } else {
+      var newEmailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!newEmailPattern.test(newEmail)) {
+        addError("#new_email", "Please enter a valid email address.");
+      }
+    }
+
+    // Mobile
     var mobile = $("#mobile_number").val().trim();
 
-    if (!/^[0-9]+$/.test(mobile)) {
-      showError($("#mobile_number"), "Please enter a valid mobile number.");
-      return;
+    if (mobile === "") {
+      addError("#mobile_number", "Mobile Number is required");
+    } else if (!/^\+[1-9]\d{7,14}$/.test(mobile)) {
+      addError(
+        "#mobile_number",
+        "Please enter a valid international mobile number.",
+      );
     }
 
-    if (!validateRequiredInput("#new_password", "Password is required")) return;
+    // Password
+    if ($("#new_password").val().trim() === "") {
+      addError("#new_password", "Password is required");
+    }
   }
+
   //----------------------------------------------------------
   // Terms
   //----------------------------------------------------------
 
   if (!$("#terms").is(":checked")) {
-    $(".validation").remove();
+    addError("#terms", "Please accept GEM Terms & Conditions.");
+  }
 
-    $("#terms")
-      .parent()
-      .append(
-        '<ul class="validation"><li>Please accept GEM Terms & Conditions.</li></ul>',
-      );
+  //----------------------------------------------------------
+  // RENDER ALL ERRORS
+  //----------------------------------------------------------
 
-    scrollToElement($("#terms"));
+  if (errors.length > 0) {
+    errors.forEach(function (error) {
+      renderValidationError(error.element, error.message);
+    });
+
+    // Scroll ONLY once
+    if (firstErrorElement) {
+      scrollToElement(firstErrorElement);
+    }
 
     return;
   }
@@ -432,7 +492,6 @@ $("#btnSave").click(function (e) {
   var setprice = price.replace(",", "");
 
   var form = $("#form_member")[0];
-
   var formData = new FormData(form);
 
   formData.append("price", setprice);
@@ -445,12 +504,12 @@ $("#btnSave").click(function (e) {
   var new_password = $("#new_password").val();
   var mobile_number = $("#mobile_number").val();
 
-  if (member_status == "existing_user") {
+  if (member_status === "existing_user") {
     formData.append("email", email);
     formData.append("password", password);
   }
 
-  if (member_status == "new_user") {
+  if (member_status === "new_user") {
     formData.append("member_status", "new_user");
     formData.append("full_name", name);
     formData.append("new_email", new_email);
@@ -459,8 +518,6 @@ $("#btnSave").click(function (e) {
   }
 
   formData.append("terms", true);
-
-  let document = 1;
 
   $.ajax({
     type: "POST",
@@ -483,7 +540,6 @@ $("#btnSave").click(function (e) {
 
       function printErrorMsg(msg) {
         $(".print-error-msg").find("ul").html("");
-
         $(".print-error-msg").show();
 
         $.each(msg, function (key, value) {
@@ -495,7 +551,6 @@ $("#btnSave").click(function (e) {
 
       if (data.status) {
         $(window).off("beforeunload");
-
         window.location.href = "/member/properties";
       } else {
         Swal.fire({
@@ -511,130 +566,153 @@ $("#btnSave").click(function (e) {
 
       removeErrors();
 
-      if (!xhr.responseJSON || !xhr.responseJSON.errors) return;
-
-      var errors = xhr.responseJSON.errors;
-
-      //------------------------------------------------------
-      // Server Validation
-      //------------------------------------------------------
-
-      if (errors.name) {
-        showError($("#name"), errors.name[0]);
-
+      if (!xhr.responseJSON || !xhr.responseJSON.errors) {
         return;
       }
 
-      if (errors.city_id) {
-        $("#city_id")
-          .next(".select2")
-          .after(
-            '<ul class="validation"><li>' + errors.city_id[0] + "</li></ul>",
-          );
+      var serverErrors = xhr.responseJSON.errors;
+      var firstServerError = null;
 
-        scrollToElement($("#city_id").next(".select2"));
+      function addServerError(element, message) {
+        if (!firstServerError) {
+          firstServerError = $(element);
+        }
 
-        return;
+        renderValidationError(element, message);
       }
 
-      if (errors.city_area_id) {
-        $("#city_area_id")
-          .next(".select2")
-          .after(
-            '<ul class="validation"><li>' +
-              errors.city_area_id[0] +
-              "</li></ul>",
-          );
+      $.each(serverErrors, function (key, messages) {
+        var message = messages[0];
 
-        scrollToElement($("#city_area_id").next(".select2"));
+        switch (key) {
+          case "name":
+            addServerError("#name", message);
+            break;
 
-        return;
-      }
+          case "country_id":
+            addServerError("#country_id", message);
+            break;
 
-      if (errors.images) {
-        $(".dz-message.member").after(
-          '<ul class="validation"><li>' + errors.images[0] + "</li></ul>",
-        );
+          case "state_id":
+            addServerError("#state_id", message);
+            break;
 
-        scrollToElement($(".dz-message.member"));
+          case "city_id":
+            addServerError("#city_id", message);
+            break;
 
-        return;
-      }
+          case "city_area_id":
+            addServerError("#city_area_id", message);
+            break;
 
-      if (errors.location) {
-        showError($("#location"), errors.location[0]);
+          case "images":
+            addServerError(".dz-message.member", message);
+            break;
 
-        return;
-      }
+          case "location":
+            addServerError("#location", message);
+            break;
 
-      if (errors.square) {
-        showError($("#square"), errors.square[0]);
+          case "square":
+            addServerError("#square", message);
+            break;
 
-        return;
-      }
+          case "price":
+            addServerError("#price-number", message);
+            break;
 
-      if (errors.price) {
-        showError($("#price-number"), errors.price[0]);
+          case "email":
+            addServerError("#email", message);
+            break;
 
-        return;
-      }
+          case "password":
+            addServerError("#password", message);
+            break;
 
-      if (errors.email) {
-        showError($("#email"), errors.email[0]);
+          case "full_name":
+            addServerError("#full_name", message);
+            break;
 
-        return;
-      }
+          case "new_email":
+            addServerError("#new_email", message);
+            break;
 
-      if (errors.password) {
-        showError($("#password"), errors.password[0]);
+          case "mobile_number":
+            addServerError("#mobile_number", message);
+            break;
 
-        return;
-      }
+          case "new_password":
+            addServerError("#new_password", message);
+            break;
 
-      if (errors.full_name) {
-        showError($("#full_name"), errors.full_name[0]);
-
-        return;
-      }
-
-      if (errors.new_email) {
-        showError($("#new_email"), errors.new_email[0]);
-
-        return;
-      }
-
-      if (errors.mobile_number) {
-        showError($("#mobile_number"), errors.mobile_number[0]);
-
-        return;
-      }
-
-      if (errors.new_password) {
-        showError($("#new_password"), errors.new_password[0]);
-
-        return;
-      }
+          default:
+            break;
+        }
+      });
 
       //------------------------------------------------------
       // Documents
       //------------------------------------------------------
 
       $("input[name='documents[]']").each(function () {
-        if ($(this).data("required") == "required") {
-          if ($(this).val() == "" && $(this).prev().attr("data-src") == "") {
-            $(this).after(
-              '<ul class="validation"><li>This document is required.</li></ul>',
-            );
-
-            scrollToElement($(this));
-
-            return false;
+        if ($(this).data("required") === "required") {
+          if ($(this).val() === "" && $(this).prev().attr("data-src") === "") {
+            addServerError(this, "This document is required.");
           }
         }
       });
+
+      //------------------------------------------------------
+      // Scroll ONCE
+      //------------------------------------------------------
+
+      if (firstServerError) {
+        scrollToElement(firstServerError);
+      }
     },
   });
 });
+
+function renderValidationError(element, message) {
+  element = $(element);
+
+  if (!element.length) {
+    return;
+  }
+
+  // Remove only the validation belonging to THIS element.
+  element.next(".validation").remove();
+
+  element.parent().find("> .validation").remove();
+
+  // Select2
+  if (element.hasClass("select2-hidden-accessible")) {
+    element
+      .next(".select2")
+      .after('<ul class="validation"><li>' + message + "</li></ul>");
+
+    return;
+  }
+
+  // Terms checkbox
+  if (element.attr("id") === "terms") {
+    element
+      .parent()
+      .append('<ul class="validation"><li>' + message + "</li></ul>");
+
+    return;
+  }
+
+  // Dropzone
+  if (element.hasClass("dz-message")) {
+    element.after('<ul class="validation"><li>' + message + "</li></ul>");
+
+    return;
+  }
+
+  // Normal input
+  element.after('<ul class="validation"><li>' + message + "</li></ul>");
+}
 
 $(".preview-image-wrapper img").each(function () {
   var img = $(this)
