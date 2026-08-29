@@ -2910,11 +2910,13 @@ header{
 }
 .text-orange.heart.add-to-wishlist {
     float: right;
+    cursor: pointer;
    /* margin-right: 10px;*/
 }
 .text-brown.heart.add-to-wishlist {
     float: right;
     margin-right: 10px;
+    cursor: pointer;
 }
 .wishlist-wrap{
     display: inline-block;
