@@ -723,9 +723,19 @@ export default {
   },
   methods: {
     toggleFavouriteProperty(itemId) {
-      const url = "ajax/toggle-favourite-property/" + itemId;
+      // Current state of the heart
+      const currentState = !!this.favouriteProperties[itemId];
 
-      axios.get(url).then((res) => {
+      // State we want after this click
+      const newState = !currentState;
+
+      const url = "/ajax/toggle-favourite-property/" + itemId;
+
+      axios.get(url, {
+        params: {
+          is_favourite: newState
+        }
+      }).then((res) => {
         const response = res.data;
 
         if (
@@ -733,12 +743,11 @@ export default {
           response.message === "UserNotAuthenticated"
         ) {
           window.location.href = "/member-login";
-          return; 
+          return;
         }
 
-        // Toggle the local favourite state
-        this.favouriteProperties[itemId] =
-          !this.favouriteProperties[itemId];
+        // Only update UI after backend request succeeds
+        this.favouriteProperties[itemId] = newState;
 
       }).catch((error) => {
         console.error("Unable to toggle favourite property:", error);

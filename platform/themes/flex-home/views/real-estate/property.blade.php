@@ -41,6 +41,7 @@
                             <div class="float-right">
 
                                 <a href="#" class="text-brown heart add-to-wishlist" data-id="{{ $property->id }}"
+                                    data-is-favourite="{{ $isFavourite ? 'true' : 'false' }}"
                                     title="{{ __('I care about this property!!!') }}">
                                     <i class="{{ $isFavourite ? 'fas fa-heart' : 'far fa-heart' }} fa-3x"></i>
                                 </a>
@@ -397,42 +398,88 @@
     </div>
 </main>
 
+
 <script>
     $(document).on('click', '.add-to-wishlist', function (e) {
-    e.preventDefault();
+        e.preventDefault();
 
-    const $button = $(this);
-    const itemId = $button.data('id');
+        const $button = $(this);
+        const itemId = $button.data('id');
 
-    const url = "/ajax/toggle-favourite-property/" + itemId;
-
-    $.ajax({
-        url: url,
-        type: 'GET',
-
-        success: function (response) {
-
-            if (response.error && response.message === 'UserNotAuthenticated') {
-                window.location.href = '/member-login';
-                return;
-            }
-
-            if (response.error) {
-                return;
-            }
-
-            const $icon = $button.find('i');
-
-            if (response.data.is_favourite) {
-                $icon.removeClass('far').addClass('fas');
-            } else {
-                $icon.removeClass('fas').addClass('far');
-            }
-        },
-
-        error: function (xhr) {
-            console.error('Unable to toggle favourite property.', xhr);
+        // Prevent multiple requests while one is already running
+        if ($button.data('loading')) {
+            return;
         }
+
+        // Get current favourite state
+        const currentState = $button.attr('data-is-favourite') === 'true';
+
+        // Calculate the state we want after this click
+        const newState = !currentState;
+
+        const url = "/ajax/toggle-favourite-property/" + itemId;
+
+        // Mark request as in progress
+        $button.data('loading', true);
+
+        $.ajax({
+            url: url,
+            type: 'GET',
+            data: {
+                is_favourite: newState
+            },
+
+            success: function (response) {
+
+                // User is not authenticated
+                if (
+                    response.error &&
+                    response.message === 'UserNotAuthenticated'
+                ) {
+                    window.location.href = '/member-login';
+                    return;
+                }
+
+                // Other backend errors
+                if (response.error) {
+                    console.error(
+                        'Unable to update favourite:',
+                        response.message
+                    );
+                    return;
+                }
+
+                const $icon = $button.find('i');
+
+                // Update heart icon based on the new state
+                if (newState) {
+                    $icon
+                        .removeClass('far')
+                        .addClass('fas');
+                } else {
+                    $icon
+                        .removeClass('fas')
+                        .addClass('far');
+                }
+
+                // Store the new state on the button
+                $button.attr(
+                    'data-is-favourite',
+                    newState ? 'true' : 'false'
+                );
+            },
+
+            error: function (xhr) {
+                console.error(
+                    'Unable to toggle favourite property.',
+                    xhr
+                );
+            },
+
+            complete: function () {
+                // Allow clicking again after request finishes
+                $button.data('loading', false);
+            }
+        });
     });
-});
 </script>

@@ -1805,6 +1805,7 @@ class GeneralPropertyController extends Controller
     }
 
     public function toggleFavouriteProperty(
+        Request $request,
         $propertyId,
         FavouritePropertyInterface $favouritePropertyRepository,
         BaseHttpResponse $response
@@ -1823,25 +1824,30 @@ class GeneralPropertyController extends Controller
 
         $userId = $user->getAuthIdentifier();
 
-        if ($favouritePropertyRepository->isFavourite($userId, $propertyId, $userType)) {
-            $favouritePropertyRepository->deleteBy([
-                'user_id' => $userId,
-                'property_id' => $propertyId,
-                'user_type' => $userType,
-            ]);
+        // Get the desired state from the frontend
+        $isFavourite = $request->boolean('is_favourite');
 
-            return $response->setMessage(
-                'FavouriteRemoved'
-            );
-        }
-
-        $favouritePropertyRepository->create([
+        $favouriteData = [
             'user_id' => $userId,
             'property_id' => $propertyId,
             'user_type' => $userType,
-        ]);
+        ];
 
-        return $response->setMessage('FavouriteAdded');
+        if ($isFavourite) {
+            // Mark as favourite only if it doesn't already exist
+            if (!$favouritePropertyRepository->isFavourite($userId, $propertyId, $userType)) {
+                $favouritePropertyRepository->create($favouriteData);
+            }
+
+            return $response->setMessage('FavouriteAdded');
+        }
+
+        // Remove favourite
+        if ($favouritePropertyRepository->isFavourite($userId, $propertyId, $userType)) {
+            $favouritePropertyRepository->deleteBy($favouriteData);
+        }
+
+        return $response->setMessage('FavouriteRemoved');
     }
 
     public function favouriteProperties(
