@@ -391,11 +391,10 @@ $(document).ready(function () {
       data: { category_id: $("#category_id").val() },
 
       success: function (response) {
-        // alert(response.detail);
         if (response.status) {
-          // $("#description").val(response.html.detail);
-          // $("#template_desp").val(response.html.detail);
-          $("#description").prop("readonly", false);
+          let desc = response.html.detail;
+          $("#description").val(desc);
+          $("#description").prop("readonly", true);
         }
       },
     });
