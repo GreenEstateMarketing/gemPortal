@@ -295,7 +295,7 @@
               <div class="dropdown input-group">
                 <a class="form-control-2 dropdown-toggle border-0 text-left" href="#" data-toggle="dropdown"
                   aria-haspopup="true" aria-expanded="false">Price <span class="currency">({{ current_currency
-                    }})</span><strong class="caret"></strong>
+                  }})</span><strong class="caret"></strong>
                 </a>
                 <div class="row price-from-to-vue modalclass p-0">
                   <div class="col-md-4">
@@ -421,9 +421,10 @@
           <div v-for="item in data" :key="item.id" v-show="!isLoading && data.length">
             <div class="pl-0">
               <div class="wishlist-wrap">
-                <a href="#" :data-id="item.id" :title="__('I care about this property!!!')"
-                  class="text-orange heart add-to-wishlist">
-                  <i class="far fa-heart"></i>
+
+                <a @click.prevent="toggleFavouriteProperty(item.id)" :data-id="item.id"
+                  :title="__('I care about this property!!!')" class="text-orange heart add-to-wishlist">
+                  <i :class="isFavourite(item.id) ? 'fas fa-heart' : 'far fa-heart'"></i>
                 </a>
               </div>
               <div class="d-flex justify-content-around">
@@ -528,8 +529,10 @@
                   </h3>
                 </div>
                 <div class="col-md-2" style="position: static !important">
-                  <a href="#" class="text-orange heart add-to-wishlist" :data-id="item.id"
-                    :title="__('I care about this property!!!')"><i class="far fa-heart"></i></a>
+                  <a @click.prevent="toggleFavouriteProperty(item.id)" :data-id="item.id"
+                    :title="__('I care about this property!!!')" class="text-orange heart add-to-wishlist">
+                    <i :class="isFavourite(item.id) ? 'fas fa-heart' : 'far fa-heart'"></i>
+                  </a>
                 </div>
               </div>
               <p class="city">
@@ -646,6 +649,7 @@ export default {
         { key: 9000, value: 9000 },
         { key: 11250, value: 11250 },
       ],
+      favouriteProperties: {}
     };
   },
 
@@ -654,6 +658,7 @@ export default {
     this.getProperties();
     this.getParse();
     this.getParentCategories();
+    this.loadFavouriteProperties();
   },
   props: {
     testProp: {
@@ -717,6 +722,58 @@ export default {
     },
   },
   methods: {
+    toggleFavouriteProperty(itemId) {
+      const url = "ajax/toggle-favourite-property/" + itemId;
+
+      axios.get(url).then((res) => {
+        const response = res.data;
+
+        if (
+          response.error &&
+          response.message === "UserNotAuthenticated"
+        ) {
+          window.location.href = "/member-login";
+          return; 
+        }
+
+        // Toggle the local favourite state
+        this.favouriteProperties[itemId] =
+          !this.favouriteProperties[itemId];
+
+      }).catch((error) => {
+        console.error("Unable to toggle favourite property:", error);
+      });
+    },
+    async loadFavouriteProperties() {
+      try {
+        const response = await axios.get('ajax/favourite-properties');
+
+        const result = response.data.data;
+
+        if (result.error) {
+          this.favouriteProperties = {};
+          return;
+        }
+
+        const favourites = result.favourite_properties || [];
+
+        this.favouriteProperties = favourites.reduce((acc, favourite) => {
+          acc[favourite.property_id] = true;
+          return acc;
+        }, {});
+
+      } catch (error) {
+        console.error('Unable to load favourite properties:', error);
+        this.favouriteProperties = {};
+      }
+    },
+
+    isFavourite(propertyId) {
+      console.log('Checking if property is favourite:', propertyId, this.favouriteProperties[propertyId]);
+      let result = this.favouriteProperties[propertyId] === true;
+      console.log('Result of isFavourite check:', result);
+      return this.favouriteProperties[propertyId] === true;
+    },
     openModal: function () {
       $(".modal").css("display", "block !important");
     },

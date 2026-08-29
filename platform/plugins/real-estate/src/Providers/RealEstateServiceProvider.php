@@ -24,6 +24,7 @@ use Botble\RealEstate\Models\Package;
 use BeyondCode\Vouchers\Models\Voucher;
 use Botble\RealEstate\Models\Project;
 use Botble\RealEstate\Models\Property;
+use Botble\RealEstate\Models\FavouriteProperty;
 use Botble\RealEstate\Models\Template;
 use Botble\RealEstate\Models\Transaction;
 use Botble\RealEstate\Models\Wanted;
@@ -45,6 +46,7 @@ use Botble\RealEstate\Repositories\Caches\InvestorCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\PackageCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\ProjectCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\PropertyCacheDecorator;
+use Botble\RealEstate\Repositories\Caches\FavouritePropertyCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\TransactionCacheDecorator;
 use Botble\RealEstate\Repositories\Eloquent\AccountActivityLogRepository;
 use Botble\RealEstate\Repositories\Eloquent\AccountRepository;
@@ -61,6 +63,7 @@ use Botble\RealEstate\Repositories\Eloquent\MemberRepository;
 use Botble\RealEstate\Repositories\Eloquent\PackageRepository;
 use Botble\RealEstate\Repositories\Eloquent\ProjectRepository;
 use Botble\RealEstate\Repositories\Eloquent\PropertyRepository;
+use Botble\RealEstate\Repositories\Eloquent\FavouritePropertyRepository;
 use Botble\RealEstate\Repositories\Eloquent\TemplateRepository;
 use Botble\RealEstate\Repositories\Eloquent\TransactionRepository;
 use Botble\RealEstate\Repositories\Eloquent\VoucherRepository;
@@ -80,6 +83,7 @@ use Botble\RealEstate\Repositories\Interfaces\MemberInterface;
 use Botble\RealEstate\Repositories\Interfaces\PackageInterface;
 use Botble\RealEstate\Repositories\Interfaces\ProjectInterface;
 use Botble\RealEstate\Repositories\Interfaces\PropertyInterface;
+use Botble\RealEstate\Repositories\Interfaces\FavouritePropertyInterface;
 use Botble\RealEstate\Repositories\Interfaces\TemplateInterface;
 use Botble\RealEstate\Repositories\Interfaces\TransactionInterface;
 use Botble\RealEstate\Repositories\Interfaces\VoucherInterface;
@@ -105,6 +109,12 @@ class RealEstateServiceProvider extends ServiceProvider
         $this->app->singleton(PropertyInterface::class, function () {
             return new PropertyCacheDecorator(
                 new PropertyRepository(new Property)
+            );
+        });
+
+        $this->app->singleton(FavouritePropertyInterface::class, function () {
+            return new FavouritePropertyCacheDecorator(
+                new FavouritePropertyRepository(new FavouriteProperty)
             );
         });
 

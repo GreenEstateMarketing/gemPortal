@@ -1804,40 +1804,24 @@ class GeneralPropertyController extends Controller
             ]);
     }
 
-    public function getFavouriteProperties(Request $request, FavouritePropertyInterface $favouritePropertyRepository, BaseHttpResponse $response)
-    {
+    public function toggleFavouriteProperty(
+        $propertyId,
+        FavouritePropertyInterface $favouritePropertyRepository,
+        BaseHttpResponse $response
+    ) {
         $userType = 'member';
-        $userId = auth('member')->user()->getAuthIdentifier();
+        $user = auth('member')->user();
 
-        if (!$userId) {
-            $userId = auth('account')->user()->getAuthIdentifier();
+        if (!$user) {
+            $user = auth('account')->user();
             $userType = 'agent';
         }
 
-        if (!$userId) {
-            return $response->setError()->setMessage('User not authenticated');
+        if (!$user) {
+            return $response->setError()->setMessage('UserNotAuthenticated');
         }
 
-        $favouriteProperties = $favouritePropertyRepository->getFavouritePropertiesByUser($userId, $userType);
-
-        return $response->setData($favouriteProperties);
-    }
-
-    public function toggleFavouriteProperty(Request $request, FavouritePropertyInterface $favouritePropertyRepository, BaseHttpResponse $response)
-    {
-        $userType = 'member';
-        $userId = auth('member')->user()->getAuthIdentifier();
-
-        if (!$userId) {
-            $userId = auth('account')->user()->getAuthIdentifier();
-            $userType = 'agent';
-        }
-
-        if (!$userId) {
-            return $response->setError()->setMessage('User not authenticated');
-        }
-
-        $propertyId = $request->input('property_id');
+        $userId = $user->getAuthIdentifier();
 
         if ($favouritePropertyRepository->isFavourite($userId, $propertyId, $userType)) {
             $favouritePropertyRepository->deleteBy([
@@ -1845,7 +1829,10 @@ class GeneralPropertyController extends Controller
                 'property_id' => $propertyId,
                 'user_type' => $userType,
             ]);
-            return $response->setMessage('Property removed from favourites successfully');
+
+            return $response->setMessage(
+                'FavouriteRemoved'
+            );
         }
 
         $favouritePropertyRepository->create([
@@ -1854,27 +1841,34 @@ class GeneralPropertyController extends Controller
             'user_type' => $userType,
         ]);
 
-        return $response->setMessage('Property added to favourites successfully');
+        return $response->setMessage('FavouriteAdded');
     }
 
-    public function isFavouriteProperty(Request $request, FavouritePropertyInterface $favouritePropertyRepository, BaseHttpResponse $response)
-    {
+    public function favouriteProperties(
+        FavouritePropertyInterface $favouritePropertyRepository,
+        BaseHttpResponse $response
+    ) {
         $userType = 'member';
-        $userId = auth('member')->user()->getAuthIdentifier();
+        $user = auth('member')->user();
 
-        if (!$userId) {
-            $userId = auth('account')->user()->getAuthIdentifier();
+        if (!$user) {
+            $user = auth('account')->user();
             $userType = 'agent';
         }
 
-        if (!$userId) {
-            return $response->setError()->setMessage('User not authenticated');
+        if (!$user) {
+            return $response->setError()->setMessage('UserNotAuthenticated');
         }
 
-        $propertyId = $request->input('property_id');
+        $userId = $user->getAuthIdentifier();
 
-        $isFavourite = $favouritePropertyRepository->isFavourite($userId, $propertyId, $userType);
+        $favouriteProperties = $favouritePropertyRepository->getFavouritePropertiesByUser(
+            $userId,
+            $userType
+        );
 
-        return $response->setData(['is_favourite' => $isFavourite]);
+        return $response->setData([
+            'favourite_properties' => $favouriteProperties,
+        ]);
     }
 }

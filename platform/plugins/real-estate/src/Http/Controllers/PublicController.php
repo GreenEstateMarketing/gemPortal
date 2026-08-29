@@ -14,6 +14,7 @@ use Botble\RealEstate\Repositories\Interfaces\ConsultInterface;
 use Botble\RealEstate\Repositories\Interfaces\CurrencyInterface;
 use Botble\RealEstate\Repositories\Interfaces\ProjectInterface;
 use Botble\RealEstate\Repositories\Interfaces\PropertyInterface;
+use Botble\RealEstate\Repositories\Interfaces\FavouritePropertyInterface;
 use Botble\SeoHelper\SeoOpenGraph;
 use Botble\Setting\Repositories\Interfaces\SettingInterface;
 use Botble\Slug\Repositories\Interfaces\SlugInterface;
@@ -47,12 +48,11 @@ class PublicController extends Controller
      */
     public function postSendConsult(
         SendConsultRequest $request,
-        BaseHttpResponse   $response,
-        ConsultInterface   $consultRepository,
-        PropertyInterface  $propertyRepository,
-        ProjectInterface   $projectRepository
-    )
-    {
+        BaseHttpResponse $response,
+        ConsultInterface $consultRepository,
+        PropertyInterface $propertyRepository,
+        ProjectInterface $projectRepository
+    ) {
         try {
             $consult = $consultRepository->getModel();
 
@@ -166,19 +166,34 @@ class PublicController extends Controller
             ->add(__('Home'), url('/'))
             ->add($project->name, $project->url);
 
-        $relatedProjects = $projectRepository->getRelatedProjects($project->id,
-            theme_option('number_of_related_projects', 8));
+        $relatedProjects = $projectRepository->getRelatedProjects(
+            $project->id,
+            theme_option('number_of_related_projects', 8)
+        );
 
-        Theme::asset()->usePath()->add('validation-jquery-css',
-            'libraries/jquery-validation/validationEngine.jquery.css');
-        Theme::asset()->add('images-grid-css',
-            'https://cdn.jsdelivr.net/gh/taras-d/images-grid/src/images-grid.min.css');
-        Theme::asset()->container('header')->add('images-grid-js',
-            'https://cdn.jsdelivr.net/gh/taras-d/images-grid/src/images-grid.min.js', ['jquery']);
-        Theme::asset()->container('header')->usePath()->add('jquery-validationEngine-vi-js',
-            'libraries/jquery-validation/jquery.validationEngine-vi.js', ['jquery']);
-        Theme::asset()->container('header')->usePath()->add('jquery-validationEngine-js',
-            'libraries/jquery-validation/jquery.validationEngine.js', ['jquery']);
+        Theme::asset()->usePath()->add(
+            'validation-jquery-css',
+            'libraries/jquery-validation/validationEngine.jquery.css'
+        );
+        Theme::asset()->add(
+            'images-grid-css',
+            'https://cdn.jsdelivr.net/gh/taras-d/images-grid/src/images-grid.min.css'
+        );
+        Theme::asset()->container('header')->add(
+            'images-grid-js',
+            'https://cdn.jsdelivr.net/gh/taras-d/images-grid/src/images-grid.min.js',
+            ['jquery']
+        );
+        Theme::asset()->container('header')->usePath()->add(
+            'jquery-validationEngine-vi-js',
+            'libraries/jquery-validation/jquery.validationEngine-vi.js',
+            ['jquery']
+        );
+        Theme::asset()->container('header')->usePath()->add(
+            'jquery-validationEngine-js',
+            'libraries/jquery-validation/jquery.validationEngine.js',
+            ['jquery']
+        );
 
         if (function_exists('admin_bar')) {
             admin_bar()->registerLink(__('Edit this project'), route('project.edit', $project->id));
@@ -201,8 +216,12 @@ class PublicController extends Controller
      * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response|\Response
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
-    public function getProperty(string $key, SlugInterface $slugRepository, PropertyInterface $propertyRepository)
-    {
+    public function getProperty(
+        string $key,
+        SlugInterface $slugRepository,
+        PropertyInterface $propertyRepository,
+        FavouritePropertyInterface $favouritePropertyRepository
+    ) {
         $slug = $slugRepository->getFirstBy([
             'slugs.key' => $key,
             'reference_type' => Property::class,
@@ -217,6 +236,23 @@ class PublicController extends Controller
             $slug->reference_id,
             ['slugable', 'features', 'project', 'currency', 'author', 'category', 'facilities']
         );
+
+        $isFavourite = false;
+        $userType = 'member';
+        $user = auth('member')->user();
+
+        if (!$user) {
+            $user = auth('account')->user();
+            $userType = 'agent';
+        }
+
+        if (!$user) {
+            $isFavourite = false;
+        }
+
+        if ($user && $property) {
+            $isFavourite = $favouritePropertyRepository->isFavourite($user->id, $property->id, $userType);
+        }
 
         if (!$property) {
             abort(404);
@@ -243,16 +279,29 @@ class PublicController extends Controller
             ->add(__('Home'), url('/'))
             ->add($property->name, $property->url);
 
-        Theme::asset()->usePath()->add('validation-jquery-css',
-            'libraries/jquery-validation/validationEngine.jquery.css');
-        Theme::asset()->add('images-grid-css',
-            'https://cdn.jsdelivr.net/gh/taras-d/images-grid/src/images-grid.min.css');
-        Theme::asset()->container('header')->add('images-grid-js',
-            'https://cdn.jsdelivr.net/gh/taras-d/images-grid/src/images-grid.min.js', ['jquery']);
-        Theme::asset()->container('header')->usePath()->add('jquery-validationEngine-vi-js',
-            'libraries/jquery-validation/jquery.validationEngine-vi.js', ['jquery']);
-        Theme::asset()->container('header')->usePath()->add('jquery-validationEngine-js',
-            'libraries/jquery-validation/jquery.validationEngine.js', ['jquery']);
+        Theme::asset()->usePath()->add(
+            'validation-jquery-css',
+            'libraries/jquery-validation/validationEngine.jquery.css'
+        );
+        Theme::asset()->add(
+            'images-grid-css',
+            'https://cdn.jsdelivr.net/gh/taras-d/images-grid/src/images-grid.min.css'
+        );
+        Theme::asset()->container('header')->add(
+            'images-grid-js',
+            'https://cdn.jsdelivr.net/gh/taras-d/images-grid/src/images-grid.min.js',
+            ['jquery']
+        );
+        Theme::asset()->container('header')->usePath()->add(
+            'jquery-validationEngine-vi-js',
+            'libraries/jquery-validation/jquery.validationEngine-vi.js',
+            ['jquery']
+        );
+        Theme::asset()->container('header')->usePath()->add(
+            'jquery-validationEngine-js',
+            'libraries/jquery-validation/jquery.validationEngine.js',
+            ['jquery']
+        );
 
         do_action(BASE_ACTION_PUBLIC_RENDER_SINGLE, PROPERTY_MODULE_SCREEN_NAME, $property);
 
@@ -265,7 +314,7 @@ class PublicController extends Controller
             $images[] = RvMedia::getImageUrl($image, null, false, RvMedia::getDefaultImage());
         }
 
-        return Theme::scope('real-estate.property', compact('property', 'images'))->render();
+        return Theme::scope('real-estate.property', compact('property', 'images', 'isFavourite'))->render();
     }
 
     /**
@@ -276,12 +325,11 @@ class PublicController extends Controller
      * @return BaseHttpResponse|\Response
      */
     public function getProjects(
-        Request           $request,
-        ProjectInterface  $projectRepository,
+        Request $request,
+        ProjectInterface $projectRepository,
         CategoryInterface $categoryRepository,
-        BaseHttpResponse  $response
-    )
-    {
+        BaseHttpResponse $response
+    ) {
 
         SeoHelper::setTitle(__('Projects'));
         $chosenArr = $request->get('k');
@@ -338,11 +386,11 @@ class PublicController extends Controller
         }*/
 
         $categories = $categoryRepository->pluck('re_categories.name', 're_categories.id');
-  $cities = City::select('id', 'name')
-    ->where('status', 'published')
-    ->where('country_id', 166)
-    ->get();
-// $cities = [];
+        $cities = City::select('id', 'name')
+            ->where('status', 'published')
+            ->where('country_id', 166)
+            ->get();
+        // $cities = [];
         return Theme::scope('real-estate.projects', compact('categories', 'chosenArr', 'parent_id', 'chosenFullArr', 'cities'))->render();
     }
 
@@ -353,12 +401,11 @@ class PublicController extends Controller
      * @return BaseHttpResponse|\Response
      */
     public function getProperties(
-        Request           $request,
+        Request $request,
         PropertyInterface $propertyRepository,
         CategoryInterface $categoryRepository,
-        BaseHttpResponse  $response
-    )
-    {
+        BaseHttpResponse $response
+    ) {
         SeoHelper::setTitle(__('Properties'));
         /*
                 $filters = [
@@ -386,11 +433,11 @@ class PublicController extends Controller
                 ];*/
         $chosenArr = $request->get('k');
         $chosenFullArr = array();
-$cities = City::select('id', 'name')
-    ->where('status', 'published')
-    ->where('country_id', 166)
-    ->get();
-// $cities = [];
+        $cities = City::select('id', 'name')
+            ->where('status', 'published')
+            ->where('country_id', 166)
+            ->get();
+        // $cities = [];
         // echo '<pre>';
         // print_r($cities);
         // exit();
@@ -443,8 +490,7 @@ $cities = City::select('id', 'name')
         SlugInterface $slugRepository,
         PropertyInterface $propertyRepository,
         CategoryInterface $categoryRepository
-    )
-    {
+    ) {
         $slug = $slugRepository->getFirstBy([
             'slugs.key' => $key,
             'reference_type' => Category::class,
@@ -504,12 +550,11 @@ $cities = City::select('id', 'name')
      * @return BaseHttpResponse
      */
     public function changeCurrency(
-        Request           $request,
-        BaseHttpResponse  $response,
+        Request $request,
+        BaseHttpResponse $response,
         CurrencyInterface $currencyRepository,
-                          $title = null
-    )
-    {
+        $title = null
+    ) {
         if (empty($title)) {
             $title = $request->input('currency');
         }
@@ -556,7 +601,7 @@ $cities = City::select('id', 'name')
                 ->enclosureType((new MimeTypes)->getMimeType(File::extension($imageURL)))
                 ->enclosureLength(RssFeed::remoteFilesize($imageURL))
                 ->category($item->category->name)
-                ->link((string)$item->url)
+                ->link((string) $item->url)
                 ->author($item->author_id ? $item->author->getFullName() : '');
         }
 

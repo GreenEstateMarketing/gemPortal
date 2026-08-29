@@ -527,9 +527,6 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
         Route::POST('member-property-save', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'store'])
             ->name('general-save-property');
 
-        Route::get('get-favourite-properties', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'getFavouriteProperties'])
-            ->name('get-favourite-properties');
-
         Route::get('ajax/states', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'getStates'])
             ->name('ajax.states');
 
@@ -574,16 +571,20 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
             'uses' => 'GeneralPropertyController@getAgent',
         ]);
         Route::get('ajax/area_unit_update', [
-
             'uses' => 'GeneralPropertyController@area_unit_update',
         ]);
         Route::get('ajax/currency_unit_update', [
-
             'uses' => 'GeneralPropertyController@currency_unit_update',
         ]);
+
+        Route::get('ajax/toggle-favourite-property/{propertyId}', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'toggleFavouriteProperty'])
+            ->name('toggle-favourite-property');
+        Route::get('ajax/favourite-properties/', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'favouriteProperties'])
+            ->name('favourite-properties');
+
+
+
         Route::group(['middleware' => ['preventBackHistory', 'member']], function () {
-
-
             Route::get('/member/dashboard', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'dashboard'])
                 ->name('member.dashboard');
             Route::get('member/properties', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'properties'])
