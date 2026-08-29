@@ -129,40 +129,7 @@ export default {
         },
     },
     directives: {
-        favorites: function () {
-            let getCookie = function (cname) {
-                var name = cname + '=';
-                var ca = document.cookie.split(';');
-                for (var i = 0; i < ca.length; i++) {
-                    var c = ca[i];
-                    while (c.charAt(0) == ' ') {
-                        c = c.substring(1);
-                    }
-                    if (c.indexOf(name) == 0) {
-                        return c.substring(name.length, c.length);
-                    }
-                }
-                return '';
-            }
-
-            let cookieName = window.currentLanguage + '_wishlist';
-            let wishListCookies = decodeURIComponent(getCookie(cookieName));
-
-            if (wishListCookies != null && wishListCookies != undefined && !!wishListCookies) {
-                var arrList = JSON.parse(wishListCookies);
-                var countWishlist = arrList.length;
-
-                $('.wishlist-count').text(countWishlist);
-                if (countWishlist > 0) {
-                    $('.add-to-wishlist').removeClass('far fa-heart');
-                    $.each(arrList, function (key, value) {
-                        if (value != null) {
-                            $(document).find(`.add-to-wishlist[data-id=${value.id}] i`).addClass('fas fa-heart');
-                        }
-                    });
-                }
-            }
-        }
+        
     }
 }
 </script>
