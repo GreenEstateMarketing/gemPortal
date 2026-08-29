@@ -723,10 +723,7 @@ export default {
   },
   methods: {
     toggleFavouriteProperty(itemId) {
-      // Current state of the heart
-      const currentState = !!this.favouriteProperties[itemId];
-
-      // State we want after this click
+      const currentState = this.isFavourite(itemId);
       const newState = !currentState;
 
       const url = "/ajax/toggle-favourite-property/" + itemId;
@@ -746,11 +743,22 @@ export default {
           return;
         }
 
-        // Only update UI after backend request succeeds
-        this.favouriteProperties[itemId] = newState;
+        if (response.error) {
+          console.error(
+            "Unable to update favourite:",
+            response.message
+          );
+          return;
+        }
+
+        // Vue 2: use $set so newly-added object properties are reactive
+        this.$set(this.favouriteProperties, itemId, newState);
 
       }).catch((error) => {
-        console.error("Unable to toggle favourite property:", error);
+        console.error(
+          "Unable to toggle favourite property:",
+          error
+        );
       });
     },
     async loadFavouriteProperties() {
@@ -778,9 +786,6 @@ export default {
     },
 
     isFavourite(propertyId) {
-      console.log('Checking if property is favourite:', propertyId, this.favouriteProperties[propertyId]);
-      let result = this.favouriteProperties[propertyId] === true;
-      console.log('Result of isFavourite check:', result);
       return this.favouriteProperties[propertyId] === true;
     },
     openModal: function () {

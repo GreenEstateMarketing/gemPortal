@@ -1,26 +1,4 @@
 {
-    "/themes/real-scout/js/components.js": "/themes/real-scout/js/components.js",
-    "/themes/real-scout/js/app.js": "/themes/real-scout/js/app.js",
-    "/themes/real-scout/js/wishlist.js": "/themes/real-scout/js/wishlist.js",
-    "/themes/real-scout/css/rtl-style.css": "/themes/real-scout/css/rtl-style.css",
-    "/platform/themes/real-scout/public/css/style.css": "/platform/themes/real-scout/public/css/style.css",
-    "/platform/themes/real-scout/public/css/rtl-style.css": "/platform/themes/real-scout/public/css/rtl-style.css",
-    "/platform/themes/real-scout/public/js/app.js": "/platform/themes/real-scout/public/js/app.js",
-    "/platform/themes/real-scout/public/js/bootstrap.min.js": "/platform/themes/real-scout/public/js/bootstrap.min.js",
-    "/platform/themes/real-scout/public/js/components.js": "/platform/themes/real-scout/public/js/components.js",
-    "/platform/themes/real-scout/public/js/contact.form.min.js": "/platform/themes/real-scout/public/js/contact.form.min.js",
-    "/platform/themes/real-scout/public/js/fancybox.min.js": "/platform/themes/real-scout/public/js/fancybox.min.js",
-    "/platform/themes/real-scout/public/js/isotope.min.js": "/platform/themes/real-scout/public/js/isotope.min.js",
-    "/platform/themes/real-scout/public/js/jquery.min.js": "/platform/themes/real-scout/public/js/jquery.min.js",
-    "/platform/themes/real-scout/public/js/jquery.stellar.js": "/platform/themes/real-scout/public/js/jquery.stellar.js",
-    "/platform/themes/real-scout/public/js/jquery.validate.min.js": "/platform/themes/real-scout/public/js/jquery.validate.min.js",
-    "/platform/themes/real-scout/public/js/leaflet.draw.js": "/platform/themes/real-scout/public/js/leaflet.draw.js",
-    "/platform/themes/real-scout/public/js/leaflet.js": "/platform/themes/real-scout/public/js/leaflet.js",
-    "/platform/themes/real-scout/public/js/load.min.js": "/platform/themes/real-scout/public/js/load.min.js",
-    "/platform/themes/real-scout/public/js/odometer.min.js": "/platform/themes/real-scout/public/js/odometer.min.js",
-    "/platform/themes/real-scout/public/js/popper.min.js": "/platform/themes/real-scout/public/js/popper.min.js",
-    "/platform/themes/real-scout/public/js/scripts.js": "/platform/themes/real-scout/public/js/scripts.js",
-    "/platform/themes/real-scout/public/js/swiper.min.js": "/platform/themes/real-scout/public/js/swiper.min.js",
-    "/platform/themes/real-scout/public/js/text-rotater.js": "/platform/themes/real-scout/public/js/text-rotater.js",
-    "/platform/themes/real-scout/public/js/wishlist.js": "/platform/themes/real-scout/public/js/wishlist.js"
+    "/js/app.js": "/js/app.js",
+    "/css/app.css": "/css/app.css"
 }
