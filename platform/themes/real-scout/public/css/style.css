@@ -2814,7 +2814,7 @@ header{
 .row.second-row {
     margin-top: 15px;
 }
-.price-from-to{
+.price-from-to, .unit-from-to{
     position: relative;
     top: -28px;
     padding-left: 13px;
@@ -2910,8 +2910,8 @@ header{
 }
 .text-orange.heart.add-to-wishlist {
     float: right;
-    cursor: pointer;
    /* margin-right: 10px;*/
+   cursor: pointer;
 }
 .text-brown.heart.add-to-wishlist {
     float: right;

@@ -1,1 +1,57 @@
-!function(t){"use strict";var i=function(t){window.showAlert("alert-success",t)},e=function(t){return window.trans=window.trans||{},"undefined"!==window.trans[t]&&window.trans[t]?window.trans[t]:t};window.showAlert=function(i,e){if(i&&""!==e){var a=Math.floor(1e3*Math.random()),n='<div class="alert '.concat(i,' alert-dismissible" id="').concat(a,'">\n                            <span class="close far fa-times" data-dismiss="alert" aria-label="close"></span>\n                            <i class="far fa-')+("alert-success"===i?"check":"times")+' message-icon"></i>\n                            '.concat(e,"\n                        </div>");t("#alert-container").append(n).ready((function(){window.setTimeout((function(){t("#alert-container #".concat(a)).remove()}),6e3)}))}},t(document).ready((function(){function a(){var i=window.currentLanguage+"_wishlist",e=decodeURIComponent(s(i));if(null!=e&&null!=e&&e){var a=JSON.parse(e),n=a.length;t(".wishlist-count").text(n),n>0&&(t(".add-to-wishlist").removeClass("far fa-heart"),t.each(a,(function(i,e){null!=e&&t(document).find(".add-to-wishlist[data-id=".concat(e.id,"] i")).addClass("fas fa-heart")})))}}function n(t,i,e){var a=new Date,n=new URL(window.siteUrl);a.setTime(a.getTime()+24*e*60*60*1e3);var s="expires="+a.toUTCString();document.cookie=t+"="+i+"; "+s+"; path=/; domain="+n.hostname}function s(t){for(var i=t+"=",e=document.cookie.split(";"),a=0;a<e.length;a++){for(var n=e[a];" "==n.charAt(0);)n=n.substring(1);if(0==n.indexOf(i))return n.substring(i.length,n.length)}return""}function o(t){var i=new URL(window.siteUrl);document.cookie=t+"=; expires=Thu, 01 Jan 1970 00:00:01 GMT; path=/; domain="+i.hostname}a(),t(document).on("click",".add-to-wishlist",(function(r){r.preventDefault();var d=window.currentLanguage+"_wishlist",l=t(this).data("id"),c=decodeURIComponent(s(d)),u=[];if(null!=l&&0!=l&&null!=l)if(null==c||null==c||""==c){var f={id:l};u.push(f),t(".add-to-wishlist[data-id=".concat(l,"] i")).removeClass("far fa-heart").addClass("fas fa-heart"),i(e("Added to wishlist successfully!")),n(d,JSON.stringify(u),60)}else{var w={id:l},h=(u=JSON.parse(c)).map((function(t){return t.id})).indexOf(w.id);-1===h?(u.push(w),o(d),n(d,JSON.stringify(u),60),t(".add-to-wishlist[data-id=".concat(l,"] i")).removeClass("far fa-heart").addClass("fas fa-heart"),i(e("Added to wishlist successfully!"))):(u.splice(h,1),o(d),n(d,JSON.stringify(u),60),t(".add-to-wishlist[data-id=".concat(l,"] i")).removeClass("fas fa-heart").addClass("far fa-heart"),i(e("Removed from wishlist successfully!")))}var m=JSON.parse(s(d)).length;t(".wishlist-count").text(m),a()})),t(document).on("click",".remove-from-wishlist",(function(r){r.preventDefault();var d=window.currentLanguage+"_wishlist",l=t(this).data("id"),c=decodeURIComponent(s(d)),u=[];if(null!=l&&0!=l&&null!=l){var f={id:l},w=(u=JSON.parse(c)).map((function(t){return t.id})).indexOf(f.id);-1!=w&&(u.splice(w,1),o(d),n(d,JSON.stringify(u),60),i(e("Removed from wishlist successfully!")),t(".wishlist-page .item[data-id=".concat(l,"]")).closest("div").remove())}var h=JSON.parse(s(d)).length;t(".wishlist-count").text(h),a()}))}))}(jQuery);
+/******/ (() => { // webpackBootstrap
+var __webpack_exports__ = {};
+/*!**********************************************************!*\
+  !*** ./platform/themes/real-scout/assets/js/wishlist.js ***!
+  \**********************************************************/
+(function ($) {
+  "use strict";
+
+  var showSuccess = function showSuccess(message) {
+    window.showAlert("alert-success", message);
+  };
+  var __ = function __(key) {
+    window.trans = window.trans || {};
+    return window.trans[key] !== "undefined" && window.trans[key] ? window.trans[key] : key;
+  };
+  window.showAlert = function (messageType, message) {
+    if (messageType && message !== "") {
+      var alertId = Math.floor(Math.random() * 1000);
+      var html = "<div class=\"alert ".concat(messageType, " alert-dismissible\" id=\"").concat(alertId, "\">\n                            <span class=\"close far fa-times\" data-dismiss=\"alert\" aria-label=\"close\"></span>\n                            <i class=\"far fa-") + (messageType === "alert-success" ? "check" : "times") + " message-icon\"></i>\n                            ".concat(message, "\n                        </div>");
+      $("#alert-container").append(html).ready(function () {
+        window.setTimeout(function () {
+          $("#alert-container #".concat(alertId)).remove();
+        }, 6000);
+      });
+    }
+  };
+  $(document).ready(function () {
+    setWishListCount();
+    function setCookie(cname, cvalue, exdays) {
+      var d = new Date();
+      var url = new URL(window.siteUrl);
+      d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
+      var expires = "expires=" + d.toUTCString();
+      document.cookie = cname + "=" + cvalue + "; " + expires + "; path=/" + "; domain=" + url.hostname;
+    }
+    function getCookie(cname) {
+      var name = cname + "=";
+      var ca = document.cookie.split(";");
+      for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == " ") {
+          c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+          return c.substring(name.length, c.length);
+        }
+      }
+      return "";
+    }
+    function clearCookies(name) {
+      var url = new URL(window.siteUrl);
+      document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:01 GMT; path=/" + "; domain=" + url.hostname;
+    }
+  });
+})(jQuery);
+/******/ })()
+;

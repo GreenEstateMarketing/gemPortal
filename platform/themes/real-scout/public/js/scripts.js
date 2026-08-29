@@ -248,8 +248,7 @@
         var sticky = $('.sticky-top'),
             scroll = $(window).scrollTop();
 
-        if (scroll >= 2){
-            console.log('yeahhhhhhhhhhhh')
+        if (scroll >= 2){ //this is the one
             sticky.addClass('fixed');
             $('.navbar .container .upper-side .phone-email').hide();
             $('.navbar .container .upper-side .hamburger').hide();
@@ -311,8 +310,6 @@
             $('#longitude').val(lng);
             latlng = new google.maps.LatLng(lat, lng);
             new google.maps.Geocoder().geocode({'latLng': latlng}, function (results, status) {
-
-                console.log(result, status);
                 if (status == google.maps.GeocoderStatus.OK) {
                     if (results[1]) {
                         var country = null, countryCode = null, city = null, cityAlt = null;
@@ -348,7 +345,7 @@
                             }
                         }
 
-                        console.log("City: " + city + ", City2: " + cityAlt + ", Country: " + country + ", Country Code: " + countryCode);
+                        
                         var url = window.location.href;
                         if (url.indexOf("location") > -1) {
                             if ($('.select-city-state').val() == "")
@@ -408,7 +405,6 @@
                 // $('#location_map').val(results[0].formatted_address);
                 $('#latitude').val(marker.getPosition().lat());
                 $('#longitude').val(marker.getPosition().lng());
-                console.log(results[0]);
                 infowindow.setContent(results[0].formatted_address);
                 infowindow.open(map, marker);
 
@@ -417,11 +413,11 @@
 
             //const input = document.getElementById("location_map");
             //const searchBox = new google.maps.places.SearchBox(input);
-            // console.log(searchBox.getPlaces());
+            // 
             // Bias the SearchBox results towards current map's viewport.
             /*map.addListener("bounds_changed", () => {
                 searchBox.setBounds(map.getBounds());
-                console.log(searchBox.getPlaces());
+                
             });*/
             //  let markers = [];
             /*searchBox.addListener("places_changed", () => {
@@ -439,7 +435,7 @@
                 const bounds = new google.maps.LatLngBounds();
                 places.forEach((place) => {
                     if (!place.geometry || !place.geometry.location) {
-                        console.log("Returned place contains no geometry");
+                        
                         return;
                     }
                     const icon = {
@@ -475,7 +471,6 @@
                     $('#latitude').val(marker.getPosition().lat());
                     $('#longitude').val(marker.getPosition().lng());
                     infowindow.setContent(results[0].formatted_address);
-                    console.log(results[0]);
                     infowindow.open(map, marker);
 
 
@@ -501,20 +496,23 @@
                 $("#propertydropdownMenuLink").siblings(".category_id_text").html($(this).text());
             });
             $(".p-category").click(function () {
+                // this is the script js
                 var p_category = $(this).text();
+                var p_category_id = $(this).attr('data-id');
+                $('#p-cat').val(p_category_id);
                 if (p_category == "PLOTS" || p_category == "Plots" || p_category == "plot" || p_category == "PLOT") {
                     $(".bedrooms").addClass('d-none');
                     $(".bathrooms").addClass('d-none');
                     $(".floors").addClass('d-none');
-                    $(".home-price-dp").addClass('d-none');
-                    $(".plot-price-dp").removeClass('d-none');
+                    // $(".home-price-dp").addClass('d-none');
+                    // $(".plot-price-dp").removeClass('d-none');
                     $(".commerical-floors").addClass('d-none');
                     $(".home-floors").addClass('d-none');
                 } else if (p_category == "COMMERCIALS" || p_category == "Commercials" || p_category == "COMMERCIAL" || p_category == "Commercials") {
                     $(".bedrooms").addClass('d-none');
                     $(".bathrooms").addClass('d-none');
-                    $(".home-price-dp").addClass('d-none');
-                    $(".plot-price-dp").removeClass('d-none');
+                    // $(".home-price-dp").addClass('d-none');
+                    // $(".plot-price-dp").removeClass('d-none');
                     $(".commerical-floors").removeClass('d-none');
                     $(".home-floors").addClass('d-none');
                 } else //HOME
@@ -577,6 +575,8 @@
     $( ".pcateory_data" ).on( "click",".category-li-item", function( event ) {
         event.preventDefault();
         var sub_cat=$(this).text();
+        var sub_cat_id = $(this).attr('data-id');
+        $('#sub-cat').val(sub_cat_id);
         var parent_name=$(this).attr('parent-name');
         if(parent_name=="PLOTS" || parent_name == "PLOTS" || parent_name == "Plots" || parent_name == "plot" || parent_name == "PLOT" || parent_name=="COMMMERCIALS" || parent_name == "COMMERCIALS" || parent_name == "Commercials" || parent_name == "COMMERCIAL" || parent_name == "Commercials")
         {
@@ -625,9 +625,7 @@
         e.stopPropagation();
         console.log('this is clicked');
         if($(this).parent().hasClass("price-min-ul")) {
-
             $('[data-dropdown-id="price-min"]').val($(this).attr('data-value'));
-
             $('[data-dropdown-id="price-min"]').change();
             $(".price-min-ul li").removeClass("category-li-item-active");
             $(this).addClass('category-li-item-active');
@@ -666,7 +664,6 @@
 
     //for max and min area units
     $(".units-range li").click(function(e){
-        // alert("here");
         e.stopPropagation();
         console.log('units range item is clicked');
         if($(this).parent().hasClass("unit-min-ul")) {
@@ -677,7 +674,7 @@
             $(".unit-min-ul li").removeClass("category-li-item-active");
             $(this).addClass('category-li-item-active');
             $('.min_unit_text').html($(this).attr('data-value'));
-            $('#min-max-price-range').show();
+            $('#min-max-unit-range').show();
             console.log('units range min item is clicked');
         }
         else
@@ -688,8 +685,8 @@
 
             $('[data-dropdown-id="unit-max"]').change();
             $('.max_unit_text').html($(this).attr('data-value'));
-            $('#min-max-price-range').show();
-            console.log('units range max item is clicked');
+            $('#min-max-unit-range').show();
+            console.log('units range max item is clicked this one');
         }
         /* $("#input_max_price")[0].dispatchEvent(new Event('change'));
          $("#input_min_price")[0].dispatchEvent(new Event('change'));*/

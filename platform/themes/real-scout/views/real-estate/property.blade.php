@@ -402,6 +402,9 @@
 <script>
     $(document).on('click', '.add-to-wishlist', function (e) {
         e.preventDefault();
+        e.stopImmediatePropagation();
+
+        console.log('MY FAVOURITE HANDLER');
 
         const $button = $(this);
         const itemId = $button.data('id');
