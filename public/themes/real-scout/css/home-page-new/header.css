@@ -1,0 +1,1139 @@
+/*
+    Path in theme: platform/themes/YOUR_THEME/public/css/home-page-new/header.css
+    Loaded via:    Theme::asset()->url('css/home-page-new/header.css')
+*/
+
+:root {
+    --header-navy: #1a1d24;
+    --header-navy-light: #22262f;
+    --header-gold: #e0a63e;
+    --header-gold-hover: #cf9530;
+    --header-white: #ffffff;
+    --header-text-muted: #c9cdd3;
+    --header-font-heading: 'Playfair Display', Georgia, serif;
+    --header-font-body: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --header-max-width: 1320px;
+}
+
+.home-page-new * {
+    box-sizing: border-box;
+}
+
+.home-page-new {
+    margin: 0;
+    font-family: var(--header-font-body);
+    -webkit-font-smoothing: antialiased;
+}
+
+.site-header .container {
+    max-width: var(--header-max-width);
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* =========================================================
+   TOP UTILITY BAR
+   ========================================================= */
+.top-bar {
+    background: var(--header-navy);
+    color: var(--header-text-muted);
+    font-size: 13px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.top-bar__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 42px;
+}
+
+.top-bar__left,
+.top-bar__right {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.top-bar__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--header-text-muted);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 0.2s ease;
+}
+
+.top-bar__item:hover {
+    color: var(--header-gold);
+}
+
+.top-bar__item i {
+    color: var(--header-gold);
+    font-size: 13px;
+    line-height: 1;
+}
+
+/* Simple icon fallbacks if you're not using an icon font yet.
+   Replace the .icon-* classes with your icon font (e.g. IcoMoon, FontAwesome)
+   or swap these for inline SVGs. */
+.icon-location::before { content: "\1F4CD"; }
+.icon-phone::before    { content: "\1F4DE"; }
+.icon-mail::before     { content: "\2709";  }
+.icon-home::before     { content: "\1F3E0"; }
+.icon-arrow-right::before { content: "\2192"; }
+.icon-logo::before     { content: "\1F3E1"; }
+
+/* =========================================================
+   MAIN NAVIGATION
+   ========================================================= */
+.main-nav {
+    background: transparent;
+    position: relative;
+    z-index: 20;
+}
+
+.main-nav__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 92px;
+}
+
+.main-nav__logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--header-white);
+    font-family: var(--header-font-heading);
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+}
+
+.main-nav__logo i {
+    color: var(--header-gold);
+    font-size: 24px;
+}
+
+.main-nav__logo-thin {
+    font-weight: 400;
+    color: var(--header-gold);
+}
+
+.main-nav__logo-img {
+    display: block;
+    height: 40px;
+    width: auto;
+}
+
+/* Menu -- targets the <ul> rendered by Menu::renderMenuLocation().
+   NOTE: 'options' => ['class' => ''] means the top-level <ul> gets no custom
+   class from us, so these selectors target it structurally (nav > ul) rather
+   than by a class name. If your theme's `main-menu` view adds its own class
+   or wrapper (e.g. #menu-primary-menu), you can tighten these selectors to
+   match it, but the structural version below works regardless. */
+.main-nav__menu {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.main-nav__menu > ul {
+    display: flex;
+    align-items: center;
+    gap: 34px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.main-nav__menu li {
+    position: relative;
+}
+
+.main-nav__menu li > a {
+    display: inline-block;
+    color: var(--header-white);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    padding: 6px 0;
+    transition: color 0.2s ease;
+}
+
+.main-nav__menu li > a:hover {
+    color: var(--header-gold);
+}
+
+/* Active menu item (Botble's menu builder typically adds an "active" class
+   to the current page's <li> - confirm against your rendered markup and
+   adjust if it uses a different class, e.g. "current-menu-item"). */
+.main-nav__menu li.active > a,
+.main-nav__menu li.current-menu-item > a {
+    color: var(--header-gold);
+    border-bottom: 2px solid var(--header-gold);
+}
+
+/* Basic dropdown support if any menu items have children */
+.main-nav__menu li ul {
+    list-style: none;
+    margin: 0;
+    padding: 10px 0;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 190px;
+    background: var(--header-navy);
+    border-radius: 6px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+    transition: all 0.2s ease;
+}
+
+.main-nav__menu li:hover > ul {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.main-nav__menu li ul li > a {
+    display: block;
+    padding: 8px 18px;
+    color: var(--header-white);
+    border-bottom: none;
+}
+
+.main-nav__menu li ul li > a:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+/* Logged-in user dropdown (account/member) */
+.user-dropdown {
+    position: relative;
+}
+
+.user-dropdown__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--header-white);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.user-dropdown__avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.user-dropdown .dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    min-width: 180px;
+    margin-top: 10px;
+    padding: 8px 0;
+    background: var(--header-navy);
+    border-radius: 6px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+    z-index: 30;
+}
+
+/* Click-only: bootstrap's dropdown JS (data-toggle="dropdown" on the
+   toggle link) adds/removes .show on click. The :hover variant that used
+   to sit here also revealed the menu on mouseover, which fought the
+   click-driven .show state - hovering would open it, moving the mouse
+   toward a link inside could leave the hover box first and close it
+   before the click landed, and clicking the name to open it "stuck" but
+   visibly shifted from the hover-preview layout to the .show layout. */
+.user-dropdown .dropdown-menu.show {
+    display: block;
+}
+
+.user-dropdown .dropdown-item {
+    display: block;
+    padding: 8px 18px;
+    color: var(--header-white);
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.user-dropdown .dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+/* Login / Register actions */
+.main-nav__actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-shrink: 0;
+}
+
+.btn-login {
+    color: var(--header-white);
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.btn-login:hover {
+    color: var(--header-gold);
+}
+
+.btn-register {
+    display: inline-flex;
+    align-items: center;
+    background: var(--header-gold);
+    color: var(--header-navy);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 12px 26px;
+    border-radius: 6px;
+    transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.btn-register:hover {
+    background: var(--header-gold-hover);
+    transform: translateY(-1px);
+}
+
+/* Mobile hamburger toggle */
+.main-nav__toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 34px;
+    height: 34px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 30;
+}
+
+.main-nav__toggle span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    /* Was --header-white: fine over the hero's dark image overlay on
+       desktop, but on mobile the nav bar sits on plain white with
+       nothing dark behind it, so the bars were invisible. */
+    background: var(--header-navy);
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+/* When the slide-out menu is open, its dark navy panel (.main-nav__menu,
+   background: var(--header-navy)) sits behind this toggle button - the
+   navy bars used when closed (visible against the white nav bar) become
+   invisible against that same navy once they rotate into an "X". */
+.main-nav__toggle.is-active span {
+    background: var(--header-white);
+}
+
+.main-nav__toggle.is-active span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+
+.main-nav__toggle.is-active span:nth-child(2) {
+    opacity: 0;
+}
+
+.main-nav__toggle.is-active span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+/* =========================================================
+   HERO SECTION
+   ========================================================= */
+.hero {
+    position: relative;
+    min-height: 620px;
+    display: flex;
+    align-items: center;
+    background-image: url('../../images/home-page-new/header-bar-bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    margin-top: -92px; /* pull hero up under the transparent nav */
+    padding-top: 92px;
+}
+
+.hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(15, 17, 22, 0.82) 0%, rgba(15, 17, 22, 0.55) 45%, rgba(15, 17, 22, 0.25) 100%);
+}
+
+.hero__inner {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+    padding-top: 90px;
+    padding-bottom: 90px;
+}
+
+.hero__content {
+    flex: 1 1 520px;
+    max-width: 560px;
+}
+
+.hero__search-wrapper {
+    flex: 1 1 620px;
+    max-width: 660px;
+    width: 100%;
+}
+
+.hero__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--header-gold);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+}
+
+.hero__eyebrow i {
+    font-size: 14px;
+}
+
+.hero__heading {
+    font-family: var(--header-font-heading);
+    font-weight: 700;
+    color: var(--header-white);
+    font-size: 56px;
+    line-height: 1.15;
+    margin: 0 0 24px;
+}
+
+.hero__heading--accent {
+    color: var(--header-gold);
+}
+
+.hero__text {
+    color: var(--header-text-muted);
+    font-size: 16px;
+    line-height: 1.7;
+    max-width: 560px;
+    margin: 0 0 36px;
+}
+
+.hero__actions {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--header-gold);
+    color: var(--header-white);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 15px 28px;
+    border-radius: 6px;
+    transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.btn-primary:hover {
+    background: var(--header-gold-hover);
+    transform: translateY(-1px);
+}
+
+.btn-outline {
+    display: inline-flex;
+    align-items: center;
+    background: transparent;
+    color: var(--header-white);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 15px 28px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 6px;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.btn-outline:hover {
+    border-color: var(--header-white);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+/* Tablet */
+@media (max-width: 1024px) {
+    .hero__heading {
+        font-size: 44px;
+    }
+
+    .main-nav__menu ul.main-menu {
+        gap: 22px;
+    }
+}
+
+/* Mobile nav breakpoint */
+@media (max-width: 860px) {
+    .top-bar__left {
+        display: none;
+    }
+
+    .top-bar__inner {
+        justify-content: center;
+    }
+
+    .main-nav__toggle {
+        display: flex;
+    }
+
+    .main-nav__menu {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 78%;
+        max-width: 320px;
+        height: 100vh;
+        background: var(--header-navy);
+        flex-direction: column;
+        justify-content: flex-start;
+        padding: 110px 30px 30px;
+        transform: translateX(100%);
+        transition: transform 0.3s ease;
+        z-index: 25;
+    }
+
+    .main-nav__menu.is-open {
+        transform: translateX(0);
+    }
+
+    .main-nav__menu > ul {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 22px;
+        width: 100%;
+    }
+
+    .main-nav__menu li {
+        width: 100%;
+    }
+
+    .main-nav__menu li ul {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        box-shadow: none;
+        background: rgba(255, 255, 255, 0.04);
+        margin-top: 10px;
+        display: none;
+    }
+
+    .main-nav__menu li.is-open > ul {
+        display: block;
+    }
+
+    .main-nav__actions {
+        display: none;
+    }
+
+    .hero {
+        margin-top: 0;
+        padding-top: 40px;
+        min-height: 560px;
+    }
+
+    .hero__inner {
+        padding-top: 60px;
+        padding-bottom: 60px;
+    }
+
+    .hero__heading {
+        font-size: 36px;
+    }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+    .site-header .container {
+        padding: 0 18px;
+    }
+
+    .top-bar__right {
+        gap: 14px;
+        font-size: 11px;
+    }
+
+    .main-nav__inner {
+        height: 76px;
+    }
+
+    .main-nav__logo {
+        font-size: 21px;
+    }
+
+    .hero__heading {
+        font-size: 28px;
+    }
+
+    .hero__text {
+        font-size: 14px;
+    }
+
+    .hero__actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .btn-primary,
+    .btn-outline {
+        justify-content: center;
+    }
+}
+
+/* =========================================================
+   SEARCH CARD (ported search form, restyled)
+   ========================================================= */
+.hero-search-card {
+    background: var(--header-white);
+    border-radius: 12px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+    overflow: visible;
+    font-family: var(--header-font-body);
+}
+
+/* ---- Tabs ---- */
+.hero-search-card__tabs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 16px 20px 0;
+}
+
+.hero-search-card__tab {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 20px;
+    border-radius: 6px 6px 0 0;
+    color: #6b7280;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    background: transparent;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.hero-search-card__tab.active {
+    background: var(--header-gold);
+    color: var(--header-white);
+}
+
+.hero-search-card__search-label {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--header-gold);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* ---- Field row ---- */
+.hero-search-card__form {
+    padding: 16px 20px 20px;
+}
+
+.hero-search-card__fields {
+    display: flex;
+    align-items: stretch;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: visible;
+}
+
+.hero-search-card__field {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    padding: 10px 16px;
+}
+
+/* Property Type doesn't need as much room as Location - shrink it to a
+   fixed width and let Location (still flex:1) take the space it frees. */
+.hero-search-card__field--type {
+    flex: 0 0 220px;
+}
+
+.hero-search-card__field-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #9ca3af;
+    margin-bottom: 4px;
+}
+
+.hero-search-card__divider {
+    width: 1px;
+    background: #e5e7eb;
+    margin: 10px 0;
+}
+
+/* Location field */
+.hero-search-card__location-input {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+/* The old sitewide style.css still ships a rule - .keyword-input { width:
+   calc(50% - 98px) !important } - sized for the wide old search form. It
+   still matches #parentChipContainer here (same class, kept for the
+   autocomplete JS) and collapses it to a couple of px in this compact
+   card, which in turn collapses the actual text input to ~2px wide -
+   nothing typed into it is visible and the suggestions dropdown renders
+   at that same near-zero width. Override it back to fill the field. */
+.hero-search-card__field--location .keyword-input {
+    width: 100% !important;
+}
+
+/* css/chosen.min.css also ships a bare #chipContainer rule (position:
+   absolute; top:18%; z-index:9; background:white; padding-left:10px)
+   built for the old banner overlay. #chipContainer is the JS-required
+   wrapper around the actual text input, so it can't be renamed - but
+   left absolute here it's pulled out of flow entirely, collapsing its
+   0-height parent and dropping the input ~18px below the Property
+   Type/Price fields it should line up with. Put it back in normal flow. */
+.hero-search-card__field--location #chipContainer {
+    position: static;
+    top: auto;
+    z-index: auto;
+    background: transparent;
+    padding-left: 0;
+}
+
+.hero-search-card__input {
+    /* css/style.css: input[type="text"] { width:100%; border:1px solid
+       #eee } beats this plain class on specificity (type+attribute vs a
+       single class), so without !important both the real input and the
+       ghost hint input below render with a visible 1px box around them. */
+    border: none !important;
+    outline: none;
+    font-size: 14px;
+    color: var(--header-navy);
+    padding: 0;
+    width: 100%;
+    background: transparent;
+}
+
+.hero-search-card__input--ghost {
+    /* The ghost input previews the autocomplete hint text behind what
+       you're typing (a11y/UX pattern from the plugin). It's a plain
+       sibling <input> in the markup, so with no positioning it just
+       stacks below the real input as a second empty-looking box - stack
+       it exactly on top instead so only one is ever visible at a time. */
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    color: #9ca3af;
+}
+
+/* Location field: area/keyword input + City dropdown side by side, same
+   two-part layout as realscouthomepage. The native <select id="city_id">
+   itself stays invisible - homechoosen.js's select2() call hides it via
+   its own .select2-hidden-accessible rule (clip/position, in css/
+   select2-custom.min.css) and renders the actual visible widget as a
+   separate <span class="select2-container"> right after it, which is
+   what everything below actually styles. */
+.hero-search-card__location-row {
+    display: flex;
+    align-items: center;
+    /* NOT height:100% - that's 100% of the field's whole content box,
+       which also has to fit the "LOCATION" label above this row. Sizing
+       the row to the full box while the label already takes some of it
+       pushed the row (input, divider, city dropdown - everything)
+       past the field's own bottom edge. Let it size to its own content
+       instead, same as every other field's trigger row does. */
+}
+
+.hero-search-card__location-divider {
+    width: 1px;
+    align-self: stretch;
+    background: #e5e7eb;
+    margin: 0 10px;
+    flex-shrink: 0;
+}
+
+.hero-search-card__field--location .select2-container {
+    flex: 0 0 42%;
+    min-width: 0;
+    font-size: 14px;
+}
+
+.hero-search-card__field--location .select2-selection--single {
+    background: transparent !important;
+    border: none !important;
+    height: auto !important;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0 18px 0 0 !important;
+}
+
+.hero-search-card__field--location .select2-selection__rendered {
+    padding: 0 !important;
+    line-height: normal !important;
+    color: var(--header-navy) !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hero-search-card__field--location .select2-selection__placeholder {
+    color: var(--header-navy) !important;
+}
+
+/* select2's own arrow (.select2-selection__arrow b) has a hardcoded
+   margin-top:12px baked in for the old, taller default select2 height -
+   in this compact row that pushes the triangle out below the input
+   entirely instead of centering it. Hide it and draw the same chevron
+   used by the Property Type / Price triggers elsewhere on this card. */
+.hero-search-card__field--location .select2-selection__arrow {
+    display: none;
+}
+
+.hero-search-card__field--location .select2-selection--single::after {
+    content: "";
+    position: absolute;
+    right: 2px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid #9ca3af;
+    border-bottom: 2px solid #9ca3af;
+    transform: translateY(-70%) rotate(45deg);
+}
+
+/* Property Type / Price triggers */
+.hero-search-card__dropdown-trigger {
+    display: flex;
+    align-items: center;
+    /* was space-between: with #propertydropdownMenuLink (empty, 0-width)
+       as the first flex item, that distributed HOME somewhere in the
+       middle instead of flush left under the "PROPERTY TYPE" label
+       above it. flex-start keeps HOME right after that empty item (i.e.
+       at the left edge); the caret below is pushed to the right edge on
+       its own via margin-left:auto instead. */
+    justify-content: flex-start;
+    border: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+    font-size: 14px;
+    color: var(--header-navy);
+    cursor: pointer;
+    height: auto !important;
+}
+
+.hero-search-card__dropdown-toggle {
+    color: var(--header-navy);
+}
+
+.hero-search-card__dropdown-trigger::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid #9ca3af;
+    border-bottom: 2px solid #9ca3af;
+    transform: rotate(45deg);
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+/* ---- More Filters bar (toggle + Price Range + Area Unit + Currency) ---- */
+.hero-search-card__advanced-bar {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+}
+
+.hero-search-card__advanced-bar-item {
+    display: inline-flex;
+}
+
+.hero-search-card__advanced-bar-trigger {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--header-navy);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.hero-search-card__advanced-bar-trigger .currency,
+.hero-search-card__advanced-bar-trigger .min_price_text,
+.hero-search-card__advanced-bar-trigger .max_price_text {
+    font-weight: 400;
+    color: #6b7280;
+}
+
+a.hero-search-card__advanced-bar-trigger.area-unit,
+a.hero-search-card__advanced-bar-trigger.currency {
+    font-weight: 500;
+    color: #6b7280;
+    text-decoration: underline;
+}
+
+/* Submit button */
+.hero-search-card__submit-wrapper {
+    display: flex;
+    align-items: stretch;
+}
+
+.hero-search-card__submit {
+    background: var(--header-navy);
+    color: var(--header-white);
+    border: none;
+    width: 56px;
+    border-radius: 0 8px 8px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.hero-search-card__submit:hover {
+    background: #000;
+}
+
+/* ---- More Filters (advanced) ---- */
+.hero-search-card__advanced-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--header-navy);
+    text-decoration: none;
+}
+
+/* Visibility is NOT handled here - css/theme-css.css already has
+   .advanced-search-content { display:none } and .advanced-search-
+   content.active { display:block }, driven by js/app.js's own
+   .advanced-search-toggler click handler, which correctly shows only
+   whichever ONE of .property-advanced-search / .project-advanced-search
+   matches the current Buy/Rent/Projects tab. This only adds spacing once
+   theme-css.css has already made a panel visible. */
+.hero-search-card__advanced-panel.active {
+    /* !important needed: the base .hero-search-card__advanced-panel rule
+       (further down, neutralizing theme-css.css's old absolute overlay)
+       sets padding:0 !important, which otherwise wins over this even
+       though .active is more specific, since !important beats specificity. */
+    margin-top: 14px;
+    padding-top: 14px !important;
+    border-top: 1px solid #e5e7eb;
+}
+
+.hero-search-card__advanced-panel .select--arrow,
+.hero-search-card__advanced-panel .price-dropdown {
+    margin-bottom: 12px;
+}
+
+.hero-search-card__advanced-panel select,
+.hero-search-card__advanced-panel .dropdown-toggle {
+    width: 100%;
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   OLD-STYLESHEET OVERRIDES
+   The real-estate search markup is intentionally reused as-is (see the
+   note at the top of search-bar.blade.php) so the plugin's JS keeps
+   working, but that means every element still carries the selectors the
+   OLD wide search bar's CSS (css/style.css, css/theme-css.css,
+   css/chosen.min.css) targets. Those rules were sized/positioned for
+   that old layout and win by specificity or !important over plain
+   header.css classes, so they have to be neutralized explicitly here.
+   ========================================================= */
+
+/* css/style.css: button[type="submit"] (0,1,1 specificity) beats our
+   plain .hero-search-card__submit class (0,1,0) - background stayed
+   orange, height locked to 54px, and 30px side padding on a 56px-wide
+   button left almost no room for the arrow icon. */
+.hero-search-card__submit {
+    background: var(--header-navy) !important;
+    height: auto !important;
+    padding: 0 !important;
+    text-transform: none !important;
+}
+
+/* css/style.css: #submitBtn { border-radius: 0 5px 5px 0 !important } -
+   only !important beats !important, so this needs it too. */
+#submitBtn.hero-search-card__submit {
+    border-radius: 0 8px 8px 0 !important;
+}
+
+/* css/style.css: .property-category-search-dropdown / .project-category-
+   search-dropdown both get { width: 60% !important } - 60% of this
+   ~180px-wide field is ~108px, nowhere near enough for the two-column
+   category/subcategory list. Same popover is reused for the Buy/Rent
+   "Property Type" field and the Sell tab's project category picker. */
+.hero-search-card__field--type .property-category-search-dropdown,
+.hero-search-card__advanced-panel .project-category-search-dropdown {
+    width: 340px !important;
+}
+
+/* css/style.css: .category-parent-active { color:#fff; background-color:
+   var(--primary-color) !important } - the active HOME/PLOTS/COMMERCIAL
+   tab in the category popover. --primary-color is only ever defined in
+   the OLD header partial's own inline <style>, which this page doesn't
+   render, so the variable resolves to nothing and the !important
+   background falls back to transparent: white text on a transparent
+   (effectively white) background, invisible until you know to look for
+   it. Give it real colors from this page's own palette instead. */
+.category-parent-active {
+    background-color: var(--header-gold) !important;
+    color: var(--header-white) !important;
+    /* css/style.css also sets font-weight:700 on this class - overridden
+       back to normal weight per design. */
+    font-weight: 400 !important;
+}
+
+/* css/style.css: .listsuggest { width: 45% !important } fights
+   css/theme-css.css's width:100% for the same element - this is the
+   keyword-suggestions panel appended at the end of the form. Give it
+   the full form width instead of an arbitrary 45%. */
+.hero-search-card__form .listsuggest {
+    width: 100% !important;
+}
+
+/* css/theme-css.css: .advanced-search .advanced-search-content sets
+   position:absolute, top:34px, left/right:-27px, width:calc(100% + 54px)
+   and a 70%-opacity white background - an overlay tuned for the old
+   full-width bar. Here it fights the new panel's intended in-flow
+   "push down below the field row" layout (margin-top/padding-top/
+   border-top above), so put it back in normal flow. */
+.hero-search-card__advanced-panel {
+    position: static !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    width: 100% !important;
+    background-color: transparent !important;
+    animation: none !important;
+    justify-content: flex-start !important;
+    padding: 0 !important;
+}
+
+/* css/style.css: .price-from-to / .unit-from-to { position:relative;
+   top:-28px; padding-left:13px } - a "0 to Any" summary line the plugin
+   overlaps *upward* onto its trigger button by 28px, sized for the old
+   wide bar's taller trigger. In this panel's tighter spacing it lands on
+   top of the "Area (marla)" label text above it instead. Let it sit in
+   normal flow, right under the trigger, like every other row here. */
+.hero-search-card__advanced-panel .price-from-to,
+.hero-search-card__advanced-panel .unit-from-to {
+    position: static !important;
+    top: auto !important;
+    padding-left: 0 !important;
+    margin-top: 4px;
+}
+
+/* =========================================================
+   RESPONSIVE - hero + search card
+   ========================================================= */
+@media (max-width: 1024px) {
+    .hero__inner {
+        flex-direction: column;
+        align-items: stretch;
+        /* Base .hero__inner has justify-content:space-between for the
+           desktop two-column layout. Left as-is here, stacking the
+           content and search card into a column meant space-between
+           spread them apart to fill .hero's min-height (560px on
+           mobile) - a big empty gap between "Talk to an Agent" and the
+           search card below it. */
+        justify-content: flex-start;
+    }
+
+    .hero__content,
+    .hero__search-wrapper {
+        max-width: 100%;
+        /* .hero__content also has flex: 1 1 520px for the desktop ROW
+           layout, sizing its WIDTH. In this stacked COLUMN layout that
+           520px sizes its HEIGHT instead - the actual heading/text/
+           buttons only need a fraction of that, leaving a tall empty
+           gap below "Talk to an Agent" before the search card starts. */
+        flex: 0 1 auto;
+    }
+}
+
+@media (max-width: 860px) {
+    .hero-search-card__fields {
+        flex-direction: column;
+    }
+
+    /* .hero-search-card__field--type has flex: 0 0 220px for the desktop
+       ROW layout, sizing its WIDTH. In this stacked COLUMN layout that
+       same flex-basis sizes its HEIGHT instead - forcing the field to
+       220px tall with mostly empty space below its content. */
+    .hero-search-card__field--type {
+        flex: 1 1 auto;
+    }
+
+    .hero-search-card__divider {
+        width: auto;
+        height: 1px;
+        margin: 0;
+    }
+
+    .hero-search-card__submit-wrapper {
+        padding: 12px 16px 4px;
+    }
+
+    .hero-search-card__submit {
+        width: 100%;
+        border-radius: 6px;
+        /* !important: the desktop-wide "OLD-STYLESHEET OVERRIDES" rule
+           for this class sets padding:0 !important (needed there to
+           beat css/style.css's button[type="submit"] padding), which
+           otherwise also wins here regardless of media query order. */
+        padding: 16px 0 !important;
+        font-size: 18px;
+    }
+
+    .hero-search-card__tabs {
+        flex-wrap: wrap;
+    }
+
+    .hero-search-card__search-label {
+        margin-left: 0;
+        margin-top: 8px;
+    }
+}

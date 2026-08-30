@@ -1,11 +1,5 @@
 {!! Theme::partial('header') !!}
 
-<!--<div id="app">
-    <div id="ismain-homes">
-        {!! Theme::content() !!}
-    </div>
-</div> -->
-
 <section class="intro">
     <div class="container">
         <div class="row align-items-center">

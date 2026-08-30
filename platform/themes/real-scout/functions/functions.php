@@ -22,6 +22,7 @@ app()->booted(function () {
 
 register_page_template([
     'realscouthomepage' => __('RealScout Home Page'),
+    'homepagenew' => __('Home Page New'),
 ]);
 register_page_template([
     'homepage' => __('Homepage'),
