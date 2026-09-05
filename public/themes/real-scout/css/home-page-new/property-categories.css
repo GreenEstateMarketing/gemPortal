@@ -1,0 +1,285 @@
+/*
+    Path in theme: platform/themes/real-scout/public/css/home-page-new/property-categories.css
+    Loaded via:    Theme::asset()->url('css/home-page-new/property-categories.css')
+
+    Relies on the --header-* custom properties defined on :root in
+    home-page-new/header.css (colors, fonts, --header-max-width) - that
+    stylesheet must be linked before this one.
+*/
+
+.property-categories {
+    background: var(--how-bg, #f6f2ea);
+    padding: 90px 0;
+}
+
+.property-categories__inner {
+    max-width: var(--header-max-width);
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* ---- Intro ---- */
+.property-categories__intro {
+    text-align: center;
+    max-width: 680px;
+    margin: 0 auto 44px;
+}
+
+.property-categories__eyebrow {
+    display: block;
+    color: var(--header-gold);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+}
+
+.property-categories__heading {
+    font-family: var(--header-font-heading);
+    font-weight: 700;
+    color: var(--header-navy);
+    font-size: 42px;
+    line-height: 1.2;
+    margin: 0 0 16px;
+}
+
+.property-categories__text {
+    color: #6b7280;
+    font-size: 16px;
+    line-height: 1.7;
+    margin: 0 0 36px;
+}
+
+/* ---- Search box ---- */
+.property-categories__search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    max-width: 640px;
+    margin: 0 auto;
+    background: var(--header-white);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(26, 29, 36, 0.08);
+    padding: 6px 6px 6px 20px;
+}
+
+.property-categories__search-icon {
+    color: var(--header-gold);
+    font-size: 15px;
+    margin-right: 12px;
+    flex-shrink: 0;
+}
+
+.property-categories__search-input {
+    /* flex-basis:0 (not auto) - flex-wrap's line-fitting math uses the
+       item's content-based hypothetical size when basis is auto, and for
+       a text input that's large enough to force it onto its own wrapped
+       line even with flex-shrink:1 allowing it to shrink afterward.
+       basis:0 starts it at nothing and grows to fill, avoiding that. */
+    flex: 1 1 0%;
+    min-width: 0;
+    /* css/style.css: input[type="text"] { border:1px solid #eee } beats
+       a plain class on specificity (type+attribute vs one class) - same
+       issue fixed earlier on .hero-search-card__input. */
+    border: none !important;
+    outline: none;
+    background: transparent;
+    font-family: var(--header-font-body);
+    font-size: 15px;
+    color: var(--header-navy);
+    padding: 12px 0;
+}
+
+.property-categories__search-btn {
+    flex-shrink: 0;
+    border: none;
+    background: var(--header-navy);
+    color: var(--header-white);
+    font-family: var(--header-font-body);
+    font-weight: 600;
+    font-size: 14px;
+    padding: 12px 26px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.property-categories__search-btn:hover {
+    background: var(--header-navy-light);
+}
+
+.property-categories__suggestions {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: var(--header-white);
+    border-radius: 10px;
+    box-shadow: 0 16px 40px rgba(26, 29, 36, 0.16);
+    text-align: left;
+    overflow: hidden;
+    z-index: 20;
+}
+
+.property-categories__suggestion {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--header-navy);
+}
+
+.property-categories__suggestion:hover,
+.property-categories__suggestion.is-active {
+    background: rgba(224, 166, 62, 0.1);
+}
+
+.property-categories__suggestion-parent {
+    color: #9ca3af;
+    font-size: 12px;
+}
+
+.property-categories__suggestion-empty {
+    padding: 14px 20px;
+    font-size: 14px;
+    color: #9ca3af;
+}
+
+/* ---- Cards grid ---- */
+.property-categories__grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 24px;
+}
+
+.property-categories__card {
+    display: flex;
+    flex-direction: column;
+    background: var(--header-white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(26, 29, 36, 0.05);
+}
+
+.property-categories__card-image {
+    display: block;
+    width: 100%;
+    height: 190px;
+    object-fit: cover;
+}
+
+.property-categories__card-body {
+    padding: 20px;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.property-categories__card-tag {
+    display: block;
+    color: var(--header-gold);
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.property-categories__card-title {
+    font-family: var(--header-font-heading);
+    font-weight: 700;
+    color: var(--header-navy);
+    font-size: 20px;
+    margin: 0 0 8px;
+}
+
+.property-categories__card-text {
+    color: #6b7280;
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 0 0 16px;
+    flex: 1 1 auto;
+}
+
+.property-categories__card-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    align-self: flex-start;
+    color: var(--header-navy);
+    font-weight: 700;
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.property-categories__card-cta i {
+    color: var(--header-gold);
+    font-size: 12px;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 1200px) {
+    .property-categories__grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 1024px) {
+    .property-categories__heading {
+        font-size: 34px;
+    }
+}
+
+@media (max-width: 860px) {
+    .property-categories {
+        padding: 60px 0;
+    }
+
+    .property-categories__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .property-categories__search {
+        flex-wrap: wrap;
+        padding: 14px;
+    }
+
+    /* Icon + input share the first row (icon fixed-width, input filling
+       the rest) - only the button wraps to its own full-width row below.
+       flex:1 1 100% on the input previously forced IT to wrap onto its
+       own row too, pushing the icon above it instead of beside it. */
+    .property-categories__search-icon {
+        order: 0;
+    }
+
+    .property-categories__search-input {
+        /* NOT flex:1 1 auto - see the base rule's comment, same
+           content-based-basis wrap issue, reintroduced here since this
+           media query's declaration would otherwise override it. */
+        flex: 1 1 0%;
+        order: 1;
+        padding: 12px 0;
+    }
+
+    .property-categories__search-btn {
+        order: 2;
+        flex: 1 1 100%;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .property-categories__suggestions {
+        top: calc(100% + 4px);
+    }
+}
+
+@media (max-width: 560px) {
+    .property-categories__grid {
+        grid-template-columns: 1fr;
+    }
+}

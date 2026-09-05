@@ -1,0 +1,260 @@
+/*
+    Path in theme: platform/themes/real-scout/public/css/home-page-new/why-choose.css
+    Loaded via:    Theme::asset()->url('css/home-page-new/why-choose.css')
+
+    Relies on the --header-* custom properties defined on :root in
+    home-page-new/header.css (colors, fonts, --header-max-width) - that
+    stylesheet must be linked before this one.
+*/
+
+.why-choose {
+    background: var(--header-white);
+    padding: 100px 0;
+}
+
+.why-choose__inner {
+    max-width: var(--header-max-width);
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 80px;
+}
+
+.why-choose__content {
+    flex: 1 1 480px;
+    min-width: 0;
+}
+
+.why-choose__eyebrow {
+    display: block;
+    color: var(--header-gold);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+}
+
+.why-choose__heading {
+    font-family: var(--header-font-heading);
+    font-weight: 700;
+    color: var(--header-navy);
+    font-size: 44px;
+    line-height: 1.2;
+    margin: 0 0 22px;
+}
+
+.why-choose__heading--accent {
+    color: var(--header-gold);
+}
+
+.why-choose__text {
+    color: #6b7280;
+    font-size: 16px;
+    line-height: 1.7;
+    max-width: 480px;
+    margin: 0 0 40px;
+}
+
+.why-choose__features {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px 28px;
+}
+
+.why-choose__feature {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.why-choose__feature-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: rgba(224, 166, 62, 0.14);
+    color: var(--header-gold);
+    font-size: 18px;
+}
+
+.why-choose__feature-title {
+    font-family: var(--header-font-body);
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--header-navy);
+    margin: 0 0 6px;
+}
+
+.why-choose__feature-text {
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.why-choose__media {
+    position: relative;
+    flex: 1 1 480px;
+    min-width: 0;
+}
+
+.why-choose__image {
+    display: block;
+    width: 100%;
+    height: 560px;
+    object-fit: cover;
+    border-radius: 16px;
+}
+
+.why-choose__badge {
+    position: absolute;
+    left: 32px;
+    bottom: -28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--header-white);
+    border-radius: 10px;
+    padding: 16px 20px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.16);
+    max-width: 280px;
+}
+
+.why-choose__badge-icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--header-gold);
+    color: var(--header-white);
+    font-size: 15px;
+}
+
+.why-choose__badge-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--header-navy);
+    margin: 0 0 2px;
+}
+
+.why-choose__badge-text {
+    font-size: 12px;
+    color: #6b7280;
+    margin: 0;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 1024px) {
+    .why-choose__inner {
+        gap: 50px;
+    }
+
+    .why-choose__heading {
+        font-size: 36px;
+    }
+
+    .why-choose__image {
+        height: 460px;
+    }
+}
+
+@media (max-width: 860px) {
+    .why-choose {
+        padding: 70px 0;
+    }
+
+    .why-choose__inner {
+        flex-direction: column;
+        align-items: stretch;
+        /* Base rule's gap:80px (meant for the desktop side-by-side
+           columns) was still adding 80px between the image+badge and
+           this content block on top of the 44px margin-top below - about
+           124px of empty space before "WHY CHOOSE GEM". */
+        gap: 0;
+    }
+
+    .why-choose__media,
+    .why-choose__content {
+        /* Both have flex: 1 1 480px for the desktop side-by-side
+           columns, sizing their WIDTH. In this stacked column layout
+           that same 480px sizes .why-choose__media's HEIGHT instead -
+           its actual content (the 320px image + overlapping badge) only
+           fills about 360px of it, leaving ~120px of invisible empty
+           space inside the media box before "WHY CHOOSE GEM" below it. */
+        flex: 0 1 auto;
+    }
+
+    .why-choose__media {
+        order: -1;
+    }
+
+    .why-choose__image {
+        height: 320px;
+    }
+
+    /* Switched back to the exact same position:absolute mechanism the
+       desktop badge uses (anchored to .why-choose__media, which is
+       position:relative), instead of position:static + a negative
+       margin. The static approach kept testing as correct (DOM order,
+       hit-testing at the overlap point all confirmed the badge paints
+       above the image) but still wasn't showing the white card
+       background over the photo the way it should - rather than keep
+       guessing at that interaction blind, this reuses the one mechanism
+       already visually confirmed to work correctly (the desktop card). */
+    .why-choose__badge {
+        left: 24px;
+        bottom: -32px;
+        max-width: 200px;
+        width: fit-content;
+        gap: 10px;
+        padding: 12px 14px;
+    }
+
+    .why-choose__badge-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 13px;
+    }
+
+    .why-choose__badge-title {
+        font-size: 13px;
+    }
+
+    .why-choose__badge-text {
+        font-size: 11px;
+    }
+
+    /* Now that the badge is position:absolute again, it no longer adds to
+       .why-choose__media's own box height - it hangs 32px up from and
+       ~43px down past .media's bottom edge purely via its own absolute
+       offset (badge height ~75px - 32px overlap). This needs to clear
+       that full 43px, plus real breathing room, or the badge's bottom
+       edge ("Professional property guidance") collides with this text. */
+    .why-choose__content {
+        margin-top: 70px;
+    }
+
+    .why-choose__heading {
+        font-size: 30px;
+    }
+}
+
+@media (max-width: 480px) {
+    .why-choose__features {
+        grid-template-columns: 1fr;
+    }
+
+    .why-choose__badge {
+        margin-left: 16px;
+    }
+}

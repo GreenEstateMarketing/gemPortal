@@ -821,6 +821,59 @@ function getAreaLists()
             break;
     }
 }
+/**
+ * Property categories (platform/plugins/real-estate's re_categories table)
+ * have no image column/relation, and there's no admin UI to upload one per
+ * category. Since categories are managed dynamically (admins can add/rename
+ * them any time), a fixed local image per category isn't practical either -
+ * this fetches a matching stock photo from Pixabay's free API by category
+ * name instead, caching the result so a repeat visit / another category
+ * card with the same name doesn't re-hit the API.
+ *
+ * Requires PIXABAY_API_KEY in .env (config('services.pixabay.key')) - get a
+ * free key at https://pixabay.com/api/docs/. Returns null (caller should
+ * fall back to a local placeholder image) if the key isn't set, the request
+ * fails, or nothing matches - never throws, so a Pixabay outage can't break
+ * the homepage.
+ *
+ * @param string $categoryName
+ * @return string|null
+ */
+function getCategoryImageUrlFromPixabay(string $categoryName): ?string
+{
+    $apiKey = config('services.pixabay.key');
+
+    if (!$apiKey) {
+        return null;
+    }
+
+    $cacheKey = 'pixabay_category_image:' . Str::slug($categoryName);
+
+    return Cache::remember($cacheKey, now()->addDays(7), function () use ($apiKey, $categoryName) {
+        try {
+            $response = Http::timeout(3)->get('https://pixabay.com/api/', [
+                'key' => $apiKey,
+                'q' => $categoryName . ' real estate property',
+                'image_type' => 'photo',
+                'orientation' => 'horizontal',
+                'category' => 'buildings',
+                'safesearch' => 'true',
+                'per_page' => 3,
+            ]);
+
+            if (!$response->successful()) {
+                return null;
+            }
+
+            return $response->json('hits.0.webformatURL');
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return null;
+        }
+    });
+}
+
 function CurrentCurrency()
 {
     $res = Currency::where('is_default', 1)->get();

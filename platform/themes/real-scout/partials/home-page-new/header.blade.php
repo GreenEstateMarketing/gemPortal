@@ -22,6 +22,37 @@
     {{-- Header-specific stylesheet for this design --}}
     <link rel="stylesheet" href="{{ Theme::asset()->url('css/home-page-new/header.css') }}">
 
+    {{-- "Why Choose GEM" section stylesheet - relies on the color/font
+         custom properties (--header-navy, --header-gold, etc.) defined
+         on :root in header.css above, so header.css must load first. --}}
+    <link rel="stylesheet" href="{{ Theme::asset()->url('css/home-page-new/why-choose.css') }}">
+
+    {{-- "How It Works" section stylesheet - same dependency on header.css's
+         :root custom properties. --}}
+    <link rel="stylesheet" href="{{ Theme::asset()->url('css/home-page-new/how-it-works.css') }}">
+
+    {{-- "About Us" section stylesheet - same dependency on header.css's
+         :root custom properties. --}}
+    <link rel="stylesheet" href="{{ Theme::asset()->url('css/home-page-new/about-us.css') }}">
+
+    {{-- "Search By Property Type" section stylesheet - same dependency on
+         header.css's :root custom properties (and reuses --how-bg from
+         how-it-works.css, with its own fallback value). --}}
+    <link rel="stylesheet" href="{{ Theme::asset()->url('css/home-page-new/property-categories.css') }}">
+
+    {{-- "Meet Our Expert Agents" section stylesheet - same dependencies. --}}
+    <link rel="stylesheet" href="{{ Theme::asset()->url('css/home-page-new/meet-agents.css') }}">
+
+    {{-- "What Our Clients Say" section stylesheet - same dependencies. --}}
+    <link rel="stylesheet" href="{{ Theme::asset()->url('css/home-page-new/testimonials.css') }}">
+
+    {{-- "Ready To Make Your Move" CTA section - same dependencies, also
+         reuses the shared .btn-outline class defined above. --}}
+    <link rel="stylesheet" href="{{ Theme::asset()->url('css/home-page-new/cta-move.css') }}">
+
+    {{-- Site footer stylesheet - same dependencies. --}}
+    <link rel="stylesheet" href="{{ Theme::asset()->url('css/home-page-new/site-footer.css') }}">
+
     {{-- Display fonts used in the hero headline / nav text. Swap for theme_option('primary_font')
          if you'd rather keep this on the same font system as the rest of the theme. --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -86,6 +117,16 @@
                     'options' => ['class' => ''],
                     'view' => 'main-menu',
                 ]) !!}
+
+                {{-- .main-nav__actions (the login/register/account controls) is
+                     hidden entirely below 860px with nothing standing in for it,
+                     so mobile visitors had no way to log in, register, or reach
+                     their account menu at all. This is the same auth UI, shown
+                     only on mobile via CSS, living inside the slide-out drawer
+                     where it's actually reachable. --}}
+                <div class="main-nav__mobile-actions">
+                    {!! Theme::partial('home-page-new/nav-auth', ['suffix' => 'mobile']) !!}
+                </div>
             </nav>
 
             <div class="main-nav__actions">
@@ -95,52 +136,19 @@
                      .nav-item.sticky-login.d-none by default). Without this input the
                      check falls through to "not logged in" every time and the scroll
                      handler removes .d-none - the login link would pop up in the menu
-                     on scroll even for a logged-in member. --}}
+                     on scroll even for a logged-in member. That item is fully
+                     redundant here regardless (see .sticky-login in header.css,
+                     forced hidden always) since this bar is never hidden on scroll
+                     the way the old page's nav was, but #login_check is kept anyway
+                     in case anything else in scripts.js ever reads it. --}}
                 @if (auth('account')->check())
                     <input type="hidden" id="login_check" value="1" />
-                    <div class="dropdown user-dropdown">
-                        <a class="dropdown-toggle user-dropdown__toggle" href="#" id="navbarDropdownMenuLink"
-                            role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <img src="{{ auth('account')->user()->image_path ? Storage::url(auth('account')->user()->image_path) : auth('account')->user()->avatar_url }}"
-                                class="user-dropdown__avatar" alt="">
-                            <span>{{ auth('account')->user()->getFullName() }}</span>
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{{ route('public.account.dashboard') }}">Dashboard</a>
-                            <a class="dropdown-item" href="{{ route('public.account.settings') }}">Edit Profile</a>
-                            <form id="logout-form-account" action="{{ route('public.account.logout') }}"
-                                method="POST" style="display: none;">
-                                @csrf
-                            </form>
-                            <a class="dropdown-item" href="#"
-                                onclick="event.preventDefault(); document.getElementById('logout-form-account').submit();">Log
-                                Out</a>
-                        </div>
-                    </div>
                 @elseif (auth('member')->check())
                     <input type="hidden" id="login_check" value="1" />
-                    <div class="dropdown user-dropdown">
-                        <a class="dropdown-toggle user-dropdown__toggle" href="#" id="navbarDropdownMenuLink"
-                            role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <span>{{ auth('member')->user()->full_name }}</span>
-                        </a>
-                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <a class="dropdown-item" href="{{ route('member.dashboard') }}">Dashboard</a>
-                            <a class="dropdown-item" href="{{ route('member.settings') }}">Edit Profile</a>
-                            <form id="logout-form-member" action="{{ route('public.member.logout') }}"
-                                method="POST" style="display: none;">
-                                @csrf
-                            </form>
-                            <a class="dropdown-item" href="#"
-                                onclick="event.preventDefault(); document.getElementById('logout-form-member').submit();">Log
-                                Out</a>
-                        </div>
-                    </div>
                 @else
                     <input type="hidden" id="login_check" value="0" />
-                    <a href="{{ route('member.login') }}" class="btn-login">Login</a>
-                    <a href="{{ route('member.register') }}" class="btn-register">Register</a>
                 @endif
+                {!! Theme::partial('home-page-new/nav-auth', ['suffix' => 'desktop']) !!}
             </div>
 
         </div>

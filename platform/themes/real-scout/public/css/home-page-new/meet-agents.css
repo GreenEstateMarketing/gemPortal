@@ -1,0 +1,190 @@
+/*
+    Path in theme: platform/themes/real-scout/public/css/home-page-new/meet-agents.css
+    Loaded via:    Theme::asset()->url('css/home-page-new/meet-agents.css')
+
+    Relies on the --header-* custom properties defined on :root in
+    home-page-new/header.css (colors, fonts, --header-max-width) - that
+    stylesheet must be linked before this one.
+*/
+
+.meet-agents {
+    background: var(--header-white);
+    padding: 90px 0;
+}
+
+.meet-agents__inner {
+    max-width: var(--header-max-width);
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.meet-agents__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 44px;
+}
+
+.meet-agents__eyebrow {
+    display: block;
+    color: var(--header-gold);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+}
+
+.meet-agents__heading {
+    font-family: var(--header-font-heading);
+    font-weight: 700;
+    color: var(--header-navy);
+    font-size: 42px;
+    line-height: 1.2;
+    margin: 0 0 14px;
+}
+
+.meet-agents__heading--accent {
+    color: var(--header-gold);
+}
+
+.meet-agents__text {
+    color: #6b7280;
+    font-size: 16px;
+    margin: 0;
+}
+
+.meet-agents__view-all {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--header-navy);
+    font-weight: 700;
+    font-size: 14px;
+    text-decoration: none;
+    border-bottom: 2px solid var(--header-gold);
+    padding-bottom: 4px;
+    white-space: nowrap;
+}
+
+.meet-agents__view-all i {
+    color: var(--header-gold);
+    font-size: 12px;
+}
+
+/* ---- Cards grid ---- */
+.meet-agents__grid {
+    display: grid;
+    /* --meet-agents-count is set inline per-render to however many agent
+       cards actually exist (1-3), so a single real agent doesn't render
+       as one narrow card in an otherwise-empty 3-column row. Falls back
+       to 3 if the variable is somehow missing. */
+    grid-template-columns: repeat(var(--meet-agents-count, 3), 1fr);
+    gap: 24px;
+}
+
+.meet-agents__card {
+    background: var(--how-bg, #f6f2ea);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.meet-agents__card-photo-link {
+    display: block;
+}
+
+.meet-agents__card-photo {
+    display: block;
+    width: 100%;
+    height: 380px;
+    object-fit: cover;
+}
+
+.meet-agents__card-body {
+    padding: 24px;
+}
+
+.meet-agents__card-role {
+    display: block;
+    color: var(--header-gold);
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.meet-agents__card-name {
+    font-family: var(--header-font-heading);
+    font-weight: 700;
+    font-size: 24px;
+    margin: 0 0 6px;
+}
+
+.meet-agents__card-name a {
+    color: var(--header-navy);
+    text-decoration: none;
+}
+
+.meet-agents__card-specialty {
+    color: #6b7280;
+    font-size: 14px;
+    margin: 0 0 20px;
+}
+
+.meet-agents__card-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.meet-agents__card-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--header-navy);
+    color: var(--header-white);
+    font-size: 14px;
+    transition: background 0.2s ease;
+}
+
+.meet-agents__card-action:hover {
+    background: var(--header-gold);
+    color: var(--header-navy);
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 1024px) {
+    .meet-agents__heading {
+        font-size: 34px;
+    }
+
+    .meet-agents__card-photo {
+        height: 320px;
+    }
+}
+
+@media (max-width: 860px) {
+    .meet-agents {
+        padding: 60px 0;
+    }
+
+    .meet-agents__header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .meet-agents__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .meet-agents__card-photo {
+        height: 360px;
+    }
+}

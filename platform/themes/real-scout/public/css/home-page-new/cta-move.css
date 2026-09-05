@@ -1,0 +1,134 @@
+/*
+    Path in theme: platform/themes/real-scout/public/css/home-page-new/cta-move.css
+    Loaded via:    Theme::asset()->url('css/home-page-new/cta-move.css')
+
+    Relies on the --header-* custom properties defined on :root in
+    home-page-new/header.css (colors, fonts, --header-max-width), and
+    reuses the shared .btn-outline class from that same file for the
+    "Contact Us" button - header.css must load first.
+*/
+
+.cta-move {
+    position: relative;
+    min-height: 560px;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.cta-move__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(26, 29, 36, 0.6);
+}
+
+.cta-move__inner {
+    position: relative;
+    z-index: 2;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 80px 24px;
+}
+
+.cta-move__eyebrow {
+    display: block;
+    color: var(--header-gold);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+}
+
+.cta-move__heading {
+    font-family: var(--header-font-heading);
+    font-weight: 700;
+    color: var(--header-white);
+    font-size: 52px;
+    line-height: 1.15;
+    margin: 0 0 22px;
+}
+
+.cta-move__heading--accent {
+    color: var(--header-gold);
+}
+
+.cta-move__text {
+    color: var(--header-text-muted);
+    font-size: 17px;
+    line-height: 1.7;
+    margin: 0 0 36px;
+}
+
+.cta-move__actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.cta-move__btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--header-gold);
+    color: var(--header-navy);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 16px 28px;
+    border-radius: 6px;
+    transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.cta-move__btn-primary:hover {
+    background: var(--header-gold-hover);
+    color: var(--header-navy);
+    transform: translateY(-1px);
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 1024px) {
+    .cta-move__heading {
+        font-size: 40px;
+    }
+}
+
+@media (max-width: 860px) {
+    .cta-move {
+        min-height: 0;
+    }
+
+    .cta-move__inner {
+        padding: 70px 24px;
+    }
+
+    .cta-move__heading {
+        font-size: 32px;
+    }
+
+    .cta-move__actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    /* Both buttons stretch full-width above (align-items:stretch), but
+       neither has justify-content:center for its own inline-flex content
+       (text + icon), so once widened they left-align instead of centering. */
+    .cta-move__btn-primary,
+    .cta-move .btn-outline {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .cta-move__heading {
+        font-size: 26px;
+    }
+}

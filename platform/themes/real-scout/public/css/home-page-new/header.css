@@ -169,6 +169,27 @@
     color: var(--header-gold);
 }
 
+/* js/scripts.js's scroll handler reveals a "Login" menu item (tagged
+   .sticky-login by the menu builder, sitting inline among the other nav
+   links wherever it was ordered) for guests once you scroll - that was
+   built for the OLD page's nav, which hid its own login control on
+   scroll and showed this in its place. This page's login/register
+   controls are never hidden (.main-nav__actions is always visible on
+   desktop, and .main-nav__mobile-actions below covers mobile), so this
+   item is always a duplicate here - keep it hidden regardless of what
+   the scroll handler does to its d-none class. */
+.sticky-login {
+    display: none !important;
+}
+
+/* .main-nav__actions is hidden entirely below 860px (see the mobile
+   media query) with nothing standing in for it - this is that missing
+   mobile equivalent, rendered inside the slide-out drawer instead.
+   Hidden here on desktop; the mobile media query switches it on. */
+.main-nav__mobile-actions {
+    display: none;
+}
+
 /* Active menu item (Botble's menu builder typically adds an "active" class
    to the current page's <li> - confirm against your rendered markup and
    adjust if it uses a different class, e.g. "current-menu-item"). */
@@ -561,15 +582,51 @@
         display: none;
     }
 
+    .main-nav__mobile-actions {
+        display: block;
+        margin-top: 28px;
+        padding-top: 24px;
+        border-top: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .main-nav__mobile-actions .btn-login,
+    .main-nav__mobile-actions .btn-register,
+    .main-nav__mobile-actions .user-dropdown {
+        display: block;
+        width: 100%;
+    }
+
+    .main-nav__mobile-actions .btn-login {
+        margin-bottom: 16px;
+        text-align: center;
+    }
+
+    .main-nav__mobile-actions .btn-register {
+        justify-content: center;
+        text-align: center;
+    }
+
+    .main-nav__mobile-actions .user-dropdown__toggle {
+        width: 100%;
+        justify-content: center;
+    }
+
     .hero {
         margin-top: 0;
         padding-top: 40px;
         min-height: 560px;
     }
 
+    /* !important: .site-header .container (two classes, unconditional,
+       specificity 0,2,0) sets padding:0 24px, which beats this rule's
+       plain .hero__inner (one class, 0,1,0) regardless of source order -
+       this padding was silently never applying at any screen width, not
+       just here. Only forcing it for mobile (not touching the base rule)
+       to avoid changing the desktop layout, which already looks right
+       without it (child elements' own spacing was doing the visual work). */
     .hero__inner {
-        padding-top: 60px;
-        padding-bottom: 60px;
+        padding-top: 60px !important;
+        padding-bottom: 60px !important;
     }
 
     .hero__heading {

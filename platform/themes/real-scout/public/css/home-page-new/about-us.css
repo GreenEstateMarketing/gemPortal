@@ -1,0 +1,121 @@
+/*
+    Path in theme: platform/themes/real-scout/public/css/home-page-new/about-us.css
+    Loaded via:    Theme::asset()->url('css/home-page-new/about-us.css')
+
+    Relies on the --header-* custom properties defined on :root in
+    home-page-new/header.css (colors, fonts, --header-max-width) - that
+    stylesheet must be linked before this one.
+*/
+
+.about-us {
+    position: relative;
+    min-height: 620px;
+    display: flex;
+    align-items: center;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.about-us__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(26, 29, 36, 0.6);
+}
+
+.about-us__inner {
+    position: relative;
+    z-index: 2;
+    max-width: var(--header-max-width);
+    margin: 0 auto;
+    padding: 80px 24px;
+}
+
+.about-us__eyebrow {
+    display: block;
+    color: var(--header-gold);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+}
+
+.about-us__heading {
+    font-family: var(--header-font-heading);
+    font-weight: 700;
+    color: var(--header-white);
+    font-size: 56px;
+    line-height: 1.15;
+    margin: 0 0 26px;
+}
+
+.about-us__heading--accent {
+    color: var(--header-gold);
+}
+
+.about-us__text {
+    color: var(--header-text-muted);
+    font-size: 17px;
+    line-height: 1.7;
+    max-width: 560px;
+    margin: 0 0 36px;
+}
+
+.about-us__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--header-gold);
+    color: var(--header-navy);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 16px 28px;
+    border-radius: 6px;
+    transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.about-us__cta:hover {
+    background: var(--header-gold-hover);
+    color: var(--header-navy);
+    transform: translateY(-1px);
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 1024px) {
+    .about-us__heading {
+        font-size: 44px;
+    }
+}
+
+@media (max-width: 860px) {
+    .about-us {
+        min-height: 0;
+    }
+
+    .about-us__inner {
+        padding: 70px 24px;
+    }
+
+    .about-us__heading {
+        font-size: 34px;
+    }
+
+    .about-us__text {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .about-us__heading {
+        font-size: 28px;
+    }
+
+    .about-us__cta {
+        width: 100%;
+        justify-content: center;
+    }
+}

@@ -30,6 +30,7 @@ Route::group(['namespace' => 'Theme\FlexHome\Http\Controllers', 'middleware' => 
 Route::get('/ajax/get-cities', 'FlexHomeController@getCityListByState');
         Route::get('ajax/get-parent-categories', 'FlexHomeController@ajaxGetParentCategories')->name('public.ajax.parent-categories');
         Route::get('ajax/get-child-categories', 'FlexHomeController@ajaxGetChildCategories')->name('public.ajax.child-categories');
+        Route::get('ajax/search-categories', 'FlexHomeController@ajaxSearchCategories')->name('public.ajax.search-categories');
     });
 });
 

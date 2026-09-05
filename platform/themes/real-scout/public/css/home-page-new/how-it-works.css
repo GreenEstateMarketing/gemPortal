@@ -1,0 +1,264 @@
+/*
+    Path in theme: platform/themes/real-scout/public/css/home-page-new/how-it-works.css
+    Loaded via:    Theme::asset()->url('css/home-page-new/how-it-works.css')
+
+    Relies on the --header-* custom properties defined on :root in
+    home-page-new/header.css (colors, fonts, --header-max-width) - that
+    stylesheet must be linked before this one.
+*/
+
+:root {
+    --how-bg: #f6f2ea;
+    --how-text-muted: #6b7280;
+}
+
+.how-it-works {
+    background: var(--how-bg);
+    padding: 90px 0;
+    overflow: hidden;
+}
+
+.how-it-works__inner {
+    max-width: var(--header-max-width);
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* ---- Intro ---- */
+.how-it-works__intro {
+    text-align: center;
+    max-width: 640px;
+    margin: 0 auto 44px;
+}
+
+.how-it-works__eyebrow {
+    display: block;
+    color: var(--header-gold);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+}
+
+.how-it-works__heading {
+    font-family: var(--header-font-heading);
+    font-weight: 700;
+    color: var(--header-navy);
+    font-size: 42px;
+    line-height: 1.2;
+    margin: 0 0 18px;
+}
+
+.how-it-works__text {
+    color: var(--how-text-muted);
+    font-size: 16px;
+    line-height: 1.7;
+    margin: 0 0 36px;
+}
+
+/* ---- Buyer / Seller toggle ---- */
+.how-it-works__toggle {
+    display: inline-flex;
+    background: var(--header-white);
+    border-radius: 10px;
+    padding: 6px;
+    gap: 6px;
+    box-shadow: 0 8px 24px rgba(26, 29, 36, 0.08);
+}
+
+.how-it-works__toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    border: none;
+    background: transparent;
+    color: var(--header-navy);
+    font-family: var(--header-font-body);
+    font-weight: 600;
+    font-size: 14px;
+    padding: 12px 22px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.how-it-works__toggle-btn i {
+    color: var(--header-gold);
+}
+
+.how-it-works__toggle-btn.active {
+    background: var(--header-navy);
+    color: var(--header-white);
+}
+
+.how-it-works__toggle-btn.active i {
+    color: var(--header-gold);
+}
+
+/* ---- Panels ---- */
+.how-it-works__panel {
+    display: none;
+    text-align: center;
+}
+
+.how-it-works__panel.active {
+    display: block;
+}
+
+.how-it-works__subheading {
+    font-family: var(--header-font-heading);
+    font-weight: 700;
+    color: var(--header-navy);
+    font-size: 32px;
+    margin: 12px 0 44px;
+}
+
+/* ---- Steps row ---- */
+.how-it-works__steps {
+    display: flex;
+    /* stretch (not flex-start): cards have no fixed height, so with
+       varying description lengths (e.g. "Ad Verification"'s 4-line text
+       vs "Submit Ad"'s 3) they ended up different heights. The arrow
+       icons between them keep their own explicit align-self:center
+       below, so this only affects the cards. */
+    align-items: stretch;
+    /* Plain "center" pushes the start of an overflowing row past the
+       left edge - at scrollLeft:0 the first card lands already cut off.
+       Plain "flex-start" avoids that but left-shoves a row that already
+       fits (the 4-card Buyer panel on a wide screen), losing the
+       centered look for no reason. "safe center" is the actual fix:
+       centers when there's room, falls back to start-alignment only
+       when it would otherwise overflow. flex-start above is the
+       fallback for browsers that don't understand "safe center" (its
+       declaration is simply dropped, leaving flex-start in effect) -
+       keep both lines, in this order. */
+    justify-content: flex-start;
+    justify-content: safe center;
+    gap: 0;
+    margin-bottom: 40px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+}
+
+.how-it-works__step {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 190px;
+    max-width: 220px;
+    background: var(--header-white);
+    border-radius: 12px;
+    padding: 28px 20px 32px;
+    text-align: center;
+    box-shadow: 0 6px 20px rgba(26, 29, 36, 0.05);
+}
+
+.how-it-works__step-number {
+    position: absolute;
+    top: 16px;
+    right: 18px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #d1d5db;
+}
+
+.how-it-works__step-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: rgba(224, 166, 62, 0.14);
+    color: var(--header-gold);
+    font-size: 22px;
+}
+
+.how-it-works__step-title {
+    font-family: var(--header-font-heading);
+    font-weight: 700;
+    color: var(--header-navy);
+    font-size: 18px;
+    margin: 0 0 10px;
+}
+
+.how-it-works__step-text {
+    color: var(--how-text-muted);
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.how-it-works__arrow {
+    flex-shrink: 0;
+    align-self: center;
+    color: var(--header-gold);
+    font-size: 16px;
+    margin: 0 10px;
+}
+
+/* ---- CTA link ---- */
+.how-it-works__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--header-navy);
+    font-weight: 700;
+    font-size: 15px;
+    text-decoration: none;
+    /* text-decoration:underline on an inline-flex container only draws
+       under the actual text run, not under its flex-item icon child or
+       the gap between them - it left a visible break before the arrow,
+       and defaulted to the text's own navy color instead of gold. A
+       border instead spans the full flex box in one solid gold line. */
+    border-bottom: 2px solid var(--header-gold);
+    padding-bottom: 4px;
+}
+
+.how-it-works__cta i {
+    color: var(--header-gold);
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 1024px) {
+    .how-it-works__heading {
+        font-size: 34px;
+    }
+}
+
+@media (max-width: 860px) {
+    .how-it-works {
+        padding: 60px 0;
+    }
+
+    .how-it-works__heading {
+        font-size: 28px;
+    }
+
+    .how-it-works__subheading {
+        font-size: 24px;
+    }
+
+    .how-it-works__toggle-btn {
+        font-size: 13px;
+        padding: 10px 16px;
+    }
+
+    .how-it-works__step {
+        min-width: 200px;
+    }
+}
+
+@media (max-width: 480px) {
+    .how-it-works__toggle {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .how-it-works__toggle-btn {
+        justify-content: center;
+    }
+}

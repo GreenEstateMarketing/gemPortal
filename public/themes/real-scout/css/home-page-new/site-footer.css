@@ -1,0 +1,202 @@
+/*
+    Path in theme: platform/themes/real-scout/public/css/home-page-new/site-footer.css
+    Loaded via:    Theme::asset()->url('css/home-page-new/site-footer.css')
+
+    Relies on the --header-* custom properties defined on :root in
+    home-page-new/header.css (colors, fonts, --header-max-width) - that
+    stylesheet must be linked before this one.
+*/
+
+.site-footer {
+    background: var(--header-navy);
+    padding: 70px 0 30px;
+}
+
+.site-footer__inner {
+    max-width: var(--header-max-width);
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.site-footer__grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1.2fr;
+    gap: 40px;
+}
+
+.site-footer__heading {
+    font-family: var(--header-font-heading);
+    font-weight: 700;
+    color: var(--header-white);
+    font-size: 20px;
+    margin: 0 0 22px;
+}
+
+/* ---- Brand column ---- */
+.site-footer__logo {
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 20px;
+    font-family: var(--header-font-heading);
+    font-weight: 700;
+    font-size: 22px;
+    color: var(--header-gold);
+    text-decoration: none;
+}
+
+.site-footer__logo img {
+    max-height: 40px;
+}
+
+.site-footer__description {
+    color: var(--header-text-muted);
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 0 0 24px;
+    max-width: 320px;
+}
+
+.site-footer__socials {
+    display: flex;
+    gap: 12px;
+}
+
+.site-footer__social {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--header-white);
+    font-size: 14px;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.site-footer__social:hover {
+    background: var(--header-gold);
+    color: var(--header-navy);
+}
+
+/* ---- Link columns ---- */
+.site-footer__links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.site-footer__links li {
+    margin-bottom: 14px;
+}
+
+.site-footer__links a {
+    color: var(--header-text-muted);
+    font-size: 14px;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.site-footer__links a:hover {
+    color: var(--header-gold);
+}
+
+/* ---- Contact column ---- */
+.site-footer__contact {
+    list-style: none;
+    margin: 0 0 24px;
+    padding: 0;
+}
+
+.site-footer__contact li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 16px;
+    color: var(--header-text-muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.site-footer__contact a {
+    color: var(--header-text-muted);
+    text-decoration: none;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.site-footer__contact a:hover {
+    color: var(--header-gold);
+}
+
+.site-footer__contact i {
+    color: var(--header-gold);
+    font-size: 13px;
+    margin-top: 3px;
+    flex-shrink: 0;
+    width: 14px;
+    text-align: center;
+}
+
+.site-footer__newsletter {
+    display: flex;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 6px;
+    padding: 4px;
+}
+
+.site-footer__newsletter-input {
+    flex: 1 1 0%;
+    min-width: 0;
+    border: none !important;
+    outline: none;
+    background: transparent;
+    color: var(--header-white);
+    font-family: var(--header-font-body);
+    font-size: 13px;
+    padding: 10px 12px;
+}
+
+.site-footer__newsletter-input::placeholder {
+    color: var(--header-text-muted);
+}
+
+.site-footer__newsletter-btn {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    border: none;
+    border-radius: 4px;
+    background: var(--header-gold);
+    color: var(--header-navy);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.site-footer__newsletter-btn:hover {
+    background: var(--header-gold-hover);
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 1024px) {
+    .site-footer__grid {
+        grid-template-columns: 1fr 1fr;
+        row-gap: 44px;
+    }
+}
+
+@media (max-width: 560px) {
+    .site-footer {
+        padding: 50px 0 24px;
+    }
+
+    .site-footer__grid {
+        grid-template-columns: 1fr;
+        row-gap: 36px;
+    }
+}

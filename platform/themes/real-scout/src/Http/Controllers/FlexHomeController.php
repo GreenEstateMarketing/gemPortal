@@ -590,4 +590,39 @@ class FlexHomeController extends PublicController
         return Category::where('parent_id', $id)->pluck('name', 'id');
     }
 
+    /**
+     * Typeahead for the "Search By Property Type" home page section. Matches
+     * both parent categories (e.g. "COMMERCIAL") and subcategories (e.g.
+     * "Office") by name, and includes each result's parent name (if any) so
+     * the suggestion list can show it the same way the cards below do.
+     */
+    public function ajaxSearchCategories(Request $request, BaseHttpResponse $response)
+    {
+        $keyword = trim((string) $request->input('q'));
+
+        $categories = Category::query()
+            ->where('status', BaseStatusEnum::PUBLISHED)
+            ->when($keyword !== '', function ($query) use ($keyword) {
+                $query->where('name', 'LIKE', '%' . $keyword . '%');
+            })
+            ->select('id', 'name', 'parent_id')
+            ->orderBy('name')
+            ->limit(10)
+            ->get();
+
+        $parentNames = Category::query()
+            ->whereIn('id', $categories->pluck('parent_id')->filter()->unique())
+            ->pluck('name', 'id');
+
+        $results = $categories->map(function ($category) use ($parentNames) {
+            return [
+                'id' => $category->id,
+                'name' => $category->name,
+                'parent_name' => $parentNames->get($category->parent_id),
+            ];
+        });
+
+        return $response->setData($results);
+    }
+
 }
