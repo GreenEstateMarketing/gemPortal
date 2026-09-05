@@ -393,6 +393,7 @@ $(document).ready(function () {
       success: function (response) {
         if (response.status) {
           let desc = response.html.detail;
+          $("#template_desp").val(desc);
           $("#description").val(desc);
           $("#description").prop("readonly", true);
         }
@@ -1140,8 +1141,12 @@ function setTemplateVariables(ob) {
     var id = ob[key];
     ber = $("#" + id).val();
 
-    temp_update = temp_update.replaceAll(key, ber);
+    if (ber) {
+      temp_update = temp_update.replaceAll(key, ber);
+    }
   }
+
+  $("#description").val(temp_update);
 }
 
 $(document).ready(function () {
@@ -1262,7 +1267,7 @@ $(document).ready(function () {
         temp_update = temp_update.replace('$c', sq);
         $("#description").val(temp_update);*/
   });
-  $("#number_bedroom").change(function () {
+  $("#number_floor").change(function () {
     var myObject = {
       $a: "number_bedroom",
       $b: "number_bathroom",
@@ -1274,20 +1279,6 @@ $(document).ready(function () {
     };
 
     setTemplateVariables(myObject);
-    /*var temp=$("#template_desp").val();
-        temp_update = temp.replace('$a', $(this).val());
-        ///type for sale/rent
-        p_id=$("input[name='type']").val();
-        temp_update = temp_update.replace('$d', p_id);
-       // $("#description").val(temp_update);
-        ///bathroom
-        br=$("#number_bathroom").val();
-        temp_update = temp_update.replace('$b', br);
-        $("#description").val(temp_update);
-        ///square
-        sq=$("#square").val();
-        temp_update = temp_update.replace('$c', sq);
-        $("#description").val(temp_update);*/
   });
   $("#number_bathroom").change(function () {
     var myObject = {
