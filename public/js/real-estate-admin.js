@@ -787,8 +787,10 @@ $(document).ready(function () {
                   value.document_id +
                   '">' +
                   doc_image +
-                  '<div class="d-flex align-items-center">' +
-                  '<input type="file" name="documents[]" class="form-control file-input" style="width: calc(100% - 30px);" data-document-id="' +
+                  '<div class="file-upload-control">' +
+                  '<input type="file" id="doc-file-' +
+                  value.document_id +
+                  '" name="documents[]" class="file-input" data-document-id="' +
                   value.document_id +
                   '" data-required="' +
                   requiredcheck +
@@ -797,7 +799,11 @@ $(document).ready(function () {
                   ' accept="' +
                   value.documents.type +
                   '">' +
-                  '<a href="javascript:void(0)" class="remove-file-link text-danger ms-2" title="Remove file" style="font-size: 16px;">&#10006;</a>' +
+                  '<label class="file-upload-btn" for="doc-file-' +
+                  value.document_id +
+                  '">Choose File</label>' +
+                  '<span class="file-upload-name">No file chosen</span>' +
+                  '<a href="javascript:void(0)" class="remove-file-link" title="Remove file">&#10006;</a>' +
                   "</div>" +
                   "</div>",
               );
@@ -864,8 +870,10 @@ $(document).ready(function () {
                     value.document_id +
                     '">' +
                     doc_image +
-                    '<div class="d-flex align-items-center">' +
-                    '<input type="file" name="documents[]" class="form-control file-input" style="width: calc(100% - 30px);" data-document-id="' +
+                    '<div class="file-upload-control">' +
+                    '<input type="file" id="doc-file-' +
+                    value.document_id +
+                    '" name="documents[]" class="file-input" data-document-id="' +
                     value.document_id +
                     '" data-required="' +
                     requiredcheck +
@@ -874,7 +882,11 @@ $(document).ready(function () {
                     ' accept="' +
                     value.documents.type +
                     '">' +
-                    '<a href="javascript:void(0)" class="remove-file-link text-danger ms-2" title="Remove file" style="font-size: 16px;">&#10006;</a>' +
+                    '<label class="file-upload-btn" for="doc-file-' +
+                    value.document_id +
+                    '">Choose File</label>' +
+                    '<span class="file-upload-name">No file chosen</span>' +
+                    '<a href="javascript:void(0)" class="remove-file-link" title="Remove file">&#10006;</a>' +
                     "</div>" +
                     "</div>",
                 );
@@ -1434,6 +1446,12 @@ $(document).on("click", ".remove-file-link", function (e) {
   const $input = $(this).siblings(".file-input");
   $input.val(""); // Clear file
   $input.removeClass("is-valid"); // Remove validation class
+  $(this).siblings(".file-upload-name").text("No file chosen");
+});
+
+$(document).on("change", ".document-row .file-input", function () {
+  const fileName = this.files.length ? this.files[0].name : "No file chosen";
+  $(this).siblings(".file-upload-name").text(fileName);
 });
 
 $(document).on("change", "#selling-status", function () {
