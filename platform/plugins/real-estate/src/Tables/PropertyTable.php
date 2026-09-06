@@ -183,7 +183,7 @@ class PropertyTable extends TableAbstract
      */
     public function buttons()
     {
-        $buttons = $this->addCreateButton(route('property.create'), 'property.create');
+        $buttons = $this->addCreateButton(route('property.wizard.show'), 'property.create');
 
         return apply_filters(BASE_FILTER_TABLE_BUTTONS, $buttons, Property::class);
     }

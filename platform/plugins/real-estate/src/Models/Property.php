@@ -65,7 +65,12 @@ class Property extends BaseModel
         'gem_listing_number',
         'reject_reason',
         'built_in',
-        'verified'
+        'verified',
+        'price_unit',
+        'wizard_step',
+        'submission_status',
+        'wizard_role',
+        'last_wizard_activity_at',
     ];
 
     /**
@@ -85,6 +90,7 @@ class Property extends BaseModel
         'created_at',
         'updated_at',
         'expire_date',
+        'last_wizard_activity_at',
     ];
 
     /**
@@ -231,5 +237,21 @@ class Property extends BaseModel
     public function member()
     {
         return $this->belongsTo(Member::class);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDraft(): bool
+    {
+        return $this->submission_status === 'draft';
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSubmitted(): bool
+    {
+        return $this->submission_status === 'submitted';
     }
 }
