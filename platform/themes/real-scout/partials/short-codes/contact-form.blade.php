@@ -22,7 +22,7 @@
                                required="">
                     </div>
                     <div class="form-group">
-                        <input class="form-control" type="text" name="email"
+                        <input class="form-control" type="text" name="email" value="{{ old('email', request('email')) }}"
                                placeholder="{{ __('Email') }} *" required="">
                     </div>
                     <div class="form-group">

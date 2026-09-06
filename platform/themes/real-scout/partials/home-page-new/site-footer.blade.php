@@ -20,9 +20,11 @@
     - No "working hours" theme option exists - falls back to the design's
       static text ("Mon - Sat: 9:00 AM - 6:00 PM"). Add a real option later
       if this should be editable.
-    - The newsletter input has no backend at all (no newsletter plugin is
-      active, no route exists) - it's UI only for now, the button does
-      nothing on submit. Wire it up once there's somewhere for it to go.
+    - No newsletter plugin/route exists, so the "newsletter" input is a
+      plain GET form that redirects to the Contact Us page with the
+      entered address prefilled into its email field (see
+      partials/short-codes/contact-form.blade.php). Swap this out for a
+      real subscribe endpoint once one exists.
 
     "Property Types" links point to route('public.properties',
     ['category_id' => ...]) using REAL category ids looked up by name
@@ -43,6 +45,15 @@
         ])
         : null;
     $footerAboutUrl = $footerAboutSlug ? url($footerAboutSlug->key) : '#';
+
+    $footerContactPage = app(\Botble\Page\Repositories\Interfaces\PageInterface::class)->getFirstBy(['name' => 'Contact']);
+    $footerContactSlug = $footerContactPage
+        ? app(\Botble\Slug\Repositories\Interfaces\SlugInterface::class)->getFirstBy([
+            'reference_id' => $footerContactPage->id,
+            'reference_type' => \Botble\Page\Models\Page::class,
+        ])
+        : null;
+    $footerContactUrl = $footerContactSlug ? url($footerContactSlug->key) : '#';
 
     $footerWhatsapp = preg_replace('/\D/', '', (string) theme_option('hotline'));
 @endphp
@@ -140,9 +151,9 @@
                     <li><i class="fas fa-clock"></i> {{ __('Mon - Sat: 9:00 AM - 6:00 PM') }}</li>
                 </ul>
 
-                {{-- No newsletter plugin/route exists yet - UI only, submit does nothing. --}}
-                <form class="site-footer__newsletter" onsubmit="return false;">
-                    <input type="email" placeholder="{{ __('Your email address') }}" class="site-footer__newsletter-input">
+                {{-- No newsletter plugin/route exists yet - redirect to Contact Us with the email prefilled instead. --}}
+                <form class="site-footer__newsletter" action="{{ $footerContactUrl }}" method="get">
+                    <input type="email" name="email" placeholder="{{ __('Your email address') }}" class="site-footer__newsletter-input" required>
                     <button type="submit" class="site-footer__newsletter-btn"><i class="fas fa-arrow-right"></i></button>
                 </form>
             </div>
