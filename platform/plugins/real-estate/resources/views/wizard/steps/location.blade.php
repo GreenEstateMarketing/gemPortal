@@ -79,9 +79,8 @@
         </div>
 
         <h3 style="margin-top:32px;margin-bottom:6px;font-size:16px;">{{ __('Nearby Facilities') }}</h3>
-        <p class="wizard-hint" style="margin-bottom:14px;">{{ __('Detected automatically from the map location above - remove or add rows as needed.') }}</p>
-        <div class="wizard-map-notice" id="wizard-facility-notice" style="display:none;"></div>
-        <div data-facility-rows data-facilities="{{ $facilities->map(function ($f) { return ['id' => $f->id, 'name' => $f->name]; })->toJson() }}">
+        <p class="wizard-hint" style="margin-bottom:14px;">{{ __('Add any facilities near this property and how far away they are.') }}</p>
+        <div data-facility-rows>
             @forelse ($selectedFacilities as $facility)
                 <div class="wizard-facility-row" data-facility-row>
                     <select class="wizard-select" data-facility-id>
@@ -124,39 +123,6 @@
 <script src="https://maps.googleapis.com/maps/api/js?key={{ setting('google_map_api_key') }}&libraries=places"></script>
 <script>
 (function () {
-    // Our own Facility list (Airport, Bank, School...) has no location data
-    // of its own - it's just a generic category list. To actually find
-    // real nearby places we ask Google Places (already loaded for the
-    // address search box above) for the closest place of each mapped type,
-    // then compute the distance ourselves. Facilities with no sensible
-    // single Google Places type (Entertainment, Beach, Metro Mall) are left
-    // out of auto-detection - they're still addable manually below.
-    var FACILITY_TYPE_MAP = {
-        'Hospital': 'hospital',
-        'Super Market': 'supermarket',
-        'School': 'school',
-        'Pharmacy': 'pharmacy',
-        'Airport': 'airport',
-        'Railways': 'train_station',
-        'Bus Stop': 'bus_station',
-        'Mall': 'shopping_mall',
-        'Bank': 'bank'
-    };
-
-    function haversineMeters(lat1, lng1, lat2, lng2) {
-        var R = 6371000;
-        var toRad = function (d) { return d * Math.PI / 180; };
-        var dLat = toRad(lat2 - lat1);
-        var dLng = toRad(lng2 - lng1);
-        var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
-        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    }
-
-    function formatDistance(meters) {
-        return meters < 1000 ? Math.round(meters) + 'm' : (meters / 1000).toFixed(1) + 'km';
-    }
-
     // Minimal dependency-free searchable dropdown: a text input + hidden
     // value input + a filtered results menu, backed by a plain in-memory
     // options array. Used for country/state/city/city-area since a native
@@ -360,92 +326,6 @@
         });
 
         var geocoder = new google.maps.Geocoder();
-        var placesService = new google.maps.places.PlacesService(map);
-
-        function addOrUpdateFacilityRow(facilityId, distanceLabel) {
-            var container = document.querySelector('[data-facility-rows]');
-            var template = document.querySelector('[data-facility-template]');
-            if (!container || !template) {
-                return;
-            }
-
-            var rowSelects = Array.prototype.slice.call(container.querySelectorAll('[data-facility-id]'));
-
-            // Already picked (manually, or from an earlier detection) -
-            // leave whatever distance is there alone.
-            if (rowSelects.some(function (select) { return select.value === String(facilityId); })) {
-                return;
-            }
-
-            var emptySelect = rowSelects.filter(function (select) { return !select.value; })[0];
-            var row = emptySelect ? emptySelect.closest('[data-facility-row]') : null;
-
-            if (!row) {
-                container.appendChild(template.content.cloneNode(true));
-                var rows = container.querySelectorAll('[data-facility-row]');
-                row = rows[rows.length - 1];
-            }
-
-            var select = row.querySelector('[data-facility-id]');
-            var distanceInput = row.querySelector('[data-facility-distance]');
-            select.value = facilityId;
-            distanceInput.value = distanceLabel;
-            select.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-
-        function detectNearbyFacilities(lat, lng) {
-            var container = document.querySelector('[data-facility-rows]');
-            var notice = document.getElementById('wizard-facility-notice');
-            if (!container) {
-                return;
-            }
-
-            var facilityIdByName = {};
-            try {
-                JSON.parse(container.getAttribute('data-facilities') || '[]').forEach(function (f) {
-                    facilityIdByName[f.name] = f.id;
-                });
-            } catch (e) {
-                return;
-            }
-
-            var typeNames = Object.keys(FACILITY_TYPE_MAP).filter(function (name) {
-                return !!facilityIdByName[name];
-            });
-
-            if (!typeNames.length) {
-                return;
-            }
-
-            if (notice) {
-                notice.textContent = '{{ __('Looking for nearby facilities...') }}';
-                notice.style.display = 'block';
-            }
-
-            var pending = typeNames.length;
-
-            function done() {
-                pending -= 1;
-                if (pending <= 0 && notice) {
-                    notice.style.display = 'none';
-                }
-            }
-
-            typeNames.forEach(function (facilityName) {
-                placesService.nearbySearch({
-                    location: { lat: lat, lng: lng },
-                    rankBy: google.maps.places.RankBy.DISTANCE,
-                    type: FACILITY_TYPE_MAP[facilityName]
-                }, function (results, status) {
-                    if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0] && results[0].geometry) {
-                        var placeLoc = results[0].geometry.location;
-                        var distanceMeters = haversineMeters(lat, lng, placeLoc.lat(), placeLoc.lng());
-                        addOrUpdateFacilityRow(facilityIdByName[facilityName], formatDistance(distanceMeters));
-                    }
-                    done();
-                });
-            });
-        }
 
         function showNotice(message) {
             if (!mapNotice) {
@@ -479,7 +359,6 @@
             if (shouldReverseGeocode) {
                 reverseGeocode(pos);
             }
-            detectNearbyFacilities(lat, lng);
         }
 
         marker.addListener('dragend', function () {
@@ -487,7 +366,6 @@
             latInput.value = pos.lat();
             lngInput.value = pos.lng();
             reverseGeocode(pos);
-            detectNearbyFacilities(pos.lat(), pos.lng());
         });
 
         map.addListener('click', function (event) {
@@ -495,7 +373,6 @@
             latInput.value = event.latLng.lat();
             lngInput.value = event.latLng.lng();
             reverseGeocode(event.latLng);
-            detectNearbyFacilities(event.latLng.lat(), event.latLng.lng());
         });
 
         var searchBox = new google.maps.places.SearchBox(locationInput);
@@ -508,7 +385,6 @@
             marker.setPosition(loc);
             latInput.value = loc.lat();
             lngInput.value = loc.lng();
-            detectNearbyFacilities(loc.lat(), loc.lng());
         });
 
         // Only auto-detect the visitor's current position for a brand new
