@@ -486,38 +486,6 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
     margin-bottom: 10px;
 }
 
-.wizard-facility-candidates {
-    margin-bottom: 14px;
-}
-
-.wizard-facility-candidates__list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.wizard-facility-candidate {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    border-radius: 999px;
-    border: 1px solid var(--pw-border);
-    background: var(--pw-bg);
-    font-size: 13px;
-    color: var(--pw-navy);
-}
-
-.wizard-facility-candidate__distance {
-    color: var(--pw-text-muted);
-    font-size: 12px;
-}
-
-.wizard-facility-candidate .wizard-btn {
-    padding: 4px 12px;
-    font-size: 12px;
-}
-
 .wizard-btn {
     display: inline-flex;
     align-items: center;

@@ -79,13 +79,9 @@
         </div>
 
         <h3 style="margin-top:32px;margin-bottom:6px;font-size:16px;">{{ __('Nearby Facilities') }}</h3>
-        <p class="wizard-hint" style="margin-bottom:14px;">{{ __('Suggested automatically from the map location above - add the ones that apply, or add your own below.') }}</p>
+        <p class="wizard-hint" style="margin-bottom:14px;">{{ __('Detected automatically from the map location above - remove or add rows as needed.') }}</p>
         <div class="wizard-map-notice" id="wizard-facility-notice" style="display:none;"></div>
-        <div class="wizard-facility-candidates" data-facility-candidates style="display:none;">
-            <p class="wizard-hint" style="margin-bottom:8px;">{{ __('Suggested nearby facilities - click Add to include one.') }}</p>
-            <div class="wizard-facility-candidates__list" data-facility-candidates-list></div>
-        </div>
-        <div data-facility-rows data-facilities="{{ $facilities->map(function ($f) { return ['id' => $f->id, 'name' => $f->name, 'icon' => $f->icon, 'google_place_type' => $f->google_place_type]; })->toJson() }}">
+        <div data-facility-rows data-facilities="{{ $facilities->map(function ($f) { return ['id' => $f->id, 'name' => $f->name]; })->toJson() }}">
             @forelse ($selectedFacilities as $facility)
                 <div class="wizard-facility-row" data-facility-row>
                     <select class="wizard-select" data-facility-id>
@@ -131,28 +127,21 @@
     // Our own Facility list (Airport, Bank, School...) has no location data
     // of its own - it's just a generic category list. To actually find
     // real nearby places we ask Google Places (already loaded for the
-    // address search box above) for the closest place of each facility
-    // that has a mapped google_place_type (set per-facility in the admin),
-    // then compute the distance ourselves. Facilities with no mapped type
-    // are left out of auto-detection - they're still addable manually below.
-    function buildFacilityTypeMap() {
-        var container = document.querySelector('[data-facility-rows]');
-        var map = {};
-        if (!container) {
-            return map;
-        }
-        try {
-            JSON.parse(container.getAttribute('data-facilities') || '[]').forEach(function (f) {
-                if (f.google_place_type) {
-                    // Last one wins if two facilities share a type.
-                    map[f.google_place_type] = { id: f.id, name: f.name, icon: f.icon };
-                }
-            });
-        } catch (e) {
-            return {};
-        }
-        return map;
-    }
+    // address search box above) for the closest place of each mapped type,
+    // then compute the distance ourselves. Facilities with no sensible
+    // single Google Places type (Entertainment, Beach, Metro Mall) are left
+    // out of auto-detection - they're still addable manually below.
+    var FACILITY_TYPE_MAP = {
+        'Hospital': 'hospital',
+        'Super Market': 'supermarket',
+        'School': 'school',
+        'Pharmacy': 'pharmacy',
+        'Airport': 'airport',
+        'Railways': 'train_station',
+        'Bus Stop': 'bus_station',
+        'Mall': 'shopping_mall',
+        'Bank': 'bank'
+    };
 
     function haversineMeters(lat1, lng1, lat2, lng2) {
         var R = 6371000;
@@ -404,84 +393,27 @@
             select.dispatchEvent(new Event('change', { bubbles: true }));
         }
 
-        function getSelectedFacilityIds() {
-            var container = document.querySelector('[data-facility-rows]');
-            if (!container) {
-                return [];
-            }
-            return Array.prototype.slice.call(container.querySelectorAll('[data-facility-id]'))
-                .map(function (select) { return select.value; })
-                .filter(function (value) { return !!value; });
-        }
-
-        // Full set of the last detection pass's matches, keyed by facility
-        // id - kept around (not deleted on Add) so that removing a selected
-        // facility can bring it back as a candidate without re-querying
-        // Places. The candidate list actually shown is this set minus
-        // whatever's currently selected, computed fresh on every render.
-        var allDetected = {};
-
-        function renderCandidates() {
-            var wrapper = document.querySelector('[data-facility-candidates]');
-            var list = document.querySelector('[data-facility-candidates-list]');
-            if (!wrapper || !list) {
-                return;
-            }
-
-            var selectedIds = getSelectedFacilityIds();
-            var visibleIds = Object.keys(allDetected).filter(function (id) {
-                return selectedIds.indexOf(id) === -1;
-            });
-
-            list.innerHTML = '';
-
-            visibleIds.forEach(function (id) {
-                var candidate = allDetected[id];
-                var chip = document.createElement('div');
-                chip.className = 'wizard-facility-candidate';
-                chip.setAttribute('data-candidate-facility-id', id);
-
-                if (candidate.icon) {
-                    var icon = document.createElement('i');
-                    icon.className = candidate.icon;
-                    chip.appendChild(icon);
-                }
-
-                var label = document.createElement('span');
-                label.textContent = candidate.name;
-                chip.appendChild(label);
-
-                var distance = document.createElement('span');
-                distance.className = 'wizard-facility-candidate__distance';
-                distance.textContent = '— ' + candidate.distanceLabel;
-                chip.appendChild(distance);
-
-                var addBtn = document.createElement('button');
-                addBtn.type = 'button';
-                addBtn.className = 'wizard-btn wizard-btn--ghost';
-                addBtn.setAttribute('data-candidate-add', '');
-                addBtn.textContent = '{{ __('Add') }}';
-                chip.appendChild(addBtn);
-
-                list.appendChild(chip);
-            });
-
-            wrapper.style.display = visibleIds.length ? 'block' : 'none';
-        }
-
         function detectNearbyFacilities(lat, lng) {
-            if (!isFinite(lat) || !isFinite(lng)) {
+            var container = document.querySelector('[data-facility-rows]');
+            var notice = document.getElementById('wizard-facility-notice');
+            if (!container) {
                 return;
             }
 
-            var notice = document.getElementById('wizard-facility-notice');
-            var typeMap = buildFacilityTypeMap();
-            var placeTypes = Object.keys(typeMap);
+            var facilityIdByName = {};
+            try {
+                JSON.parse(container.getAttribute('data-facilities') || '[]').forEach(function (f) {
+                    facilityIdByName[f.name] = f.id;
+                });
+            } catch (e) {
+                return;
+            }
 
-            allDetected = {};
-            renderCandidates();
+            var typeNames = Object.keys(FACILITY_TYPE_MAP).filter(function (name) {
+                return !!facilityIdByName[name];
+            });
 
-            if (!placeTypes.length) {
+            if (!typeNames.length) {
                 return;
             }
 
@@ -490,95 +422,30 @@
                 notice.style.display = 'block';
             }
 
-            var pending = placeTypes.length;
-            var hadApiError = false;
+            var pending = typeNames.length;
 
             function done() {
                 pending -= 1;
-                if (pending > 0) {
-                    return;
-                }
-
-                renderCandidates();
-
-                if (!notice) {
-                    return;
-                }
-
-                if (hadApiError) {
-                    notice.textContent = '{{ __('Couldn\'t check for nearby facilities right now. You can still add them manually below.') }}';
-                    notice.style.display = 'block';
-                } else if (!Object.keys(allDetected).length) {
-                    notice.textContent = '{{ __('No matching facilities found nearby.') }}';
-                    notice.style.display = 'block';
-                } else {
+                if (pending <= 0 && notice) {
                     notice.style.display = 'none';
                 }
             }
 
-            // radius and rankBy:DISTANCE are mutually exclusive on the
-            // Places API, and we need a hard 10km cap, so we search a fixed
-            // radius (ranked by prominence) and pick the true nearest result
-            // ourselves via haversine distance across the returned set.
-            placeTypes.forEach(function (placeType) {
-                var facility = typeMap[placeType];
+            typeNames.forEach(function (facilityName) {
                 placesService.nearbySearch({
                     location: { lat: lat, lng: lng },
-                    radius: 10000,
-                    type: placeType
+                    rankBy: google.maps.places.RankBy.DISTANCE,
+                    type: FACILITY_TYPE_MAP[facilityName]
                 }, function (results, status) {
-                    if (status === google.maps.places.PlacesServiceStatus.OK && results && results.length) {
-                        var nearestMeters = null;
-                        results.forEach(function (result) {
-                            if (!result.geometry || !result.geometry.location) {
-                                return;
-                            }
-                            var placeLoc = result.geometry.location;
-                            var distanceMeters = haversineMeters(lat, lng, placeLoc.lat(), placeLoc.lng());
-                            if (nearestMeters === null || distanceMeters < nearestMeters) {
-                                nearestMeters = distanceMeters;
-                            }
-                        });
-
-                        if (nearestMeters !== null && nearestMeters <= 10000) {
-                            allDetected[facility.id] = {
-                                name: facility.name,
-                                icon: facility.icon,
-                                distanceLabel: formatDistance(nearestMeters)
-                            };
-                        }
-                    } else if (status !== google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-                        hadApiError = true;
+                    if (status === google.maps.places.PlacesServiceStatus.OK && results && results[0] && results[0].geometry) {
+                        var placeLoc = results[0].geometry.location;
+                        var distanceMeters = haversineMeters(lat, lng, placeLoc.lat(), placeLoc.lng());
+                        addOrUpdateFacilityRow(facilityIdByName[facilityName], formatDistance(distanceMeters));
                     }
                     done();
                 });
             });
         }
-
-        var candidatesList = document.querySelector('[data-facility-candidates-list]');
-        if (candidatesList) {
-            candidatesList.addEventListener('click', function (event) {
-                if (!event.target.matches('[data-candidate-add]')) {
-                    return;
-                }
-                var chip = event.target.closest('[data-candidate-facility-id]');
-                if (!chip) {
-                    return;
-                }
-                var id = chip.getAttribute('data-candidate-facility-id');
-                var candidate = allDetected[id];
-                if (!candidate) {
-                    return;
-                }
-                addOrUpdateFacilityRow(id, candidate.distanceLabel);
-                renderCandidates();
-            });
-        }
-
-        // A facility freed up by removing/changing a row elsewhere (handled
-        // in property-wizard.js's syncFacilityOptions) should be able to
-        // reappear here without a new Places lookup.
-        document.addEventListener('wizard:facility-rows-changed', renderCandidates);
 
         function showNotice(message) {
             if (!mapNotice) {

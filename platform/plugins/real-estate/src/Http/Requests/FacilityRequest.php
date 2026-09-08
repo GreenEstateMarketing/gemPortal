@@ -18,7 +18,6 @@ class FacilityRequest extends Request
     {
         return [
             'name'   => 'required',
-            'google_place_type' => 'nullable|string|max:60',
             'status' => Rule::in(BaseStatusEnum::values()),
         ];
     }

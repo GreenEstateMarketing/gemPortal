@@ -143,13 +143,6 @@
                     option.disabled = pickedInAnotherRow;
                 });
             });
-
-            // Lets the map's nearby-facility candidate list (in
-            // location.blade.php) know the selected set changed, so it can
-            // re-show a facility that was just freed up, or hide one that
-            // was just picked - without this module needing to know
-            // anything about maps/Places itself.
-            document.dispatchEvent(new CustomEvent('wizard:facility-rows-changed'));
         }
 
         addButton.addEventListener('click', function () {
