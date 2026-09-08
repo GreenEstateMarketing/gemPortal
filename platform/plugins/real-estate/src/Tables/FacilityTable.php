@@ -62,6 +62,9 @@ class FacilityTable extends TableAbstract
             ->editColumn('created_at', function ($item) {
                 return BaseHelper::formatDate($item->created_at);
             })
+            ->editColumn('google_place_type', function ($item) {
+                return $item->google_place_type ?: '—';
+            })
             ->editColumn('status', function ($item) {
                 return $item->status->toHtml();
             });
@@ -83,6 +86,7 @@ class FacilityTable extends TableAbstract
         $select = [
             're_facilities.id',
             're_facilities.name',
+            're_facilities.google_place_type',
             're_facilities.created_at',
             're_facilities.status',
         ];
@@ -107,6 +111,11 @@ class FacilityTable extends TableAbstract
                 'name'  => 're_facilities.name',
                 'title' => trans('core/base::tables.name'),
                 'class' => 'text-left',
+            ],
+            'google_place_type' => [
+                'name'  => 're_facilities.google_place_type',
+                'title' => trans('plugins/real-estate::facility.form.google_place_type'),
+                'width' => '160px',
             ],
             'created_at' => [
                 'name'  => 're_facilities.created_at',

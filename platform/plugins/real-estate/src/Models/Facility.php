@@ -23,6 +23,7 @@ class Facility extends BaseModel
     protected $fillable = [
         'name',
         'icon',
+        'google_place_type',
         'status',
     ];
 

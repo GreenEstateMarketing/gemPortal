@@ -32,7 +32,7 @@
         <dl class="wizard-review-grid">
             <div class="wizard-review-item wizard-field--span2"><dt>{{ __('Address') }}</dt><dd>{{ $p->location }}</dd></div>
             <div class="wizard-review-item"><dt>{{ __('City') }}</dt><dd>{{ optional($p->city)->name ?: '-' }}</dd></div>
-            <div class="wizard-review-item"><dt>{{ __('City Area') }}</dt><dd>{{ optional($p->cityArea)->name ?: '-' }}</dd></div>
+            <div class="wizard-review-item"><dt>{{ __('City Area') }}</dt><dd>{{ optional($p->cityArea)->city_area_name ?: '-' }}</dd></div>
             <div class="wizard-review-item"><dt>{{ __('Features') }}</dt><dd>{{ $p->features->pluck('name')->join(', ') ?: '-' }}</dd></div>
         </dl>
     </div>

@@ -124,16 +124,54 @@
             return;
         }
 
+        // Once a facility is picked in one row, it shouldn't be pickable
+        // again in another row - disable (not remove) its <option> in every
+        // other row's select so its label/position stays visible if the
+        // user later frees it up again.
+        function syncFacilityOptions() {
+            var selects = Array.prototype.slice.call(container.querySelectorAll('[data-facility-id]'));
+            var selectedElsewhere = selects.map(function (select) {
+                return select.value;
+            });
+
+            selects.forEach(function (select) {
+                Array.prototype.forEach.call(select.options, function (option) {
+                    if (!option.value) {
+                        return;
+                    }
+                    var pickedInAnotherRow = selectedElsewhere.indexOf(option.value) !== -1 && option.value !== select.value;
+                    option.disabled = pickedInAnotherRow;
+                });
+            });
+
+            // Lets the map's nearby-facility candidate list (in
+            // location.blade.php) know the selected set changed, so it can
+            // re-show a facility that was just freed up, or hide one that
+            // was just picked - without this module needing to know
+            // anything about maps/Places itself.
+            document.dispatchEvent(new CustomEvent('wizard:facility-rows-changed'));
+        }
+
         addButton.addEventListener('click', function () {
             var clone = template.content.cloneNode(true);
             container.appendChild(clone);
+            syncFacilityOptions();
         });
 
         container.addEventListener('click', function (event) {
             if (event.target.matches('[data-facility-remove]')) {
                 event.target.closest('[data-facility-row]').remove();
+                syncFacilityOptions();
             }
         });
+
+        container.addEventListener('change', function (event) {
+            if (event.target.matches('[data-facility-id]')) {
+                syncFacilityOptions();
+            }
+        });
+
+        syncFacilityOptions();
     }
 
     function initUploader(root, options) {
@@ -380,9 +418,15 @@
         Category / sub-category cascade + description-template auto-fill.
 
         Categories are a two-level tree (parent_id 0 = top category, else a
-        sub-category of that parent). The form only ever submits one
+        sub-category of that parent), presented as two rows of buttons rather
+        than <select> dropdowns. The form only ever submits one
         `category_id` (the sub-category, or the parent itself when it has no
-        children) - the two <select> elements here are purely a browsing aid.
+        children) via the hidden #wizard-category-id input; the buttons are
+        purely a browsing aid over that one value.
+
+        The server pre-selects the first category/sub-category (and 'sale')
+        for a brand new draft, so the buttons and hidden fields already agree
+        on load - this module only needs to react to clicks from there.
 
         Once a (sub-)category is chosen, /api/v1/get_template looks up a
         description_template row for that category id. Its `detail` text
@@ -404,14 +448,14 @@
             tree = [];
         }
 
-        var categorySelect = document.getElementById('wizard-category');
-        var subcategorySelect = document.getElementById('wizard-subcategory');
+        var categoryRow = form.querySelector('[data-category-row]');
+        var subcategoryRow = form.querySelector('[data-subcategory-row]');
         var categoryIdInput = document.getElementById('wizard-category-id');
         var categoryNameInput = document.getElementById('wizard-category-name');
         var templateInput = document.getElementById('wizard-template-description');
         var descriptionField = document.getElementById('wizard-description');
 
-        if (!categorySelect || !subcategorySelect || !categoryIdInput) {
+        if (!categoryRow || !subcategoryRow || !categoryIdInput) {
             return;
         }
 
@@ -427,6 +471,13 @@
             })[0];
         }
 
+        function markActive(row, value) {
+            row.querySelectorAll('button').forEach(function (btn) {
+                var btnValue = btn.getAttribute('data-category-option') || btn.getAttribute('data-subcategory-option');
+                btn.classList.toggle('wizard-chip-btn--active', String(btnValue) === String(value));
+            });
+        }
+
         function setActiveCategory(id, name, triggerFetch) {
             categoryIdInput.value = id || '';
             categoryNameInput.value = name || '';
@@ -435,51 +486,52 @@
             }
         }
 
-        // triggerFetch is false only for the initial page-load pre-fill
-        // (resuming a draft) - it must not re-fetch the template and
-        // overwrite a description the user already saved.
+        // Rebuilds the sub-category button row for the given parent and, by
+        // default, auto-picks its first child (matching the "first category
+        // and sub-category selected by default" behaviour when the user
+        // actively switches category).
         function populateSubcategories(parentId, selectSubId, triggerFetch) {
             var children = childrenOf(parentId);
-            subcategorySelect.innerHTML = '<option value="">' + (subcategorySelect.dataset.placeholder || 'Select a sub-category') + '</option>';
+            subcategoryRow.innerHTML = '';
 
             children.forEach(function (child) {
-                var opt = document.createElement('option');
-                opt.value = child.id;
-                opt.textContent = child.name;
-                if (selectSubId && String(selectSubId) === String(child.id)) {
-                    opt.selected = true;
-                }
-                subcategorySelect.appendChild(opt);
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'wizard-chip-btn';
+                btn.setAttribute('data-subcategory-option', child.id);
+                btn.textContent = child.name;
+                subcategoryRow.appendChild(btn);
             });
 
             if (children.length === 0) {
-                subcategorySelect.setAttribute('disabled', 'disabled');
                 var parent = findById(parentId);
                 setActiveCategory(parentId, parent ? parent.name : '', triggerFetch);
-            } else {
-                subcategorySelect.removeAttribute('disabled');
-                if (selectSubId) {
-                    var selected = findById(selectSubId);
-                    setActiveCategory(selectSubId, selected ? selected.name : '', triggerFetch);
-                } else {
-                    setActiveCategory('', '', false);
-                }
-            }
-        }
-
-        categorySelect.addEventListener('change', function () {
-            if (!this.value) {
-                subcategorySelect.innerHTML = '<option value="">Select a sub-category</option>';
-                subcategorySelect.setAttribute('disabled', 'disabled');
-                setActiveCategory('', '', false);
                 return;
             }
-            populateSubcategories(this.value, null, true);
+
+            var subIdToSelect = selectSubId || children[0].id;
+            markActive(subcategoryRow, subIdToSelect);
+            var selected = findById(subIdToSelect);
+            setActiveCategory(subIdToSelect, selected ? selected.name : '', triggerFetch);
+        }
+
+        categoryRow.addEventListener('click', function (event) {
+            var btn = event.target.closest('[data-category-option]');
+            if (!btn) {
+                return;
+            }
+            markActive(categoryRow, btn.getAttribute('data-category-option'));
+            populateSubcategories(btn.getAttribute('data-category-option'), null, true);
         });
 
-        subcategorySelect.addEventListener('change', function () {
-            var selected = findById(this.value);
-            setActiveCategory(this.value, selected ? selected.name : '', true);
+        subcategoryRow.addEventListener('click', function (event) {
+            var btn = event.target.closest('[data-subcategory-option]');
+            if (!btn) {
+                return;
+            }
+            markActive(subcategoryRow, btn.getAttribute('data-subcategory-option'));
+            var selected = findById(btn.getAttribute('data-subcategory-option'));
+            setActiveCategory(btn.getAttribute('data-subcategory-option'), selected ? selected.name : '', true);
         });
 
         function fetchTemplate(categoryId) {
@@ -538,11 +590,11 @@
             }
         });
 
-        // Pre-fill the sub-category list on first render (resuming a draft)
-        // without re-fetching the template over the network.
-        if (categorySelect.value) {
-            populateSubcategories(categorySelect.value, categoryIdInput.value, false);
-        }
+        // The sub-category row and hidden category fields are already
+        // correctly rendered server-side on load (including the "first
+        // category/sub-category" default for a brand new draft), so there's
+        // nothing to pre-fill here beyond re-running the description
+        // substitution below.
 
         // The description field is always read-only - it's entirely
         // generated from the template + the fields above, so re-apply the
@@ -579,6 +631,32 @@
         sync();
     }
 
+    // Listing Type (For Sale / For Rent) button toggle - drives the hidden
+    // #wizard-type input other modules (rent-only fields, description
+    // template) already listen to via its 'change' event.
+    function initTypeToggle(root) {
+        var toggle = root.querySelector('[data-type-toggle]');
+        var typeInput = document.getElementById('wizard-type');
+
+        if (!toggle || !typeInput) {
+            return;
+        }
+
+        toggle.addEventListener('click', function (event) {
+            var btn = event.target.closest('[data-type-value]');
+            if (!btn) {
+                return;
+            }
+
+            toggle.querySelectorAll('[data-type-value]').forEach(function (b) {
+                b.classList.toggle('wizard-toggle-btn--active', b === btn);
+            });
+
+            typeInput.value = btn.getAttribute('data-type-value');
+            typeInput.dispatchEvent(new Event('change'));
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         var root = document.querySelector('.property-wizard');
         if (!root) {
@@ -596,5 +674,6 @@
         initGuestAuth(root);
         initCategoryAndTemplate(root);
         initRentOnlyFields(root);
+        initTypeToggle(root);
     });
 })();

@@ -288,6 +288,88 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
     font-weight: 400;
 }
 
+/* Listing-type toggle (For Sale / For Rent) */
+.wizard-toggle-group {
+    display: flex;
+    gap: 12px;
+}
+
+.wizard-toggle-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 16px;
+    border-radius: 14px;
+    border: 2px solid var(--pw-border);
+    background: var(--pw-white);
+    color: var(--pw-navy);
+    font-family: var(--pw-font-body);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.wizard-toggle-btn i {
+    font-size: 17px;
+    color: var(--pw-text-muted);
+    transition: color 0.15s ease;
+}
+
+.wizard-toggle-btn:hover {
+    border-color: var(--pw-gold);
+}
+
+.wizard-toggle-btn--active {
+    border-color: var(--pw-gold);
+    background: var(--pw-gold);
+    color: var(--pw-white);
+    box-shadow: 0 6px 16px rgba(224, 166, 62, 0.3);
+}
+
+.wizard-toggle-btn--active i {
+    color: var(--pw-white);
+}
+
+/* Category / sub-category chip rows */
+.wizard-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.wizard-chip-btn {
+    padding: 10px 20px;
+    border-radius: 999px;
+    border: 1.5px solid var(--pw-border);
+    background: var(--pw-white);
+    color: var(--pw-navy);
+    font-family: var(--pw-font-body);
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.wizard-chip-btn:hover {
+    border-color: var(--pw-gold);
+}
+
+.wizard-chip-btn--active {
+    background: var(--pw-navy);
+    border-color: var(--pw-navy);
+    color: var(--pw-white);
+}
+
+.wizard-chip-row:empty::after {
+    content: attr(data-empty-label);
+    font-size: 13px;
+    color: var(--pw-text-muted);
+    font-style: italic;
+}
+
 .wizard-input, .wizard-select, .wizard-textarea {
     width: 100%;
     padding: 11px 14px;
@@ -313,6 +395,59 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
 .wizard-input-group {
     display: flex;
     gap: 8px;
+}
+
+/* Searchable dropdown (country/state/city/city-area) */
+.wizard-combobox {
+    position: relative;
+}
+
+.wizard-combobox__menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: var(--pw-white);
+    border: 1px solid var(--pw-border);
+    border-radius: 10px;
+    max-height: 240px;
+    overflow-y: auto;
+    box-shadow: 0 10px 28px rgba(26, 29, 36, 0.14);
+    z-index: 30;
+}
+
+.wizard-combobox__menu--open {
+    display: block;
+}
+
+.wizard-combobox__option {
+    padding: 10px 14px;
+    font-size: 13.5px;
+    color: var(--pw-navy);
+    cursor: pointer;
+}
+
+.wizard-combobox__option:hover {
+    background: var(--pw-bg);
+}
+
+.wizard-combobox__empty {
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--pw-text-muted);
+    font-style: italic;
+}
+
+.wizard-map-notice {
+    background: #fdf3e0;
+    border: 1px solid rgba(224, 166, 62, 0.4);
+    color: #8a5a12;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 13px;
+    line-height: 1.4;
+    margin-bottom: 10px;
 }
 
 .wizard-error {
@@ -349,6 +484,38 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
     grid-template-columns: 2fr 1fr auto;
     gap: 10px;
     margin-bottom: 10px;
+}
+
+.wizard-facility-candidates {
+    margin-bottom: 14px;
+}
+
+.wizard-facility-candidates__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.wizard-facility-candidate {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--pw-border);
+    background: var(--pw-bg);
+    font-size: 13px;
+    color: var(--pw-navy);
+}
+
+.wizard-facility-candidate__distance {
+    color: var(--pw-text-muted);
+    font-size: 12px;
+}
+
+.wizard-facility-candidate .wizard-btn {
+    padding: 4px 12px;
+    font-size: 12px;
 }
 
 .wizard-btn {

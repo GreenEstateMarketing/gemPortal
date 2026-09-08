@@ -101,7 +101,7 @@ class PropertyWizardController extends Controller
             'currencies' => Currency::orderBy('order')->get(['id', 'title', 'symbol']),
             'countries' => Country::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name']),
             'features' => Feature::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name']),
-            'facilities' => Facility::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name']),
+            'facilities' => Facility::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name', 'icon', 'google_place_type']),
         ];
 
         if ($role === 'guest') {

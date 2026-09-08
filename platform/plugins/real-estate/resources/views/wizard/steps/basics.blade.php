@@ -15,16 +15,26 @@
             $selectedParentId = $currentCategory->parent_id;
             $selectedSubId = $currentCategory->id;
         }
+    } else {
+        // Nothing chosen yet (brand new draft) - default to the first
+        // category and its first sub-category rather than leaving it empty.
+        $selectedParentId = optional($topCategories->first())->id;
     }
 
     $subcategories = $selectedParentId
         ? $categories->where('parent_id', $selectedParentId)->values()
         : collect();
 
-    $categoryNameValue = optional($currentCategory)->name;
+    if (! $selectedSubId && $subcategories->isNotEmpty()) {
+        $selectedSubId = $subcategories->first()->id;
+    }
 
-    $currentTemplate = $p->category_id
-        ? \App\Models\description_template::where('status', 1)->where('category_id', $p->category_id)->first()
+    $effectiveCategoryId = $selectedSubId ?: $selectedParentId;
+    $categoryNameValue = optional($categories->firstWhere('id', $effectiveCategoryId))->name;
+    $effectiveType = $p->type ?: 'sale';
+
+    $currentTemplate = $effectiveCategoryId
+        ? \App\Models\description_template::where('status', 1)->where('category_id', $effectiveCategoryId)->first()
         : null;
 @endphp
 
@@ -35,18 +45,45 @@
     <form data-step-form action="{{ $stepUrls['basics'] }}" method="post" data-category-tree="{{ $categories->map(function ($c) { return ['id' => $c->id, 'name' => $c->name, 'parent_id' => (int) $c->parent_id]; })->toJson() }}">
         <div class="wizard-field-grid">
             <div class="wizard-field wizard-field--span2">
+                <label>{{ __('Listing Type') }}</label>
+                <div class="wizard-toggle-group" data-type-toggle>
+                    <button type="button" class="wizard-toggle-btn {{ $effectiveType == 'sale' ? 'wizard-toggle-btn--active' : '' }}" data-type-value="sale">
+                        <i class="fas fa-tag"></i> {{ __('For Sale') }}
+                    </button>
+                    <button type="button" class="wizard-toggle-btn {{ $effectiveType == 'rent' ? 'wizard-toggle-btn--active' : '' }}" data-type-value="rent">
+                        <i class="fas fa-key"></i> {{ __('For Rent') }}
+                    </button>
+                </div>
+                <input type="hidden" data-field="type" id="wizard-type" value="{{ $effectiveType }}">
+                <div class="wizard-error" data-error-for="type"></div>
+            </div>
+
+            <div class="wizard-field wizard-field--span2">
+                <label>{{ __('Category') }}</label>
+                <div class="wizard-chip-row" data-category-row>
+                    @foreach ($topCategories as $category)
+                        <button type="button" class="wizard-chip-btn {{ $selectedParentId == $category->id ? 'wizard-chip-btn--active' : '' }}" data-category-option="{{ $category->id }}">{{ $category->name }}</button>
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="wizard-field wizard-field--span2">
+                <label>{{ __('Sub-category') }}</label>
+                <div class="wizard-chip-row" data-subcategory-row data-empty-label="{{ __('This category has no sub-categories') }}">
+                    @foreach ($subcategories as $subcategory)
+                        <button type="button" class="wizard-chip-btn {{ $selectedSubId == $subcategory->id ? 'wizard-chip-btn--active' : '' }}" data-subcategory-option="{{ $subcategory->id }}">{{ $subcategory->name }}</button>
+                    @endforeach
+                </div>
+                <div class="wizard-error" data-error-for="category_id"></div>
+            </div>
+
+            <input type="hidden" data-field="category_id" id="wizard-category-id" value="{{ $effectiveCategoryId }}">
+            <input type="hidden" id="wizard-category-name" value="{{ $categoryNameValue }}">
+
+            <div class="wizard-field wizard-field--span2">
                 <label>{{ __('Ad Title') }}</label>
                 <input type="text" class="wizard-input" data-field="name" value="{{ $p->name === 'Untitled draft' ? '' : $p->name }}" placeholder="{{ __('e.g. Modern 3 Bedroom Apartment in Downtown') }}">
                 <div class="wizard-error" data-error-for="name"></div>
-            </div>
-
-            <div class="wizard-field">
-                <label>{{ __('Listing Type') }}</label>
-                <select class="wizard-select" data-field="type" id="wizard-type">
-                    <option value="sale" {{ ($p->type == 'sale') ? 'selected' : '' }}>{{ __('For Sale') }}</option>
-                    <option value="rent" {{ ($p->type == 'rent') ? 'selected' : '' }}>{{ __('For Rent') }}</option>
-                </select>
-                <div class="wizard-error" data-error-for="type"></div>
             </div>
 
             <div class="wizard-field">
@@ -58,30 +95,6 @@
                     @endforeach
                 </select>
             </div>
-
-            <div class="wizard-field">
-                <label>{{ __('Category') }}</label>
-                <select class="wizard-select" id="wizard-category">
-                    <option value="">{{ __('Select a category') }}</option>
-                    @foreach ($topCategories as $category)
-                        <option value="{{ $category->id }}" {{ $selectedParentId == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="wizard-field">
-                <label>{{ __('Sub-category') }}</label>
-                <select class="wizard-select" id="wizard-subcategory" {{ $subcategories->isEmpty() ? 'disabled' : '' }}>
-                    <option value="">{{ __('Select a sub-category') }}</option>
-                    @foreach ($subcategories as $subcategory)
-                        <option value="{{ $subcategory->id }}" {{ $selectedSubId == $subcategory->id ? 'selected' : '' }}>{{ $subcategory->name }}</option>
-                    @endforeach
-                </select>
-                <div class="wizard-error" data-error-for="category_id"></div>
-            </div>
-
-            <input type="hidden" data-field="category_id" id="wizard-category-id" value="{{ $p->category_id }}">
-            <input type="hidden" id="wizard-category-name" value="{{ $categoryNameValue }}">
 
             <div class="wizard-field">
                 <label>{{ __('Built In') }} <span class="wizard-hint">({{ __('optional') }})</span></label>
@@ -109,7 +122,7 @@
                 <div class="wizard-error" data-error-for="price"></div>
             </div>
 
-            <div class="wizard-field" data-rent-only-field style="{{ $p->type == 'rent' ? '' : 'display:none;' }}">
+            <div class="wizard-field" data-rent-only-field style="{{ $effectiveType == 'rent' ? '' : 'display:none;' }}">
                 <label>{{ __('Price Unit') }} <span class="wizard-hint">({{ __('optional') }})</span></label>
                 <input type="text" class="wizard-input" data-field="price_unit" value="{{ $p->price_unit }}" placeholder="{{ __('e.g. /month') }}">
             </div>
