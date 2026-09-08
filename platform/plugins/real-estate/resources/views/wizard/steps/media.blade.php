@@ -1,8 +1,18 @@
 @php
     $p = $property;
-    $imageItems = collect($p->images)->map(function ($url) {
-        return ['url' => $url, 'name' => basename($url)];
-    })->values()->all();
+    $imageItems = collect($p->images)->map(function ($image) {
+        // $p->images is normally a flat array of relative storage paths
+        // (matching every other place in the app that reads it - property
+        // detail galleries, PropertyResource, etc.) but tolerate an object
+        // shape here defensively in case it was ever saved differently.
+        $url = is_string($image) ? $image : (is_array($image) ? ($image['url'] ?? '') : (is_object($image) ? ($image->url ?? '') : ''));
+
+        return $url === '' ? null : [
+            'url' => $url,
+            'full_url' => RvMedia::getImageUrl($url),
+            'name' => basename($url),
+        ];
+    })->filter()->values()->all();
     $documentItems = json_decode($p->documents ?: '[]', true) ?: [];
     if (! empty($documentItems) && ! isset($documentItems[0]['url']) && isset($documentItems[0]['path'])) {
         // legacy shape from before this wizard - not carried over automatically
@@ -17,6 +27,7 @@
     <form data-step-form action="{{ $stepUrls['media'] }}" method="post">
         <div class="wizard-field wizard-field--span2">
             <label>{{ __('Photos') }}</label>
+            <p class="wizard-hint" style="margin-bottom:10px;">{{ __('Add between 1 and 20 photos of the property.') }} <span data-uploader-count="images"></span></p>
             <div data-uploader="images">
                 <div class="wizard-upload">
                     <i class="fas fa-cloud-upload-alt"></i>

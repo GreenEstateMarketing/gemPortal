@@ -177,7 +177,12 @@
         var input = widget.querySelector('input[type="file"]');
         var thumbs = widget.querySelector('[data-uploader-thumbs]');
         var hidden = widget.querySelector('[data-uploader-value]');
+        var counter = widget.parentNode.querySelector('[data-uploader-count="' + options.name + '"]');
         var items = [];
+        // Files currently mid-upload - counted toward options.max alongside
+        // items.length so a burst of drops can't sneak past the limit
+        // before any of them have actually landed in `items`.
+        var reserved = 0;
 
         try {
             items = JSON.parse(hidden.value || '[]');
@@ -189,11 +194,20 @@
             hidden.value = JSON.stringify(items);
         }
 
+        function updateCount() {
+            if (counter && options.max) {
+                counter.textContent = '(' + items.length + ' of ' + options.max + ' added)';
+            }
+        }
+
         function renderThumb(item) {
             if (options.kind === 'image') {
                 var wrap = document.createElement('div');
                 wrap.className = 'wizard-thumb';
-                wrap.innerHTML = '<img src="' + item.url + '" alt=""><button type="button" class="wizard-thumb__remove" data-remove-url="' + item.url + '">&times;</button>';
+                // item.url is the raw relative storage path (what actually
+                // gets saved) - it isn't browsable on its own, so display
+                // uses item.full_url when we have it.
+                wrap.innerHTML = '<img src="' + (item.full_url || item.url) + '" alt=""><button type="button" class="wizard-thumb__remove" data-remove-url="' + item.url + '">&times;</button>';
                 thumbs.appendChild(wrap);
             } else {
                 var row = document.createElement('div');
@@ -204,6 +218,7 @@
         }
 
         items.forEach(renderThumb);
+        updateCount();
 
         thumbs.addEventListener('click', function (event) {
             var btn = event.target.closest('[data-remove-url]');
@@ -215,6 +230,7 @@
                 return item.url !== url;
             });
             persist();
+            updateCount();
             btn.closest(options.kind === 'image' ? '.wizard-thumb' : '.wizard-doc-item').remove();
         });
 
@@ -239,7 +255,22 @@
         });
 
         function uploadFiles(fileList) {
-            Array.prototype.forEach.call(fileList, function (file) {
+            var files = Array.prototype.slice.call(fileList);
+
+            if (options.max) {
+                var remaining = options.max - (items.length + reserved);
+                if (remaining <= 0) {
+                    window.alert('You can add up to ' + options.max + ' photos.');
+                    return;
+                }
+                if (files.length > remaining) {
+                    window.alert('Only ' + remaining + ' more photo(s) can be added (max ' + options.max + ' total) - the rest were skipped.');
+                    files = files.slice(0, remaining);
+                }
+            }
+
+            files.forEach(function (file) {
+                reserved += 1;
                 var formData = new FormData();
                 formData.append('file[]', file);
 
@@ -253,16 +284,20 @@
                 }).then(function (response) {
                     return response.json();
                 }).then(function (json) {
+                    reserved -= 1;
                     if (json.error) {
                         window.alert(json.message || 'Upload failed');
                         return;
                     }
                     var url = (json.data && (json.data.url || json.data.src)) || '';
-                    var item = { url: url, name: file.name };
+                    var fullUrl = (json.data && (json.data.full_url || json.data.url)) || url;
+                    var item = { url: url, full_url: fullUrl, name: file.name };
                     items.push(item);
                     persist();
                     renderThumb(item);
+                    updateCount();
                 }).catch(function () {
+                    reserved -= 1;
                     window.alert('Upload failed, please try again.');
                 });
             });
@@ -289,14 +324,34 @@
 
             ['images', 'documents'].forEach(function (key) {
                 var hidden = form.querySelector('[data-uploader-value="' + key + '"]');
-                if (hidden) {
-                    try {
-                        payload[key] = JSON.parse(hidden.value || '[]');
-                    } catch (e) {
-                        payload[key] = [];
-                    }
+                if (!hidden) {
+                    return;
                 }
+                var parsed = [];
+                try {
+                    parsed = JSON.parse(hidden.value || '[]');
+                } catch (e) {
+                    parsed = [];
+                }
+                // Property::images is a flat array of relative storage paths
+                // everywhere else in the app (property galleries, listing
+                // cards, etc.) - submit plain URL strings here, not the
+                // {url, full_url, name} objects the uploader tracks
+                // internally for its own thumbnail rendering. Documents
+                // don't have that site-wide convention to match, so they
+                // keep the full object shape media.blade.php already
+                // expects back.
+                payload[key] = key === 'images'
+                    ? parsed.map(function (item) { return item && item.url ? item.url : item; })
+                    : parsed;
             });
+
+            // Catch the empty-photos case immediately, without a round trip
+            // - the server enforces the same 1-20 rule regardless.
+            if (form.querySelector('[data-uploader="images"]') && !(payload.images && payload.images.length)) {
+                showError(form, 'images', 'Please add at least 1 photo.');
+                return;
+            }
 
             setLoading(submitBtn, true);
 
@@ -659,7 +714,7 @@
         initFacilityRepeater(root);
 
         var uploadUrl = root.getAttribute('data-upload-url');
-        initUploader(root, { name: 'images', kind: 'image', uploadUrl: uploadUrl });
+        initUploader(root, { name: 'images', kind: 'image', uploadUrl: uploadUrl, min: 1, max: 20 });
         initUploader(root, { name: 'documents', kind: 'document', uploadUrl: uploadUrl });
 
         initStepForm(root);
