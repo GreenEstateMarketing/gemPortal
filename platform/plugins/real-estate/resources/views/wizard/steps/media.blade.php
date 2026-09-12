@@ -18,6 +18,7 @@
         // legacy shape from before this wizard - not carried over automatically
         $documentItems = [];
     }
+    $documentItemsByType = collect($documentItems)->groupBy('document_id');
 @endphp
 
 <div class="wizard-panel">
@@ -40,29 +41,55 @@
             <div class="wizard-error" data-error-for="images"></div>
         </div>
 
-        <div class="wizard-field wizard-field--span2" style="margin-top:28px;">
-            <label>{{ __('Documents') }} <span class="wizard-hint">({{ __('optional') }})</span></label>
-            <div data-uploader="documents">
-                <div class="wizard-upload">
-                    <i class="fas fa-file-upload"></i>
-                    {{ __('Click or drag ownership documents here to upload') }}
-                    <input type="file" multiple>
+        @if ($categoryDocuments->isNotEmpty())
+            <h3 style="margin-top:32px;margin-bottom:6px;font-size:16px;">{{ __('Documents') }}</h3>
+            <p class="wizard-hint" style="margin-bottom:14px;">{{ __('Documents required for this property type.') }}</p>
+            @foreach ($categoryDocuments as $categoryDocument)
+                @php
+                    $document = $categoryDocument->document;
+                    $accept = collect(explode(',', $document->type ?? ''))->filter()->implode(',');
+                    $slotItems = $documentItemsByType->get($document->id, collect())->values()->all();
+                @endphp
+                <div class="wizard-field wizard-field--span2" style="margin-top:20px;">
+                    <label>
+                        {{ $document->name }}
+                        <span class="wizard-hint">({{ $categoryDocument->required ? __('required') : __('optional') }})</span>
+                    </label>
+                    <div data-uploader="documents_{{ $document->id }}">
+                        <div class="wizard-upload">
+                            <i class="fas fa-file-upload"></i>
+                            {{ __('Click or drag file here to upload') }}
+                            @if ($accept)
+                                <span class="wizard-hint">({{ $accept }})</span>
+                            @endif
+                            <input type="file" accept="{{ $accept }}" multiple>
+                        </div>
+                        <input type="hidden" data-uploader-value="documents_{{ $document->id }}" data-document-id="{{ $document->id }}" data-document-required="{{ $categoryDocument->required ? '1' : '0' }}" value="{{ json_encode($slotItems) }}">
+                        <div class="wizard-thumbs" data-uploader-thumbs></div>
+                    </div>
+                    <div class="wizard-error" data-error-for="document_{{ $document->id }}"></div>
                 </div>
-                <input type="hidden" data-uploader-value="documents" value="{{ json_encode($documentItems) }}">
-                <div class="wizard-thumbs" data-uploader-thumbs></div>
+            @endforeach
+        @else
+            <div class="wizard-field wizard-field--span2" style="margin-top:28px;">
+                <label>{{ __('Documents') }} <span class="wizard-hint">({{ __('optional') }})</span></label>
+                <div data-uploader="documents">
+                    <div class="wizard-upload">
+                        <i class="fas fa-file-upload"></i>
+                        {{ __('Click or drag ownership documents here to upload') }}
+                        <input type="file" multiple>
+                    </div>
+                    <input type="hidden" data-uploader-value="documents" value="{{ json_encode($documentItems) }}">
+                    <div class="wizard-thumbs" data-uploader-thumbs></div>
+                </div>
             </div>
-        </div>
+        @endif
 
         <div class="wizard-field-grid" style="margin-top:28px;">
             <label class="wizard-checkbox">
                 <input type="checkbox" data-field="auto_renew" {{ ($p->auto_renew) ? 'checked' : '' }}>
                 {{ __('Auto-renew this listing when it expires') }}
             </label>
-            <label class="wizard-checkbox">
-                <input type="checkbox" data-field="never_expired" {{ ($p->never_expired) ? 'checked' : '' }}>
-                {{ __('This listing never expires') }}
-            </label>
-
             @if ($wizardContext['can']['setFeatured'])
                 <label class="wizard-checkbox">
                     <input type="checkbox" data-field="is_featured" {{ ($p->is_featured) ? 'checked' : '' }}>

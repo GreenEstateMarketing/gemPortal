@@ -125,7 +125,11 @@ class PropertyTable extends TableAbstract
             're_properties.member_id'
         ];
 
-        $query = $model->select($select);
+        // Drafts are properties still mid-way through the Add Property
+        // wizard (Basics -> Location -> Media -> Review) - they only
+        // belong on the owner's own "My Properties" list until finalized,
+        // never in the admin's property management table.
+        $query = $model->select($select)->where('re_properties.submission_status', 'submitted');
 
         return $this->applyScopes(apply_filters(BASE_FILTER_TABLE_QUERY, $query, $model, $select));
     }

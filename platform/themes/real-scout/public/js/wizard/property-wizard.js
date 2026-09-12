@@ -176,6 +176,12 @@
         var dropzone = widget.querySelector('.wizard-upload');
         var input = widget.querySelector('input[type="file"]');
         var thumbs = widget.querySelector('[data-uploader-thumbs]');
+        // .wizard-thumbs defaults to a square-tile photo grid - document
+        // rows need a plain stacked list instead so their filename/Remove
+        // button aren't squeezed into a ~110px grid cell.
+        if (options.kind !== 'image') {
+            thumbs.classList.add('wizard-thumbs--documents');
+        }
         var hidden = widget.querySelector('[data-uploader-value]');
         var counter = widget.parentNode.querySelector('[data-uploader-count="' + options.name + '"]');
         var items = [];
@@ -322,34 +328,59 @@
                 payload.facilities = collectFacilities(form);
             }
 
-            ['images', 'documents'].forEach(function (key) {
-                var hidden = form.querySelector('[data-uploader-value="' + key + '"]');
-                if (!hidden) {
-                    return;
+            var imagesHidden = form.querySelector('[data-uploader-value="images"]');
+            if (imagesHidden) {
+                var parsedImages = [];
+                try {
+                    parsedImages = JSON.parse(imagesHidden.value || '[]');
+                } catch (e) {
+                    parsedImages = [];
                 }
+                // Property::images is a flat array of relative storage paths
+                // everywhere else in the app (property galleries, listing
+                // cards, etc.) - submit plain URL strings here, not the
+                // {url, full_url, name} objects the uploader tracks
+                // internally for its own thumbnail rendering.
+                payload.images = parsedImages.map(function (item) { return item && item.url ? item.url : item; });
+            }
+
+            // Documents come from one or more upload slots (one per
+            // admin-configured document type, or a single generic one when
+            // the category has none configured - see media.blade.php).
+            // Merge them into one flat array, tagging each item with the
+            // document_id its slot belongs to so the server can check which
+            // required types were actually provided.
+            var documentsPayload = [];
+            var missingRequiredDocument = false;
+            form.querySelectorAll('[data-uploader-value^="documents"]').forEach(function (hidden) {
+                var documentId = hidden.getAttribute('data-document-id');
                 var parsed = [];
                 try {
                     parsed = JSON.parse(hidden.value || '[]');
                 } catch (e) {
                     parsed = [];
                 }
-                // Property::images is a flat array of relative storage paths
-                // everywhere else in the app (property galleries, listing
-                // cards, etc.) - submit plain URL strings here, not the
-                // {url, full_url, name} objects the uploader tracks
-                // internally for its own thumbnail rendering. Documents
-                // don't have that site-wide convention to match, so they
-                // keep the full object shape media.blade.php already
-                // expects back.
-                payload[key] = key === 'images'
-                    ? parsed.map(function (item) { return item && item.url ? item.url : item; })
-                    : parsed;
-            });
 
-            // Catch the empty-photos case immediately, without a round trip
-            // - the server enforces the same 1-20 rule regardless.
+                if (documentId && hidden.getAttribute('data-document-required') === '1' && !parsed.length) {
+                    showError(form, 'document_' + documentId, 'This document is required.');
+                    missingRequiredDocument = true;
+                }
+
+                parsed.forEach(function (item) {
+                    documentsPayload.push(documentId ? Object.assign({ document_id: documentId }, item) : item);
+                });
+            });
+            payload.documents = documentsPayload;
+
+            // Catch the empty-photos / missing-required-document cases
+            // immediately, without a round trip - the server enforces the
+            // same rules regardless.
             if (form.querySelector('[data-uploader="images"]') && !(payload.images && payload.images.length)) {
                 showError(form, 'images', 'Please add at least 1 photo.');
+                return;
+            }
+
+            if (missingRequiredDocument) {
                 return;
             }
 
@@ -715,7 +746,14 @@
 
         var uploadUrl = root.getAttribute('data-upload-url');
         initUploader(root, { name: 'images', kind: 'image', uploadUrl: uploadUrl, min: 1, max: 20 });
-        initUploader(root, { name: 'documents', kind: 'document', uploadUrl: uploadUrl });
+
+        // One uploader per admin-configured document slot ("documents_5",
+        // "documents_9", ...), or the single generic "documents" fallback
+        // when the property's category has none configured - see
+        // media.blade.php.
+        root.querySelectorAll('[data-uploader^="documents"]').forEach(function (widget) {
+            initUploader(root, { name: widget.getAttribute('data-uploader'), kind: 'document', uploadUrl: uploadUrl });
+        });
 
         initStepForm(root);
         initFinalize(root);

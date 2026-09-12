@@ -602,6 +602,10 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
     line-height: 1;
 }
 
+.wizard-thumbs--documents {
+    display: block;
+}
+
 .wizard-doc-item {
     display: flex;
     align-items: center;
@@ -611,6 +615,19 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
     border-radius: 10px;
     margin-bottom: 8px;
     font-size: 13.5px;
+}
+
+.wizard-doc-item a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--pw-navy);
+    text-decoration: none;
+}
+
+.wizard-doc-item a:hover {
+    color: var(--pw-gold-hover);
+    text-decoration: underline;
 }
 
 /* =========================================================

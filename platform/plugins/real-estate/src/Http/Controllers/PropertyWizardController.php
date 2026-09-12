@@ -9,6 +9,7 @@ use Botble\RealEstate\Http\Requests\PropertyWizardLocationStepRequest;
 use Botble\RealEstate\Http\Requests\PropertyWizardMediaStepRequest;
 use Botble\RealEstate\Models\Account;
 use Botble\RealEstate\Models\Category;
+use Botble\RealEstate\Models\CategoryDocument;
 use Botble\RealEstate\Models\Currency;
 use Botble\RealEstate\Models\Facility;
 use Botble\RealEstate\Models\Feature;
@@ -102,6 +103,12 @@ class PropertyWizardController extends Controller
             'countries' => Country::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name']),
             'features' => Feature::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name']),
             'facilities' => Facility::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name']),
+            // Which document types the property's chosen category requires
+            // (set up by admins in Real Estate > Category Documents) - the
+            // media step turns each of these into its own upload slot.
+            'categoryDocuments' => $property->category_id
+                ? CategoryDocument::with('document')->where('category_id', $property->category_id)->orderBy('id')->get()
+                : collect(),
         ];
 
         if ($role === 'guest') {
