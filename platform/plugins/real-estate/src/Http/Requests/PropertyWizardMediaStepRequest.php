@@ -5,6 +5,7 @@ namespace Botble\RealEstate\Http\Requests;
 use Botble\RealEstate\Http\Requests\Rules\ValidImageCount;
 use Botble\RealEstate\Models\CategoryDocument;
 use Botble\Support\Http\Requests\Request;
+use Illuminate\Validation\Rule;
 
 class PropertyWizardMediaStepRequest extends Request
 {
@@ -18,7 +19,10 @@ class PropertyWizardMediaStepRequest extends Request
             'auto_renew' => 'nullable|boolean',
             'never_expired' => 'nullable|boolean',
             'is_featured' => 'nullable|boolean',
-            'moderation_status' => 'nullable|string',
+            // Approved isn't selectable from this step - it's set
+            // automatically at a later stage of the listing journey.
+            'moderation_status' => ['nullable', 'string', Rule::in(['pending', 'rejected', 'closed'])],
+            'reject_reason' => 'nullable|string|required_if:moderation_status,rejected',
         ];
     }
 

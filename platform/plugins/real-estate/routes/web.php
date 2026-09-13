@@ -58,6 +58,8 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                     ->name('finalize');
                 Route::get('{property}/choose-agent', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'chooseAgentPlaceholder'])
                     ->name('choose-agent');
+                Route::post('{property}/choose-agent', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'saveAgent'])
+                    ->name('save-agent');
             });
         });
 
@@ -518,6 +520,8 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                         ->name('finalize');
                     Route::get('{property}/choose-agent', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'chooseAgentPlaceholder'])
                         ->name('choose-agent');
+                    Route::post('{property}/choose-agent', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'saveAgent'])
+                        ->name('save-agent');
                 });
             });
             //resource
@@ -671,6 +675,8 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                     ->name('finalize');
                 Route::get('{property}/choose-agent', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'chooseAgentPlaceholder'])
                     ->name('choose-agent');
+                Route::post('{property}/choose-agent', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'saveAgent'])
+                    ->name('save-agent');
             });
             Route::post('/member/logout', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'logout'])->name('public.member.logout');
 

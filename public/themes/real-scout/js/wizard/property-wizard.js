@@ -167,6 +167,20 @@
         syncFacilityOptions();
     }
 
+    function fileIconFor(name) {
+        var ext = (name || '').split('.').pop().toLowerCase();
+        if (ext === 'pdf') {
+            return 'fa-file-pdf';
+        }
+        if (ext === 'doc' || ext === 'docx') {
+            return 'fa-file-word';
+        }
+        if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].indexOf(ext) !== -1) {
+            return 'fa-file-image';
+        }
+        return 'fa-file-alt';
+    }
+
     function initUploader(root, options) {
         var widget = root.querySelector('[data-uploader="' + options.name + '"]');
         if (!widget) {
@@ -218,7 +232,32 @@
             } else {
                 var row = document.createElement('div');
                 row.className = 'wizard-doc-item';
-                row.innerHTML = '<span><i class="fas fa-file"></i> ' + item.name + '</span><button type="button" class="wizard-btn wizard-btn--danger" data-remove-url="' + item.url + '">Remove</button>';
+
+                var icon = document.createElement('div');
+                icon.className = 'wizard-doc-item__icon';
+                icon.innerHTML = '<i class="fas ' + fileIconFor(item.name) + '"></i>';
+
+                var body = document.createElement('div');
+                body.className = 'wizard-doc-item__body';
+                var name = document.createElement('span');
+                name.className = 'wizard-doc-item__name';
+                name.textContent = item.name || '';
+                var meta = document.createElement('span');
+                meta.className = 'wizard-doc-item__meta';
+                meta.textContent = 'Uploaded';
+                body.appendChild(name);
+                body.appendChild(meta);
+
+                var removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'wizard-doc-item__remove';
+                removeBtn.setAttribute('data-remove-url', item.url);
+                removeBtn.setAttribute('title', 'Remove');
+                removeBtn.innerHTML = '&times;';
+
+                row.appendChild(icon);
+                row.appendChild(body);
+                row.appendChild(removeBtn);
                 thumbs.appendChild(row);
             }
         }
@@ -262,15 +301,18 @@
 
         function uploadFiles(fileList) {
             var files = Array.prototype.slice.call(fileList);
+            var itemLabel = options.kind === 'image' ? 'photo' : 'document';
 
             if (options.max) {
                 var remaining = options.max - (items.length + reserved);
                 if (remaining <= 0) {
-                    window.alert('You can add up to ' + options.max + ' photos.');
+                    window.alert(options.max === 1
+                        ? 'Only one ' + itemLabel + ' can be added here - remove the existing one first.'
+                        : 'You can add up to ' + options.max + ' ' + itemLabel + 's.');
                     return;
                 }
                 if (files.length > remaining) {
-                    window.alert('Only ' + remaining + ' more photo(s) can be added (max ' + options.max + ' total) - the rest were skipped.');
+                    window.alert('Only ' + remaining + ' more ' + itemLabel + '(s) can be added (max ' + options.max + ' total) - the rest were skipped.');
                     files = files.slice(0, remaining);
                 }
             }
@@ -384,12 +426,23 @@
                 return;
             }
 
+            var moderationSelect = form.querySelector('[data-field="moderation_status"]');
+            if (moderationSelect && moderationSelect.value === 'rejected') {
+                var reasonInput = form.querySelector('[data-field="reject_reason"]');
+                if (reasonInput && !reasonInput.value.trim()) {
+                    showError(form, 'reject_reason', 'Please provide a reason for rejecting this listing.');
+                    return;
+                }
+            }
+
             setLoading(submitBtn, true);
 
+            // Stays "Saving..." through to the actual page navigation on
+            // success (not just until the response lands) - only reset it
+            // on paths that keep the user on this page.
             postJson(form.getAttribute('action'), payload).then(function (result) {
-                setLoading(submitBtn, false);
-
                 if (!result.ok) {
+                    setLoading(submitBtn, false);
                     if (result.json && result.json.errors) {
                         applyErrors(form, result.json.errors);
                     } else {
@@ -419,9 +472,8 @@
             setLoading(button, true);
 
             postJson(finalizeUrl, {}).then(function (result) {
-                setLoading(button, false);
-
                 if (result.json && result.json.require_auth && guestPanel) {
+                    setLoading(button, false);
                     guestPanel.classList.add('wizard-guest-auth--visible');
                     guestPanel.style.display = 'block';
                     button.style.display = 'none';
@@ -430,6 +482,7 @@
                 }
 
                 if (!result.ok || !result.json.success) {
+                    setLoading(button, false);
                     window.alert((result.json && result.json.message) || 'Unable to submit right now.');
                     return;
                 }
@@ -474,9 +527,8 @@
             setLoading(submitBtn, true);
 
             postJson(authUrl, payload).then(function (result) {
-                setLoading(submitBtn, false);
-
                 if (!result.ok || !result.json.success) {
+                    setLoading(submitBtn, false);
                     if (result.json && result.json.errors) {
                         applyErrors(panel, result.json.errors);
                     } else {
@@ -710,6 +762,119 @@
         sync();
     }
 
+    // The rejection reason box only makes sense (and is only required)
+    // while the moderation status is actually "rejected".
+    function initModerationStatus(root) {
+        var statusSelect = document.getElementById('wizard-moderation-status');
+        var reasonField = root.querySelector('[data-reject-reason-field]');
+
+        if (!statusSelect || !reasonField) {
+            return;
+        }
+
+        function sync() {
+            var isRejected = statusSelect.value === 'rejected';
+            reasonField.style.display = isRejected ? '' : 'none';
+            if (!isRejected) {
+                var textarea = reasonField.querySelector('[data-field]');
+                if (textarea) {
+                    textarea.value = '';
+                }
+            }
+        }
+
+        statusSelect.addEventListener('change', sync);
+        sync();
+    }
+
+    // Renders the picked agent's info card on the Choose Agent step.
+    // Agent data is embedded once as JSON on the form (data-agents) rather
+    // than fetched, since the eligible list is already fixed server-side
+    // for this property.
+    function initAgentPicker(root) {
+        var form = root.querySelector('[data-agents]');
+        var select = document.getElementById('wizard-agent-select');
+        var card = root.querySelector('[data-agent-card]');
+
+        if (!form || !select || !card) {
+            return;
+        }
+
+        var agents = [];
+        try {
+            agents = JSON.parse(form.getAttribute('data-agents') || '[]');
+        } catch (e) {
+            agents = [];
+        }
+
+        function renderMetaRow(icon, text) {
+            var row = document.createElement('p');
+            row.className = 'wizard-agent-card__meta';
+            var iconEl = document.createElement('i');
+            iconEl.className = 'fas ' + icon;
+            var textEl = document.createElement('span');
+            textEl.textContent = text;
+            row.appendChild(iconEl);
+            row.appendChild(textEl);
+            return row;
+        }
+
+        function render() {
+            var agent = agents.filter(function (a) { return String(a.id) === select.value; })[0];
+
+            card.innerHTML = '';
+
+            if (!agent) {
+                card.classList.remove('wizard-agent-card--visible');
+                return;
+            }
+
+            var avatar;
+            if (agent.avatar) {
+                avatar = document.createElement('img');
+                avatar.className = 'wizard-agent-card__avatar';
+                avatar.src = agent.avatar;
+                avatar.alt = agent.name || '';
+            } else {
+                avatar = document.createElement('div');
+                avatar.className = 'wizard-agent-card__avatar wizard-agent-card__avatar--initials';
+                avatar.textContent = agent.initials || '';
+            }
+
+            var body = document.createElement('div');
+            body.className = 'wizard-agent-card__body';
+
+            var name = document.createElement('h3');
+            name.className = 'wizard-agent-card__name';
+            name.textContent = agent.name || '';
+            body.appendChild(name);
+
+            if (agent.phone) {
+                body.appendChild(renderMetaRow('fa-phone', agent.phone));
+            }
+            if (agent.email) {
+                body.appendChild(renderMetaRow('fa-envelope', agent.email));
+            }
+
+            var listingCount = agent.listings || 0;
+            body.appendChild(renderMetaRow('fa-building', listingCount + ' active listing' + (listingCount === 1 ? '' : 's')));
+
+            if (agent.description) {
+                var bio = document.createElement('p');
+                bio.className = 'wizard-agent-card__bio';
+                bio.textContent = agent.description;
+                body.appendChild(bio);
+            }
+
+            card.appendChild(avatar);
+            card.appendChild(body);
+            card.classList.add('wizard-agent-card--visible');
+        }
+
+        select.addEventListener('change', render);
+        render();
+    }
+
     // Listing Type (For Sale / For Rent) button toggle - drives the hidden
     // #wizard-type input other modules (rent-only fields, description
     // template) already listen to via its 'change' event.
@@ -752,7 +917,7 @@
         // when the property's category has none configured - see
         // media.blade.php.
         root.querySelectorAll('[data-uploader^="documents"]').forEach(function (widget) {
-            initUploader(root, { name: widget.getAttribute('data-uploader'), kind: 'document', uploadUrl: uploadUrl });
+            initUploader(root, { name: widget.getAttribute('data-uploader'), kind: 'document', uploadUrl: uploadUrl, max: 1 });
         });
 
         initStepForm(root);
@@ -761,5 +926,7 @@
         initCategoryAndTemplate(root);
         initRentOnlyFields(root);
         initTypeToggle(root);
+        initModerationStatus(root);
+        initAgentPicker(root);
     });
 })();

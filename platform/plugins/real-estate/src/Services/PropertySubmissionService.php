@@ -98,6 +98,11 @@ class PropertySubmissionService
 
         if (array_key_exists('moderation_status', $data)) {
             $property->moderation_status = $data['moderation_status'];
+            // Only keep a reason around while the status is actually
+            // "rejected" - stale text shouldn't linger once it's cleared.
+            $property->reject_reason = $data['moderation_status'] === 'rejected'
+                ? Arr::get($data, 'reject_reason')
+                : null;
         }
 
         return $this->markStepComplete($property, 3);

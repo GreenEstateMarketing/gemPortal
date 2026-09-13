@@ -15,11 +15,17 @@
             $isReachable = $num <= $furthestReachable;
             $state = $isCurrent ? 'current' : ($isCompleted ? 'completed' : ($isReachable ? '' : 'locked'));
         @endphp
-        @if ($isReachable)
+        @if ($isReachable && !$isCurrent)
             <a href="{{ $showBaseUrl }}?step={{ $num }}" class="wizard-sub-step wizard-sub-step--{{ $state }}">
-                <span class="wizard-sub-step__num">{{ $isCompleted && !$isCurrent ? '✓' : $num }}</span>
+                <span class="wizard-sub-step__num">{{ $isCompleted ? '✓' : $num }}</span>
                 <span>{{ $label }}</span>
             </a>
+        @elseif ($isReachable)
+            {{-- The step you're already on - same look, but not a link. --}}
+            <span class="wizard-sub-step wizard-sub-step--{{ $state }}">
+                <span class="wizard-sub-step__num">{{ $num }}</span>
+                <span>{{ $label }}</span>
+            </span>
         @else
             <span class="wizard-sub-step wizard-sub-step--locked">
                 <span class="wizard-sub-step__num">{{ $num }}</span>

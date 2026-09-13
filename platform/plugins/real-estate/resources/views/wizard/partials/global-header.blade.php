@@ -7,6 +7,11 @@
         5 => ['label' => __('Listing Payment'), 'icon' => 'fa-credit-card'],
         6 => ['label' => __('Ad Listing'), 'icon' => 'fa-clipboard-list'],
     ];
+    // Which macro-step's own page this partial is being rendered on -
+    // that one never gets a link, same as "you are here" everywhere else
+    // in the wizard. Defaults to 1 (the Submit Ad sub-wizard); the Choose
+    // Agent placeholder passes 2 explicitly.
+    $currentGlobalStep = $currentGlobalStep ?? 1;
 @endphp
 
 <div class="wizard-global-steps">
@@ -17,9 +22,14 @@
 
             if ($num === 1) {
                 $state = $property->isSubmitted() ? 'completed' : 'current';
+                if ($num !== $currentGlobalStep && $property->isSubmitted() && isset($showBaseUrl)) {
+                    $link = $showBaseUrl . '?step=1';
+                }
             } elseif ($num === 2 && $property->isSubmitted()) {
                 $state = 'current';
-                $link = $chooseAgentUrl;
+                if ($num !== $currentGlobalStep) {
+                    $link = $chooseAgentUrl;
+                }
             }
         @endphp
         <div class="wizard-global-step wizard-global-step--{{ $state }}">

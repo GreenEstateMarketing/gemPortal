@@ -4,6 +4,7 @@ namespace Botble\RealEstate\Http\Controllers;
 
 use Botble\Base\Enums\BaseStatusEnum;
 use Botble\Location\Models\Country;
+use Botble\RealEstate\Http\Requests\PropertyWizardAgentStepRequest;
 use Botble\RealEstate\Http\Requests\PropertyWizardBasicsStepRequest;
 use Botble\RealEstate\Http\Requests\PropertyWizardLocationStepRequest;
 use Botble\RealEstate\Http\Requests\PropertyWizardMediaStepRequest;
@@ -183,6 +184,7 @@ class PropertyWizardController extends Controller
 
         if (! $context['can']['setModerationStatus']) {
             unset($data['moderation_status']);
+            unset($data['reject_reason']);
         }
 
         $property = $this->service->saveMedia($property, $data);
@@ -289,7 +291,49 @@ class PropertyWizardController extends Controller
         return view('plugins/real-estate::wizard.choose-agent-placeholder', [
             'role' => $role,
             'property' => $property,
+            'chooseAgentUrl' => route($this->routeName($role, 'choose-agent'), ['property' => $property->id]),
+            'saveAgentUrl' => route($this->routeName($role, 'save-agent'), ['property' => $property->id]),
+            'showBaseUrl' => route($this->routeName($role, 'show'), ['property' => $property->id]),
+            'nearbyAgents' => $this->nearbyAgentsFor($property),
         ]);
+    }
+
+    public function saveAgent(PropertyWizardAgentStepRequest $request, Property $property)
+    {
+        $role = $this->currentRole($request);
+        $this->authorizeAccess($role, $property);
+
+        $property->author_id = $request->validated()['agent_id'];
+        $property->author_type = Account::class;
+        $property->save();
+
+        return response()->json([
+            'success' => true,
+            'next_url' => route($this->routeName($role, 'choose-agent'), ['property' => $property->id]),
+        ]);
+    }
+
+    /**
+     * Agents eligible for this property: whichever agents' drawn coverage
+     * area contains its location, plus whichever agent is already assigned
+     * (kept visible even if they no longer match, e.g. after the property's
+     * location was edited).
+     */
+    protected function nearbyAgentsFor(Property $property)
+    {
+        $agents = $property->latitude && $property->longitude
+            ? Account::query()->coveringPoint($property->longitude, $property->latitude)->get()
+            : collect();
+
+        if ($property->author_type === Account::class && $property->author_id && !$agents->contains('id', $property->author_id)) {
+            $existing = Account::find($property->author_id);
+
+            if ($existing) {
+                $agents->push($existing);
+            }
+        }
+
+        return $agents;
     }
 
     protected function stepSavedResponse(string $role, Property $property, int $nextStep)

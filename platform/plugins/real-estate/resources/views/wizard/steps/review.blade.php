@@ -60,12 +60,25 @@
                         ? $documentNameById->get($documentId)
                         : (is_array($document) ? ($document['name'] ?? __('Document')) : __('Document'));
                     $documentUrl = is_array($document) ? ($document['url'] ?? '') : '';
+                    $documentExt = strtolower(pathinfo($documentUrl, PATHINFO_EXTENSION));
+                    if ($documentExt === 'pdf') {
+                        $documentIcon = 'fa-file-pdf';
+                    } elseif (in_array($documentExt, ['doc', 'docx'])) {
+                        $documentIcon = 'fa-file-word';
+                    } elseif (in_array($documentExt, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'])) {
+                        $documentIcon = 'fa-file-image';
+                    } else {
+                        $documentIcon = 'fa-file-alt';
+                    }
                 @endphp
                 <div class="wizard-doc-item">
+                    <div class="wizard-doc-item__icon"><i class="fas {{ $documentIcon }}"></i></div>
+                    <div class="wizard-doc-item__body">
+                        <span class="wizard-doc-item__name">{{ $documentLabel }}</span>
+                        <span class="wizard-doc-item__meta">{{ __('Uploaded document') }}</span>
+                    </div>
                     @if ($documentUrl)
-                        <a href="{{ RvMedia::url($documentUrl) }}" target="_blank" rel="noopener" download><i class="fas fa-file"></i> {{ $documentLabel }}</a>
-                    @else
-                        <span><i class="fas fa-file"></i> {{ $documentLabel }}</span>
+                        <a href="{{ RvMedia::url($documentUrl) }}" target="_blank" rel="noopener" download class="wizard-doc-item__download" title="{{ __('Download') }}"><i class="fas fa-download"></i></a>
                     @endif
                 </div>
             @empty

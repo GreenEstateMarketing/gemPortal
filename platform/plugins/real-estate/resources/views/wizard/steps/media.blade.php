@@ -62,7 +62,7 @@
                             @if ($accept)
                                 <span class="wizard-hint">({{ $accept }})</span>
                             @endif
-                            <input type="file" accept="{{ $accept }}" multiple>
+                            <input type="file" accept="{{ $accept }}">
                         </div>
                         <input type="hidden" data-uploader-value="documents_{{ $document->id }}" data-document-id="{{ $document->id }}" data-document-required="{{ $categoryDocument->required ? '1' : '0' }}" value="{{ json_encode($slotItems) }}">
                         <div class="wizard-thumbs" data-uploader-thumbs></div>
@@ -77,7 +77,7 @@
                     <div class="wizard-upload">
                         <i class="fas fa-file-upload"></i>
                         {{ __('Click or drag ownership documents here to upload') }}
-                        <input type="file" multiple>
+                        <input type="file">
                     </div>
                     <input type="hidden" data-uploader-value="documents" value="{{ json_encode($documentItems) }}">
                     <div class="wizard-thumbs" data-uploader-thumbs></div>
@@ -100,12 +100,20 @@
             @if ($wizardContext['can']['setModerationStatus'])
                 <div class="wizard-field">
                     <label>{{ __('Moderation Status') }}</label>
-                    <select class="wizard-select" data-field="moderation_status">
+                    {{-- Approved is intentionally left out for now - it'll be
+                         set automatically at a later stage of the overall
+                         listing journey, not chosen manually here. --}}
+                    <select class="wizard-select" data-field="moderation_status" id="wizard-moderation-status">
                         <option value="pending" {{ ($p->moderation_status == 'pending') ? 'selected' : '' }}>{{ __('Pending') }}</option>
-                        <option value="approved" {{ ($p->moderation_status == 'approved') ? 'selected' : '' }}>{{ __('Approved') }}</option>
                         <option value="rejected" {{ ($p->moderation_status == 'rejected') ? 'selected' : '' }}>{{ __('Rejected') }}</option>
                         <option value="closed" {{ ($p->moderation_status == 'closed') ? 'selected' : '' }}>{{ __('Closed') }}</option>
                     </select>
+                </div>
+
+                <div class="wizard-field wizard-field--span2" data-reject-reason-field style="{{ $p->moderation_status == 'rejected' ? '' : 'display:none;' }}">
+                    <label>{{ __('Rejection Reason') }}</label>
+                    <textarea class="wizard-textarea" data-field="reject_reason" placeholder="{{ __('Explain why this listing is being rejected...') }}">{{ $p->reject_reason }}</textarea>
+                    <div class="wizard-error" data-error-for="reject_reason"></div>
                 </div>
             @endif
         </div>
