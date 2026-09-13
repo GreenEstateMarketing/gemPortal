@@ -372,6 +372,9 @@ class PropertyWizardController extends Controller
             'verified' => (bool) $property->verified,
             'verifiedByAdmin' => (bool) $property->verified_by_admin,
             'comments' => $property->comments()->orderBy('created_at')->get(),
+            'categoryDocuments' => $property->category_id
+                ? CategoryDocument::with('document')->where('category_id', $property->category_id)->orderBy('id')->get()
+                : collect(),
             'chooseAgentUrl' => route($this->routeName($role, 'choose-agent'), ['property' => $property->id]),
             'showBaseUrl' => route($this->routeName($role, 'show'), ['property' => $property->id]),
             'verifyAgentUrl' => $role === 'agent'

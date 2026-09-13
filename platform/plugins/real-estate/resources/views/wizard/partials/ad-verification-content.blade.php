@@ -16,58 +16,12 @@
     @include('plugins/real-estate::wizard.partials.global-header', ['currentGlobalStep' => 3])
 
     <div class="wizard-panel">
-        @if ($role === 'member')
-            @if ($isFullyVerified)
-                <div class="wizard-verify-status wizard-verify-status--success">
-                    <i class="fas fa-check-circle"></i>
-                    {{ __('Your property has been verified by both your agent and our admin team.') }}
-                </div>
-            @elseif ($isVerifiedByAgent)
-                <div class="wizard-verify-status wizard-verify-status--pending">
-                    <i class="fas fa-hourglass-half"></i>
-                    {{ __('Your agent has verified this property. It\'s now waiting for admin verification.') }}
-                </div>
-            @else
-                <div class="wizard-verify-status wizard-verify-status--pending">
-                    <i class="fas fa-hourglass-half"></i>
-                    {{ __('Your property is under verification by your agent.') }}
-                </div>
-            @endif
-        @elseif ($role === 'agent')
-            @if ($isFullyVerified)
-                <div class="wizard-verify-status wizard-verify-status--success">
-                    <i class="fas fa-check-circle"></i>
-                    {{ __('This property has been verified by you and by our admin team.') }}
-                </div>
-            @elseif ($isVerifiedByAgent)
-                <div class="wizard-verify-status wizard-verify-status--pending">
-                    <i class="fas fa-hourglass-half"></i>
-                    {{ __('You\'ve verified this property. It\'s now waiting for admin verification before you can continue.') }}
-                </div>
-            @else
-                <div class="wizard-verify-status wizard-verify-status--pending">
-                    <i class="fas fa-clipboard-check"></i>
-                    {{ __('Please review this listing, then mark it as verified.') }}
-                </div>
-            @endif
-        @else
-            @if ($isFullyVerified)
-                <div class="wizard-verify-status wizard-verify-status--success">
-                    <i class="fas fa-check-circle"></i>
-                    {{ __('You have verified this property.') }}
-                </div>
-            @elseif ($isVerifiedByAgent)
-                <div class="wizard-verify-status wizard-verify-status--pending">
-                    <i class="fas fa-clipboard-check"></i>
-                    {{ __('The agent has verified this property. You can verify it now.') }}
-                </div>
-            @else
-                <div class="wizard-verify-status wizard-verify-status--pending">
-                    <i class="fas fa-hourglass-half"></i>
-                    {{ __('This property is still under verification by the agent.') }}
-                </div>
-            @endif
-        @endif
+        @include('plugins/real-estate::wizard.partials.property-document', [
+            'property' => $property,
+            'categoryDocuments' => $categoryDocuments,
+            'verifiedByAgent' => $isVerifiedByAgent,
+            'verifiedByAdmin' => $isVerifiedByAdmin,
+        ])
 
         <div class="wizard-panel__actions">
             <a href="{{ $chooseAgentUrl }}" class="wizard-btn wizard-btn--ghost"><i class="fas fa-arrow-left"></i> {{ __('Back') }}</a>
