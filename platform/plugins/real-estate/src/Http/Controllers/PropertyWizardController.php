@@ -10,6 +10,7 @@ use Botble\RealEstate\Http\Requests\PropertyWizardLocationStepRequest;
 use Botble\RealEstate\Http\Requests\PropertyWizardMediaStepRequest;
 use Botble\RealEstate\Models\Account;
 use Botble\RealEstate\Models\Category;
+use Botble\RealEstate\Models\Comment;
 use Botble\RealEstate\Models\CategoryDocument;
 use Botble\RealEstate\Models\Currency;
 use Botble\RealEstate\Models\Facility;
@@ -25,6 +26,7 @@ use Theme;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use EmailHandler;
 
 class PropertyWizardController extends Controller
 {
@@ -334,7 +336,8 @@ class PropertyWizardController extends Controller
 
     /**
      * Ad Verification (global step 3) - unlocked once an agent is assigned.
-     * Just a placeholder screen for now.
+     * The agent verifies the listing first, then the admin verifies it too;
+     * nobody can move on to the next step until both have signed off.
      */
     public function adVerificationPlaceholder(Request $request, Property $property)
     {
@@ -348,9 +351,118 @@ class PropertyWizardController extends Controller
         return view('plugins/real-estate::wizard.ad-verification-placeholder', [
             'role' => $role,
             'property' => $property,
+            'verified' => (bool) $property->verified,
+            'verifiedByAdmin' => (bool) $property->verified_by_admin,
+            'comments' => $property->comments()->orderBy('created_at')->get(),
             'chooseAgentUrl' => route($this->routeName($role, 'choose-agent'), ['property' => $property->id]),
             'showBaseUrl' => route($this->routeName($role, 'show'), ['property' => $property->id]),
+            'verifyAgentUrl' => $role === 'agent'
+                ? route($this->routeName($role, 'ad-verification.verify-agent'), ['property' => $property->id])
+                : null,
+            'verifyAdminUrl' => $role === 'admin'
+                ? route($this->routeName($role, 'ad-verification.verify-admin'), ['property' => $property->id])
+                : null,
+            'commentStoreUrl' => in_array($role, ['agent', 'member'], true)
+                ? route($this->routeName($role, 'ad-verification.comment'), ['property' => $property->id])
+                : null,
         ]);
+    }
+
+    /**
+     * The agent's sign-off on the Ad Verification step. Only flips the flag
+     * and notifies admin/member - moving on to the next step still waits for
+     * the admin's own sign-off below.
+     */
+    public function verifyByAgent(Request $request, Property $property)
+    {
+        $role = $this->currentRole($request);
+        $this->authorizeAccess($role, $property);
+
+        $account = auth('account')->user();
+
+        $property->verified = true;
+        $property->save();
+
+        $variables = [
+            'name' => 'Name',
+            'property_url' => 'Property Url',
+            'by' => 'By',
+            'title' => 'Title',
+            'action' => 'Action',
+        ];
+
+        EmailHandler::setModule('real-estate')
+            ->addVariables($variables)
+            ->setVariableValues([
+                'name' => 'Admin',
+                'property_url' => route('property.edit', ['property' => $property->id]),
+                'by' => 'Agent: ' . $account->first_name . ' ' . $account->last_name,
+                'title' => $property->name,
+                'action' => 'verified',
+            ])
+            ->sendUsingTemplate('propertymodify', 'admin@botble.com', [], false, 'plugins', 'Property Verified');
+
+        if ($property->member_id && $property->member) {
+            $member = $property->member;
+
+            EmailHandler::setModule('real-estate')
+                ->addVariables($variables)
+                ->setVariableValues([
+                    'name' => $member->full_name,
+                    'property_url' => route('public.member.properties.edit', ['property' => $property->id]),
+                    'by' => 'Agent: ' . $account->first_name . ' ' . $account->last_name,
+                    'title' => $property->name,
+                    'action' => 'verified',
+                ])
+                ->sendUsingTemplate('propertymodify', $member->email, [], false, 'plugins', 'Property Verified');
+        }
+
+        return redirect()->route($this->routeName($role, 'ad-verification'), ['property' => $property->id]);
+    }
+
+    /**
+     * The admin's sign-off, blocked server-side (not just in the UI) until
+     * the agent has already verified.
+     */
+    public function verifyByAdmin(Request $request, Property $property)
+    {
+        $role = $this->currentRole($request);
+        $this->authorizeAccess($role, $property);
+
+        abort_unless($property->verified, 403);
+
+        $property->verified_by_admin = true;
+        $property->save();
+
+        return redirect()->route($this->routeName($role, 'ad-verification'), ['property' => $property->id]);
+    }
+
+    /**
+     * A message on the Ad Verification step's comment thread between the
+     * agent and the member - admin can read it but has no route to post to.
+     */
+    public function storeComment(Request $request, Property $property)
+    {
+        $role = $this->currentRole($request);
+        $this->authorizeAccess($role, $property);
+
+        abort_unless(in_array($role, ['agent', 'member'], true), 403);
+
+        $data = $request->validate([
+            'comment' => ['required', 'string', 'max:2000'],
+        ]);
+
+        $comment = new Comment(['comment' => $data['comment']]);
+
+        if ($role === 'agent') {
+            $comment->user()->associate(auth('account')->user());
+        } else {
+            $comment->member_id = auth('member')->id();
+        }
+
+        $property->comments()->save($comment);
+
+        return redirect()->route($this->routeName($role, 'ad-verification'), ['property' => $property->id]);
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace Botble\RealEstate\Models;
 
 use App\Models\Rating;
+use Botble\Base\Supports\Avatar;
 use Botble\Media\Models\MediaFile;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Botble\RealEstate\Notifications\ResetPasswordNotification;
+use Storage;
 
 //use BeyondCode\Vouchers\Traits\CanRedeemVouchers;
 class Member extends Authenticatable
@@ -37,6 +39,11 @@ class Member extends Authenticatable
     public function avatar()
     {
         return $this->belongsTo(MediaFile::class)->withDefault();
+    }
+
+    public function getAvatarUrlAttribute()
+    {
+        return $this->avatar->url ? Storage::url($this->avatar->url) : (new Avatar)->create($this->full_name)->toBase64();
     }
     public function canPost(): bool
     {

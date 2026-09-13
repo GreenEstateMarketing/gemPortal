@@ -66,6 +66,7 @@ class Property extends BaseModel
         'reject_reason',
         'built_in',
         'verified',
+        'verified_by_admin',
         'price_unit',
         'wizard_step',
         'submission_status',

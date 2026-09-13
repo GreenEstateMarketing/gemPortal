@@ -5,7 +5,6 @@ namespace Botble\RealEstate\Http\Controllers;
 use Assets;
 use Botble\Base\Http\Responses\BaseHttpResponse;
 use Botble\RealEstate\Models\Property;
-use Botble\RealEstate\Repositories\Interfaces\MemberInterface;
 use Botble\RealEstate\Repositories\Interfaces\PropertyInterface;
 use Botble\RealEstate\Models\Account;
 use Botble\RealEstate\Repositories\Interfaces\AccountActivityLogInterface;
@@ -158,59 +157,4 @@ class AccountPropertyController extends Controller
         return $response->setMessage(__('Renew property successfully'));
     }
 
-    public function verify($id, BaseHttpResponse $response, MemberInterface $memberRepository)
-    {
-        $property = $this->propertyRepository->findOrFail($id);
-
-        $account = auth('account')->user();
-
-        if ($property->author_id == $account->id) {
-            $property->verified = true;
-            $property->save();
-
-            //send emails to corresponding people
-            $variables = [
-                'name' => 'Name',
-                'property_url' => 'Property Url',
-                'by' => 'By',
-                'title' => 'Title',
-                'action' => 'Action'
-            ];
-
-            EmailHandler::setModule('real-estate')
-            ->addVariables($variables)
-            ->setVariableValues([
-                'name' => 'Admin',
-                'property_url' => route('property.edit', ['property' => $property->id]),
-                'by' => 'Agent: ' . $account->first_name . ' ' . $account->last_name,
-                'title' => $property->name,
-                'action' => 'verified'
-            ])
-            ->sendUsingTemplate('propertymodify', 'admin@botble.com', [], false, 'plugins', 'Property Verified');
-
-            //to member if its owned by member
-            if($property->member_id) {
-                $member = $memberRepository->findOrFail($property->member_id);
-                EmailHandler::setModule('real-estate')
-                ->addVariables($variables)
-                ->setVariableValues([
-                    'name' => $member->full_name,
-                    'property_url' => route('public.member.properties.edit', ['id' => $property->id]),
-                    'by' => 'Agent: ' . $account->first_name . ' ' . $account->last_name,
-                    'title' => $property->name,
-                    'action' => 'verified'
-                ])
-                ->sendUsingTemplate('propertymodify', $member->email, [], false, 'plugins', 'Property Verified');
-            }
-
-            return $response
-                ->setPreviousUrl(route('public.account.properties.edit', $property->id))
-                ->setNextUrl(route('public.account.properties.edit', $property->id))
-                ->setMessage('This property has been successfully verified by you.');
-        } else {
-            return $response
-                ->setError()
-                ->setMessage("Something went wrong. Couldn't verify property.");
-        }
-    }
 }
