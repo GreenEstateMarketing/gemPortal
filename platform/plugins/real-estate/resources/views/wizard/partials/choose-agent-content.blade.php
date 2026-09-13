@@ -55,12 +55,15 @@
             <form data-step-form action="{{ $saveAgentUrl }}" method="post" data-agents="{{ $agentsData->toJson() }}">
                 <div class="wizard-field">
                     <label>{{ __('Select an Agent') }}</label>
-                    <select class="wizard-select" data-field="agent_id" id="wizard-agent-select">
+                    <select class="wizard-select" data-field="agent_id" id="wizard-agent-select" {{ $role === 'agent' ? 'disabled' : '' }}>
                         <option value="">{{ __('Choose an agent...') }}</option>
                         @foreach ($agentsData as $agent)
                             <option value="{{ $agent['id'] }}" {{ (string) $currentAgentId === (string) $agent['id'] ? 'selected' : '' }}>{{ $agent['name'] }}</option>
                         @endforeach
                     </select>
+                    @if ($role === 'agent')
+                        <p class="wizard-hint">{{ __('This property is assigned to you as its listing agent, so this can\'t be changed here.') }}</p>
+                    @endif
                     <div class="wizard-error" data-error-for="agent_id"></div>
                 </div>
 
