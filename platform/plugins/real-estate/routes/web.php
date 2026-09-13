@@ -28,13 +28,43 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
 
         Route::group(['prefix' => 'properties', 'as' => 'property.'], function () {
             Route::resource('', 'PropertyController')
-                ->parameters(['' => 'property']);
+                ->parameters(['' => 'property'])
+                ->except(['create', 'store', 'edit', 'update']);
 
             Route::delete('items/destroy', [
                 'as' => 'deletes',
                 'uses' => 'PropertyController@deletes',
                 'permission' => 'property.destroy',
             ]);
+
+            // create/edit are now the wizard - kept under the original route
+            // names so the 'property.create'/'property.edit' ACL permission
+            // checks in the admin table/menu keep working unchanged.
+            Route::get('create', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'show'])
+                ->name('create');
+            Route::get('{property}/edit', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'show'])
+                ->name('edit');
+
+            Route::group(['prefix' => 'wizard', 'as' => 'wizard.'], function () {
+                Route::get('{property?}', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'show'])
+                    ->name('show');
+                Route::post('{property}/basics', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'saveBasics'])
+                    ->name('basics');
+                Route::post('{property}/location', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'saveLocation'])
+                    ->name('location');
+                Route::post('{property}/media', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'saveMedia'])
+                    ->name('media');
+                Route::post('{property}/finalize', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'finalize'])
+                    ->name('finalize');
+                Route::get('{property}/choose-agent', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'chooseAgentPlaceholder'])
+                    ->name('choose-agent');
+                Route::post('{property}/choose-agent', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'saveAgent'])
+                    ->name('save-agent');
+                Route::get('{property}/ad-verification', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'adVerificationPlaceholder'])
+                    ->name('ad-verification');
+                Route::post('{property}/ad-verification/verify-admin', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'verifyByAdmin'])
+                    ->name('ad-verification.verify-admin');
+            });
         });
 
         Route::group(['prefix' => 'documents', 'as' => 'document.'], function () {
@@ -461,17 +491,43 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
 
             Route::group(['prefix' => 'account/properties', 'as' => 'properties.'], function () {
                 Route::resource('', 'AccountPropertyController')
-                    ->parameters(['' => 'property']);
+                    ->parameters(['' => 'property'])
+                    ->except(['create', 'store', 'edit', 'update']);
+
+                // create/edit are now the wizard - route names kept for
+                // backward compatibility (other controllers link to them).
+                Route::get('create', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'show'])
+                    ->name('create');
+                Route::get('{property}/edit', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'show'])
+                    ->name('edit');
 
                 Route::post('renew/{id}', [
                     'as' => 'renew',
                     'uses' => 'AccountPropertyController@renew',
                 ]);
 
-                Route::get('verify/{id}', [
-                    'as' => 'verify',
-                    'uses' => 'AccountPropertyController@verify',
-                ]);
+                Route::group(['prefix' => 'wizard', 'as' => 'wizard.'], function () {
+                    Route::get('{property?}', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'show'])
+                        ->name('show');
+                    Route::post('{property}/basics', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'saveBasics'])
+                        ->name('basics');
+                    Route::post('{property}/location', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'saveLocation'])
+                        ->name('location');
+                    Route::post('{property}/media', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'saveMedia'])
+                        ->name('media');
+                    Route::post('{property}/finalize', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'finalize'])
+                        ->name('finalize');
+                    Route::get('{property}/choose-agent', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'chooseAgentPlaceholder'])
+                        ->name('choose-agent');
+                    Route::post('{property}/choose-agent', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'saveAgent'])
+                        ->name('save-agent');
+                    Route::get('{property}/ad-verification', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'adVerificationPlaceholder'])
+                        ->name('ad-verification');
+                    Route::post('{property}/ad-verification/verify-agent', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'verifyByAgent'])
+                        ->name('ad-verification.verify-agent');
+                    Route::post('{property}/ad-verification/comment', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'storeComment'])
+                        ->name('ad-verification.comment');
+                });
             });
             //resource
             Route::group(['prefix' => 'account/consults', 'as' => 'consult.'], function () {
@@ -522,16 +578,32 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
         Route::post('save-buyer-info', [PropertyController::class, 'saveBuyerInfo'])
             ->name('save-buyer-info');
 
-        Route::get('Add-Property', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'create'])
-            ->name('general-add-property');
-        Route::POST('member-property-save', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'store'])
-            ->name('general-save-property');
+        // Legacy URL, kept as a redirect for any bookmarks/links still pointing at it.
+        Route::get('Add-Property', function () {
+            return redirect()->route('general-property-wizard.show');
+        })->name('general-add-property');
 
         Route::get('ajax/states', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'getStates'])
             ->name('ajax.states');
 
         Route::get('ajax/property-cities', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'getCities'])
             ->name('ajax.property-cities');
+
+        Route::group(['prefix' => 'wizard/add-property', 'as' => 'general-property-wizard.'], function () {
+            Route::get('{property?}', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'show'])
+                ->name('show');
+            Route::post('{property}/basics', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'saveBasics'])
+                ->name('basics');
+            Route::post('{property}/location', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'saveLocation'])
+                ->name('location');
+            Route::post('{property}/media', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'saveMedia'])
+                ->name('media');
+            Route::post('{property}/finalize', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'finalize'])
+                ->name('finalize');
+        });
+
+        Route::post('wizard/authenticate-guest', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'authenticateGuest'])
+            ->name('general-property-wizard.authenticate');
         //////////////////////////////members////////////////////////
         /// middleware set here for member////////
         Route::get('member-login', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'login'])
@@ -589,11 +661,32 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                 ->name('member.dashboard');
             Route::get('member/properties', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'properties'])
                 ->name('public.member.properties.index');
-            Route::get('/member/properties/create', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'create_property'])->name('public.member.properties.create');
-            Route::post('/member/properties/create', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'save_property'])->name('public.member.properties.save');
-            Route::get('/member/properties/edit/{id}', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'edit_property'])->name('public.member.properties.edit');
-            Route::post('/member/properties/edit/{id}', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'update_property'])->name('public.member.properties.update');
+            // create/edit are now the wizard - route names kept for backward
+            // compatibility (bookmarks, the renewal-reminder email command).
+            Route::get('/member/properties/create', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'show'])->name('public.member.properties.create');
+            Route::get('/member/properties/edit/{property}', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'show'])->name('public.member.properties.edit');
             Route::delete('/member/properties/{id}', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'delete_property'])->name('public.member.properties.destroy');
+
+            Route::group(['prefix' => 'member/properties/wizard', 'as' => 'public.member.properties.wizard.'], function () {
+                Route::get('{property?}', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'show'])
+                    ->name('show');
+                Route::post('{property}/basics', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'saveBasics'])
+                    ->name('basics');
+                Route::post('{property}/location', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'saveLocation'])
+                    ->name('location');
+                Route::post('{property}/media', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'saveMedia'])
+                    ->name('media');
+                Route::post('{property}/finalize', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'finalize'])
+                    ->name('finalize');
+                Route::get('{property}/choose-agent', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'chooseAgentPlaceholder'])
+                    ->name('choose-agent');
+                Route::post('{property}/choose-agent', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'saveAgent'])
+                    ->name('save-agent');
+                Route::get('{property}/ad-verification', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'adVerificationPlaceholder'])
+                    ->name('ad-verification');
+                Route::post('{property}/ad-verification/comment', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'storeComment'])
+                    ->name('ad-verification.comment');
+            });
             Route::post('/member/logout', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'logout'])->name('public.member.logout');
 
             Route::get('ajax/member/activity-logs', [

@@ -32,7 +32,7 @@ class MemberPropertyTable extends PropertyTable
         $data = $this->table
             ->eloquent($this->query())
             ->editColumn('name', function ($item) {
-                return Html::link(route('public.member.properties.edit', $item->id), $item->name);
+                return Html::link(route('public.member.properties.wizard.show', ['property' => $item->id]), $item->name);
             })
             ->editColumn('image', function ($item) {
                 return Html::image(RvMedia::getImageUrl($item->image, 'thumb', false, RvMedia::getDefaultImage()),
@@ -45,6 +45,10 @@ class MemberPropertyTable extends PropertyTable
                 return \BaseHelper::formatDate($item->created_at);
             })
             ->editColumn('expire_date', function ($item) {
+                if ($item->submission_status === 'draft' || ! $item->expire_date) {
+                    return '-';
+                }
+
                 if ($item->never_expired) {
                     return __('Never expired');
                 }
@@ -60,9 +64,17 @@ class MemberPropertyTable extends PropertyTable
                 return $item->expire_date->toDateString();
             })
             ->editColumn('status', function ($item) {
+                if ($item->submission_status === 'draft') {
+                    return Html::tag('span', __('Draft'), ['class' => 'label-warning status-label'])->toHtml();
+                }
+
                 return $item->status->toHtml();
             })
             ->editColumn('moderation_status', function ($item) {
+                if ($item->submission_status === 'draft') {
+                    return '-';
+                }
+
                 return $item->moderation_status->toHtml();
             });
 
@@ -71,10 +83,11 @@ class MemberPropertyTable extends PropertyTable
 
                 $rating = Rating::where('user_id', $item->member_id)->where('agent_id', $item->author_id)->where('property_id', $item->id)->first();
 
-                $edit = 'public.member.properties.edit';
+                $edit = 'public.member.properties.wizard.show';
                 $delete = 'public.member.properties.destroy';
+                $isDraft = $item->submission_status === 'draft';
 
-                return view('plugins/real-estate::member.table.actions', compact('edit', 'delete', 'item', 'rating'))->render();
+                return view('plugins/real-estate::member.table.actions', compact('edit', 'delete', 'item', 'rating', 'isDraft'))->render();
             })
             ->escapeColumns([])
             ->make(true);
@@ -96,7 +109,9 @@ class MemberPropertyTable extends PropertyTable
             're_properties.moderation_status',
             're_properties.expire_date',
             're_properties.author_id',
-            're_properties.member_id'
+            're_properties.member_id',
+            're_properties.submission_status',
+            're_properties.never_expired',
         ];
 
         $query = $model
@@ -115,7 +130,7 @@ class MemberPropertyTable extends PropertyTable
     {
         $buttons = [];
         if (auth('member')->user()->canPost()) {
-            $buttons = $this->addCreateButton(route('public.member.properties.create'), null);
+            $buttons = $this->addCreateButton(route('public.member.properties.wizard.show'), null);
         }
 
         return apply_filters(BASE_FILTER_TABLE_BUTTONS, $buttons, Member::class);

@@ -141,6 +141,26 @@ class Account extends Authenticatable
         return true;
     }
 
+    /**
+     * Agents whose drawn coverage area (agent_area, set via the agent map
+     * tool) contains the given point. Stored/queried with an explicit
+     * long-lat axis order to avoid MySQL 8's default lat-first
+     * interpretation for SRID 4326 (see AccountController for the
+     * matching write-side fix).
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param float $longitude
+     * @param float $latitude
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeCoveringPoint($query, $longitude, $latitude)
+    {
+        return $query->whereNotNull('agent_area')->whereRaw(
+            "ST_CONTAINS(agent_area, ST_GeomFromText(?, 4326, 'axis-order=long-lat'))",
+            ['POINT(' . $longitude . ' ' . $latitude . ')']
+        );
+    }
+
     public function getConsults($property_id = '')
     {
         $select = [
