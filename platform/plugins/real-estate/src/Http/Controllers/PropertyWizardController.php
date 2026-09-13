@@ -222,7 +222,12 @@ class PropertyWizardController extends Controller
             ], 422);
         }
 
+        $wasSubmitted = $property->isSubmitted();
         $property = $this->service->finalize($property);
+
+        if (! $wasSubmitted) {
+            $this->notifyPropertySubmitted($property);
+        }
 
         return response()->json([
             'success' => true,
@@ -289,7 +294,12 @@ class PropertyWizardController extends Controller
         }
 
         $this->service->claimGuestDraftForMember($property, $member);
+        $wasSubmitted = $property->isSubmitted();
         $property = $this->service->finalize($property);
+
+        if (! $wasSubmitted) {
+            $this->notifyPropertySubmitted($property);
+        }
 
         Auth::guard('member')->login($member);
 
@@ -327,6 +337,8 @@ class PropertyWizardController extends Controller
         $property->author_id = $request->validated()['agent_id'];
         $property->author_type = Account::class;
         $property->save();
+
+        $this->notifyAgentAssigned($property);
 
         return response()->json([
             'success' => true,
@@ -383,39 +395,7 @@ class PropertyWizardController extends Controller
         $property->verified = true;
         $property->save();
 
-        $variables = [
-            'name' => 'Name',
-            'property_url' => 'Property Url',
-            'by' => 'By',
-            'title' => 'Title',
-            'action' => 'Action',
-        ];
-
-        EmailHandler::setModule('real-estate')
-            ->addVariables($variables)
-            ->setVariableValues([
-                'name' => 'Admin',
-                'property_url' => route('property.edit', ['property' => $property->id]),
-                'by' => 'Agent: ' . $account->first_name . ' ' . $account->last_name,
-                'title' => $property->name,
-                'action' => 'verified',
-            ])
-            ->sendUsingTemplate('propertymodify', 'admin@botble.com', [], false, 'plugins', 'Property Verified');
-
-        if ($property->member_id && $property->member) {
-            $member = $property->member;
-
-            EmailHandler::setModule('real-estate')
-                ->addVariables($variables)
-                ->setVariableValues([
-                    'name' => $member->full_name,
-                    'property_url' => route('public.member.properties.edit', ['property' => $property->id]),
-                    'by' => 'Agent: ' . $account->first_name . ' ' . $account->last_name,
-                    'title' => $property->name,
-                    'action' => 'verified',
-                ])
-                ->sendUsingTemplate('propertymodify', $member->email, [], false, 'plugins', 'Property Verified');
-        }
+        $this->notifyVerifiedByAgent($property, $account);
 
         return redirect()->route($this->routeName($role, 'ad-verification'), ['property' => $property->id]);
     }
@@ -433,6 +413,8 @@ class PropertyWizardController extends Controller
 
         $property->verified_by_admin = true;
         $property->save();
+
+        $this->notifyVerifiedByAdmin($property);
 
         return redirect()->route($this->routeName($role, 'ad-verification'), ['property' => $property->id]);
     }
@@ -463,6 +445,151 @@ class PropertyWizardController extends Controller
         $property->comments()->save($comment);
 
         return redirect()->route($this->routeName($role, 'ad-verification'), ['property' => $property->id]);
+    }
+
+    /**
+     * Member submitted the wizard - notify the member (confirmation) and
+     * admin (heads up). Only fires for real member submissions, not an
+     * admin/agent submitting a listing of their own with no member attached.
+     */
+    protected function notifyPropertySubmitted(Property $property): void
+    {
+        $member = $property->member;
+
+        if (! $member) {
+            return;
+        }
+
+        $this->sendWizardEmail('property_submitted_member', $member->email, [
+            'recipient_name' => $member->full_name,
+            'member_name' => $member->full_name,
+            'property_title' => $property->name,
+            'property_url' => route('public.member.properties.edit', ['property' => $property->id]),
+        ]);
+
+        $this->sendWizardEmail('property_submitted_admin', setting('admin_email'), [
+            'recipient_name' => __('Admin'),
+            'member_name' => $member->full_name,
+            'property_title' => $property->name,
+            'property_url' => route('property.edit', ['property' => $property->id]),
+        ]);
+    }
+
+    /**
+     * An agent was assigned (by whoever - member or admin) - notify all
+     * three parties: the agent, the member (if any), and admin.
+     */
+    protected function notifyAgentAssigned(Property $property): void
+    {
+        $agent = Account::find($property->author_id);
+        $member = $property->member;
+
+        if ($agent) {
+            $this->sendWizardEmail('agent_assigned_agent', $agent->email, [
+                'recipient_name' => $agent->getFullName(),
+                'agent_name' => $agent->getFullName(),
+                'member_name' => $member ? $member->full_name : __('N/A'),
+                'property_title' => $property->name,
+                'property_url' => route('public.account.properties.edit', ['property' => $property->id]),
+            ]);
+        }
+
+        if ($member) {
+            $this->sendWizardEmail('agent_assigned_member', $member->email, [
+                'recipient_name' => $member->full_name,
+                'agent_name' => $agent ? $agent->getFullName() : __('N/A'),
+                'member_name' => $member->full_name,
+                'property_title' => $property->name,
+                'property_url' => route('public.member.properties.edit', ['property' => $property->id]),
+            ]);
+        }
+
+        $this->sendWizardEmail('agent_assigned_admin', setting('admin_email'), [
+            'recipient_name' => __('Admin'),
+            'agent_name' => $agent ? $agent->getFullName() : __('N/A'),
+            'member_name' => $member ? $member->full_name : __('N/A'),
+            'property_title' => $property->name,
+            'property_url' => route('property.edit', ['property' => $property->id]),
+        ]);
+    }
+
+    /**
+     * Agent verified the listing - notify the member and admin. The agent
+     * themselves doesn't need telling, they just did it.
+     */
+    protected function notifyVerifiedByAgent(Property $property, Account $agent): void
+    {
+        $member = $property->member;
+
+        if ($member) {
+            $this->sendWizardEmail('property_verified_by_agent_member', $member->email, [
+                'recipient_name' => $member->full_name,
+                'agent_name' => $agent->getFullName(),
+                'property_title' => $property->name,
+                'property_url' => route('public.member.properties.edit', ['property' => $property->id]),
+            ]);
+        }
+
+        $this->sendWizardEmail('property_verified_by_agent_admin', setting('admin_email'), [
+            'recipient_name' => __('Admin'),
+            'agent_name' => $agent->getFullName(),
+            'property_title' => $property->name,
+            'property_url' => route('property.edit', ['property' => $property->id]),
+        ]);
+    }
+
+    /**
+     * Admin gave the final sign-off - notify the member and the agent.
+     * Admin doesn't need telling, they just did it.
+     */
+    protected function notifyVerifiedByAdmin(Property $property): void
+    {
+        $member = $property->member;
+        $agent = $property->author_type === Account::class ? Account::find($property->author_id) : null;
+
+        if ($member) {
+            $this->sendWizardEmail('property_verified_by_admin_member', $member->email, [
+                'recipient_name' => $member->full_name,
+                'property_title' => $property->name,
+                'property_url' => route('public.member.properties.edit', ['property' => $property->id]),
+            ]);
+        }
+
+        if ($agent) {
+            $this->sendWizardEmail('property_verified_by_admin_agent', $agent->email, [
+                'recipient_name' => $agent->getFullName(),
+                'property_title' => $property->name,
+                'property_url' => route('public.account.properties.edit', ['property' => $property->id]),
+            ]);
+        }
+    }
+
+    /**
+     * Every wizard notification email funnels through here - registered
+     * under module 'real-estate' (see RealEstateServiceProvider::boot()) so
+     * each template's body and on/off toggle are editable from Admin >
+     * Settings > Email, same as every other template in this plugin.
+     */
+    protected function sendWizardEmail(string $template, ?string $email, array $values): void
+    {
+        if (! $email) {
+            return;
+        }
+
+        // The subject is passed explicitly (from this same config, so it
+        // stays in one place) rather than left for EmailHandler to resolve
+        // itself: get_setting_email_subject() only checks config keyed by
+        // the literal filename "email.php" for a module, which these
+        // wizard-only templates deliberately don't live in (keeps them from
+        // cluttering the unrelated consult-form email settings group).
+        // Passed subjects still get their own {{ variable }} substitution,
+        // same as the body - see EmailHandler::send()'s $title handling.
+        $subject = config("plugins.real-estate.wizard-email.templates.$template.subject");
+
+        EmailHandler::setModule('real-estate')
+            ->addVariables(config('plugins.real-estate.wizard-email.variables', []))
+            ->setVariableValues($values)
+            ->sendUsingTemplate($template, $email, [], false, 'plugins', $subject);
     }
 
     /**
