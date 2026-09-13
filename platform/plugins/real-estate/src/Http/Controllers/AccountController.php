@@ -148,7 +148,13 @@ class AccountController extends BaseController
             $ap .= "'";
             $ap .= rtrim($po, ',');
             $ap .= '))';
-            $ap .= "',4326)";
+            // Explicit axis-order avoids MySQL 8's default lat-first axis
+            // interpretation for SRID 4326, which silently swapped the
+            // lng/lat this code writes as text (see AccountController's
+            // store()/update() for the counterpart write, and the
+            // corresponding property-side ST_Contains query in
+            // PropertyWizardController).
+            $ap .= "',4326,'axis-order=long-lat')";
 
         } else {
 
@@ -157,7 +163,13 @@ class AccountController extends BaseController
             $ap .= "'";
             $ap .= rtrim($kp, ',');
             $ap .= '))';
-            $ap .= "',4326)";
+            // Explicit axis-order avoids MySQL 8's default lat-first axis
+            // interpretation for SRID 4326, which silently swapped the
+            // lng/lat this code writes as text (see AccountController's
+            // store()/update() for the counterpart write, and the
+            // corresponding property-side ST_Contains query in
+            // PropertyWizardController).
+            $ap .= "',4326,'axis-order=long-lat')";
         }
     }
 
@@ -260,7 +272,9 @@ class AccountController extends BaseController
 
         $wkt .= implode(',', $polygons) . ')';
 
-        $geom = DB::raw("ST_GeomFromText('{$wkt}',4326)");
+        // Explicit axis-order avoids MySQL 8's default lat-first axis
+        // interpretation for SRID 4326 (see the store() method above).
+        $geom = DB::raw("ST_GeomFromText('{$wkt}',4326,'axis-order=long-lat')");
     }
 
     $account = Account::findOrFail($id);
@@ -402,7 +416,13 @@ class AccountController extends BaseController
                 $ap .= "'";
                 $ap .= rtrim($po, ',');
                 $ap .= '))';
-                $ap .= "',4326)";
+                // Explicit axis-order avoids MySQL 8's default lat-first axis
+            // interpretation for SRID 4326, which silently swapped the
+            // lng/lat this code writes as text (see AccountController's
+            // store()/update() for the counterpart write, and the
+            // corresponding property-side ST_Contains query in
+            // PropertyWizardController).
+            $ap .= "',4326,'axis-order=long-lat')";
             } else {
                 /*$kp .= "'";
 
@@ -413,7 +433,13 @@ class AccountController extends BaseController
                 $ap .= "'";
                 $ap .= rtrim($kp, ',');
                 $ap .= '))';
-                $ap .= "',4326)";
+                // Explicit axis-order avoids MySQL 8's default lat-first axis
+            // interpretation for SRID 4326, which silently swapped the
+            // lng/lat this code writes as text (see AccountController's
+            // store()/update() for the counterpart write, and the
+            // corresponding property-side ST_Contains query in
+            // PropertyWizardController).
+            $ap .= "',4326,'axis-order=long-lat')";
 
             }
             //DB::raw('ST_GeomFromText(agent_area) as agent_area')

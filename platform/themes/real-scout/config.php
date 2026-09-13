@@ -126,7 +126,14 @@ return [
 
             $theme->asset()->container('footer')->usePath()->add('scripts-js', 'js/scripts.js');
 
-            if (Route::current() && Route::current()->getName() != "public.property.show")
+            // The property wizard's own Location step loads (and initializes) the
+            // Google Maps JS API itself, on-demand, only when that step is shown -
+            // adding it again here would load the API twice on the same page and
+            // break both instances (the second `<script>` tag's module requests
+            // silently fail once the bootstrap loader has already run once).
+            if (Route::current()
+                && Route::current()->getName() != "public.property.show"
+                && ! str_contains(Route::current()->getName(), 'wizard'))
                 $theme->asset()->container('footer')->add('googleapis-js', "https://maps.googleapis.com/maps/api/js?key=" . setting('google_map_api_key') . "&libraries=places,drawing");
 
 

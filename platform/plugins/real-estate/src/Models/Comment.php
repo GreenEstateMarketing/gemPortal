@@ -21,6 +21,11 @@ class Comment extends Model
         return $this->BelongsTo(User::class,'admin_id');
     }
 
+    public function member()
+    {
+        return $this->belongsTo(Member::class);
+    }
+
     public function replies()
     {
         return $this->hasMany(Comment::class, 'parent_id');

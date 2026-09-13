@@ -12,7 +12,7 @@
       </a>
       @if (auth('account')->user()->canPost())
 
-              <a class="list-group-item pl-2 list-group-item-action bn @if (Route::currentRouteName() == 'public.account.properties.create') active @endif"  href="{{ route('public.account.properties.create') }}" title="{{ trans('plugins/real-estate::account-property.write_property') }}">
+              <a class="list-group-item pl-2 list-group-item-action bn @if (Str::startsWith(Route::currentRouteName(), 'public.account.properties.wizard.') || in_array(Route::currentRouteName(), ['public.account.properties.create', 'public.account.properties.edit'])) active @endif"  href="{{ route('public.account.properties.wizard.show') }}" title="{{ trans('plugins/real-estate::account-property.write_property') }}">
                   <i class="far fa-edit mr1"></i>{{ trans('plugins/real-estate::account-property.write_property') }}
               </a>
 

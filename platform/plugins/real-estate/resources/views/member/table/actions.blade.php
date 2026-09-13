@@ -1,7 +1,9 @@
 <div class="table-actions">
     @if (!empty($edit))
-        <a href="{{ route($edit, $item->id) }}" class="btn btn-icon btn-sm btn-primary"
-           data-original-title="{{ trans('core/base::tables.edit') }}"><i class="fa fa-edit"></i></a>
+        <a href="{{ route($edit, $item->id) }}" class="btn btn-icon btn-sm {{ !empty($isDraft) ? 'btn-warning' : 'btn-primary' }}"
+           data-original-title="{{ !empty($isDraft) ? __('Continue') : trans('core/base::tables.edit') }}">
+            <i class="fa {{ !empty($isDraft) ? 'fa-arrow-right' : 'fa-edit' }}"></i>
+        </a>
     @endif
 
     @if (!empty($delete))

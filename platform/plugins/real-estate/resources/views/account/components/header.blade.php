@@ -32,7 +32,7 @@
               </a>
           </li>
           <li>
-              <a class="no-underline mr2 black-50 hover-black-70 pv1 ph2 db" style="text-decoration: none; line-height: 32px;" href="/Add-Property">
+              <a class="no-underline mr2 black-50 hover-black-70 pv1 ph2 db" style="text-decoration: none; line-height: 32px;" href="{{ auth('account')->check() ? route('public.account.properties.wizard.show') : (auth('member')->check() ? route('public.member.properties.wizard.show') : route('general-property-wizard.show')) }}">
                   <span class="text-white">{{ trans('Add Property') }}</span>
               </a>
           </li>

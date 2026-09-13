@@ -259,7 +259,7 @@ class RealEstateServiceProvider extends ServiceProvider
         SlugHelper::setPrefix(Category::class, 'property-category');
 
         $this->setNamespace('plugins/real-estate')
-            ->loadAndPublishConfigurations(['permissions', 'email', 'real-estate', 'assets'])
+            ->loadAndPublishConfigurations(['permissions', 'email', 'wizard-email', 'real-estate', 'assets'])
             ->loadMigrations()
             ->loadAndPublishViews()
             ->loadAndPublishTranslations()
@@ -453,6 +453,13 @@ class RealEstateServiceProvider extends ServiceProvider
             $this->app->make(Schedule::class)->command(RenewPropertiesCommand::class)->dailyAt('23:30');
 
             EmailHandler::addTemplateSettings(REAL_ESTATE_MODULE_SCREEN_NAME, config('plugins.real-estate.email', []));
+
+            // Registered under the plugin's own folder name ('real-estate'),
+            // matching every EmailHandler::setModule('real-estate') call site
+            // in this plugin (PropertyWizardController etc.) - unlike the
+            // 'GEM' module above, this makes the shipped .tpl files the
+            // actual default content admins see/edit, not an empty template.
+            EmailHandler::addTemplateSettings('real-estate', config('plugins.real-estate.wizard-email', []));
 
             $this->app->register(HookServiceProvider::class);
         });

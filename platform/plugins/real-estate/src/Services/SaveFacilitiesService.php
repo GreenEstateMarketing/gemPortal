@@ -13,7 +13,7 @@ class SaveFacilitiesService
      */
     public function execute($item, $facilities): bool
     {
-        if (!$facilities || !is_array($facilities)) {
+        if (!is_array($facilities)) {
             return false;
         }
 

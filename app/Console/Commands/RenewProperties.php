@@ -73,7 +73,7 @@ class RenewProperties extends Command
                             ->addVariables($variables)
                             ->setVariableValues([
                                 'name' => $member->full_name,
-                                'property_url' => route('public.member.properties.edit', ['id' => $property->id]),
+                                'property_url' => route('public.member.properties.edit', ['property' => $property->id]),
                                 'title' => $property->name,
                                 'dashboard_url' => route('member.dashboard'),
                             ])
@@ -91,7 +91,7 @@ class RenewProperties extends Command
                             ->addVariables($variables)
                             ->setVariableValues([
                                 'name' => $member->full_name,
-                                'property_url' => route('public.member.properties.edit', ['id' => $property->id]),
+                                'property_url' => route('public.member.properties.edit', ['property' => $property->id]),
                                 'title' => $property->name,
                                 'credits_url' => route('public.member.packages')
                             ])
