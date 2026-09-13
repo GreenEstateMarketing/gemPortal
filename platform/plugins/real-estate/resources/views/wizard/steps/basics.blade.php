@@ -81,7 +81,7 @@
             <input type="hidden" id="wizard-category-name" value="{{ $categoryNameValue }}">
 
             <div class="wizard-field wizard-field--span2">
-                <label>{{ __('Ad Title') }}</label>
+                <label>{{ __('Ad Title') }} <span class="wizard-hint">({{ __('be clear and specific - this is the first thing buyers see') }})</span></label>
                 <input type="text" class="wizard-input" data-field="name" value="{{ $p->name === 'Untitled draft' ? '' : $p->name }}" placeholder="{{ __('e.g. Modern 3 Bedroom Apartment in Downtown') }}">
                 <div class="wizard-error" data-error-for="name"></div>
             </div>

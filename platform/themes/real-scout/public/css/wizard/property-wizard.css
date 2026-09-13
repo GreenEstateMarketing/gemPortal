@@ -35,7 +35,11 @@
     color: var(--pw-navy);
     max-width: var(--pw-max-width);
     margin: 0 auto;
-    padding: 32px 20px 80px;
+    /* Top padding is deliberately small - every host layout this renders
+       inside (admin's breadcrumb bar, member/agent dashboards' own pt-5)
+       already adds its own top spacing above the content area, so a large
+       value here just stacks on top of that. */
+    padding: 8px 20px 80px;
     -webkit-font-smoothing: antialiased;
 }
 
@@ -379,9 +383,10 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
 }
 
 .wizard-chip-btn--active {
-    background: var(--pw-navy);
-    border-color: var(--pw-navy);
+    background: var(--pw-gold);
+    border-color: var(--pw-gold);
     color: var(--pw-white);
+    box-shadow: 0 6px 16px rgba(224, 166, 62, 0.3);
 }
 
 .wizard-chip-row:empty::after {
