@@ -94,6 +94,12 @@ return [
             'subject'     => '{{ signer_name }} signed the contract for "{{ property_title }}"',
             'can_off'     => true,
         ],
+        'listing_payment_confirmed_member' => [
+            'title'       => 'Listing payment confirmed (to member)',
+            'description' => 'Sent to the member when their listing payment goes through.',
+            'subject'     => 'Your property "{{ property_title }}" is now listed',
+            'can_off'     => true,
+        ],
     ],
     'variables' => [
         'recipient_name' => 'Recipient name',

@@ -4,6 +4,7 @@ namespace Botble\RealEstate\Http\Controllers;
 
 use Botble\Base\Enums\BaseStatusEnum;
 use Botble\Location\Models\Country;
+use Botble\RealEstate\Enums\ModerationStatusEnum;
 use Botble\RealEstate\Http\Requests\PropertyWizardAgentStepRequest;
 use Botble\RealEstate\Http\Requests\PropertyWizardBasicsStepRequest;
 use Botble\RealEstate\Http\Requests\PropertyWizardLocationStepRequest;
@@ -117,6 +118,9 @@ class PropertyWizardController extends Controller
             'listingPaymentUrl' => $this->isContractFullySigned($property)
                 ? route($this->routeName($role, 'listing-payment'), ['property' => $property->id])
                 : null,
+            'adListingUrl' => $this->isPaymentComplete($property)
+                ? route($this->routeName($role, 'ad-listing'), ['property' => $property->id])
+                : null,
             'uploadUrl' => $this->uploadUrlFor($role),
             'authenticateUrl' => $role === 'guest' ? route('general-property-wizard.authenticate') : null,
             'categories' => Category::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name', 'parent_id']),
@@ -167,6 +171,22 @@ class PropertyWizardController extends Controller
                 return route('public.account.upload');
             default:
                 return route('public.member.upload');
+        }
+    }
+
+    /**
+     * Where the "back to your listings" link on the final Ad Listing screen
+     * should go for each role.
+     */
+    protected function dashboardUrlFor(string $role): string
+    {
+        switch ($role) {
+            case 'admin':
+                return route('property.index');
+            case 'agent':
+                return route('public.account.properties.index');
+            default:
+                return route('public.member.properties.index');
         }
     }
 
@@ -461,7 +481,8 @@ class PropertyWizardController extends Controller
 
     /**
      * Listing Payment (global step 5) - unlocked once all three parties have
-     * signed the contract. Just a placeholder screen for now.
+     * signed the contract. The member spends 1 credit to publish; agent and
+     * admin are just kept informed.
      */
     public function listingPaymentPlaceholder(Request $request, Property $property)
     {
@@ -472,12 +493,73 @@ class PropertyWizardController extends Controller
             return redirect()->route($this->routeName($role, 'sign-contract'), ['property' => $property->id]);
         }
 
+        $member = $property->member;
+        $isPaid = $this->isPaymentComplete($property);
+
         return view('plugins/real-estate::wizard.listing-payment-placeholder', [
             'role' => $role,
             'property' => $property,
+            'isPaid' => $isPaid,
+            'memberName' => $member ? $member->full_name : __('the member'),
+            'hasCredits' => (bool) $member && $member->credits >= 1,
             'chooseAgentUrl' => route($this->routeName($role, 'choose-agent'), ['property' => $property->id]),
+            'adVerificationUrl' => route($this->routeName($role, 'ad-verification'), ['property' => $property->id]),
             'signContractUrl' => route($this->routeName($role, 'sign-contract'), ['property' => $property->id]),
             'showBaseUrl' => route($this->routeName($role, 'show'), ['property' => $property->id]),
+            'confirmPaymentUrl' => $role === 'member'
+                ? route($this->routeName($role, 'listing-payment.confirm'), ['property' => $property->id])
+                : null,
+            'buyCreditsUrl' => route('public.member.packages'),
+            'adListingUrl' => $isPaid
+                ? route($this->routeName($role, 'ad-listing'), ['property' => $property->id])
+                : null,
+        ]);
+    }
+
+    /**
+     * The member confirms payment: 1 credit is deducted and the property is
+     * approved for listing. Agent and admin just see the resulting state on
+     * their next visit to this page - no action of their own here.
+     */
+    public function confirmListingPayment(Request $request, Property $property)
+    {
+        $role = $this->currentRole($request);
+        $this->authorizeAccess($role, $property);
+
+        $member = $property->member;
+
+        if (! $this->isPaymentComplete($property)) {
+            abort_unless($member->credits >= 1, 422);
+
+            $member->credits--;
+            $member->save();
+
+            $property->moderation_status = ModerationStatusEnum::APPROVED;
+            $property->save();
+
+            $this->notifyListingPaymentConfirmed($property, $member);
+        }
+
+        return redirect()->route($this->routeName($role, 'listing-payment'), ['property' => $property->id]);
+    }
+
+    /**
+     * Ad Listing (global step 6) - the final "you're live" screen, unlocked
+     * once the listing payment has gone through.
+     */
+    public function adListing(Request $request, Property $property)
+    {
+        $role = $this->currentRole($request);
+        $this->authorizeAccess($role, $property);
+
+        if (! $this->isPaymentComplete($property)) {
+            return redirect()->route($this->routeName($role, 'listing-payment'), ['property' => $property->id]);
+        }
+
+        return view('plugins/real-estate::wizard.ad-listing-placeholder', [
+            'role' => $role,
+            'property' => $property,
+            'dashboardUrl' => $this->dashboardUrlFor($role),
         ]);
     }
 
@@ -710,6 +792,19 @@ class PropertyWizardController extends Controller
     }
 
     /**
+     * The member's payment went through - only the member is emailed here
+     * (per spec); agent and admin just see the updated state on the page.
+     */
+    protected function notifyListingPaymentConfirmed(Property $property, Member $member): void
+    {
+        $this->sendWizardEmail('listing_payment_confirmed_member', $member->email, [
+            'recipient_name' => $member->full_name,
+            'property_title' => $property->name,
+            'property_url' => route('public.member.properties.edit', ['property' => $property->id]),
+        ]);
+    }
+
+    /**
      * Every wizard notification email funnels through here - registered
      * under module 'real-estate' (see RealEstateServiceProvider::boot()) so
      * each template's body and on/off toggle are editable from Admin >
@@ -764,6 +859,17 @@ class PropertyWizardController extends Controller
         return (bool) $property->contract_signed_by_member
             && (bool) $property->contract_signed_by_agent
             && (bool) $property->contract_signed_by_admin;
+    }
+
+    /**
+     * Whether the member's listing payment has gone through - i.e. whether
+     * Ad Listing is unlocked. moderation_status is set to APPROVED
+     * exclusively by confirmListingPayment(), so this doubles as "has the
+     * member paid" without needing a separate column.
+     */
+    protected function isPaymentComplete(Property $property): bool
+    {
+        return (string) $property->moderation_status === ModerationStatusEnum::APPROVED;
     }
 
     /**

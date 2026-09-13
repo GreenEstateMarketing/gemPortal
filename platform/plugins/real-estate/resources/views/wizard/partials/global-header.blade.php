@@ -17,6 +17,7 @@
     $isContractFullySigned = (bool) $property->contract_signed_by_member
         && (bool) $property->contract_signed_by_agent
         && (bool) $property->contract_signed_by_admin;
+    $isPaymentComplete = (string) $property->moderation_status === 'approved';
 @endphp
 
 <div class="wizard-global-steps">
@@ -46,9 +47,14 @@
                     $link = $signContractUrl;
                 }
             } elseif ($num === 5 && $isContractFullySigned) {
-                $state = 'current';
+                $state = $isPaymentComplete ? 'completed' : 'current';
                 if ($num !== $currentGlobalStep && isset($listingPaymentUrl)) {
                     $link = $listingPaymentUrl;
+                }
+            } elseif ($num === 6 && $isPaymentComplete) {
+                $state = 'current';
+                if ($num !== $currentGlobalStep && isset($adListingUrl)) {
+                    $link = $adListingUrl;
                 }
             }
         @endphp
