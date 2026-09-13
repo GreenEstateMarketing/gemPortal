@@ -2,8 +2,10 @@
 
 namespace Botble\RealEstate\Services;
 
+use Botble\Location\Models\City;
 use Botble\RealEstate\Models\Account;
 use Botble\RealEstate\Models\Member;
+use Botble\RealEstate\Models\Project;
 use Botble\RealEstate\Models\Property;
 use Illuminate\Support\Arr;
 
@@ -48,6 +50,8 @@ class PropertySubmissionService
             $data['square'] = getSqFeet(str_replace(',', '', $square), $areaUnit);
         }
 
+        $previousProjectId = (int) $property->project_id;
+
         $property->fill(Arr::only($data, [
             'name', 'type', 'category_id', 'project_id', 'description',
             'price', 'currency_id', 'price_unit', 'square',
@@ -56,7 +60,42 @@ class PropertySubmissionService
         $property->project_id = $property->project_id ?: 0;
         $property->status = $status;
 
+        // Picking a (different) project is a strong signal of where the
+        // property actually is - default its location to the project's
+        // own, so the Location step opens pre-filled instead of blank.
+        // Only triggers when the project selection actually changes, so it
+        // doesn't clobber location details already customized on a later
+        // revisit to this step with the same project still selected.
+        if ($property->project_id && $property->project_id !== $previousProjectId) {
+            $this->copyLocationFromProject($property);
+        }
+
         return $this->markStepComplete($property, 1);
+    }
+
+    /**
+     * Copies a project's own location (city/area/address/coordinates) onto
+     * the property, deriving state/country from the city since Project
+     * itself only stores city_id/city_area_id.
+     */
+    protected function copyLocationFromProject(Property $property): void
+    {
+        $project = Project::find($property->project_id);
+
+        if (!$project) {
+            return;
+        }
+
+        $property->city_id = $project->city_id;
+        $property->city_area_id = $project->city_area_id;
+        $property->location = $project->location;
+        $property->latitude = $project->latitude;
+        $property->longitude = $project->longitude;
+
+        if ($project->city_id && ($city = City::find($project->city_id))) {
+            $property->state_id = $city->state_id;
+            $property->country_id = $city->country_id;
+        }
     }
 
     /**
