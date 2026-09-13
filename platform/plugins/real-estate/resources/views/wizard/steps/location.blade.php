@@ -248,13 +248,28 @@
     // initMap()'s own closure.
     var mapController = null;
 
+    function comboboxLabel(name) {
+        return document.querySelector('[data-combobox="' + name + '"] [data-combobox-input]').value;
+    }
+
+    // Country/State/City only pan+zoom the map to that region - they're too
+    // coarse to place the actual pin at. Only City Area (the finest level
+    // city areas exist for) commits an actual point, via recenterOnAreaSelection.
+    function focusMapOnSelection(levelNames, zoom) {
+        if (!mapController) {
+            return;
+        }
+        var address = levelNames.map(comboboxLabel).filter(Boolean).join(', ');
+        if (address) {
+            mapController.focusOnAddress(address, zoom);
+        }
+    }
+
     function recenterOnAreaSelection() {
         if (!mapController) {
             return;
         }
-        var cityAreaLabel = document.querySelector('[data-combobox="city_area"] [data-combobox-input]').value;
-        var cityLabel = document.querySelector('[data-combobox="city"] [data-combobox-input]').value;
-        var address = [cityAreaLabel, cityLabel].filter(Boolean).join(', ');
+        var address = ['city_area', 'city'].map(comboboxLabel).filter(Boolean).join(', ');
         if (address) {
             mapController.recenterOnAddress(address);
         }
@@ -293,6 +308,7 @@
         comboboxes.city_area.clear();
         if (this.value) {
             loadStates(this.value);
+            focusMapOnSelection(['country'], 6);
         }
     });
 
@@ -301,6 +317,7 @@
         comboboxes.city_area.clear();
         if (this.value) {
             loadCities(this.value);
+            focusMapOnSelection(['state', 'country'], 8);
         }
     });
 
@@ -308,6 +325,7 @@
         comboboxes.city_area.clear();
         if (this.value) {
             loadCityAreas(this.value);
+            focusMapOnSelection(['city', 'state', 'country'], 11);
         }
     });
 
@@ -411,12 +429,28 @@
             });
         }
 
-        // Lets picking a City / City Area above recenter the map, even
-        // though city areas don't carry their own coordinates to jump to
-        // directly - geocoding "<area>, <city>" as a search string is the
-        // same fallback the admin's agent-coverage map already uses for
-        // this same gap.
+        // Lets picking Country/State/City/City Area above drive the map,
+        // even though none of them carry their own coordinates to jump to
+        // directly - geocoding the picked name(s) as a search string is
+        // the same fallback the admin's agent-coverage map already uses
+        // for this same gap.
         mapController = {
+            // Country/State/City: just pan+zoom to that region so the user
+            // can get their bearings - doesn't move the pin or the circle,
+            // since a whole city isn't a specific point yet. A fixed zoom
+            // per level (rather than fitBounds on the geocoded viewport)
+            // keeps the zoom-in progression consistent regardless of how
+            // large the matched country/state/city happens to be.
+            focusOnAddress: function (address, zoom) {
+                geocoder.geocode({ address: address }, function (results, status) {
+                    if (status === 'OK' && results[0]) {
+                        map.setCenter(results[0].geometry.location);
+                        map.setZoom(zoom);
+                    }
+                });
+            },
+            // City Area: fine enough to commit as the actual selected
+            // point - moves the pin and circle, same as a drag/click/search.
             recenterOnAddress: function (address) {
                 geocoder.geocode({ address: address }, function (results, status) {
                     if (status === 'OK' && results[0]) {
