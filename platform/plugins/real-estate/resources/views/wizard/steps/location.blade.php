@@ -226,6 +226,13 @@
         };
     }
 
+    // Deferred to 'load': the theme mounts a Vue instance on #app in a
+    // footer script (components.js), which recompiles and replaces
+    // everything inside it - including this whole form. Wiring anything up
+    // earlier attaches listeners to nodes that Vue then discards, so
+    // nothing below can run until that mount has already happened.
+    window.addEventListener('load', function () {
+
     var comboboxes = {};
     document.querySelectorAll('[data-combobox]').forEach(function (el) {
         comboboxes[el.getAttribute('data-combobox')] = createCombobox(el);
@@ -234,6 +241,24 @@
     var countryHidden = document.querySelector('[data-combobox="country"] [data-combobox-value]');
     var stateHidden = document.querySelector('[data-combobox="state"] [data-combobox-value]');
     var cityHidden = document.querySelector('[data-combobox="city"] [data-combobox-value]');
+    var cityAreaHidden = document.querySelector('[data-combobox="city_area"] [data-combobox-value]');
+
+    // Set by initMap() once Google Maps is ready, so picking a city/city
+    // area can recenter the map even though that logic lives inside
+    // initMap()'s own closure.
+    var mapController = null;
+
+    function recenterOnAreaSelection() {
+        if (!mapController) {
+            return;
+        }
+        var cityAreaLabel = document.querySelector('[data-combobox="city_area"] [data-combobox-input]').value;
+        var cityLabel = document.querySelector('[data-combobox="city"] [data-combobox-input]').value;
+        var address = [cityAreaLabel, cityLabel].filter(Boolean).join(', ');
+        if (address) {
+            mapController.recenterOnAddress(address);
+        }
+    }
 
     function fetchOptions(url, params, labelKey) {
         var query = new URLSearchParams(params).toString();
@@ -286,6 +311,12 @@
         }
     });
 
+    cityAreaHidden.addEventListener('change', function () {
+        if (this.value) {
+            recenterOnAreaSelection();
+        }
+    });
+
     // On load (resuming a draft), pre-populate each level's search options
     // for its already-selected parent, without touching the selected value.
     if (countryHidden.value) {
@@ -325,6 +356,37 @@
             draggable: true
         });
 
+        // Maps sometimes measures #wizard-map before the surrounding
+        // wizard layout has taken its final width (e.g. while fonts/icons
+        // are still settling), leaving the map stuck rendered at a sliver
+        // of its real size. Nudging it once on the next frame forces a
+        // remeasure without a visible flash, and re-centering after undoes
+        // the recentring `resize` itself triggers.
+        requestAnimationFrame(function () {
+            google.maps.event.trigger(map, 'resize');
+            map.setCenter(marker.getPosition());
+        });
+
+        // Visualizes the property's general vicinity - a fixed 1km radius
+        // around whatever point is currently selected, since city areas
+        // don't carry their own boundary/radius data to draw from instead.
+        var areaRadiusMeters = 1000;
+        var areaCircle = new google.maps.Circle({
+            map: map,
+            center: { lat: startLat, lng: startLng },
+            radius: areaRadiusMeters,
+            strokeColor: '#4285F4',
+            strokeOpacity: 0.8,
+            strokeWeight: 1,
+            fillColor: '#4285F4',
+            fillOpacity: 0.12,
+            clickable: false
+        });
+
+        function moveAreaCircleTo(pos) {
+            areaCircle.setCenter(pos);
+        }
+
         var geocoder = new google.maps.Geocoder();
 
         function showNotice(message) {
@@ -349,11 +411,29 @@
             });
         }
 
+        // Lets picking a City / City Area above recenter the map, even
+        // though city areas don't carry their own coordinates to jump to
+        // directly - geocoding "<area>, <city>" as a search string is the
+        // same fallback the admin's agent-coverage map already uses for
+        // this same gap.
+        mapController = {
+            recenterOnAddress: function (address) {
+                geocoder.geocode({ address: address }, function (results, status) {
+                    if (status === 'OK' && results[0]) {
+                        var loc = results[0].geometry.location;
+                        placeMarkerAt(loc.lat(), loc.lng(), false);
+                        locationInput.value = results[0].formatted_address;
+                    }
+                });
+            }
+        };
+
         function placeMarkerAt(lat, lng, shouldReverseGeocode) {
             var pos = { lat: lat, lng: lng };
             map.setCenter(pos);
             map.setZoom(15);
             marker.setPosition(pos);
+            moveAreaCircleTo(pos);
             latInput.value = lat;
             lngInput.value = lng;
             if (shouldReverseGeocode) {
@@ -363,6 +443,7 @@
 
         marker.addListener('dragend', function () {
             var pos = marker.getPosition();
+            moveAreaCircleTo(pos);
             latInput.value = pos.lat();
             lngInput.value = pos.lng();
             reverseGeocode(pos);
@@ -370,6 +451,7 @@
 
         map.addListener('click', function (event) {
             marker.setPosition(event.latLng);
+            moveAreaCircleTo(event.latLng);
             latInput.value = event.latLng.lat();
             lngInput.value = event.latLng.lng();
             reverseGeocode(event.latLng);
@@ -383,6 +465,7 @@
             var loc = places[0].geometry.location;
             map.setCenter(loc);
             marker.setPosition(loc);
+            moveAreaCircleTo(loc);
             latInput.value = loc.lat();
             lngInput.value = loc.lng();
         });
@@ -414,10 +497,10 @@
         );
     }
 
-    if (window.google && window.google.maps) {
-        initMap();
-    } else {
-        window.addEventListener('load', initMap);
-    }
+    // The Maps script tag above is a plain, blocking <script src> that runs
+    // well before 'load' fires, so google.maps is already available here.
+    initMap();
+
+    }); // end window 'load' listener
 })();
 </script>
