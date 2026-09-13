@@ -66,6 +66,10 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                     ->name('ad-verification.verify-admin');
                 Route::get('{property}/sign-contract', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'signContractPlaceholder'])
                     ->name('sign-contract');
+                Route::post('{property}/sign-contract/sign', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'signContract'])
+                    ->name('sign-contract.sign');
+                Route::get('{property}/listing-payment', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'listingPaymentPlaceholder'])
+                    ->name('listing-payment');
             });
         });
 
@@ -531,6 +535,10 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                         ->name('ad-verification.comment');
                     Route::get('{property}/sign-contract', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'signContractPlaceholder'])
                         ->name('sign-contract');
+                    Route::post('{property}/sign-contract/sign', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'signContract'])
+                        ->name('sign-contract.sign');
+                    Route::get('{property}/listing-payment', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'listingPaymentPlaceholder'])
+                        ->name('listing-payment');
                 });
             });
             //resource
@@ -692,6 +700,10 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                     ->name('ad-verification.comment');
                 Route::get('{property}/sign-contract', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'signContractPlaceholder'])
                     ->name('sign-contract');
+                Route::post('{property}/sign-contract/sign', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'signContract'])
+                    ->name('sign-contract.sign');
+                Route::get('{property}/listing-payment', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'listingPaymentPlaceholder'])
+                    ->name('listing-payment');
             });
             Route::post('/member/logout', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'logout'])->name('public.member.logout');
 

@@ -14,6 +14,9 @@
     $currentGlobalStep = $currentGlobalStep ?? 1;
     $hasAgent = $property->author_type === \Botble\RealEstate\Models\Account::class && $property->author_id;
     $isFullyVerified = (bool) $property->verified && (bool) $property->verified_by_admin;
+    $isContractFullySigned = (bool) $property->contract_signed_by_member
+        && (bool) $property->contract_signed_by_agent
+        && (bool) $property->contract_signed_by_admin;
 @endphp
 
 <div class="wizard-global-steps">
@@ -38,9 +41,14 @@
                     $link = $adVerificationUrl;
                 }
             } elseif ($num === 4 && $isFullyVerified) {
-                $state = 'current';
+                $state = $isContractFullySigned ? 'completed' : 'current';
                 if ($num !== $currentGlobalStep && isset($signContractUrl)) {
                     $link = $signContractUrl;
+                }
+            } elseif ($num === 5 && $isContractFullySigned) {
+                $state = 'current';
+                if ($num !== $currentGlobalStep && isset($listingPaymentUrl)) {
+                    $link = $listingPaymentUrl;
                 }
             }
         @endphp

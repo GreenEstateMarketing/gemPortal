@@ -114,6 +114,9 @@ class PropertyWizardController extends Controller
             'signContractUrl' => $this->isFullyVerified($property)
                 ? route($this->routeName($role, 'sign-contract'), ['property' => $property->id])
                 : null,
+            'listingPaymentUrl' => $this->isContractFullySigned($property)
+                ? route($this->routeName($role, 'listing-payment'), ['property' => $property->id])
+                : null,
             'uploadUrl' => $this->uploadUrlFor($role),
             'authenticateUrl' => $role === 'guest' ? route('general-property-wizard.authenticate') : null,
             'categories' => Category::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name', 'parent_id']),
@@ -388,7 +391,8 @@ class PropertyWizardController extends Controller
 
     /**
      * Sign Contract (global step 4) - unlocked once both the agent and admin
-     * have verified the property. Just a placeholder screen for now.
+     * have verified the property. All three parties (member, agent, admin)
+     * must sign, in any order, before Listing Payment unlocks.
      */
     public function signContractPlaceholder(Request $request, Property $property)
     {
@@ -399,11 +403,77 @@ class PropertyWizardController extends Controller
             return redirect()->route($this->routeName($role, 'ad-verification'), ['property' => $property->id]);
         }
 
+        $signedByMember = (bool) $property->contract_signed_by_member;
+        $signedByAgent = (bool) $property->contract_signed_by_agent;
+        $signedByAdmin = (bool) $property->contract_signed_by_admin;
+        $allSigned = $signedByMember && $signedByAgent && $signedByAdmin;
+
+        $signedByRoleMap = ['member' => $signedByMember, 'agent' => $signedByAgent, 'admin' => $signedByAdmin];
+
         return view('plugins/real-estate::wizard.sign-contract-placeholder', [
             'role' => $role,
             'property' => $property,
+            'signedByMember' => $signedByMember,
+            'signedByAgent' => $signedByAgent,
+            'signedByAdmin' => $signedByAdmin,
+            'allSigned' => $allSigned,
+            'signedByRole' => $signedByRoleMap[$role] ?? false,
             'chooseAgentUrl' => route($this->routeName($role, 'choose-agent'), ['property' => $property->id]),
             'adVerificationUrl' => route($this->routeName($role, 'ad-verification'), ['property' => $property->id]),
+            'showBaseUrl' => route($this->routeName($role, 'show'), ['property' => $property->id]),
+            'signUrl' => route($this->routeName($role, 'sign-contract.sign'), ['property' => $property->id]),
+            'listingPaymentUrl' => $allSigned
+                ? route($this->routeName($role, 'listing-payment'), ['property' => $property->id])
+                : null,
+        ]);
+    }
+
+    /**
+     * One party (whichever role the request belongs to) signs the contract.
+     * Order doesn't matter - each party's flag is independent, and Listing
+     * Payment only unlocks once all three are set.
+     */
+    public function signContract(Request $request, Property $property)
+    {
+        $role = $this->currentRole($request);
+        $this->authorizeAccess($role, $property);
+
+        $column = [
+            'member' => 'contract_signed_by_member',
+            'agent' => 'contract_signed_by_agent',
+            'admin' => 'contract_signed_by_admin',
+        ][$role] ?? null;
+
+        abort_unless($column, 403);
+
+        if (! $property->{$column}) {
+            $property->{$column} = true;
+            $property->save();
+
+            $this->notifyContractSigned($property, $role);
+        }
+
+        return redirect()->route($this->routeName($role, 'sign-contract'), ['property' => $property->id]);
+    }
+
+    /**
+     * Listing Payment (global step 5) - unlocked once all three parties have
+     * signed the contract. Just a placeholder screen for now.
+     */
+    public function listingPaymentPlaceholder(Request $request, Property $property)
+    {
+        $role = $this->currentRole($request);
+        $this->authorizeAccess($role, $property);
+
+        if (! $this->isContractFullySigned($property)) {
+            return redirect()->route($this->routeName($role, 'sign-contract'), ['property' => $property->id]);
+        }
+
+        return view('plugins/real-estate::wizard.listing-payment-placeholder', [
+            'role' => $role,
+            'property' => $property,
+            'chooseAgentUrl' => route($this->routeName($role, 'choose-agent'), ['property' => $property->id]),
+            'signContractUrl' => route($this->routeName($role, 'sign-contract'), ['property' => $property->id]),
             'showBaseUrl' => route($this->routeName($role, 'show'), ['property' => $property->id]),
         ]);
     }
@@ -593,6 +663,50 @@ class PropertyWizardController extends Controller
     }
 
     /**
+     * One party signed the Sign Contract step - notify whichever of the
+     * other two parties actually exist, using a template tailored to the
+     * (signer, recipient) pair (e.g. contract_signed_by_agent_member).
+     */
+    protected function notifyContractSigned(Property $property, string $signerRole): void
+    {
+        $member = $property->member;
+        $agent = $property->author_type === Account::class ? Account::find($property->author_id) : null;
+
+        $recipients = [
+            'member' => $member ? [
+                'name' => $member->full_name,
+                'email' => $member->email,
+                'url' => route('public.member.properties.wizard.sign-contract', ['property' => $property->id]),
+            ] : null,
+            'agent' => $agent ? [
+                'name' => $agent->getFullName(),
+                'email' => $agent->email,
+                'url' => route('public.account.properties.wizard.sign-contract', ['property' => $property->id]),
+            ] : null,
+            'admin' => [
+                'name' => __('Admin'),
+                'email' => setting('admin_email'),
+                'url' => route('property.wizard.sign-contract', ['property' => $property->id]),
+            ],
+        ];
+
+        $signerName = $recipients[$signerRole]['name'] ?? ucfirst($signerRole);
+
+        foreach ($recipients as $targetRole => $info) {
+            if ($targetRole === $signerRole || ! $info) {
+                continue;
+            }
+
+            $this->sendWizardEmail("contract_signed_by_{$signerRole}_{$targetRole}", $info['email'], [
+                'recipient_name' => $info['name'],
+                'signer_name' => $signerName,
+                'property_title' => $property->name,
+                'property_url' => $info['url'],
+            ]);
+        }
+    }
+
+    /**
      * Every wizard notification email funnels through here - registered
      * under module 'real-estate' (see RealEstateServiceProvider::boot()) so
      * each template's body and on/off toggle are editable from Admin >
@@ -636,6 +750,17 @@ class PropertyWizardController extends Controller
     protected function isFullyVerified(Property $property): bool
     {
         return (bool) $property->verified && (bool) $property->verified_by_admin;
+    }
+
+    /**
+     * Whether all three parties have signed the contract - i.e. whether
+     * Listing Payment is unlocked.
+     */
+    protected function isContractFullySigned(Property $property): bool
+    {
+        return (bool) $property->contract_signed_by_member
+            && (bool) $property->contract_signed_by_agent
+            && (bool) $property->contract_signed_by_admin;
     }
 
     /**

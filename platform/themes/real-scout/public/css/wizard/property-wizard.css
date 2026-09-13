@@ -1089,3 +1089,134 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
         max-width: 100%;
     }
 }
+
+/* =========================================================
+   SIGN CONTRACT STEP
+   ========================================================= */
+.wizard-contract-document {
+    background: var(--pw-bg);
+    border: 1px solid var(--pw-border);
+    border-radius: 12px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+}
+
+.wizard-contract-document__header {
+    border-bottom: 1px solid var(--pw-border);
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+}
+
+.wizard-contract-document__title {
+    font-family: var(--pw-font-heading);
+    font-size: 20px;
+    margin: 0 0 6px;
+}
+
+.wizard-contract-document__ref {
+    font-size: 13px;
+    color: var(--pw-text-muted);
+    margin: 0;
+}
+
+.wizard-contract-document__body {
+    max-height: 360px;
+    overflow-y: auto;
+    padding-right: 8px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #333333;
+}
+
+.wizard-contract-document__body p {
+    margin: 0 0 14px;
+}
+
+.wizard-contract-document__body ul {
+    margin: 0 0 14px;
+    padding-left: 20px;
+}
+
+.wizard-contract-document__placeholder-note {
+    font-style: italic;
+    color: var(--pw-text-muted);
+    font-size: 12px;
+}
+
+.wizard-signature-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.wizard-signature-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-radius: 12px;
+    border: 1px solid var(--pw-border);
+}
+
+.wizard-signature-row--signed {
+    background: rgba(34, 139, 34, 0.06);
+    border-color: rgba(34, 139, 34, 0.25);
+}
+
+.wizard-signature-row--pending {
+    background: var(--pw-white);
+}
+
+.wizard-signature-row__who {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+}
+
+.wizard-signature-row--signed .wizard-signature-row__who i {
+    color: #1e8a1e;
+}
+
+.wizard-signature-row--pending .wizard-signature-row__who i {
+    color: var(--pw-text-muted);
+}
+
+.wizard-signature-row__label {
+    font-weight: 600;
+}
+
+.wizard-signature-row__name {
+    color: var(--pw-text-muted);
+}
+
+.wizard-signature-row__status {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.wizard-signature-row--signed .wizard-signature-row__status {
+    color: #1e8a1e;
+}
+
+.wizard-signature-row--pending .wizard-signature-row__status {
+    color: var(--pw-text-muted);
+}
+
+.wizard-signature-row__sign-form {
+    flex-shrink: 0;
+}
+
+.wizard-btn--small {
+    padding: 8px 18px;
+    font-size: 13px;
+}
+
+@media (max-width: 480px) {
+    .wizard-signature-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+}
