@@ -10,8 +10,9 @@
     // Which macro-step's own page this partial is being rendered on -
     // that one never gets a link, same as "you are here" everywhere else
     // in the wizard. Defaults to 1 (the Submit Ad sub-wizard); the Choose
-    // Agent placeholder passes 2 explicitly.
+    // Agent and Ad Verification placeholders pass 2/3 explicitly.
     $currentGlobalStep = $currentGlobalStep ?? 1;
+    $hasAgent = $property->author_type === \Botble\RealEstate\Models\Account::class && $property->author_id;
 @endphp
 
 <div class="wizard-global-steps">
@@ -26,9 +27,14 @@
                     $link = $showBaseUrl . '?step=1';
                 }
             } elseif ($num === 2 && $property->isSubmitted()) {
-                $state = 'current';
+                $state = $hasAgent ? 'completed' : 'current';
                 if ($num !== $currentGlobalStep) {
                     $link = $chooseAgentUrl;
+                }
+            } elseif ($num === 3 && $hasAgent) {
+                $state = 'current';
+                if ($num !== $currentGlobalStep && isset($adVerificationUrl)) {
+                    $link = $adVerificationUrl;
                 }
             }
         @endphp

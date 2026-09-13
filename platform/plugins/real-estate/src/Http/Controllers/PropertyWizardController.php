@@ -93,6 +93,9 @@ class PropertyWizardController extends Controller
             'chooseAgentUrl' => $property->isSubmitted()
                 ? route($this->routeName($role, 'choose-agent'), ['property' => $property->id])
                 : null,
+            'adVerificationUrl' => $this->hasAssignedAgent($property)
+                ? route($this->routeName($role, 'ad-verification'), ['property' => $property->id])
+                : null,
             'uploadUrl' => $this->uploadUrlFor($role),
             'authenticateUrl' => $role === 'guest' ? route('general-property-wizard.authenticate') : null,
             'categories' => Category::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name', 'parent_id']),
@@ -294,6 +297,9 @@ class PropertyWizardController extends Controller
             'chooseAgentUrl' => route($this->routeName($role, 'choose-agent'), ['property' => $property->id]),
             'saveAgentUrl' => route($this->routeName($role, 'save-agent'), ['property' => $property->id]),
             'showBaseUrl' => route($this->routeName($role, 'show'), ['property' => $property->id]),
+            'adVerificationUrl' => $this->hasAssignedAgent($property)
+                ? route($this->routeName($role, 'ad-verification'), ['property' => $property->id])
+                : null,
             'nearbyAgents' => $this->nearbyAgentsFor($property),
         ]);
     }
@@ -309,8 +315,37 @@ class PropertyWizardController extends Controller
 
         return response()->json([
             'success' => true,
-            'next_url' => route($this->routeName($role, 'choose-agent'), ['property' => $property->id]),
+            'next_url' => route($this->routeName($role, 'ad-verification'), ['property' => $property->id]),
         ]);
+    }
+
+    /**
+     * Ad Verification (global step 3) - unlocked once an agent is assigned.
+     * Just a placeholder screen for now.
+     */
+    public function adVerificationPlaceholder(Request $request, Property $property)
+    {
+        $role = $this->currentRole($request);
+        $this->authorizeAccess($role, $property);
+
+        if (!$this->hasAssignedAgent($property)) {
+            return redirect()->route($this->routeName($role, 'choose-agent'), ['property' => $property->id]);
+        }
+
+        return view('plugins/real-estate::wizard.ad-verification-placeholder', [
+            'role' => $role,
+            'property' => $property,
+            'chooseAgentUrl' => route($this->routeName($role, 'choose-agent'), ['property' => $property->id]),
+        ]);
+    }
+
+    /**
+     * Whether this property has an agent (as opposed to an admin/member)
+     * assigned as its author - i.e. whether the Choose Agent step is done.
+     */
+    protected function hasAssignedAgent(Property $property): bool
+    {
+        return $property->author_type === Account::class && (bool) $property->author_id;
     }
 
     /**
@@ -325,7 +360,7 @@ class PropertyWizardController extends Controller
             ? Account::query()->coveringPoint($property->longitude, $property->latitude)->get()
             : collect();
 
-        if ($property->author_type === Account::class && $property->author_id && !$agents->contains('id', $property->author_id)) {
+        if ($this->hasAssignedAgent($property) && !$agents->contains('id', $property->author_id)) {
             $existing = Account::find($property->author_id);
 
             if ($existing) {

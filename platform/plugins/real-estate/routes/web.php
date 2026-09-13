@@ -60,6 +60,8 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                     ->name('choose-agent');
                 Route::post('{property}/choose-agent', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'saveAgent'])
                     ->name('save-agent');
+                Route::get('{property}/ad-verification', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'adVerificationPlaceholder'])
+                    ->name('ad-verification');
             });
         });
 
@@ -522,6 +524,8 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                         ->name('choose-agent');
                     Route::post('{property}/choose-agent', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'saveAgent'])
                         ->name('save-agent');
+                    Route::get('{property}/ad-verification', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'adVerificationPlaceholder'])
+                        ->name('ad-verification');
                 });
             });
             //resource
@@ -677,6 +681,8 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                     ->name('choose-agent');
                 Route::post('{property}/choose-agent', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'saveAgent'])
                     ->name('save-agent');
+                Route::get('{property}/ad-verification', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'adVerificationPlaceholder'])
+                    ->name('ad-verification');
             });
             Route::post('/member/logout', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'logout'])->name('public.member.logout');
 
