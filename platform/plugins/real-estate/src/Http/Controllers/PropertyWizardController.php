@@ -349,6 +349,7 @@ class PropertyWizardController extends Controller
             'role' => $role,
             'property' => $property,
             'chooseAgentUrl' => route($this->routeName($role, 'choose-agent'), ['property' => $property->id]),
+            'showBaseUrl' => route($this->routeName($role, 'show'), ['property' => $property->id]),
         ]);
     }
 
