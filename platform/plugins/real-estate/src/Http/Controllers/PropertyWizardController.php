@@ -111,6 +111,9 @@ class PropertyWizardController extends Controller
             'adVerificationUrl' => $this->hasAssignedAgent($property)
                 ? route($this->routeName($role, 'ad-verification'), ['property' => $property->id])
                 : null,
+            'signContractUrl' => $this->isFullyVerified($property)
+                ? route($this->routeName($role, 'sign-contract'), ['property' => $property->id])
+                : null,
             'uploadUrl' => $this->uploadUrlFor($role),
             'authenticateUrl' => $role === 'guest' ? route('general-property-wizard.authenticate') : null,
             'categories' => Category::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name', 'parent_id']),
@@ -377,6 +380,31 @@ class PropertyWizardController extends Controller
             'commentStoreUrl' => in_array($role, ['agent', 'member'], true)
                 ? route($this->routeName($role, 'ad-verification.comment'), ['property' => $property->id])
                 : null,
+            'signContractUrl' => $this->isFullyVerified($property)
+                ? route($this->routeName($role, 'sign-contract'), ['property' => $property->id])
+                : null,
+        ]);
+    }
+
+    /**
+     * Sign Contract (global step 4) - unlocked once both the agent and admin
+     * have verified the property. Just a placeholder screen for now.
+     */
+    public function signContractPlaceholder(Request $request, Property $property)
+    {
+        $role = $this->currentRole($request);
+        $this->authorizeAccess($role, $property);
+
+        if (! $this->isFullyVerified($property)) {
+            return redirect()->route($this->routeName($role, 'ad-verification'), ['property' => $property->id]);
+        }
+
+        return view('plugins/real-estate::wizard.sign-contract-placeholder', [
+            'role' => $role,
+            'property' => $property,
+            'chooseAgentUrl' => route($this->routeName($role, 'choose-agent'), ['property' => $property->id]),
+            'adVerificationUrl' => route($this->routeName($role, 'ad-verification'), ['property' => $property->id]),
+            'showBaseUrl' => route($this->routeName($role, 'show'), ['property' => $property->id]),
         ]);
     }
 
@@ -599,6 +627,15 @@ class PropertyWizardController extends Controller
     protected function hasAssignedAgent(Property $property): bool
     {
         return $property->author_type === Account::class && (bool) $property->author_id;
+    }
+
+    /**
+     * Whether both the agent and admin have signed off on the Ad
+     * Verification step - i.e. whether Sign Contract is unlocked.
+     */
+    protected function isFullyVerified(Property $property): bool
+    {
+        return (bool) $property->verified && (bool) $property->verified_by_admin;
     }
 
     /**

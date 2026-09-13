@@ -92,6 +92,10 @@
                         {{ __('Verify Property') }} <i class="fas fa-check"></i>
                     </button>
                 @endif
+            @elseif ($isFullyVerified)
+                <a href="{{ $signContractUrl }}" class="wizard-btn wizard-btn--primary">
+                    {{ __('Save & Continue') }} <i class="fas fa-arrow-right"></i>
+                </a>
             @else
                 <span></span>
             @endif

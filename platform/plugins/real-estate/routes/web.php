@@ -64,6 +64,8 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                     ->name('ad-verification');
                 Route::post('{property}/ad-verification/verify-admin', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'verifyByAdmin'])
                     ->name('ad-verification.verify-admin');
+                Route::get('{property}/sign-contract', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'signContractPlaceholder'])
+                    ->name('sign-contract');
             });
         });
 
@@ -527,6 +529,8 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                         ->name('ad-verification.verify-agent');
                     Route::post('{property}/ad-verification/comment', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'storeComment'])
                         ->name('ad-verification.comment');
+                    Route::get('{property}/sign-contract', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'signContractPlaceholder'])
+                        ->name('sign-contract');
                 });
             });
             //resource
@@ -686,6 +690,8 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                     ->name('ad-verification');
                 Route::post('{property}/ad-verification/comment', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'storeComment'])
                     ->name('ad-verification.comment');
+                Route::get('{property}/sign-contract', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'signContractPlaceholder'])
+                    ->name('sign-contract');
             });
             Route::post('/member/logout', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'logout'])->name('public.member.logout');
 

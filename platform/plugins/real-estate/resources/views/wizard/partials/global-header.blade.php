@@ -13,6 +13,7 @@
     // Agent and Ad Verification placeholders pass 2/3 explicitly.
     $currentGlobalStep = $currentGlobalStep ?? 1;
     $hasAgent = $property->author_type === \Botble\RealEstate\Models\Account::class && $property->author_id;
+    $isFullyVerified = (bool) $property->verified && (bool) $property->verified_by_admin;
 @endphp
 
 <div class="wizard-global-steps">
@@ -32,9 +33,14 @@
                     $link = $chooseAgentUrl;
                 }
             } elseif ($num === 3 && $hasAgent) {
-                $state = 'current';
+                $state = $isFullyVerified ? 'completed' : 'current';
                 if ($num !== $currentGlobalStep && isset($adVerificationUrl)) {
                     $link = $adVerificationUrl;
+                }
+            } elseif ($num === 4 && $isFullyVerified) {
+                $state = 'current';
+                if ($num !== $currentGlobalStep && isset($signContractUrl)) {
+                    $link = $signContractUrl;
                 }
             }
         @endphp
