@@ -75,6 +75,53 @@
 }
 
 /* =========================================================
+   OVERALL PROGRESS BAR
+   ========================================================= */
+.wizard-progress {
+    background: var(--pw-white);
+    border-radius: 16px;
+    padding: 18px 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 6px 24px rgba(26, 29, 36, 0.06);
+}
+
+.wizard-progress__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+}
+
+.wizard-progress__label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--pw-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.wizard-progress__percent {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--pw-gold-hover);
+    font-family: var(--pw-font-heading);
+}
+
+.wizard-progress__track {
+    height: 8px;
+    border-radius: 999px;
+    background: var(--pw-bg);
+    overflow: hidden;
+}
+
+.wizard-progress__fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--pw-gold), var(--pw-gold-hover));
+    transition: width 0.3s ease;
+}
+
+/* =========================================================
    GLOBAL 6-STEP JOURNEY TRACKER
    ========================================================= */
 .wizard-global-steps {
