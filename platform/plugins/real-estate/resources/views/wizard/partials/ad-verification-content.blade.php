@@ -15,6 +15,16 @@
 
     @include('plugins/real-estate::wizard.partials.global-header', ['currentGlobalStep' => 3])
 
+    <div class="wizard-chat-jump-row">
+        <a href="#wizard-chat" class="wizard-chat-jump">
+            <i class="fas fa-comments"></i>
+            {{ __('Go to Chat') }}
+            @if ($comments->count())
+                <span class="wizard-chat-jump__count">{{ $comments->count() }}</span>
+            @endif
+        </a>
+    </div>
+
     <div class="wizard-panel">
         @include('plugins/real-estate::wizard.partials.property-document', [
             'property' => $property,

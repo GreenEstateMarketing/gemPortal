@@ -2,7 +2,7 @@
     $canReply = in_array($role, ['agent', 'member'], true);
 @endphp
 
-<div class="wizard-panel wizard-chat">
+<div class="wizard-panel wizard-chat" id="wizard-chat">
     <h2 class="wizard-panel__heading">{{ __('Messages') }}</h2>
     <p class="wizard-panel__description">
         {{ $role === 'admin'

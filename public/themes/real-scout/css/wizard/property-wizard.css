@@ -1375,3 +1375,56 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
         font-size: 26px;
     }
 }
+
+/* =========================================================
+   AD VERIFICATION - "GO TO CHAT" JUMP LINK
+   ========================================================= */
+html {
+    scroll-behavior: smooth;
+}
+
+#wizard-chat {
+    scroll-margin-top: 90px;
+}
+
+.wizard-chat-jump-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+}
+
+.wizard-chat-jump {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: var(--pw-white);
+    border: 1px solid var(--pw-border);
+    color: var(--pw-navy) !important;
+    font-weight: 600;
+    font-size: 13.5px;
+    text-decoration: none !important;
+    transition: all 0.18s ease;
+}
+
+.wizard-chat-jump:hover {
+    border-color: var(--pw-gold);
+    color: var(--pw-gold-hover) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(224, 166, 62, 0.18);
+}
+
+.wizard-chat-jump__count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: var(--pw-gold);
+    color: var(--pw-white);
+    font-size: 11px;
+    font-weight: 700;
+}
