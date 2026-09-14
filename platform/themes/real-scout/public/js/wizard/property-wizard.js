@@ -94,6 +94,17 @@
                 return;
             }
 
+            if (type === 'radio') {
+                // Every radio in the group shares the same data-field name,
+                // so only the checked one should ever set it - otherwise
+                // whichever radio happens to appear last in the DOM always
+                // wins, regardless of what the user actually picked.
+                if (el.checked) {
+                    data[name] = el.value;
+                }
+                return;
+            }
+
             data[name] = el.value;
         });
 

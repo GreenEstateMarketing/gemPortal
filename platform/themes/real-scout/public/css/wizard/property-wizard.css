@@ -777,6 +777,10 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
     border-top: 1px dashed var(--pw-border);
 }
 
+.wizard-guest-auth h3 {
+    margin: 0 0 20px;
+}
+
 .wizard-guest-auth__toggle {
     display: flex;
     gap: 10px;
