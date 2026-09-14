@@ -5,6 +5,9 @@
     $imageItems = collect($p->images)->values()->all();
     $documentItems = json_decode($p->documents ?: '[]', true) ?: [];
     $documentNameById = $categoryDocuments->pluck('document.name', 'document_id');
+    $facilitiesLabel = $p->facilities->map(function ($facility) {
+        return $facility->pivot->distance ? "{$facility->name} ({$facility->pivot->distance})" : $facility->name;
+    })->join(', ');
 @endphp
 
 <div class="wizard-panel" data-finalize-url="{{ $stepUrls['finalize'] }}">
@@ -33,9 +36,12 @@
         </div>
         <dl class="wizard-review-grid">
             <div class="wizard-review-item wizard-field--span2"><dt>{{ __('Address') }}</dt><dd>{{ $p->location }}</dd></div>
+            <div class="wizard-review-item"><dt>{{ __('Country') }}</dt><dd>{{ optional($p->country)->name ?: '-' }}</dd></div>
+            <div class="wizard-review-item"><dt>{{ __('State') }}</dt><dd>{{ optional($p->state)->name ?: '-' }}</dd></div>
             <div class="wizard-review-item"><dt>{{ __('City') }}</dt><dd>{{ optional($p->city)->name ?: '-' }}</dd></div>
             <div class="wizard-review-item"><dt>{{ __('City Area') }}</dt><dd>{{ optional($p->cityArea)->city_area_name ?: '-' }}</dd></div>
             <div class="wizard-review-item"><dt>{{ __('Features') }}</dt><dd>{{ $p->features->pluck('name')->join(', ') ?: '-' }}</dd></div>
+            <div class="wizard-review-item wizard-field--span2"><dt>{{ __('Nearby Facilities') }}</dt><dd>{{ $facilitiesLabel ?: '-' }}</dd></div>
         </dl>
     </div>
 

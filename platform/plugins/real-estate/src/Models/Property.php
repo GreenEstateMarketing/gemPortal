@@ -8,6 +8,8 @@ use Botble\Base\Traits\EnumCastable;
 use Botble\RealEstate\Enums\ModerationStatusEnum;
 use Botble\Location\Models\City;
 use Botble\Location\Models\CityArea;
+use Botble\Location\Models\Country;
+use Botble\Location\Models\State;
 use Botble\RealEstate\Enums\PropertyPeriodEnum;
 use Botble\RealEstate\Enums\PropertyStatusEnum;
 use Botble\RealEstate\Enums\PropertyTypeEnum;
@@ -160,6 +162,22 @@ class Property extends BaseModel
     public function currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class)->withDefault();
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function country(): BelongsTo
+    {
+        return $this->belongsTo(Country::class)->withDefault();
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function state(): BelongsTo
+    {
+        return $this->belongsTo(State::class)->withDefault();
     }
 
     /**
