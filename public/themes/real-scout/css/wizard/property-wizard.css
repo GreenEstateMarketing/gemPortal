@@ -1292,7 +1292,7 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
 
 .wizard-stamp--admin {
     color: #1a1d24;
-    bottom: 28px;
+    top: 104px;
     right: 40px;
     transform: rotate(7deg);
 }
