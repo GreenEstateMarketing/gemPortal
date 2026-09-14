@@ -3,6 +3,8 @@
 namespace Botble\RealEstate\Http\Controllers;
 
 use Botble\Base\Enums\BaseStatusEnum;
+use Botble\Base\Events\CreatedContentEvent;
+use Botble\Base\Events\UpdatedContentEvent;
 use Botble\Location\Models\Country;
 use Botble\RealEstate\Enums\ModerationStatusEnum;
 use Botble\RealEstate\Http\Requests\PropertyWizardAgentStepRequest;
@@ -195,7 +197,30 @@ class PropertyWizardController extends Controller
         $role = $this->currentRole($request);
         $this->authorizeAccess($role, $property);
 
+        // Whether this property already has a slugs row - checked before
+        // saving name changes below, since CreatedContentEvent vs
+        // UpdatedContentEvent must reflect the state *before* this save.
+        $hadSlug = (bool) $property->slugable;
+
         $property = $this->service->saveBasics($property, $request->validated());
+
+        // The wizard bypasses the old admin CRUD controller entirely, which
+        // is what used to fire these - without it, a property never gets a
+        // row in the polymorphic slugs table, so $property->url silently
+        // falls back to the bare site root everywhere it's linked from.
+        // Basics is the first (and only) step that sets a real name.
+        // Deliberately NOT always using UpdatedContentEvent: its "no
+        // existing row" fallback stores the raw name unslugified (a quirk
+        // in Botble\Slug\Listeners\UpdatedContentListener - only the
+        // "existing row" branch runs the value through SlugService::create()).
+        // CreatedContentListener always slugifies, so it's used for the
+        // property's first-ever slug; every later rename goes through
+        // UpdatedContentEvent, which by then finds the existing row.
+        if ($hadSlug) {
+            event(new UpdatedContentEvent(PROPERTY_MODULE_SCREEN_NAME, $request, $property));
+        } else {
+            event(new CreatedContentEvent(PROPERTY_MODULE_SCREEN_NAME, $request, $property));
+        }
 
         return $this->stepSavedResponse($role, $property, 2);
     }
