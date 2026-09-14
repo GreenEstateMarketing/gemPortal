@@ -1105,8 +1105,18 @@ class GeneralPropertyController extends Controller
     public function postUpload(Request $request, BaseHttpResponse $response)
     {
         if (setting('media_chunk_enabled') != '1') {
+            // The wizard's per-category document slots (Media & Documents
+            // step) share this same endpoint with the property-photo
+            // uploader, but can legitimately be PDFs, Word docs, etc. per
+            // whatever the admin configured for that document type - only
+            // the photo uploader should be restricted to images here.
+            // Document uploads instead rely on RvMedia::handleUpload()'s own
+            // config-driven mime whitelist below (core.media.media.allowed_mime_types),
+            // same as the admin role already does.
+            $isDocument = $request->input('type') === 'document';
+
             $validator = Validator::make($request->all(), [
-                'file.0' => 'required|image|mimes:jpg,jpeg,png,webp,gif,bmp',
+                'file.0' => $isDocument ? 'required|file' : 'required|image|mimes:jpg,jpeg,png,webp,gif,bmp',
             ]);
 
             if ($validator->fails()) {

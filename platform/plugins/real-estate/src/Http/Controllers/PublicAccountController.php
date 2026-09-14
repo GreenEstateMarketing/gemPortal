@@ -619,8 +619,12 @@ class PublicAccountController extends Controller
     public function postUpload(Request $request, BaseHttpResponse $response)
     {
         if (setting('media_chunk_enabled') != '1') {
+            // Same shared-endpoint situation as GeneralPropertyController::postUpload() -
+            // the wizard's per-category document slots need this, not just photos.
+            $isDocument = $request->input('type') === 'document';
+
             $validator = Validator::make($request->all(), [
-                'file.0' => 'required|image|mimes:jpg,jpeg,png',
+                'file.0' => $isDocument ? 'required|file' : 'required|image|mimes:jpg,jpeg,png',
             ]);
 
             if ($validator->fails()) {

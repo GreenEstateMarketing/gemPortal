@@ -382,6 +382,13 @@
                 reserved += 1;
                 var formData = new FormData();
                 formData.append('file[]', file);
+                if (options.kind === 'document') {
+                    // Tells the upload endpoint not to apply its images-only
+                    // validation - documents can legitimately be PDFs, Word
+                    // files, etc. per whatever the category's document type
+                    // allows (see the accept="" attribute on this input).
+                    formData.append('type', 'document');
+                }
 
                 fetch(options.uploadUrl, {
                     method: 'POST',
