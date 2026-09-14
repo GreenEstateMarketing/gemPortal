@@ -80,7 +80,7 @@
 
         <h3 style="margin-top:32px;margin-bottom:6px;font-size:16px;">{{ __('Nearby Facilities') }}</h3>
         <p class="wizard-hint" style="margin-bottom:14px;">{{ __('Add any facilities near this property and how far away they are.') }}</p>
-        <div data-facility-rows>
+        <div data-facility-rows data-facility-options="{{ $facilities->map(function ($option) { return ['id' => $option->id, 'name' => $option->name]; })->toJson() }}">
             @forelse ($selectedFacilities as $facility)
                 <div class="wizard-facility-row" data-facility-row>
                     <select class="wizard-select" data-facility-id>
@@ -98,18 +98,6 @@
         <button type="button" class="wizard-btn wizard-btn--ghost" data-facility-add>
             <i class="fas fa-plus"></i> {{ __('Add Nearby Facility') }}
         </button>
-        <template data-facility-template>
-            <div class="wizard-facility-row" data-facility-row>
-                <select class="wizard-select" data-facility-id>
-                    <option value="">{{ __('Select facility') }}</option>
-                    @foreach ($facilities as $option)
-                        <option value="{{ $option->id }}">{{ $option->name }}</option>
-                    @endforeach
-                </select>
-                <input type="text" class="wizard-input" data-facility-distance placeholder="{{ __('e.g. 2km') }}">
-                <button type="button" class="wizard-btn wizard-btn--danger" data-facility-remove>{{ __('Remove') }}</button>
-            </div>
-        </template>
 
         <div class="wizard-panel__actions">
             <a href="{{ $showBaseUrl }}?step=1" class="wizard-btn wizard-btn--ghost"><i class="fas fa-arrow-left"></i> {{ __('Back') }}</a>

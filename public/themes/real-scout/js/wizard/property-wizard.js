@@ -129,10 +129,61 @@
     function initFacilityRepeater(root) {
         var container = root.querySelector('[data-facility-rows]');
         var addButton = root.querySelector('[data-facility-add]');
-        var template = root.querySelector('[data-facility-template]');
 
-        if (!container || !addButton || !template) {
+        if (!container || !addButton) {
             return;
+        }
+
+        var facilityOptions = [];
+        try {
+            facilityOptions = JSON.parse(container.getAttribute('data-facility-options') || '[]');
+        } catch (e) {
+            facilityOptions = [];
+        }
+
+        // Built via plain DOM calls rather than a <template> element - this
+        // page's Vue-based header/search components compile the whole page
+        // as a template on mount, which silently strips out raw <template>
+        // tags (and the <script> that used to clone one here), leaving the
+        // "Add Nearby Facility" button with nothing to clone.
+        function buildFacilityRow() {
+            var row = document.createElement('div');
+            row.className = 'wizard-facility-row';
+            row.setAttribute('data-facility-row', '');
+
+            var select = document.createElement('select');
+            select.className = 'wizard-select';
+            select.setAttribute('data-facility-id', '');
+
+            var placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = 'Select facility';
+            select.appendChild(placeholder);
+
+            facilityOptions.forEach(function (option) {
+                var opt = document.createElement('option');
+                opt.value = option.id;
+                opt.textContent = option.name;
+                select.appendChild(opt);
+            });
+
+            var distanceInput = document.createElement('input');
+            distanceInput.type = 'text';
+            distanceInput.className = 'wizard-input';
+            distanceInput.setAttribute('data-facility-distance', '');
+            distanceInput.placeholder = 'e.g. 2km';
+
+            var removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'wizard-btn wizard-btn--danger';
+            removeBtn.setAttribute('data-facility-remove', '');
+            removeBtn.textContent = 'Remove';
+
+            row.appendChild(select);
+            row.appendChild(distanceInput);
+            row.appendChild(removeBtn);
+
+            return row;
         }
 
         // Once a facility is picked in one row, it shouldn't be pickable
@@ -157,8 +208,7 @@
         }
 
         addButton.addEventListener('click', function () {
-            var clone = template.content.cloneNode(true);
-            container.appendChild(clone);
+            container.appendChild(buildFacilityRow());
             syncFacilityOptions();
         });
 

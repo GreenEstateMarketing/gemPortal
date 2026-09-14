@@ -509,7 +509,11 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
     display: grid;
     grid-template-columns: 2fr 1fr auto;
     gap: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 14px;
+}
+
+[data-facility-add] {
+    margin-bottom: 14px;
 }
 
 .wizard-btn {
