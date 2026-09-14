@@ -1,6 +1,5 @@
 @php
     $p = $property;
-    $squareValue = old('square', $p->square);
 
     // The site-wide area unit ('real_estate_square_unit', used to display
     // every property's square footage - see Property::square_text) is
@@ -9,7 +8,25 @@
     // whichever one matches the current setting rather than always
     // defaulting to the first option.
     $displayToAsciiAreaUnit = ['ft²' => 'ft2', 'm²' => 'm2', 'marla' => 'marla', 'yards' => 'yards', 'kanal' => 'kanal'];
-    $selectedAreaUnit = old('area_units', $displayToAsciiAreaUnit[setting('real_estate_square_unit', 'm²')] ?? 'ft2');
+    $currentDisplayUnit = setting('real_estate_square_unit', 'm²');
+    $selectedAreaUnit = old('area_units', $displayToAsciiAreaUnit[$currentDisplayUnit] ?? 'ft2');
+
+    // Property::square is always stored in sq ft (see PropertySubmissionService::saveBasics());
+    // convert it to match whichever unit is pre-selected above rather than
+    // showing the raw sq-ft number next to a different unit label.
+    $squareValue = old('square', $p->square ? getDefaultAreaByUnit($p->square, $currentDisplayUnit) : $p->square);
+
+    // Conversion factors for the JS live-recompute below, keyed the same
+    // way as the <select>'s option values - each is "how many sq ft is 1 of
+    // this unit" (ft2's is trivially 1), matching getSqFeet()'s own factors
+    // so the round trip stays consistent with what actually gets saved.
+    $areaUnitToSqFtFactor = [
+        'ft2' => 1,
+        'm2' => setting('real_estate_square_meter_to_sq_ft'),
+        'marla' => setting('real_estate_marla_to_square_ft'),
+        'yards' => setting('real_estate_yards_to_sq_ft'),
+        'kanal' => setting('real_estate_kanal_to_sq_ft'),
+    ];
 
     // Same idea for currency - default to whichever one is flagged
     // is_default rather than leaving the dropdown on its blank placeholder
@@ -145,7 +162,7 @@
                 <label>{{ __('Area') }}</label>
                 <div class="wizard-input-group">
                     <input type="number" step="0.01" min="0" class="wizard-input" data-field="square" id="wizard-square" value="{{ $squareValue }}" placeholder="{{ __('e.g. 1200') }}">
-                    <select class="wizard-select" data-field="area_units" id="wizard-area-units" style="max-width: 110px;">
+                    <select class="wizard-select" data-field="area_units" id="wizard-area-units" style="max-width: 110px;" data-area-factors="{{ json_encode($areaUnitToSqFtFactor) }}" data-previous-unit="{{ $selectedAreaUnit }}">
                         <option value="ft2" {{ $selectedAreaUnit === 'ft2' ? 'selected' : '' }}>{{ __('sq ft') }}</option>
                         <option value="m2" {{ $selectedAreaUnit === 'm2' ? 'selected' : '' }}>{{ __('sq m') }}</option>
                         <option value="marla" {{ $selectedAreaUnit === 'marla' ? 'selected' : '' }}>{{ __('marla') }}</option>

@@ -143,11 +143,35 @@
 
     function initAreaUnitSync(root) {
         var select = root.querySelector('[data-field="area_units"]');
+        var squareInput = root.querySelector('[data-field="square"]');
         if (!select) {
             return;
         }
 
+        var factors = {};
+        try {
+            factors = JSON.parse(select.getAttribute('data-area-factors') || '{}');
+        } catch (e) {
+            factors = {};
+        }
+
         select.addEventListener('change', function () {
+            // Convert the entered area value right away so it keeps
+            // representing the same real-world size instead of being
+            // silently relabeled - e.g. 20 marla shouldn't turn into
+            // "20 yards" just because the unit dropdown changed.
+            var previousUnit = select.getAttribute('data-previous-unit');
+            var oldFactor = factors[previousUnit];
+            var newFactor = factors[select.value];
+            var currentValue = squareInput ? parseFloat(squareInput.value) : NaN;
+
+            if (squareInput && oldFactor && newFactor && !isNaN(currentValue)) {
+                var sqFt = currentValue * oldFactor;
+                squareInput.value = Math.round((sqFt / newFactor) * 100) / 100;
+            }
+
+            select.setAttribute('data-previous-unit', select.value);
+
             var unit = AREA_UNIT_ASCII_TO_DISPLAY[select.value];
             if (!unit) {
                 return;

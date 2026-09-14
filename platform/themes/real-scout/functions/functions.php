@@ -758,14 +758,19 @@ function getDefaultAreaByUnit($area = '', $unit = '')
             break;
         case 'yards':
             if ($area > 0) {
-                $yards = round(setting('real_estate_yards_to_sq_ft') * $area, 2);
+                // getSqFeet() converts yards -> sq ft by multiplying by this
+                // same setting, so converting back must divide by it, not
+                // multiply again.
+                $yards = round($area / setting('real_estate_yards_to_sq_ft'), 2);
 
             }
             return $yards;
             break;
         case 'kanal':
             if ($area > 0) {
-                $kanal = round(setting('real_estate_kanal_to_sq_ft') / $area, 2);
+                // Same fix as yards above - was dividing the setting by the
+                // area (backwards) instead of the area by the setting.
+                $kanal = round($area / setting('real_estate_kanal_to_sq_ft'), 2);
 
             }
             return $kanal;
