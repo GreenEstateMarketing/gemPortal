@@ -631,22 +631,8 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
             ->name('member.register');
         Route::post('member-signup', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'createMember'])
             ->name('member.register.save');
-        Route::get('/member/verify/{token}', function ($token) {
-
-            $member = \Botble\RealEstate\Models\Member::where('verification_token', $token)->first();
-
-            if (!$member) {
-                return redirect('/member-login')
-                    ->with('error_msg', 'Invalid verification link.');
-            }
-
-            $member->email_verified = 1;
-            $member->verification_token = null;
-            $member->save();
-
-            return redirect('/member-login')
-                ->with('success_msg', 'Email verified successfully. You may now login.');
-        })->name('member.verify');
+        Route::get('/member/verify/{token}', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'verifyMemberEmail'])
+            ->name('member.verify');
         Route::get('wanted', [\Botble\RealEstate\Http\Controllers\GeneralPropertyController::class, 'wanted'])
             ->name('wanted');
         Route::get('/property/{property:name}', 'PostController@show')->name('post.show');

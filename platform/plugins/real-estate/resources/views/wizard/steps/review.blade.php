@@ -95,6 +95,12 @@
         <div class="wizard-guest-auth" data-guest-auth data-authenticate-url="{{ $authenticateUrl }}" style="display:none;">
             <h3>{{ __('Almost done - log in or create your free account to publish this ad') }}</h3>
 
+            <div data-guest-auth-success class="wizard-verify-status wizard-verify-status--success" style="display:none;">
+                <i class="fas fa-envelope-circle-check"></i>
+                {{ __('We\'ve sent a verification link to your email. Once you verify it, you\'ll be redirected back here to continue adding your property.') }}
+            </div>
+
+            <div data-guest-auth-form>
             <div class="wizard-guest-auth__toggle">
                 <label>
                     <input type="radio" name="member_status" value="existing_user" data-field="member_status" checked>
@@ -122,6 +128,7 @@
             </div>
 
             <div data-new-fields style="display:none;">
+                <p class="wizard-hint" style="margin-bottom:14px;">{{ __('We\'ll send a verification link to this email - you\'ll need to confirm it before your listing is published.') }}</p>
                 <div class="wizard-field-grid">
                     <div class="wizard-field">
                         <label>{{ __('Full Name') }}</label>
@@ -155,8 +162,9 @@
             <div class="wizard-panel__actions">
                 <span></span>
                 <button type="button" class="wizard-btn wizard-btn--primary" data-guest-auth-submit data-loading-text="{{ __('Please wait...') }}">
-                    {{ __('Create Account & Publish') }} <i class="fas fa-check"></i>
+                    <span data-guest-auth-submit-label>{{ __('Log In & Publish') }}</span> <i class="fas fa-check"></i>
                 </button>
+            </div>
             </div>
         </div>
     @endif

@@ -28,7 +28,9 @@ use SeoHelper;
 use Theme;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use EmailHandler;
 
 class PropertyWizardController extends Controller
@@ -320,6 +322,23 @@ class PropertyWizardController extends Controller
                 'email' => $request->input('new_email'),
                 'mobile_no' => $request->input('mobile_number'),
                 'password' => Hash::make($request->input('new_password')),
+                'verification_token' => Str::random(64),
+                'email_verified' => false,
+            ]);
+
+            // Attach ownership now (safe - this only tags the draft, it
+            // doesn't submit it) rather than waiting for verification: the
+            // member may click the email link on a different device, or
+            // long after this guest session has expired, so verifyMemberEmail()
+            // needs to be able to find this draft from the member alone.
+            $this->service->claimGuestDraftForMember($property, $member);
+            $this->sendMemberVerificationEmail($member);
+
+            session()->forget('wizard_draft_id');
+
+            return response()->json([
+                'success' => true,
+                'require_email_verification' => true,
             ]);
         } else {
             $validator = Validator::make($request->all(), [
@@ -360,6 +379,63 @@ class PropertyWizardController extends Controller
             'success' => true,
             'redirect_url' => route('public.member.properties.wizard.choose-agent', ['property' => $property->id]),
         ]);
+    }
+
+    /**
+     * Same verification email/token/link as the regular member-signup form
+     * (GeneralPropertyController::createMember()), so a wizard-created
+     * account goes through the exact same security model as any other.
+     */
+    protected function sendMemberVerificationEmail(Member $member): void
+    {
+        $link = url('/member/verify/' . $member->verification_token);
+
+        Mail::send(
+            'plugins/real-estate::account.emails.verify-email',
+            ['link' => $link],
+            function ($message) use ($member) {
+                $message->to($member->email)->subject('Verify Your Email');
+            }
+        );
+    }
+
+    /**
+     * Handles /member/verify/{token} for both the regular member-signup
+     * form and the wizard's guest "create a new account" path. If the
+     * member owns a draft property (only true for the wizard path -
+     * claimGuestDraftForMember() tags it at account-creation time, before
+     * verification), finalize it and drop them back into the wizard;
+     * otherwise fall back to the original "verified, please log in" flow.
+     */
+    public function verifyMemberEmail(string $token)
+    {
+        $member = Member::where('verification_token', $token)->first();
+
+        if (! $member) {
+            return redirect()->route('member.login')->with('error_msg', __('Invalid verification link.'));
+        }
+
+        $member->email_verified = true;
+        $member->verification_token = null;
+        $member->save();
+
+        $draft = Property::where('member_id', $member->id)
+            ->where('submission_status', 'draft')
+            ->latest('id')
+            ->first();
+
+        if (! $draft) {
+            return redirect()->route('member.login')->with('success_msg', __('Email verified successfully. You may now login.'));
+        }
+
+        Auth::guard('member')->login($member);
+
+        $draft = $this->service->finalize($draft);
+        $this->notifyPropertySubmitted($draft);
+
+        return redirect()
+            ->route('public.member.properties.wizard.choose-agent', ['property' => $draft->id])
+            ->with('success_msg', __('Your email has been verified. You can continue adding your property.'));
     }
 
     public function chooseAgentPlaceholder(Request $request, Property $property)

@@ -567,6 +567,7 @@
         var radios = panel.querySelectorAll('input[name="member_status"]');
         var existingFields = panel.querySelector('[data-existing-fields]');
         var newFields = panel.querySelector('[data-new-fields]');
+        var submitLabel = panel.querySelector('[data-guest-auth-submit-label]');
 
         radios.forEach(function (radio) {
             radio.addEventListener('change', function () {
@@ -574,12 +575,17 @@
                 if (radio.checked) {
                     existingFields.style.display = radio.value === 'existing_user' ? 'block' : 'none';
                     newFields.style.display = isNew ? 'block' : 'none';
+                    if (submitLabel) {
+                        submitLabel.textContent = isNew ? 'Create Account' : 'Log In & Publish';
+                    }
                 }
             });
         });
 
         var submitBtn = panel.querySelector('[data-guest-auth-submit]');
         var authUrl = panel.getAttribute('data-authenticate-url');
+        var authForm = panel.querySelector('[data-guest-auth-form]');
+        var authSuccess = panel.querySelector('[data-guest-auth-success]');
 
         submitBtn.addEventListener('click', function () {
             clearErrors(panel);
@@ -594,6 +600,16 @@
                         applyErrors(panel, result.json.errors);
                     } else {
                         window.alert((result.json && result.json.message) || 'Unable to continue.');
+                    }
+                    return;
+                }
+
+                if (result.json.require_email_verification) {
+                    if (authForm) {
+                        authForm.style.display = 'none';
+                    }
+                    if (authSuccess) {
+                        authSuccess.style.display = 'flex';
                     }
                     return;
                 }
