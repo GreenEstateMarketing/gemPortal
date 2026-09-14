@@ -11,6 +11,11 @@
     $displayToAsciiAreaUnit = ['ft²' => 'ft2', 'm²' => 'm2', 'marla' => 'marla', 'yards' => 'yards', 'kanal' => 'kanal'];
     $selectedAreaUnit = old('area_units', $displayToAsciiAreaUnit[setting('real_estate_square_unit', 'm²')] ?? 'ft2');
 
+    // Same idea for currency - default to whichever one is flagged
+    // is_default rather than leaving the dropdown on its blank placeholder
+    // (which the browser then silently submits as an empty currency_id).
+    $selectedCurrencyId = old('currency_id', $p->currency_id ?: optional($currencies->firstWhere('is_default', 1))->id);
+
     $topCategories = $categories->where('parent_id', 0)->values();
     $currentCategory = $categories->firstWhere('id', $p->category_id);
 
@@ -124,7 +129,7 @@
                     <select class="wizard-select" data-field="currency_id" style="max-width: 110px;">
                         <option value="">{{ __('Currency') }}</option>
                         @foreach ($currencies as $currency)
-                            <option value="{{ $currency->id }}" {{ ($p->currency_id == $currency->id) ? 'selected' : '' }}>{{ $currency->symbol ?: $currency->title }}</option>
+                            <option value="{{ $currency->id }}" {{ $selectedCurrencyId == $currency->id ? 'selected' : '' }}>{{ $currency->symbol ?: $currency->title }}</option>
                         @endforeach
                     </select>
                 </div>

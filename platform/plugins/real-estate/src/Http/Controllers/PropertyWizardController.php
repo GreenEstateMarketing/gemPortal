@@ -132,7 +132,7 @@ class PropertyWizardController extends Controller
             // column is a sale/rent lifecycle state, not visibility), so
             // every project is a valid choice here.
             'projects' => Project::orderBy('name')->get(['id', 'name']),
-            'currencies' => Currency::orderBy('order')->get(['id', 'title', 'symbol']),
+            'currencies' => Currency::orderBy('order')->get(['id', 'title', 'symbol', 'is_default']),
             'countries' => Country::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name']),
             'features' => Feature::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name']),
             'facilities' => Facility::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name']),
