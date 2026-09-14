@@ -16,6 +16,18 @@ return [
             'subject'     => 'New property submitted: {{ property_title }}',
             'can_off'     => true,
         ],
+        'property_updated_member' => [
+            'title'       => 'Property updated (to member)',
+            'description' => 'Sent to the member when their already-submitted property is edited through the wizard again.',
+            'subject'     => 'Your property "{{ property_title }}" has been updated',
+            'can_off'     => true,
+        ],
+        'property_updated_agent' => [
+            'title'       => 'Property updated (to agent)',
+            'description' => 'Sent to the agent when a property they manage is edited through the wizard again.',
+            'subject'     => 'Property "{{ property_title }}" has been updated',
+            'can_off'     => true,
+        ],
         'agent_assigned_member' => [
             'title'       => 'Agent assigned (to member)',
             'description' => 'Sent to the member when an agent is assigned to their property.',

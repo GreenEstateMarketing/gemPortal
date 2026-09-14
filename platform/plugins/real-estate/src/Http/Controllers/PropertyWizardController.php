@@ -280,6 +280,11 @@ class PropertyWizardController extends Controller
 
         if (! $wasSubmitted) {
             $this->notifyPropertySubmitted($property);
+        } else {
+            // Already submitted before (e.g. revisiting the wizard on a
+            // property that's already past Choose Agent) - this is an edit,
+            // not a first-time submission.
+            $this->notifyPropertyUpdated($property);
         }
 
         return response()->json([
@@ -461,11 +466,20 @@ class PropertyWizardController extends Controller
         $role = $this->currentRole($request);
         $this->authorizeAccess($role, $property);
 
-        $property->author_id = $request->validated()['agent_id'];
+        $newAgentId = (int) $request->validated()['agent_id'];
+        $agentChanged = ! $this->hasAssignedAgent($property) || (int) $property->author_id !== $newAgentId;
+
+        $property->author_id = $newAgentId;
         $property->author_type = Account::class;
         $property->save();
 
-        $this->notifyAgentAssigned($property);
+        // Revisiting this step and re-saving the same agent (e.g. just
+        // passing back through the wizard on a property that's already past
+        // this point) shouldn't re-notify anyone - only an actual change of
+        // agent should.
+        if ($agentChanged) {
+            $this->notifyAgentAssigned($property);
+        }
 
         return response()->json([
             'success' => true,
@@ -757,6 +771,33 @@ class PropertyWizardController extends Controller
             'property_title' => $property->name,
             'property_url' => route('property.edit', ['property' => $property->id]),
         ]);
+    }
+
+    /**
+     * The wizard was submitted again on a property that was already
+     * submitted before - an edit, not a first-time submission. Only member
+     * and agent are told (not admin, per spec).
+     */
+    protected function notifyPropertyUpdated(Property $property): void
+    {
+        $member = $property->member;
+        $agent = $property->author_type === Account::class ? Account::find($property->author_id) : null;
+
+        if ($member) {
+            $this->sendWizardEmail('property_updated_member', $member->email, [
+                'recipient_name' => $member->full_name,
+                'property_title' => $property->name,
+                'property_url' => route('public.member.properties.edit', ['property' => $property->id]),
+            ]);
+        }
+
+        if ($agent) {
+            $this->sendWizardEmail('property_updated_agent', $agent->email, [
+                'recipient_name' => $agent->getFullName(),
+                'property_title' => $property->name,
+                'property_url' => route('public.account.properties.edit', ['property' => $property->id]),
+            ]);
+        }
     }
 
     /**
