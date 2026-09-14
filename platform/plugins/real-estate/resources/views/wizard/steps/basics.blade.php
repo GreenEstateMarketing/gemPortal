@@ -2,6 +2,15 @@
     $p = $property;
     $squareValue = old('square', $p->square);
 
+    // The site-wide area unit ('real_estate_square_unit', used to display
+    // every property's square footage - see Property::square_text) is
+    // stored using ft²/m² unicode symbols; the wizard's own <select> uses
+    // plain ft2/m2 since that's what getSqFeet() expects. Auto-select
+    // whichever one matches the current setting rather than always
+    // defaulting to the first option.
+    $displayToAsciiAreaUnit = ['ft²' => 'ft2', 'm²' => 'm2', 'marla' => 'marla', 'yards' => 'yards', 'kanal' => 'kanal'];
+    $selectedAreaUnit = old('area_units', $displayToAsciiAreaUnit[setting('real_estate_square_unit', 'm²')] ?? 'ft2');
+
     $topCategories = $categories->where('parent_id', 0)->values();
     $currentCategory = $categories->firstWhere('id', $p->category_id);
 
@@ -132,11 +141,11 @@
                 <div class="wizard-input-group">
                     <input type="number" step="0.01" min="0" class="wizard-input" data-field="square" id="wizard-square" value="{{ $squareValue }}" placeholder="{{ __('e.g. 1200') }}">
                     <select class="wizard-select" data-field="area_units" id="wizard-area-units" style="max-width: 110px;">
-                        <option value="ft2">{{ __('sq ft') }}</option>
-                        <option value="m2">{{ __('sq m') }}</option>
-                        <option value="marla">{{ __('marla') }}</option>
-                        <option value="yards">{{ __('yards') }}</option>
-                        <option value="kanal">{{ __('kanal') }}</option>
+                        <option value="ft2" {{ $selectedAreaUnit === 'ft2' ? 'selected' : '' }}>{{ __('sq ft') }}</option>
+                        <option value="m2" {{ $selectedAreaUnit === 'm2' ? 'selected' : '' }}>{{ __('sq m') }}</option>
+                        <option value="marla" {{ $selectedAreaUnit === 'marla' ? 'selected' : '' }}>{{ __('marla') }}</option>
+                        <option value="yards" {{ $selectedAreaUnit === 'yards' ? 'selected' : '' }}>{{ __('yards') }}</option>
+                        <option value="kanal" {{ $selectedAreaUnit === 'kanal' ? 'selected' : '' }}>{{ __('kanal') }}</option>
                     </select>
                 </div>
                 <div class="wizard-error" data-error-for="square"></div>

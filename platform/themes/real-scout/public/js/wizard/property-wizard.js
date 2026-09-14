@@ -126,6 +126,46 @@
         return facilities;
     }
 
+    // The site-wide area unit (used to display every property's square
+    // footage, e.g. Property::square_text) lives in the 'real_estate_square_unit'
+    // setting and is normally changed via the homepage's "Change Area Unit"
+    // modal (GET ajax/area_unit_update). This just fires that same endpoint
+    // when the wizard's own unit dropdown changes, so the two stay in sync -
+    // no page reload needed here since nothing on this page displays
+    // square_text live.
+    var AREA_UNIT_ASCII_TO_DISPLAY = {
+        ft2: 'ft²',
+        m2: 'm²',
+        marla: 'marla',
+        yards: 'yards',
+        kanal: 'kanal'
+    };
+
+    function initAreaUnitSync(root) {
+        var select = root.querySelector('[data-field="area_units"]');
+        if (!select) {
+            return;
+        }
+
+        select.addEventListener('change', function () {
+            var unit = AREA_UNIT_ASCII_TO_DISPLAY[select.value];
+            if (!unit) {
+                return;
+            }
+
+            // Absolute path, not relative - this page can be served from
+            // several different prefixes (/member/..., /account/...,
+            // /admin/...), and the route itself lives at the site root.
+            fetch('/ajax/area_unit_update?area_unit=' + encodeURIComponent(unit), {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            }).catch(function () {
+                // Non-critical - the property's own square value still
+                // saves correctly either way, this only syncs the
+                // site-wide display preference.
+            });
+        });
+    }
+
     function initFacilityRepeater(root) {
         var container = root.querySelector('[data-facility-rows]');
         var addButton = root.querySelector('[data-facility-add]');
@@ -992,6 +1032,7 @@
         }
 
         initFacilityRepeater(root);
+        initAreaUnitSync(root);
 
         var uploadUrl = root.getAttribute('data-upload-url');
         initUploader(root, { name: 'images', kind: 'image', uploadUrl: uploadUrl, min: 1, max: 20 });
