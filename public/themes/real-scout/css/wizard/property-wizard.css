@@ -317,8 +317,14 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
     box-shadow: 0 6px 24px rgba(26, 29, 36, 0.06);
 }
 
-.wizard-panel__heading {
-    font-size: 22px;
+/* Specificity note: needs to beat ".property-wizard h1/h2/h3/h4" above
+   (which sets the decorative heading serif) - a bare class selector alone
+   is lower specificity than that element+class rule, so this stays scoped
+   to its actual parent rather than relying on source-order to win. */
+.wizard-panel .wizard-panel__heading {
+    font-family: var(--pw-font-body);
+    font-size: 20px;
+    font-weight: 600;
     margin-bottom: 6px;
 }
 
