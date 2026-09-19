@@ -642,7 +642,10 @@ class RvMedia
                 ->save();
         }
 
-        if (setting('media_watermark_enabled', config('core.media.media.watermark.enabled'))) {
+        if (
+            !$this->isUploadedFromThemeOptions()
+            && setting('media_watermark_enabled', config('core.media.media.watermark.enabled'))
+        ) {
             $image = Image::make($this->getRealPath($file->url));
             $watermark = Image::make($this->getRealPath(setting(
                 'media_watermark_source',
@@ -676,6 +679,19 @@ class RvMedia
         }
 
         return true;
+    }
+
+    /**
+     * The logo/favicon fields in Appearance > Theme Options share the same media picker/upload
+     * endpoint as every other image upload, so we can't tell them apart by folder or route.
+     * The Referer header is the only reliable signal that an upload was triggered from that page,
+     * which lets us skip watermarking site branding without affecting other uploads (e.g. listing photos).
+     */
+    protected function isUploadedFromThemeOptions(): bool
+    {
+        $referer = request()->headers->get('referer');
+
+        return $referer && Str::contains($referer, 'theme/options');
     }
 
     /**
