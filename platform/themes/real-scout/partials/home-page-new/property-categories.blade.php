@@ -6,14 +6,19 @@
     DATA GAPS (read before touching content):
     - re_categories has NO image column/relation at all, and categories are
       added/renamed dynamically with no admin upload UI for a per-category
-      photo. Card images are auto-fetched from Pixabay by category name
-      (getCategoryImageUrlFromPixabay() in functions.php, needs
-      PIXABAY_API_KEY in .env - free key at https://pixabay.com/api/docs/),
-      cached 7 days. Drop a local file named "{category-name-slug}.jpg" into
-      categories/ (e.g. categories/house.jpg) to override a specific
-      category's image without touching Pixabay at all - checked first,
-      before the API call. Falls back to categories/_placeholder.jpg if
-      neither a local override nor a Pixabay match/API key exists.
+      photo. Image priority per card:
+        1) images/home-page-new/categories/{category-name-slug}/ - a folder
+           of photos (e.g. categories/house/1.jpg, 2.jpg, ...); one is
+           picked at random on every page load.
+        2) images/home-page-new/categories/{category-name-slug}.jpg - a
+           single override file, for a one-off category.
+        3) Pixabay, auto-fetched by category name
+           (getCategoryImageUrlFromPixabay() in functions.php, needs
+           PIXABAY_API_KEY in .env - free key at
+           https://pixabay.com/api/docs/), cached 7 days.
+        4) categories/_placeholder.jpg if none of the above exist.
+      Image files must also be copied into public/themes/real-scout/... -
+      the theme's public/ dir is a build-time copy, not a symlink.
     - Only one category in the whole table ("Factory") has a real
       `description`; everything else is empty. Falls back to a generic
       "Explore quality {name} listings..." line when empty so the layout
@@ -62,24 +67,46 @@
         <div class="property-categories__grid">
             @foreach ($propertyCategoryCards as $category)
                 @php
-                    // Image priority: (1) a manually-dropped-in local file
-                    // named after the category, for whenever you want to
-                    // override a specific one - (2) a Pixabay photo matched
-                    // by category name, cached 7 days (see
-                    // getCategoryImageUrlFromPixabay() in functions.php) -
-                    // (3) the shared local placeholder if neither exists.
+                    // Image priority: (1) a random pick from a local folder
+                    // named after the category (images/home-page-new/categories/{slug}/,
+                    // e.g. categories/house/1.jpg) - re-rolled on every page
+                    // load - (2) a single manually-dropped-in local file
+                    // named after the category, for a one-off override -
+                    // (3) a Pixabay photo matched by category name, cached
+                    // 7 days (see getCategoryImageUrlFromPixabay() in
+                    // functions.php) - (4) the shared local placeholder if
+                    // none of the above exist.
                     $categorySlug = \Illuminate\Support\Str::slug($category->name);
-                    $categoryLocalImagePath = 'images/home-page-new/categories/' . $categorySlug . '.jpg';
-                    $categoryLocalImageExists = file_exists(
-                        platform_path('themes/real-scout/public/' . $categoryLocalImagePath),
-                    );
+                    $categoryImagesDir = 'images/home-page-new/categories/' . $categorySlug;
+                    $categoryImagesDirFullPath = platform_path('themes/real-scout/public/' . $categoryImagesDir);
 
-                    if ($categoryLocalImageExists) {
-                        $categoryImageUrl = Theme::asset()->url($categoryLocalImagePath);
-                    } else {
-                        $categoryImageUrl =
-                            getCategoryImageUrlFromPixabay($category->name) ??
-                            Theme::asset()->url('images/home-page-new/categories/_placeholder.jpg');
+                    $categoryImageUrl = null;
+
+                    if (is_dir($categoryImagesDirFullPath)) {
+                        $categoryImageFiles = collect(glob($categoryImagesDirFullPath . '/*.*'))
+                            ->filter(fn ($file) => in_array(
+                                Str::lower(pathinfo($file, PATHINFO_EXTENSION)),
+                                ['jpg', 'jpeg', 'png', 'webp', 'avif'],
+                            ))
+                            ->values();
+
+                        if ($categoryImageFiles->isNotEmpty()) {
+                            $categoryImageUrl = Theme::asset()->url(
+                                $categoryImagesDir . '/' . basename($categoryImageFiles->random()),
+                            );
+                        }
+                    }
+
+                    if (! $categoryImageUrl) {
+                        $categoryLocalImagePath = 'images/home-page-new/categories/' . $categorySlug . '.jpg';
+                        $categoryLocalImageExists = file_exists(
+                            platform_path('themes/real-scout/public/' . $categoryLocalImagePath),
+                        );
+
+                        $categoryImageUrl = $categoryLocalImageExists
+                            ? Theme::asset()->url($categoryLocalImagePath)
+                            : (getCategoryImageUrlFromPixabay($category->name) ??
+                                Theme::asset()->url('images/home-page-new/categories/_placeholder.jpg'));
                     }
 
                     $categoryDescription = $category->description
