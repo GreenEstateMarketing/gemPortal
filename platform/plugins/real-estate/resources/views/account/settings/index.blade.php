@@ -44,7 +44,7 @@
                                 </button>
                             </div>
                         @endif
-                        <form action="{{ route('public.account.post.settings') }}" id="setting-form" method="POST">
+                        <form action="{{ route('public.account.post.settings') }}" id="setting-form" method="POST" enctype="multipart/form-data">
                         @csrf
                         <!-- Name -->
                             <div class="form-group">
@@ -101,6 +101,42 @@
                                     <option value="other" {{ $user->gender == 'other' ? 'selected' : '' }}>{{ trans('plugins/real-estate::dashboard.gender_other') }}</option>
                                 </select>
                             </div>
+                            <!-- Signature -->
+                            <div class="form-group signature-widget" id="signature-widget" data-existing="{{ $user->hasSignature() ? '1' : '0' }}">
+                                <label>{{ trans('plugins/real-estate::account.signature') }}</label>
+
+                                @if ($user->hasSignature())
+                                    <div class="signature-current">
+                                        <img src="{{ $user->signature_data_uri }}" alt="{{ trans('plugins/real-estate::account.signature') }}" class="signature-current-img">
+                                        <small class="text-muted d-block">{{ trans('plugins/real-estate::account.signature_on_file') }}</small>
+                                    </div>
+                                @endif
+
+                                <div class="signature-tabs" role="tablist">
+                                    <button type="button" class="signature-tab active" data-mode="upload">{{ trans('plugins/real-estate::account.signature_upload_tab') }}</button>
+                                    <button type="button" class="signature-tab" data-mode="draw">{{ trans('plugins/real-estate::account.signature_draw_tab') }}</button>
+                                </div>
+
+                                <div class="signature-pane" data-pane="upload">
+                                    <input type="file" name="signature_file" id="signature_file" accept="image/png" class="form-control">
+                                </div>
+
+                                <div class="signature-pane" data-pane="draw" hidden>
+                                    <canvas id="signature-canvas" width="600" height="200"></canvas>
+                                    <button type="button" id="signature-clear" class="btn btn-secondary btn-sm">{{ trans('plugins/real-estate::account.signature_clear') }}</button>
+                                </div>
+
+                                <input type="hidden" name="signature_data" id="signature_data" value="">
+                                <input type="hidden" name="signature_mode" id="signature_mode" value="upload">
+
+                                <div class="signature-error text-danger" id="signature-error"></div>
+
+                                @if ($errors->has('signature_file') || $errors->has('signature_data'))
+                                    <span class="invalid-feedback d-block">
+                                        <strong>{{ $errors->first('signature_file') ?: $errors->first('signature_data') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
                             <button type="submit" class="btn btn-primary fw6">{{ trans('plugins/real-estate::dashboard.save') }}</button>
                         </form>
                     </div>
@@ -112,6 +148,9 @@
 {{--    @include('plugins/real-estate::account.modals.avatar')--}}
   </div>
 @endsection
+@push('styles')
+  <link href="{{ asset('vendor/core/plugins/real-estate/css/account-signature.css') }}" rel="stylesheet">
+@endpush
 @push('scripts')
   <!-- Laravel Javascript Validation -->
   <script type="text/javascript" src="{{ asset('vendor/core/core/js-validation/js/js-validation.js')}}"></script>
@@ -243,4 +282,5 @@
       $(day).append(option);
     }
   </script>
+  <script type="text/javascript" src="{{ asset('vendor/core/plugins/real-estate/js/account-signature.js') }}"></script>
 @endpush

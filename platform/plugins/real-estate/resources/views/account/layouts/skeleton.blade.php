@@ -22,6 +22,7 @@
   <!-- Styles -->
   <link href="{{ asset('vendor/core/plugins/real-estate/css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('custom/css/agent_style.css') }}" rel="stylesheet">
+  @stack('styles')
 
 
   <!-- Put translation key to translate in VueJS -->

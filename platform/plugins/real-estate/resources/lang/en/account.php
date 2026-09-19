@@ -37,4 +37,11 @@ return [
     'phone'                      => 'Phone',
     'phone_placeholder'          => 'Phone',
     'email_placeholder'          => 'Ex: example@gmail.com',
+    'signature'                  => 'Signature',
+    'signature_required'         => 'Please upload or draw your signature before saving.',
+    'signature_invalid'          => 'The signature file must be a valid PNG image.',
+    'signature_on_file'          => 'Signature on file',
+    'signature_upload_tab'       => 'Upload',
+    'signature_draw_tab'         => 'Draw',
+    'signature_clear'            => 'Clear',
 ];

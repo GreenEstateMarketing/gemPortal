@@ -130,7 +130,16 @@ class PublicAccountController extends Controller
             }
         }
 
-        $this->accountRepository->createOrUpdate($request->except('email'),
+        $data = $request->except(['email', 'signature_file', 'signature_data']);
+
+        $signaturePayload = $request->getSignaturePayload();
+
+        if ($signaturePayload) {
+            $data['signature'] = $signaturePayload['bytes'];
+            $data['signature_source'] = $signaturePayload['source'];
+        }
+
+        $this->accountRepository->createOrUpdate($data,
             ['id' => auth('account')->user()->getAuthIdentifier()]);
 
         $this->activityLogRepository->createOrUpdate(['action' => 'update_setting']);

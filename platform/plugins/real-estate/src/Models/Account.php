@@ -46,7 +46,9 @@ class Account extends Authenticatable
         'confirmed_at',
         'image_path',
         'city_id',
-        'city_area_id'
+        'city_area_id',
+        'signature',
+        'signature_source',
     ];
 
     /**
@@ -57,6 +59,7 @@ class Account extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'signature',
     ];
 
     /**
@@ -95,6 +98,26 @@ class Account extends Authenticatable
     public function getAvatarUrlAttribute()
     {
         return $this->avatar->url ? Storage::url($this->avatar->url) : (new Avatar)->create($this->getFullName())->toBase64();
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasSignature()
+    {
+        return ! empty($this->signature);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getSignatureDataUriAttribute()
+    {
+        if (! $this->hasSignature()) {
+            return null;
+        }
+
+        return 'data:image/png;base64,' . base64_encode($this->signature);
     }
 
     /**

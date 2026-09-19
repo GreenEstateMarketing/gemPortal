@@ -142,7 +142,9 @@ class AccountController extends Controller
         }
 
         try {
-            $user = $this->accountRepository->createOrUpdate($request->input(), ['id' => $userId]);
+            $user = $this->accountRepository->createOrUpdate($request->only([
+                'first_name', 'last_name', 'phone', 'dob', 'gender', 'description', 'email',
+            ]), ['id' => $userId]);
 
             return $response
                 ->setData($user->toArray())

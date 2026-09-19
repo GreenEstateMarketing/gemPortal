@@ -1,0 +1,51 @@
+/*
+    Path in plugin: platform/plugins/real-estate/public/css/account-signature.css
+    Served copy:    public/vendor/core/plugins/real-estate/css/account-signature.css (keep both in sync manually)
+*/
+.signature-widget {
+    margin-bottom: 1.5rem;
+}
+.signature-current {
+    margin-bottom: 10px;
+}
+.signature-current-img {
+    max-width: 260px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    background: #fff;
+    padding: 4px;
+}
+.signature-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.signature-tab {
+    padding: 6px 14px;
+    border: 1px solid #d9d9d9;
+    background: #f7f7f7;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.signature-tab.active {
+    background: #008388;
+    border-color: #008388;
+    color: #fff;
+}
+.signature-pane canvas#signature-canvas {
+    display: block;
+    width: 100%;
+    max-width: 600px;
+    height: 200px;
+    border: 1px dashed #b1b1b1;
+    border-radius: 4px;
+    touch-action: none;
+    cursor: crosshair;
+}
+#signature-clear {
+    margin-top: 8px;
+}
+.signature-error {
+    margin-top: 6px;
+    font-size: 0.85em;
+}
