@@ -257,6 +257,16 @@ class PublicAccountController extends Controller
         $this->savePayment($package, null, $transactionRepository, true);
 
         if ($redirectTo = session()->pull('package_purchase_redirect_to')) {
+            // This response is JSON (AJAX), so BaseHttpResponse never gets a
+            // chance to flash success_msg via its usual redirect() path -
+            // the browser navigation to $redirectTo happens purely client
+            // side (window.location.href). Flash it here instead so it's
+            // waiting in session by the time that next page loads.
+            session()->flash(
+                'success_msg',
+                'Your credits have been purchased successfully. Please continue with your property listing.'
+            );
+
             return $response
                 ->setData(['next_page' => $redirectTo])
                 ->setMessage(trans('plugins/real-estate::package.add_credit_success'));
@@ -295,6 +305,7 @@ class PublicAccountController extends Controller
             'account_id' => auth('account')->user()->getAuthIdentifier(),
             'credits'    => $package->number_of_listings,
             'payment_id' => $payment ? $payment->id : null,
+            'user_type'  => 'agent',
         ]);
 
         return true;
@@ -490,12 +501,15 @@ class PublicAccountController extends Controller
                     'user_type' => $payment->user_type
                 ]);
 
-                $message = 'Your payment has been received. Credits have been added to your account';
+                $redirectTo = session()->pull('package_purchase_redirect_to');
+                $message = $redirectTo
+                    ? 'Your credits have been purchased successfully. Please continue with your property listing.'
+                    : 'Your payment has been received. Credits have been added to your account';
 
                 event(new CreatedContentEvent(PACKAGE_MODULE_SCREEN_NAME, $payment, $package));
 
                 return $response
-                    ->setNextUrl(session()->pull('package_purchase_redirect_to', route('public.account.packages')))
+                    ->setNextUrl($redirectTo ?: route('public.account.packages'))
                     ->setMessage($message);
             } else {
                 $message = 'Something went wrong with the payment. Please try again';
@@ -549,9 +563,13 @@ class PublicAccountController extends Controller
 
                 $this->savePayment($package, $request->input('paymentId'), $transactionRepository);
 
+                $redirectTo = session()->pull('package_purchase_redirect_to');
+
                 return $response
-                    ->setNextUrl(session()->pull('package_purchase_redirect_to', route('public.account.packages')))
-                    ->setMessage(trans('plugins/real-estate::package.add_credit_success'));
+                    ->setNextUrl($redirectTo ?: route('public.account.packages'))
+                    ->setMessage($redirectTo
+                        ? 'Your credits have been purchased successfully. Please continue with your property listing.'
+                        : trans('plugins/real-estate::package.add_credit_success'));
             }
 
             return $response
@@ -562,9 +580,13 @@ class PublicAccountController extends Controller
 
         $this->savePayment($package, $request->input('charge_id'), $transactionRepository);
 
+        $redirectTo = session()->pull('package_purchase_redirect_to');
+
         return $response
-            ->setNextUrl(session()->pull('package_purchase_redirect_to', route('public.account.packages')))
-            ->setMessage(trans('plugins/real-estate::package.add_credit_success'));
+            ->setNextUrl($redirectTo ?: route('public.account.packages'))
+            ->setMessage($redirectTo
+                ? 'Your credits have been purchased successfully. Please continue with your property listing.'
+                : trans('plugins/real-estate::package.add_credit_success'));
     }
 
     /**
