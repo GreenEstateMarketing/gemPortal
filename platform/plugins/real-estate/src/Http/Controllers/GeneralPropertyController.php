@@ -522,14 +522,42 @@ class GeneralPropertyController extends Controller
     }
 
     //////////package management//////
-    public function getPackages()
+    public function getPackages(Request $request)
     {
         SeoHelper::setTitle(trans('plugins/real-estate::account.packages'));
 
         //        Assets::addScriptsDirectly('vendor/core/plugins/real-estate/js/components.js');
         Assets::addScriptsDirectly('js/app.js');
 
+        $this->rememberPackagePurchaseRedirect($request);
+
         return view('plugins/real-estate::member.settings.package');
+    }
+
+    /**
+     * A caller (e.g. the property wizard's Listing Payment step) can send
+     * the member here to buy credits and get sent back afterwards, by
+     * appending ?redirect_to=<url>. Stashed in session rather than threaded
+     * through every package-purchase request/response, since the actual
+     * purchase is a multi-request round trip (AJAX list -> AJAX subscribe ->
+     * full-page redirect to the bank's hosted checkout -> bank redirects
+     * back to our callback) that the caller has no other way to stay part
+     * of. Restricted to same-host URLs (or host-less relative ones) so this
+     * can't be turned into an open redirect via a crafted query string.
+     */
+    protected function rememberPackagePurchaseRedirect(Request $request): void
+    {
+        $redirectTo = $request->query('redirect_to');
+
+        if (!$redirectTo) {
+            return;
+        }
+
+        $host = parse_url($redirectTo, PHP_URL_HOST);
+
+        if ($host === null || $host === $request->getHost()) {
+            session(['package_purchase_redirect_to' => $redirectTo]);
+        }
     }
 
     public function ajaxGetPackages(PackageInterface $packageRepository, BaseHttpResponse $response)
@@ -597,6 +625,12 @@ class GeneralPropertyController extends Controller
         }
 
         $this->savePayment($package, null, $transactionRepository, true);
+
+        if ($redirectTo = session()->pull('package_purchase_redirect_to')) {
+            return $response
+                ->setData(['next_page' => $redirectTo])
+                ->setMessage(trans('plugins/real-estate::package.add_credit_success'));
+        }
 
         return $response
             ->setData(new MemberResource($member->refresh()))
@@ -835,7 +869,7 @@ class GeneralPropertyController extends Controller
                 event(new CreatedContentEvent(PACKAGE_MODULE_SCREEN_NAME, $payment, $package));
 
                 return $response
-                    ->setNextUrl(route('public.member.packages'))
+                    ->setNextUrl(session()->pull('package_purchase_redirect_to', route('public.member.packages')))
                     ->setMessage($message);
             } else {
                 $message = 'Something went wrong with the payment. Please try again';
@@ -887,7 +921,7 @@ class GeneralPropertyController extends Controller
                 $this->savePayment($package, $request->input('paymentId'), $transactionRepository);
 
                 return $response
-                    ->setNextUrl(route('public.member.packages'))
+                    ->setNextUrl(session()->pull('package_purchase_redirect_to', route('public.member.packages')))
                     ->setMessage(trans('plugins/real-estate::package.add_credit_success'));
             }
 
@@ -900,7 +934,7 @@ class GeneralPropertyController extends Controller
         $this->savePayment($package, $request->input('charge_id'), $transactionRepository);
 
         return $response
-            ->setNextUrl(route('public.member.packages'))
+            ->setNextUrl(session()->pull('package_purchase_redirect_to', route('public.member.packages')))
             ->setMessage(trans('plugins/real-estate::package.add_credit_success'));
     }
 

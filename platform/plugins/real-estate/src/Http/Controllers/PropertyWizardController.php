@@ -642,8 +642,12 @@ class PropertyWizardController extends Controller
                 ? route($this->routeName($role, 'listing-payment.confirm'), ['property' => $property->id])
                 : null,
             'buyCreditsUrl' => $payerRole === 'agent'
-                ? route('public.account.packages')
-                : route('public.member.packages'),
+                ? route('public.account.packages', [
+                    'redirect_to' => route($this->routeName($role, 'listing-payment'), ['property' => $property->id]),
+                ])
+                : route('public.member.packages', [
+                    'redirect_to' => route($this->routeName($role, 'listing-payment'), ['property' => $property->id]),
+                ]),
             'adListingUrl' => $isPaid
                 ? route($this->routeName($role, 'ad-listing'), ['property' => $property->id])
                 : null,
