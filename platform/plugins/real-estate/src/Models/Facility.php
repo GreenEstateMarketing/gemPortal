@@ -24,6 +24,9 @@ class Facility extends BaseModel
         'name',
         'icon',
         'status',
+        'google_place_type',
+        'google_place_keyword',
+        'google_place_radius',
     ];
 
     /**

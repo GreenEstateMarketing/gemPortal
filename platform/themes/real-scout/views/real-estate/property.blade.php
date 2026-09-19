@@ -203,7 +203,7 @@
                                                                         <i
                                                                             class="@if ($facility->icon) {{ $facility->icon }} @else fas fa-check @endif text-brown text0i"></i>
                                                                         {{ $facility->name }}
-                                                                        - {{ $facility->pivot->distance }} Km
+                                                                        - {{ $facility->pivot->distance }}
                                                                     </p>
                                                                 </div>
                                                             @endif

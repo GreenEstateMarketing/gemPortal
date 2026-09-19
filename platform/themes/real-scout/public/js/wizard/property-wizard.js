@@ -284,10 +284,63 @@
         });
 
         container.addEventListener('change', function (event) {
+            // Genuine user interaction with a row's select/distance marks it
+            // "manual" so the map script's auto-fill (see location.blade.php)
+            // never silently overwrites it later - programmatic updates from
+            // auto-fill set .value directly and never dispatch 'change', so
+            // this only ever fires for something the user actually did.
+            if (event.target.matches('[data-facility-id], [data-facility-distance]')) {
+                event.target.closest('[data-facility-row]').setAttribute('data-facility-manual', 'true');
+            }
             if (event.target.matches('[data-facility-id]')) {
                 syncFacilityOptions();
             }
         });
+
+        // Rows already in the DOM at load time are a resumed draft's
+        // previously-saved facilities (or server-rendered on a validation
+        // error re-render) - treat them as manual from the start so the
+        // very first auto-fill run can add new facilities but never
+        // silently touches one that already existed before this feature.
+        Array.prototype.slice.call(container.querySelectorAll('[data-facility-row]')).forEach(function (row) {
+            row.setAttribute('data-facility-manual', 'true');
+        });
+
+        function findFacilityRowById(idStr) {
+            var rows = Array.prototype.slice.call(container.querySelectorAll('[data-facility-row]'));
+            return rows.filter(function (row) {
+                return row.querySelector('[data-facility-id]').value === idStr;
+            })[0];
+        }
+
+        // Handoff API for location.blade.php's map script: it runs later
+        // (on window 'load', after this DOMContentLoaded setup has already
+        // finished), and calls this with [{id, distance}, ...] once it has
+        // looked up the nearest Google Place for each mapped facility.
+        window.PropertyWizardFacilities = {
+            applyAutoFill: function (matches) {
+                (matches || []).forEach(function (match) {
+                    var idStr = String(match.id);
+                    var row = findFacilityRowById(idStr);
+
+                    if (row) {
+                        if (row.getAttribute('data-facility-manual') !== 'true') {
+                            row.querySelector('[data-facility-distance]').value = match.distance;
+                            row.setAttribute('data-facility-auto', 'true');
+                        }
+                        return;
+                    }
+
+                    row = buildFacilityRow();
+                    row.setAttribute('data-facility-auto', 'true');
+                    row.querySelector('[data-facility-id]').value = idStr;
+                    row.querySelector('[data-facility-distance]').value = match.distance;
+                    container.appendChild(row);
+                });
+
+                syncFacilityOptions();
+            }
+        };
 
         syncFacilityOptions();
     }

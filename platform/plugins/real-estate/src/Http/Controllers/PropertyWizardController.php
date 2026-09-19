@@ -135,7 +135,13 @@ class PropertyWizardController extends Controller
             'currencies' => Currency::orderBy('order')->get(['id', 'title', 'symbol', 'is_default']),
             'countries' => Country::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name']),
             'features' => Feature::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name']),
-            'facilities' => Facility::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name']),
+            'facilities' => Facility::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get([
+                'id',
+                'name',
+                'google_place_type',
+                'google_place_keyword',
+                'google_place_radius',
+            ]),
             // Which document types the property's chosen category requires
             // (set up by admins in Real Estate > Category Documents) - the
             // media step turns each of these into its own upload slot.

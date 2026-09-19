@@ -79,8 +79,21 @@
         </div>
 
         <h3 style="margin-top:32px;margin-bottom:6px;font-size:16px;">{{ __('Nearby Facilities') }}</h3>
-        <p class="wizard-hint" style="margin-bottom:14px;">{{ __('Add any facilities near this property and how far away they are.') }}</p>
-        <div data-facility-rows data-facility-options="{{ $facilities->map(function ($option) { return ['id' => $option->id, 'name' => $option->name]; })->toJson() }}">
+        <p class="wizard-hint" style="margin-bottom:14px;">
+            {{ __('Add any facilities near this property and how far away they are. Matching facilities are found automatically once a location is set.') }}
+        </p>
+        <button type="button" class="wizard-btn wizard-btn--ghost" id="wizard-facility-refresh" style="margin-bottom:14px;">
+            <i class="fas fa-sync-alt"></i> {{ __('Refresh nearby facilities') }}
+        </button>
+        <div data-facility-rows data-facility-options="{{ $facilities->map(function ($option) {
+                return [
+                    'id' => $option->id,
+                    'name' => $option->name,
+                    'googlePlaceType' => $option->google_place_type,
+                    'googlePlaceKeyword' => $option->google_place_keyword,
+                    'googlePlaceRadius' => $option->google_place_radius,
+                ];
+            })->toJson() }}">
             @forelse ($selectedFacilities as $facility)
                 <div class="wizard-facility-row" data-facility-row>
                     <select class="wizard-select" data-facility-id>
@@ -108,7 +121,7 @@
     </form>
 </div>
 
-<script src="https://maps.googleapis.com/maps/api/js?key={{ setting('google_map_api_key') }}&libraries=places"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ setting('google_map_api_key') }}&libraries=places,geometry"></script>
 <script>
 (function () {
     // Minimal dependency-free searchable dropdown: a text input + hidden
@@ -395,6 +408,140 @@
 
         var geocoder = new google.maps.Geocoder();
 
+        // Nearby Facilities auto-fill: for every admin-curated facility that
+        // has a Google Place type and/or search keyword configured, look up
+        // the nearest matching place once the user commits a real point on
+        // the map (drag/click/search/city-area - never on the initial
+        // geolocation guess, so a brand new draft's very first render never
+        // silently populates rows before the user has actually chosen
+        // anything). Facilities without either field stay exactly as
+        // manual-only as they are today.
+        var facilitiesContainer = document.querySelector('[data-facility-rows]');
+        var facilityOptionsForPlaces = [];
+        try {
+            var allFacilityOptions = JSON.parse((facilitiesContainer && facilitiesContainer.getAttribute('data-facility-options')) || '[]');
+            facilityOptionsForPlaces = allFacilityOptions.filter(function (option) {
+                return option.googlePlaceType || option.googlePlaceKeyword;
+            });
+        } catch (e) {
+            facilityOptionsForPlaces = [];
+        }
+
+        var placesService = facilityOptionsForPlaces.length ? new google.maps.places.PlacesService(map) : null;
+        var autoFillTimer = null;
+
+        function formatFacilityDistance(meters) {
+            if (meters < 1000) {
+                return Math.round(meters) + 'm';
+            }
+            return (Math.round(meters / 100) / 10) + 'km';
+        }
+
+        // Some Google Places types are notoriously noisy - most visibly
+        // "airport", which also matches travel agencies, insurance agents,
+        // and airport "meet & greet"/chauffeur services in the same
+        // nearbySearch results. These aren't what a facility search means by
+        // "Airport" etc, so they're filtered out before picking the nearest
+        // match, regardless of which facility triggered the search.
+        var NOISE_PLACE_TYPES = ['travel_agency', 'insurance_agency', 'lodging', 'car_rental', 'real_estate_agency', 'lawyer', 'health', 'courier_service', 'moving_company'];
+        var NOISE_NAME_PATTERN = /travel agenc|travel and tours?\b|\btours?\b|chauffeur|meet\s*(&|and)\s*greet|consultanc|visa services|\bcargo\b|freight|logistics/i;
+
+        function isNoisyPlace(place) {
+            if (place.types && place.types.some(function (t) { return NOISE_PLACE_TYPES.indexOf(t) !== -1; })) {
+                return true;
+            }
+            return !!(place.name && NOISE_NAME_PATTERN.test(place.name));
+        }
+
+        // Nearby Search doesn't strictly guarantee distance-ordered results
+        // (particularly for keyword-only searches), so the nearest result is
+        // picked explicitly via computeDistanceBetween rather than trusting
+        // results[0].
+        function searchNearestForFacility(position, facility) {
+            return new Promise(function (resolve) {
+                var request = {
+                    location: position,
+                    radius: facility.googlePlaceRadius || 3000
+                };
+                if (facility.googlePlaceType) {
+                    request.type = facility.googlePlaceType;
+                }
+                if (facility.googlePlaceKeyword) {
+                    request.keyword = facility.googlePlaceKeyword;
+                }
+
+                placesService.nearbySearch(request, function (results, status) {
+                    if (status !== google.maps.places.PlacesServiceStatus.OK || !results || !results.length) {
+                        resolve(null);
+                        return;
+                    }
+
+                    var nearestDistance = null;
+                    results.forEach(function (place) {
+                        if (!place.geometry || !place.geometry.location || isNoisyPlace(place)) {
+                            return;
+                        }
+                        var distance = google.maps.geometry.spherical.computeDistanceBetween(position, place.geometry.location);
+                        if (nearestDistance === null || distance < nearestDistance) {
+                            nearestDistance = distance;
+                        }
+                    });
+
+                    resolve(nearestDistance === null ? null : { distance: nearestDistance });
+                });
+            });
+        }
+
+        // Populates/updates the Nearby Facilities rows via the handoff object
+        // property-wizard.js exposes (it initializes earlier, on
+        // DOMContentLoaded, before this script's own 'load' listener runs) -
+        // reusing its row-building/manual-edit-guard logic instead of
+        // duplicating it here.
+        function runAutoFillFacilities(lat, lng) {
+            if (!placesService || !window.PropertyWizardFacilities) {
+                return Promise.resolve();
+            }
+
+            var position = { lat: lat, lng: lng };
+
+            return Promise.all(facilityOptionsForPlaces.map(function (facility) {
+                return searchNearestForFacility(position, facility).then(function (nearest) {
+                    return nearest ? { id: facility.id, distance: formatFacilityDistance(nearest.distance) } : null;
+                });
+            })).then(function (results) {
+                window.PropertyWizardFacilities.applyAutoFill(results.filter(Boolean));
+            });
+        }
+
+        function scheduleAutoFillFacilities(lat, lng) {
+            clearTimeout(autoFillTimer);
+            autoFillTimer = setTimeout(function () {
+                runAutoFillFacilities(lat, lng);
+            }, 600);
+        }
+
+        var facilityRefreshButton = document.getElementById('wizard-facility-refresh');
+        if (facilityRefreshButton) {
+            var facilityRefreshButtonDefaultHtml = facilityRefreshButton.innerHTML;
+
+            facilityRefreshButton.addEventListener('click', function () {
+                var lat = parseFloat(latInput.value);
+                var lng = parseFloat(lngInput.value);
+                if (isNaN(lat) || isNaN(lng)) {
+                    window.alert('{{ __('Please set a location on the map first.') }}');
+                    return;
+                }
+
+                facilityRefreshButton.disabled = true;
+                facilityRefreshButton.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> {{ __('Refreshing...') }}';
+
+                runAutoFillFacilities(lat, lng).finally(function () {
+                    facilityRefreshButton.disabled = false;
+                    facilityRefreshButton.innerHTML = facilityRefreshButtonDefaultHtml;
+                });
+            });
+        }
+
         function showNotice(message) {
             if (!mapNotice) {
                 return;
@@ -445,6 +592,7 @@
                         var loc = results[0].geometry.location;
                         placeMarkerAt(loc.lat(), loc.lng(), false);
                         locationInput.value = results[0].formatted_address;
+                        scheduleAutoFillFacilities(loc.lat(), loc.lng());
                     }
                 });
             }
@@ -469,6 +617,7 @@
             latInput.value = pos.lat();
             lngInput.value = pos.lng();
             reverseGeocode(pos);
+            scheduleAutoFillFacilities(pos.lat(), pos.lng());
         });
 
         map.addListener('click', function (event) {
@@ -477,6 +626,7 @@
             latInput.value = event.latLng.lat();
             lngInput.value = event.latLng.lng();
             reverseGeocode(event.latLng);
+            scheduleAutoFillFacilities(event.latLng.lat(), event.latLng.lng());
         });
 
         var searchBox = new google.maps.places.SearchBox(locationInput);
@@ -490,6 +640,7 @@
             moveAreaCircleTo(loc);
             latInput.value = loc.lat();
             lngInput.value = loc.lng();
+            scheduleAutoFillFacilities(loc.lat(), loc.lng());
         });
 
         // Only auto-detect the visitor's current position for a brand new

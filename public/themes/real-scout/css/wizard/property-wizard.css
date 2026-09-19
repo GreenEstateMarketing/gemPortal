@@ -466,6 +466,17 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
     box-shadow: 0 0 0 3px rgba(224, 166, 62, 0.15);
 }
 
+/* On the member/agent/admin wizard (embedded in the account/admin layout,
+   unlike the public guest wizard), `select:not([multiple])` from the admin
+   panel's base theme CSS (vendor/core/core/base/css/themes/default.css)
+   forces border-radius back to 0 on every <select> - its :not() argument
+   makes it slightly more specific than a plain .wizard-select class rule,
+   so it wins regardless of stylesheet order. Scoping under .wizard-panel
+   raises this rule's specificity above that one. */
+.wizard-panel select.wizard-select {
+    border-radius: 10px;
+}
+
 .wizard-textarea {
     resize: vertical;
     min-height: 110px;
