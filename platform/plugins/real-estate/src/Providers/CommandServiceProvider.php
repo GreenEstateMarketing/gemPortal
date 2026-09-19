@@ -2,6 +2,7 @@
 
 namespace Botble\RealEstate\Providers;
 
+use Botble\RealEstate\Commands\PruneOrphanPropertiesCommand;
 use Botble\RealEstate\Commands\RenewPropertiesCommand;
 use Illuminate\Support\ServiceProvider;
 
@@ -11,6 +12,7 @@ class CommandServiceProvider extends ServiceProvider
     {
         $this->commands([
             RenewPropertiesCommand::class,
+            PruneOrphanPropertiesCommand::class,
         ]);
     }
 }
