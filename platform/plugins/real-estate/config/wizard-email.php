@@ -112,6 +112,12 @@ return [
             'subject'     => 'Your property "{{ property_title }}" is now listed',
             'can_off'     => true,
         ],
+        'listing_payment_confirmed_agent' => [
+            'title'       => 'Listing payment confirmed (to agent)',
+            'description' => 'Sent to the agent when their own listing payment goes through (a property they submitted themselves, with no member owner).',
+            'subject'     => 'Your property "{{ property_title }}" is now listed',
+            'can_off'     => true,
+        ],
     ],
     'variables' => [
         'recipient_name' => 'Recipient name',

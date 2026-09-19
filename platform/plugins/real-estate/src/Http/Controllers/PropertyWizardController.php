@@ -289,7 +289,10 @@ class PropertyWizardController extends Controller
 
         return response()->json([
             'success' => true,
-            'redirect_url' => route($this->routeName($role, 'choose-agent'), ['property' => $property->id]),
+            'redirect_url' => route(
+                $this->routeName($role, $this->hasAssignedAgent($property) ? 'ad-verification' : 'choose-agent'),
+                ['property' => $property->id]
+            ),
         ]);
     }
 
@@ -448,6 +451,13 @@ class PropertyWizardController extends Controller
         $role = $this->currentRole($request);
         $this->authorizeAccess($role, $property);
 
+        // An agent submitting their own listing is already its assigned
+        // agent - there's nobody for them to choose, so this step doesn't
+        // apply to them even if they land here via a stale link.
+        if ($role === 'agent') {
+            return redirect()->route($this->routeName($role, 'ad-verification'), ['property' => $property->id]);
+        }
+
         return view('plugins/real-estate::wizard.choose-agent-placeholder', [
             'role' => $role,
             'property' => $property,
@@ -541,16 +551,20 @@ class PropertyWizardController extends Controller
             return redirect()->route($this->routeName($role, 'ad-verification'), ['property' => $property->id]);
         }
 
+        $requiresMember = (bool) $property->member_id;
         $signedByMember = (bool) $property->contract_signed_by_member;
         $signedByAgent = (bool) $property->contract_signed_by_agent;
         $signedByAdmin = (bool) $property->contract_signed_by_admin;
-        $allSigned = $signedByMember && $signedByAgent && $signedByAdmin;
+        $allSigned = $requiresMember
+            ? ($signedByMember && $signedByAgent && $signedByAdmin)
+            : ($signedByAgent && $signedByAdmin);
 
         $signedByRoleMap = ['member' => $signedByMember, 'agent' => $signedByAgent, 'admin' => $signedByAdmin];
 
         return view('plugins/real-estate::wizard.sign-contract-placeholder', [
             'role' => $role,
             'property' => $property,
+            'requiresMember' => $requiresMember,
             'signedByMember' => $signedByMember,
             'signedByAgent' => $signedByAgent,
             'signedByAdmin' => $signedByAdmin,
@@ -608,23 +622,28 @@ class PropertyWizardController extends Controller
             return redirect()->route($this->routeName($role, 'sign-contract'), ['property' => $property->id]);
         }
 
-        $member = $property->member;
+        [$payer, $payerRole] = $this->payerFor($property);
         $isPaid = $this->isPaymentComplete($property);
 
         return view('plugins/real-estate::wizard.listing-payment-placeholder', [
             'role' => $role,
             'property' => $property,
             'isPaid' => $isPaid,
-            'memberName' => $member ? $member->full_name : __('the member'),
-            'hasCredits' => (bool) $member && $member->credits >= 1,
+            'payerRole' => $payerRole,
+            'payerName' => $payer
+                ? ($payerRole === 'member' ? $payer->full_name : $payer->getFullName())
+                : __('the member'),
+            'hasCredits' => (bool) $payer && $payer->credits >= 1,
             'chooseAgentUrl' => route($this->routeName($role, 'choose-agent'), ['property' => $property->id]),
             'adVerificationUrl' => route($this->routeName($role, 'ad-verification'), ['property' => $property->id]),
             'signContractUrl' => route($this->routeName($role, 'sign-contract'), ['property' => $property->id]),
             'showBaseUrl' => route($this->routeName($role, 'show'), ['property' => $property->id]),
-            'confirmPaymentUrl' => $role === 'member'
+            'confirmPaymentUrl' => $role === $payerRole
                 ? route($this->routeName($role, 'listing-payment.confirm'), ['property' => $property->id])
                 : null,
-            'buyCreditsUrl' => route('public.member.packages'),
+            'buyCreditsUrl' => $payerRole === 'agent'
+                ? route('public.account.packages')
+                : route('public.member.packages'),
             'adListingUrl' => $isPaid
                 ? route($this->routeName($role, 'ad-listing'), ['property' => $property->id])
                 : null,
@@ -632,8 +651,8 @@ class PropertyWizardController extends Controller
     }
 
     /**
-     * The member confirms payment: 1 credit is deducted and the property is
-     * approved for listing. Agent and admin just see the resulting state on
+     * The payer confirms payment: 1 credit is deducted and the property is
+     * approved for listing. Everyone else just sees the resulting state on
      * their next visit to this page - no action of their own here.
      */
     public function confirmListingPayment(Request $request, Property $property)
@@ -641,21 +660,45 @@ class PropertyWizardController extends Controller
         $role = $this->currentRole($request);
         $this->authorizeAccess($role, $property);
 
-        $member = $property->member;
+        [$payer, $payerRole] = $this->payerFor($property);
+
+        abort_unless($payer && $role === $payerRole, 403);
 
         if (! $this->isPaymentComplete($property)) {
-            abort_unless($member->credits >= 1, 422);
+            abort_unless($payer->credits >= 1, 422);
 
-            $member->credits--;
-            $member->save();
+            $payer->credits--;
+            $payer->save();
 
             $property->moderation_status = ModerationStatusEnum::APPROVED;
             $property->save();
 
-            $this->notifyListingPaymentConfirmed($property, $member);
+            $this->notifyListingPaymentConfirmed($property, $payer);
         }
 
         return redirect()->route($this->routeName($role, 'listing-payment'), ['property' => $property->id]);
+    }
+
+    /**
+     * Who owes the 1-credit listing payment: the member for a member-owned
+     * listing, or the assigned agent themselves for a listing with no
+     * member (e.g. an agent's own submission). [null, null] if neither
+     * applies yet (shouldn't normally be reachable - Sign Contract requires
+     * an assigned agent at minimum before this step ever unlocks).
+     *
+     * @return array{0: Member|Account|null, 1: string|null}
+     */
+    protected function payerFor(Property $property): array
+    {
+        if ($property->member) {
+            return [$property->member, 'member'];
+        }
+
+        if ($this->hasAssignedAgent($property)) {
+            return [Account::find($property->author_id), 'agent'];
+        }
+
+        return [null, null];
     }
 
     /**
@@ -934,15 +977,30 @@ class PropertyWizardController extends Controller
     }
 
     /**
-     * The member's payment went through - only the member is emailed here
-     * (per spec); agent and admin just see the updated state on the page.
+     * The payer's payment went through - only the payer is emailed here (per
+     * spec); agent/admin just see the updated state on the page. The payer
+     * is the member for a member-owned listing, or the assigned agent
+     * themselves for a listing with no member (e.g. an agent's own
+     * submission).
+     *
+     * @param Member|Account $payer
      */
-    protected function notifyListingPaymentConfirmed(Property $property, Member $member): void
+    protected function notifyListingPaymentConfirmed(Property $property, $payer): void
     {
-        $this->sendWizardEmail('listing_payment_confirmed_member', $member->email, [
-            'recipient_name' => $member->full_name,
+        if ($payer instanceof Member) {
+            $this->sendWizardEmail('listing_payment_confirmed_member', $payer->email, [
+                'recipient_name' => $payer->full_name,
+                'property_title' => $property->name,
+                'property_url' => route('public.member.properties.edit', ['property' => $property->id]),
+            ]);
+
+            return;
+        }
+
+        $this->sendWizardEmail('listing_payment_confirmed_agent', $payer->email, [
+            'recipient_name' => $payer->getFullName(),
             'property_title' => $property->name,
-            'property_url' => route('public.member.properties.edit', ['property' => $property->id]),
+            'property_url' => route('public.account.properties.edit', ['property' => $property->id]),
         ]);
     }
 
@@ -993,11 +1051,17 @@ class PropertyWizardController extends Controller
     }
 
     /**
-     * Whether all three parties have signed the contract - i.e. whether
-     * Listing Payment is unlocked.
+     * Whether every party that needs to sign the contract has signed it -
+     * i.e. whether Listing Payment is unlocked. A property with no member
+     * (an agent's own listing - there's no separate owner to sign) only
+     * needs the agent and admin; every other listing needs all three.
      */
     protected function isContractFullySigned(Property $property): bool
     {
+        if (! $property->member_id) {
+            return (bool) $property->contract_signed_by_agent && (bool) $property->contract_signed_by_admin;
+        }
+
         return (bool) $property->contract_signed_by_member
             && (bool) $property->contract_signed_by_agent
             && (bool) $property->contract_signed_by_admin;

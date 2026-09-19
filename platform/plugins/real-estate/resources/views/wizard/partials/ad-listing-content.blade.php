@@ -6,7 +6,7 @@
 
     <div class="wizard-celebration">
         <div class="wizard-celebration__icon">🎉</div>
-        <span class="property-wizard__eyebrow">{{ __('Step 6 of 6') }}</span>
+        <span class="property-wizard__eyebrow">{{ $role === 'agent' ? __('Step 5 of 5') : __('Step 6 of 6') }}</span>
         <h1 class="wizard-celebration__title">{{ __('Congratulations!') }}</h1>
         <p class="wizard-celebration__property">{{ $property->name }}</p>
         <p class="wizard-celebration__message">

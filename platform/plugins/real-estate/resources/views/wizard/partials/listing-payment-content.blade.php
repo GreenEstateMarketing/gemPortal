@@ -3,7 +3,7 @@
 
 <div class="property-wizard">
     <div class="property-wizard__intro">
-        <span class="property-wizard__eyebrow">{{ __('Step 5 of 6') }}</span>
+        <span class="property-wizard__eyebrow">{{ $role === 'agent' ? __('Step 4 of 5') : __('Step 5 of 6') }}</span>
         <h1 class="property-wizard__title">{{ __('Listing Payment') }}</h1>
     </div>
 
@@ -13,9 +13,9 @@
         @if ($isPaid)
             <div class="wizard-verify-status wizard-verify-status--success">
                 <i class="fas fa-check-circle"></i>
-                {{ __('Payment has been completed by :name. This property is now listed.', ['name' => $memberName]) }}
+                {{ __('Payment has been completed by :name. This property is now listed.', ['name' => $payerName]) }}
             </div>
-        @elseif ($role === 'member')
+        @elseif ($role === $payerRole)
             @if ($hasCredits)
                 <div class="wizard-verify-status wizard-verify-status--pending">
                     <i class="fas fa-credit-card"></i>
@@ -30,7 +30,7 @@
         @else
             <div class="wizard-verify-status wizard-verify-status--pending">
                 <i class="fas fa-hourglass-half"></i>
-                {{ __('A payment is pending from :name.', ['name' => $memberName]) }}
+                {{ __('A payment is pending from :name.', ['name' => $payerName]) }}
             </div>
         @endif
 
@@ -41,14 +41,14 @@
                 <a href="{{ $adListingUrl }}" class="wizard-btn wizard-btn--primary">
                     {{ __('Continue') }} <i class="fas fa-arrow-right"></i>
                 </a>
-            @elseif ($role === 'member' && $hasCredits)
+            @elseif ($role === $payerRole && $hasCredits)
                 <form method="post" action="{{ $confirmPaymentUrl }}">
                     @csrf
                     <button type="submit" class="wizard-btn wizard-btn--primary">
                         {{ __('Confirm Payment') }} <i class="fas fa-credit-card"></i>
                     </button>
                 </form>
-            @elseif ($role === 'member' && ! $hasCredits)
+            @elseif ($role === $payerRole && ! $hasCredits)
                 <a href="{{ $buyCreditsUrl }}" class="wizard-btn wizard-btn--primary">
                     {{ __('Buy Credits') }} <i class="fas fa-arrow-right"></i>
                 </a>

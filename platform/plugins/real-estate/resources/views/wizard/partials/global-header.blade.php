@@ -7,6 +7,13 @@
         5 => ['label' => __('Listing Payment'), 'icon' => 'fa-credit-card'],
         6 => ['label' => __('Ad Listing'), 'icon' => 'fa-clipboard-list'],
     ];
+
+    // An agent submitting their own listing is already its assigned agent -
+    // there's nobody to choose, so that step never applies to them and
+    // shouldn't take up a slot in their journey (or its progress math).
+    if (($role ?? null) === 'agent') {
+        unset($globalSteps[2]);
+    }
     // Which macro-step's own page this partial is being rendered on -
     // that one never gets a link, same as "you are here" everywhere else
     // in the wizard. Defaults to 1 (the Submit Ad sub-wizard); the Choose
@@ -14,9 +21,13 @@
     $currentGlobalStep = $currentGlobalStep ?? 1;
     $hasAgent = $property->author_type === \Botble\RealEstate\Models\Account::class && $property->author_id;
     $isFullyVerified = (bool) $property->verified && (bool) $property->verified_by_admin;
-    $isContractFullySigned = (bool) $property->contract_signed_by_member
-        && (bool) $property->contract_signed_by_agent
-        && (bool) $property->contract_signed_by_admin;
+    // A property with no member (an agent's own listing) has nobody to sign
+    // in that role, so only the agent and admin need to sign it.
+    $isContractFullySigned = $property->member_id
+        ? ((bool) $property->contract_signed_by_member
+            && (bool) $property->contract_signed_by_agent
+            && (bool) $property->contract_signed_by_admin)
+        : ((bool) $property->contract_signed_by_agent && (bool) $property->contract_signed_by_admin);
     $isPaymentComplete = (string) $property->moderation_status === 'approved';
 
     // Resolved in one pass first (rather than inline in the @foreach below)
@@ -38,7 +49,7 @@
             if ($num !== $currentGlobalStep) {
                 $link = $chooseAgentUrl;
             }
-        } elseif ($num === 3 && $hasAgent) {
+        } elseif ($num === 3 && $hasAgent && $property->isSubmitted()) {
             $state = $isFullyVerified ? 'completed' : 'current';
             if ($num !== $currentGlobalStep && isset($adVerificationUrl)) {
                 $link = $adVerificationUrl;

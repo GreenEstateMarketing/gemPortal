@@ -1,22 +1,28 @@
 @php
-    $parties = [
-        'member' => [
+    $parties = [];
+
+    // A property with no member (an agent's own listing) has nobody to sign
+    // in that role - only the agent and admin need to sign it.
+    if ($requiresMember) {
+        $parties['member'] = [
             'label' => __('Member'),
             'name' => $property->member ? $property->member->full_name : __('Property Owner'),
             'signed' => $signedByMember,
-        ],
-        'agent' => [
-            'label' => __('Agent'),
-            'name' => $property->author_type === \Botble\RealEstate\Models\Account::class && $property->author
-                ? $property->author->getFullName()
-                : __('Agent'),
-            'signed' => $signedByAgent,
-        ],
-        'admin' => [
-            'label' => __('Admin'),
-            'name' => __('GEM Listing Admin'),
-            'signed' => $signedByAdmin,
-        ],
+        ];
+    }
+
+    $parties['agent'] = [
+        'label' => __('Agent'),
+        'name' => $property->author_type === \Botble\RealEstate\Models\Account::class && $property->author
+            ? $property->author->getFullName()
+            : __('Agent'),
+        'signed' => $signedByAgent,
+    ];
+
+    $parties['admin'] = [
+        'label' => __('Admin'),
+        'name' => __('GEM Listing Admin'),
+        'signed' => $signedByAdmin,
     ];
 @endphp
 
@@ -25,7 +31,7 @@
 
 <div class="property-wizard">
     <div class="property-wizard__intro">
-        <span class="property-wizard__eyebrow">{{ __('Step 4 of 6') }}</span>
+        <span class="property-wizard__eyebrow">{{ $role === 'agent' ? __('Step 3 of 5') : __('Step 4 of 6') }}</span>
         <h1 class="property-wizard__title">{{ __('Sign Contract') }}</h1>
     </div>
 
@@ -61,7 +67,7 @@
         @if ($allSigned)
             <div class="wizard-verify-status wizard-verify-status--success">
                 <i class="fas fa-check-circle"></i>
-                {{ __('The contract has been signed by all three parties.') }}
+                {{ $requiresMember ? __('The contract has been signed by all three parties.') : __('The contract has been signed by both parties.') }}
             </div>
         @elseif ($signedByRole)
             <div class="wizard-verify-status wizard-verify-status--pending">

@@ -541,6 +541,8 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                         ->name('sign-contract.sign');
                     Route::get('{property}/listing-payment', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'listingPaymentPlaceholder'])
                         ->name('listing-payment');
+                    Route::post('{property}/listing-payment/confirm', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'confirmListingPayment'])
+                        ->name('listing-payment.confirm');
                     Route::get('{property}/ad-listing', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'adListing'])
                         ->name('ad-listing');
                 });

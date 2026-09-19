@@ -9,7 +9,7 @@
 
 <div class="property-wizard">
     <div class="property-wizard__intro">
-        <span class="property-wizard__eyebrow">{{ __('Step 3 of 6') }}</span>
+        <span class="property-wizard__eyebrow">{{ $role === 'agent' ? __('Step 2 of 5') : __('Step 3 of 6') }}</span>
         <h1 class="property-wizard__title">{{ __('Ad Verification') }}</h1>
     </div>
 
@@ -34,7 +34,8 @@
         ])
 
         <div class="wizard-panel__actions">
-            <a href="{{ $chooseAgentUrl }}" class="wizard-btn wizard-btn--ghost"><i class="fas fa-arrow-left"></i> {{ __('Back') }}</a>
+            {{-- An agent has no Choose Agent step to go back to - they're already the assigned agent - so their Back goes to Submit Ad's review instead. --}}
+            <a href="{{ $role === 'agent' ? $showBaseUrl . '?step=4' : $chooseAgentUrl }}" class="wizard-btn wizard-btn--ghost"><i class="fas fa-arrow-left"></i> {{ __('Back') }}</a>
 
             @if ($role === 'agent' && ! $isVerifiedByAgent)
                 <form method="post" action="{{ $verifyAgentUrl }}">
