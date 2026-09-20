@@ -1303,6 +1303,11 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
     font-size: 20px;
 }
 
+.wizard-verify-status strong {
+    color: var(--pw-gold-hover);
+    font-weight: 700;
+}
+
 .wizard-verify-status--pending {
     background: var(--pw-bg);
     color: var(--pw-navy);
