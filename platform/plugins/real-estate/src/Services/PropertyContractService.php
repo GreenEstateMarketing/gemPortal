@@ -45,9 +45,16 @@ class PropertyContractService
         return $this->memberHasSignature($property) && $this->agentHasSignature($property);
     }
 
-    public function directory(Property $property): string
+    /**
+     * Every regenerated copy gets its own timestamped filename rather than
+     * overwriting the last one, so earlier generations stay on disk as an
+     * audit trail of what this contract looked like at each point - even
+     * though only the latest row's path is ever read back (see generate()/
+     * decryptCopy()).
+     */
+    protected function fileName(Property $property, string $copyType, string $timestamp): string
     {
-        return "contracts/{$property->id}";
+        return "gem-property-listing-agreement-{$property->id}-{$timestamp}-{$copyType}.enc";
     }
 
     public function hasGeneratedCopies(Property $property): bool
@@ -70,31 +77,39 @@ class PropertyContractService
     }
 
     /**
-     * Finalizes the contract: renders it once, then envelope-encrypts it
-     * separately for each recipient copy - a single random 256-bit Key-1
-     * shared by both copies (they're byte-identical content, just two
-     * recipients' copies of the same executed document), each copy still
-     * getting its own random IV so the ciphertexts differ regardless. Key-1
-     * itself is "masked" via Laravel's own Crypt facade, which wraps it
-     * with the application's root APP_KEY - never stored anywhere in the
+     * Finalizes the contract: renders it fresh from whatever property/
+     * member/agent data currently exists in the database, then envelope-
+     * encrypts it separately for each recipient copy - a single random
+     * 256-bit Key-1 shared by both copies (they're byte-identical content,
+     * just two recipients' copies of the same executed document), each copy
+     * still getting its own random IV so the ciphertexts differ regardless.
+     * Key-1 itself is "masked" via Laravel's own Crypt facade, which wraps
+     * it with the application's root APP_KEY - never stored anywhere in the
      * clear. The plaintext PDF is never written to disk at any point; only
      * IV + GCM auth tag + ciphertext ever touch the filesystem. Returns the
      * plaintext bytes so the caller can email them directly from memory
      * (see PropertyWizardController::finalizeContract()/
      * notifyContractFinalized()) without ever re-reading/decrypting the
      * file it just wrote.
+     *
+     * Callable any number of times, not just once - each call writes a new
+     * timestamped file under contracts/ and repoints that property's
+     * PropertyContract rows at it (updateOrCreate on property_id+copy_type),
+     * so the previously-current file is simply superseded rather than
+     * deleted or reused.
      */
     public function generate(Property $property): string
     {
         $plaintext = $this->renderPdf($property);
         $key1 = random_bytes(32);
         $maskedKey = Crypt::encryptString($key1);
+        $timestamp = now()->format('YmdHis');
 
         foreach (['member', 'agent'] as $copyType) {
             $iv = random_bytes(12);
             $tag = '';
             $ciphertext = openssl_encrypt($plaintext, 'aes-256-gcm', $key1, OPENSSL_RAW_DATA, $iv, $tag);
-            $path = $this->directory($property) . "/{$copyType}.enc";
+            $path = 'contracts/' . $this->fileName($property, $copyType, $timestamp);
 
             Storage::disk('local')->put($path, $iv . $tag . $ciphertext);
 

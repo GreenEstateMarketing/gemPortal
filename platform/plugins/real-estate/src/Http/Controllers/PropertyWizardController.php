@@ -582,9 +582,10 @@ class PropertyWizardController extends Controller
      * The contract document itself is always visible - a live preview
      * renders from whatever data currently exists (blank signature boxes
      * for whoever hasn't signed yet), regardless of whether both parties
-     * are done. Once finalized (contract_finalized_at set), the preview
-     * switches to the actual saved/emailed copy rather than a fresh
-     * render, so it always reflects exactly what was sent.
+     * are done, and regardless of whether it's been finalized before. Once
+     * finalized (contract_finalized_at set), "Save & Continue" is available
+     * again on any later pass through this step and simply regenerates and
+     * re-emails an up-to-date copy - see finalizeContract().
      */
     public function signContractPlaceholder(Request $request, Property $property)
     {
@@ -626,16 +627,19 @@ class PropertyWizardController extends Controller
     }
 
     /**
-     * The "Save & Continue" action: finalizes the contract - writes both
-     * permanent copies to disk and emails each party their own copy - then
-     * moves on to Listing Payment. Only reachable once both required
-     * signatures actually exist. contract_finalized_at is the single,
-     * explicit source of truth for "has this actually been emailed" -
-     * deliberately not derived from "do the PDF files exist on disk", since
-     * files can exist without an email ever having been sent (e.g. from a
-     * previous, less careful version of this feature). Once set, this
-     * write-once-then-lock: re-submitting (or landing here again on a later
-     * wizard pass) never regenerates the files or re-sends the emails.
+     * The "Save & Continue" action: finalizes the contract - renders it
+     * fresh from whatever data currently exists, writes both permanent
+     * copies to disk (each under its own new timestamped filename - see
+     * PropertyContractService::generate()), and emails each party their own
+     * copy - then moves on to Listing Payment. Only reachable once both
+     * required signatures actually exist. Every submission regenerates and
+     * re-sends: nothing about this is write-once - a property can cycle
+     * back through earlier steps (e.g. the price changes), return here, and
+     * the next "Save & Continue" produces an up-to-date contract reflecting
+     * that. contract_finalized_at just marks "has this happened at least
+     * once" for gating the rest of the journey (global step header,
+     * Listing Payment access) - it's refreshed on every regeneration but
+     * never used to skip one.
      */
     public function finalizeContract(Request $request, Property $property)
     {
@@ -645,28 +649,25 @@ class PropertyWizardController extends Controller
         abort_if($this->isLocked($property), 403);
         abort_unless($this->contractService->isReadyToGenerate($property), 403);
 
-        if (! $property->contract_finalized_at) {
-            $plaintext = $this->contractService->generate($property);
-            $this->notifyContractFinalized($property, $plaintext);
+        $plaintext = $this->contractService->generate($property);
+        $this->notifyContractFinalized($property, $plaintext);
 
-            $property->contract_finalized_at = now();
-            $property->save();
-        }
+        $property->contract_finalized_at = now();
+        $property->save();
 
         return redirect()->route($this->routeName($role, 'listing-payment'), ['property' => $property->id]);
     }
 
     /**
-     * Streams one party's copy of the contract PDF. Once finalized
-     * (contract_finalized_at set), this decrypts the actual saved,
-     * envelope-encrypted copy in memory - frozen, so it provably matches
-     * what was emailed even if the property's data changes afterward - and
-     * is never written back to disk in plaintext. Before finalization, it's
-     * a live preview rendered on the fly (never persisted either) so the
-     * document is always visible on the page regardless of how many
-     * signatures are in yet. Reuses the same ownership gate every other
-     * wizard action uses, so a party can never fetch another property's
-     * contract by guessing an id.
+     * Streams one party's copy of the contract PDF. Always rendered fresh
+     * from whatever property/member/agent data currently exists - never
+     * from the encrypted, previously-emailed copy on disk - so the page
+     * never shows stale terms after e.g. the price is edited on an earlier
+     * step. The encrypted copies written by finalizeContract() exist purely
+     * as an audit trail of what was actually emailed at each point in time,
+     * not as the source for this preview. Reuses the same ownership gate
+     * every other wizard action uses, so a party can never fetch another
+     * property's contract by guessing an id.
      */
     public function downloadContract(Request $request, Property $property, string $copy)
     {
@@ -675,12 +676,7 @@ class PropertyWizardController extends Controller
 
         abort_unless(in_array($copy, ['member', 'agent'], true), 404);
 
-        if ($property->contract_finalized_at) {
-            $pdfContent = $this->contractService->decryptCopy($property, $copy);
-            abort_if($pdfContent === null, 500);
-        } else {
-            $pdfContent = $this->contractService->renderPdf($property);
-        }
+        $pdfContent = $this->contractService->renderPdf($property);
 
         return response($pdfContent, 200, [
             'Content-Type' => 'application/pdf',

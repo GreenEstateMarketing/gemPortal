@@ -59,21 +59,18 @@
             <div class="wizard-contract-document__header">
                 <h3 class="wizard-contract-document__title">{{ __('Property Listing Agreement') }}</h3>
                 <p class="wizard-contract-document__ref">
-                    {{ $alreadyFinalized ? __('Finalized and emailed to both parties.') : __('Live preview - updates as signatures are added.') }}
+                    {{ $alreadyFinalized ? __('Finalized and emailed - always reflects the latest data.') : __('Live preview - updates as signatures are added.') }}
                 </p>
             </div>
             <embed src="{{ $downloadUrl }}" type="application/pdf" class="wizard-contract-pdf">
         </div>
 
-        @if ($alreadyFinalized)
-            <div class="wizard-verify-status wizard-verify-status--success">
-                <i class="fas fa-check-circle"></i>
-                {{ __('The contract has been finalized and emailed to both parties.') }}
-            </div>
-        @elseif ($readyToSign)
-            <div class="wizard-verify-status wizard-verify-status--pending">
-                <i class="fas fa-file-signature"></i>
-                {{ __('Both signatures are on file. Save & Continue to finalize the contract and email both parties their copy.') }}
+        @if ($readyToSign)
+            <div class="wizard-verify-status wizard-verify-status--{{ $alreadyFinalized ? 'success' : 'pending' }}">
+                <i class="fas {{ $alreadyFinalized ? 'fa-check-circle' : 'fa-file-signature' }}"></i>
+                {{ $alreadyFinalized
+                    ? __('The contract has been finalized and emailed to both parties. Save & Continue again anytime to send an updated copy reflecting the latest data.')
+                    : __('Both signatures are on file. Save & Continue to finalize the contract and email both parties their copy.') }}
             </div>
         @else
             <div class="wizard-verify-status wizard-verify-status--pending">
@@ -85,11 +82,7 @@
         <div class="wizard-panel__actions">
             <a href="{{ $adVerificationUrl }}" class="wizard-btn wizard-btn--ghost"><i class="fas fa-arrow-left"></i> {{ __('Back') }}</a>
 
-            @if ($alreadyFinalized)
-                <a href="{{ $listingPaymentUrl }}" class="wizard-btn wizard-btn--primary">
-                    {{ __('Continue') }} <i class="fas fa-arrow-right"></i>
-                </a>
-            @elseif ($readyToSign)
+            @if ($readyToSign)
                 <form method="post" action="{{ $finalizeUrl }}">
                     @csrf
                     <button type="submit" class="wizard-btn wizard-btn--primary">
