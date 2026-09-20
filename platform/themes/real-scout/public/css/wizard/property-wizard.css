@@ -1696,9 +1696,85 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
     margin: 0 auto 32px;
 }
 
+.wizard-celebration__link-card {
+    background: var(--pw-bg);
+    border: 1px solid var(--pw-border);
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin: 0 auto 32px;
+}
+
+.wizard-celebration__link-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--pw-text-muted);
+    margin-bottom: 10px;
+}
+
+.wizard-celebration__link-label i {
+    color: var(--pw-gold-hover);
+}
+
+.wizard-celebration__link-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.wizard-celebration__link {
+    font-family: var(--pw-font-body);
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--pw-gold-hover) !important;
+    text-decoration: none !important;
+    word-break: break-all;
+}
+
+.wizard-celebration__link:hover {
+    text-decoration: underline !important;
+}
+
+.wizard-celebration__copy-btn {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--pw-border);
+    background: var(--pw-white);
+    color: var(--pw-navy);
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.wizard-celebration__copy-btn:hover {
+    border-color: var(--pw-gold);
+    background: var(--pw-gold);
+    color: var(--pw-white);
+}
+
+.wizard-celebration__copy-btn--copied {
+    border-color: #2f9e44;
+    background: rgba(47, 158, 68, 0.12);
+    color: #1e6b1e;
+}
+
 .wizard-celebration__actions {
     display: flex;
     justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
 @media (max-width: 480px) {
@@ -1708,6 +1784,14 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
 
     .wizard-celebration__title {
         font-size: 26px;
+    }
+
+    .wizard-celebration__actions {
+        flex-direction: column-reverse;
+    }
+
+    .wizard-celebration__actions .wizard-btn {
+        width: 100%;
     }
 }
 

@@ -805,6 +805,7 @@ class PropertyWizardController extends Controller
             'role' => $role,
             'property' => $property,
             'dashboardUrl' => $this->dashboardUrlFor($role),
+            'publicUrl' => $property->url,
         ]);
     }
 

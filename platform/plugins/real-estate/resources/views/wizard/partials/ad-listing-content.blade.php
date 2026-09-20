@@ -13,9 +13,24 @@
             {{ __('Your property is finally listed successfully! It\'s now live on GEM Listing for everyone to see. Thank you for completing every step along the way.') }}
         </p>
 
+        <div class="wizard-celebration__link-card">
+            <div class="wizard-celebration__link-label">
+                <i class="fas fa-globe"></i> {{ __('Your listing is now public at') }}
+            </div>
+            <div class="wizard-celebration__link-row">
+                <a href="{{ $publicUrl }}" target="_blank" rel="noopener" class="wizard-celebration__link">{{ $publicUrl }}</a>
+                <button type="button" class="wizard-celebration__copy-btn" data-copy-link data-copy-value="{{ $publicUrl }}" data-copied-text="{{ __('Copied!') }}" title="{{ __('Copy link') }}">
+                    <i class="fas fa-copy"></i> <span data-copy-label>{{ __('Copy') }}</span>
+                </button>
+            </div>
+        </div>
+
         <div class="wizard-celebration__actions">
-            <a href="{{ $dashboardUrl }}" class="wizard-btn wizard-btn--primary">
-                {{ __('Back to My Properties') }} <i class="fas fa-arrow-right"></i>
+            <a href="{{ $publicUrl }}" target="_blank" rel="noopener" class="wizard-btn wizard-btn--primary">
+                {{ __('View Public Listing') }} <i class="fas fa-arrow-up-right-from-square"></i>
+            </a>
+            <a href="{{ $dashboardUrl }}" class="wizard-btn wizard-btn--ghost">
+                {{ __('Back to My Properties') }}
             </a>
         </div>
     </div>
@@ -109,5 +124,44 @@
 
     window.addEventListener('resize', resize);
     start();
+
+    var copyBtn = document.querySelector('[data-copy-link]');
+    if (copyBtn) {
+        copyBtn.addEventListener('click', function () {
+            var value = copyBtn.getAttribute('data-copy-value') || '';
+            var label = copyBtn.querySelector('[data-copy-label]');
+            var restore = label ? label.textContent : null;
+
+            function showCopied() {
+                if (!label) {
+                    return;
+                }
+                label.textContent = copyBtn.getAttribute('data-copied-text') || 'Copied!';
+                copyBtn.classList.add('wizard-celebration__copy-btn--copied');
+                setTimeout(function () {
+                    label.textContent = restore;
+                    copyBtn.classList.remove('wizard-celebration__copy-btn--copied');
+                }, 2000);
+            }
+
+            function fallbackCopy() {
+                var temp = document.createElement('textarea');
+                temp.value = value;
+                temp.style.position = 'fixed';
+                temp.style.opacity = '0';
+                document.body.appendChild(temp);
+                temp.select();
+                document.execCommand('copy');
+                document.body.removeChild(temp);
+                showCopied();
+            }
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(value).then(showCopied, fallbackCopy);
+            } else {
+                fallbackCopy();
+            }
+        });
+    }
 })();
 </script>
