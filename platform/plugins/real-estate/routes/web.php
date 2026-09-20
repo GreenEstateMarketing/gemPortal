@@ -66,8 +66,11 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                     ->name('ad-verification.verify-admin');
                 Route::get('{property}/sign-contract', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'signContractPlaceholder'])
                     ->name('sign-contract');
-                Route::post('{property}/sign-contract/sign', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'signContract'])
-                    ->name('sign-contract.sign');
+                Route::get('{property}/sign-contract/download/{copy}', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'downloadContract'])
+                    ->name('sign-contract.download')
+                    ->where('copy', 'member|agent');
+                Route::post('{property}/sign-contract/finalize', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'finalizeContract'])
+                    ->name('sign-contract.finalize');
                 Route::get('{property}/listing-payment', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'listingPaymentPlaceholder'])
                     ->name('listing-payment');
                 Route::get('{property}/ad-listing', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'adListing'])
@@ -537,8 +540,11 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                         ->name('ad-verification.comment');
                     Route::get('{property}/sign-contract', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'signContractPlaceholder'])
                         ->name('sign-contract');
-                    Route::post('{property}/sign-contract/sign', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'signContract'])
-                        ->name('sign-contract.sign');
+                    Route::get('{property}/sign-contract/download/{copy}', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'downloadContract'])
+                        ->name('sign-contract.download')
+                        ->where('copy', 'member|agent');
+                    Route::post('{property}/sign-contract/finalize', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'finalizeContract'])
+                        ->name('sign-contract.finalize');
                     Route::get('{property}/listing-payment', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'listingPaymentPlaceholder'])
                         ->name('listing-payment');
                     Route::post('{property}/listing-payment/confirm', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'confirmListingPayment'])
@@ -692,8 +698,11 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                     ->name('ad-verification.comment');
                 Route::get('{property}/sign-contract', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'signContractPlaceholder'])
                     ->name('sign-contract');
-                Route::post('{property}/sign-contract/sign', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'signContract'])
-                    ->name('sign-contract.sign');
+                Route::get('{property}/sign-contract/download/{copy}', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'downloadContract'])
+                    ->name('sign-contract.download')
+                    ->where('copy', 'member|agent');
+                Route::post('{property}/sign-contract/finalize', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'finalizeContract'])
+                    ->name('sign-contract.finalize');
                 Route::get('{property}/listing-payment', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'listingPaymentPlaceholder'])
                     ->name('listing-payment');
                 Route::post('{property}/listing-payment/confirm', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'confirmListingPayment'])

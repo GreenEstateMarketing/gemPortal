@@ -49,6 +49,7 @@ class Account extends Authenticatable
         'city_area_id',
         'signature',
         'signature_source',
+        'signature_created_at',
     ];
 
     /**
@@ -69,6 +70,7 @@ class Account extends Authenticatable
         'created_at',
         'updated_at',
         'dob',
+        'signature_created_at',
         'package_start_date',
         'package_end_date',
     ];

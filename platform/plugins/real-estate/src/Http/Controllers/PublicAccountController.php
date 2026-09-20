@@ -22,7 +22,9 @@ use Botble\RealEstate\Http\Resources\AccountResource;
 use Botble\RealEstate\Http\Resources\ActivityLogResource;
 use Botble\RealEstate\Http\Resources\PackageResource;
 use Botble\RealEstate\Http\Resources\TransactionResource;
+use Botble\RealEstate\Models\Account;
 use Botble\RealEstate\Models\Package;
+use Botble\RealEstate\Models\Property;
 use Botble\RealEstate\Repositories\Interfaces\AccountActivityLogInterface;
 use Botble\RealEstate\Repositories\Interfaces\AccountInterface;
 use Botble\RealEstate\Repositories\Interfaces\PackageInterface;
@@ -98,11 +100,15 @@ class PublicAccountController extends Controller
      *
      * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
      */
-    public function getSettings()
+    public function getSettings(Request $request)
     {
         SeoHelper::setTitle(trans('plugins/real-estate::account.account_settings'));
 
         $user = auth('account')->user();
+
+        if ($request->query('return_to') === 'wizard-contract' && $propertyId = (int) $request->query('property')) {
+            session(['wizard_contract_return_property_id' => $propertyId]);
+        }
 
         return view('plugins/real-estate::account.settings.index', compact('user'));
     }
@@ -137,12 +143,23 @@ class PublicAccountController extends Controller
         if ($signaturePayload) {
             $data['signature'] = $signaturePayload['bytes'];
             $data['signature_source'] = $signaturePayload['source'];
+            $data['signature_created_at'] = now();
         }
 
         $this->accountRepository->createOrUpdate($data,
             ['id' => auth('account')->user()->getAuthIdentifier()]);
 
         $this->activityLogRepository->createOrUpdate(['action' => 'update_setting']);
+
+        if ($propertyId = session()->pull('wizard_contract_return_property_id')) {
+            $property = Property::find($propertyId);
+
+            if ($property && $property->author_id == auth('account')->id() && $property->author_type === Account::class) {
+                return $response
+                    ->setNextUrl(route('public.account.properties.wizard.sign-contract', ['property' => $property->id]))
+                    ->setMessage(trans('plugins/real-estate::account.update_profile_success'));
+            }
+        }
 
         return $response
             ->setNextUrl(route('public.account.settings'))

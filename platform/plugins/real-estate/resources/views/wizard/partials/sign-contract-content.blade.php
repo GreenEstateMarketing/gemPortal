@@ -2,12 +2,13 @@
     $parties = [];
 
     // A property with no member (an agent's own listing) has nobody to sign
-    // in that role - only the agent and admin need to sign it.
+    // in that role - only the agent needs to sign it.
     if ($requiresMember) {
         $parties['member'] = [
-            'label' => __('Member'),
+            'label' => __('Seller'),
             'name' => $property->member ? $property->member->full_name : __('Property Owner'),
-            'signed' => $signedByMember,
+            'signed' => $memberSigned,
+            'signatureUrl' => $memberSignatureUrl,
         ];
     }
 
@@ -16,13 +17,8 @@
         'name' => $property->author_type === \Botble\RealEstate\Models\Account::class && $property->author
             ? $property->author->getFullName()
             : __('Agent'),
-        'signed' => $signedByAgent,
-    ];
-
-    $parties['admin'] = [
-        'label' => __('Admin'),
-        'name' => __('GEM Listing Admin'),
-        'signed' => $signedByAdmin,
+        'signed' => $agentSigned,
+        'signatureUrl' => $agentSignatureUrl,
     ];
 @endphp
 
@@ -38,8 +34,6 @@
     @include('plugins/real-estate::wizard.partials.global-header', ['currentGlobalStep' => 4])
 
     <div class="wizard-panel">
-        @include('plugins/real-estate::wizard.partials.sign-contract-document', ['property' => $property])
-
         <div class="wizard-signature-list">
             @foreach ($parties as $key => $party)
                 <div class="wizard-signature-row wizard-signature-row--{{ $party['signed'] ? 'signed' : 'pending' }}">
@@ -49,45 +43,59 @@
                         <span class="wizard-signature-row__name">{{ $party['name'] }}</span>
                     </div>
                     @if ($party['signed'])
-                        <span class="wizard-signature-row__status">{{ __('Signed') }}</span>
+                        <span class="wizard-signature-row__status">{{ __('Signature on file') }}</span>
                     @elseif ($key === $role)
-                        <form method="post" action="{{ $signUrl }}" class="wizard-signature-row__sign-form">
-                            @csrf
-                            <button type="submit" class="wizard-btn wizard-btn--primary wizard-btn--small">
-                                {{ __('Sign Contract') }} <i class="fas fa-signature"></i>
-                            </button>
-                        </form>
+                        <a href="{{ $party['signatureUrl'] }}" class="wizard-btn wizard-btn--primary wizard-btn--small">
+                            {{ __('Add your signature') }} <i class="fas fa-signature"></i>
+                        </a>
                     @else
-                        <span class="wizard-signature-row__status">{{ __('Pending signature') }}</span>
+                        <span class="wizard-signature-row__status">{{ __('Pending') }}</span>
                     @endif
                 </div>
             @endforeach
         </div>
 
-        @if ($allSigned)
+        <div class="wizard-contract-document">
+            <div class="wizard-contract-document__header">
+                <h3 class="wizard-contract-document__title">{{ __('Property Listing Agreement') }}</h3>
+                <p class="wizard-contract-document__ref">
+                    {{ $alreadyFinalized ? __('Finalized and emailed to both parties.') : __('Live preview - updates as signatures are added.') }}
+                </p>
+            </div>
+            <embed src="{{ $downloadUrl }}" type="application/pdf" class="wizard-contract-pdf">
+        </div>
+
+        @if ($alreadyFinalized)
             <div class="wizard-verify-status wizard-verify-status--success">
                 <i class="fas fa-check-circle"></i>
-                {{ $requiresMember ? __('The contract has been signed by all three parties.') : __('The contract has been signed by both parties.') }}
+                {{ __('The contract has been finalized and emailed to both parties.') }}
             </div>
-        @elseif ($signedByRole)
+        @elseif ($readyToSign)
             <div class="wizard-verify-status wizard-verify-status--pending">
-                <i class="fas fa-hourglass-half"></i>
-                {{ __('You\'ve signed the contract. Waiting for the others to sign.') }}
+                <i class="fas fa-file-signature"></i>
+                {{ __('Both signatures are on file. Save & Continue to finalize the contract and email both parties their copy.') }}
             </div>
         @else
             <div class="wizard-verify-status wizard-verify-status--pending">
                 <i class="fas fa-file-signature"></i>
-                {{ __('Please review the contract above, then sign using the button next to your name.') }}
+                {{ __('Waiting for the required signatures before the contract can be finalized.') }}
             </div>
         @endif
 
         <div class="wizard-panel__actions">
             <a href="{{ $adVerificationUrl }}" class="wizard-btn wizard-btn--ghost"><i class="fas fa-arrow-left"></i> {{ __('Back') }}</a>
 
-            @if ($allSigned)
+            @if ($alreadyFinalized)
                 <a href="{{ $listingPaymentUrl }}" class="wizard-btn wizard-btn--primary">
-                    {{ __('Save & Continue') }} <i class="fas fa-arrow-right"></i>
+                    {{ __('Continue') }} <i class="fas fa-arrow-right"></i>
                 </a>
+            @elseif ($readyToSign)
+                <form method="post" action="{{ $finalizeUrl }}">
+                    @csrf
+                    <button type="submit" class="wizard-btn wizard-btn--primary">
+                        {{ __('Save & Continue') }} <i class="fas fa-arrow-right"></i>
+                    </button>
+                </form>
             @else
                 <span></span>
             @endif

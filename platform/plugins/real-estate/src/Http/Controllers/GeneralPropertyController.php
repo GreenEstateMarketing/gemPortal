@@ -482,11 +482,15 @@ class GeneralPropertyController extends Controller
     }
 
 
-    public function getSettings()
+    public function getSettings(Request $request)
     {
         SeoHelper::setTitle(trans('plugins/real-estate::account.account_settings'));
 
         $user = auth('member')->user();
+
+        if ($request->query('return_to') === 'wizard-contract' && $propertyId = (int) $request->query('property')) {
+            session(['wizard_contract_return_property_id' => $propertyId]);
+        }
 
         return view('plugins/real-estate::member.settings.index', compact('user'));
     }
@@ -500,11 +504,23 @@ class GeneralPropertyController extends Controller
         if ($signaturePayload) {
             $data['signature'] = $signaturePayload['bytes'];
             $data['signature_source'] = $signaturePayload['source'];
+            $data['signature_created_at'] = now();
         }
 
         $this->memberRepository->createOrUpdate($data,
             ['id' => auth('member')->user()->getAuthIdentifier()]);
         /*$this->activityLogRepository->createOrUpdate(['action' => 'update_setting']);*/
+
+        if ($propertyId = session()->pull('wizard_contract_return_property_id')) {
+            $property = Property::find($propertyId);
+
+            if ($property && $property->member_id == auth('member')->id()) {
+                return $response
+                    ->setNextUrl(route('public.member.properties.wizard.sign-contract', ['property' => $property->id]))
+                    ->setMessage(trans('plugins/real-estate::account.update_profile_success'));
+            }
+        }
+
         return $response
             ->setNextUrl(route('member.settings'))
             ->setMessage(trans('plugins/real-estate::account.update_profile_success'));

@@ -106,6 +106,18 @@ return [
             'subject'     => '{{ signer_name }} signed the contract for "{{ property_title }}"',
             'can_off'     => true,
         ],
+        'contract_finalized_member' => [
+            'title'       => 'Contract finalized (to member)',
+            'description' => 'Sent to the member once both parties have signed and the contract is finalized, with their copy attached.',
+            'subject'     => 'Your signed contract for "{{ property_title }}" is attached',
+            'can_off'     => true,
+        ],
+        'contract_finalized_agent' => [
+            'title'       => 'Contract finalized (to agent)',
+            'description' => 'Sent to the agent once both parties have signed and the contract is finalized, with their copy attached.',
+            'subject'     => 'Signed contract for "{{ property_title }}" is attached',
+            'can_off'     => true,
+        ],
         'listing_payment_confirmed_member' => [
             'title'       => 'Listing payment confirmed (to member)',
             'description' => 'Sent to the member when their listing payment goes through.',

@@ -72,6 +72,7 @@ class Property extends BaseModel
         'contract_signed_by_member',
         'contract_signed_by_agent',
         'contract_signed_by_admin',
+        'contract_finalized_at',
         'price_unit',
         'wizard_step',
         'submission_status',
@@ -97,6 +98,7 @@ class Property extends BaseModel
         'updated_at',
         'expire_date',
         'last_wizard_activity_at',
+        'contract_finalized_at',
     ];
 
     /**

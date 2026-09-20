@@ -32,12 +32,17 @@ class Member extends Authenticatable
         'email_verified',
         'signature',
         'signature_source',
+        'signature_created_at',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
         'signature',
+    ];
+
+    protected $dates = [
+        'signature_created_at',
     ];
 
     public function properties()

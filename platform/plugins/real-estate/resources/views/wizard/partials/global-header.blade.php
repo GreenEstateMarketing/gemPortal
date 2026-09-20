@@ -21,13 +21,10 @@
     $currentGlobalStep = $currentGlobalStep ?? 1;
     $hasAgent = $property->author_type === \Botble\RealEstate\Models\Account::class && $property->author_id;
     $isFullyVerified = (bool) $property->verified && (bool) $property->verified_by_admin;
-    // A property with no member (an agent's own listing) has nobody to sign
-    // in that role, so only the agent and admin need to sign it.
-    $isContractFullySigned = $property->member_id
-        ? ((bool) $property->contract_signed_by_member
-            && (bool) $property->contract_signed_by_agent
-            && (bool) $property->contract_signed_by_admin)
-        : ((bool) $property->contract_signed_by_agent && (bool) $property->contract_signed_by_admin);
+    // contract_finalized_at is the single source of truth for "the
+    // contract is done" - not "do the PDF files exist", since files can
+    // exist without the finalize step (and its emails) ever having run.
+    $isContractFullySigned = (bool) $property->contract_finalized_at;
     $isPaymentComplete = (string) $property->moderation_status === 'approved';
 
     // Resolved in one pass first (rather than inline in the @foreach below)

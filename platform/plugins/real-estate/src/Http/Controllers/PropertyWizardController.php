@@ -21,6 +21,7 @@ use Botble\RealEstate\Models\Feature;
 use Botble\RealEstate\Models\Member;
 use Botble\RealEstate\Models\Project;
 use Botble\RealEstate\Models\Property;
+use Botble\RealEstate\Services\PropertyContractService;
 use Botble\RealEstate\Services\PropertySubmissionService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -29,6 +30,7 @@ use Theme;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use EmailHandler;
@@ -40,9 +42,15 @@ class PropertyWizardController extends Controller
      */
     protected $service;
 
-    public function __construct(PropertySubmissionService $service)
+    /**
+     * @var PropertyContractService
+     */
+    protected $contractService;
+
+    public function __construct(PropertySubmissionService $service, PropertyContractService $contractService)
     {
         $this->service = $service;
+        $this->contractService = $contractService;
     }
 
     /**
@@ -546,8 +554,20 @@ class PropertyWizardController extends Controller
 
     /**
      * Sign Contract (global step 4) - unlocked once both the agent and admin
-     * have verified the property. All three parties (member, agent, admin)
-     * must sign, in any order, before Listing Payment unlocks.
+     * have verified the property. Only the member (seller) and agent need to
+     * sign now - each one's signature is pulled automatically from their own
+     * account (captured once on their settings page, not per-property). This
+     * page never auto-redirects a party away for a missing signature - it
+     * always renders, and whoever is missing their own signature sees a
+     * link to their settings page (with a return_to flag) right on their
+     * own status row, which bounces them back here once saved.
+     *
+     * The contract document itself is always visible - a live preview
+     * renders from whatever data currently exists (blank signature boxes
+     * for whoever hasn't signed yet), regardless of whether both parties
+     * are done. Once finalized (contract_finalized_at set), the preview
+     * switches to the actual saved/emailed copy rather than a fresh
+     * render, so it always reflects exactly what was sent.
      */
     public function signContractPlaceholder(Request $request, Property $property)
     {
@@ -558,61 +578,97 @@ class PropertyWizardController extends Controller
             return redirect()->route($this->routeName($role, 'ad-verification'), ['property' => $property->id]);
         }
 
-        $requiresMember = (bool) $property->member_id;
-        $signedByMember = (bool) $property->contract_signed_by_member;
-        $signedByAgent = (bool) $property->contract_signed_by_agent;
-        $signedByAdmin = (bool) $property->contract_signed_by_admin;
-        $allSigned = $requiresMember
-            ? ($signedByMember && $signedByAgent && $signedByAdmin)
-            : ($signedByAgent && $signedByAdmin);
-
-        $signedByRoleMap = ['member' => $signedByMember, 'agent' => $signedByAgent, 'admin' => $signedByAdmin];
+        $requiresMember = $this->contractService->requiresMember($property);
+        $memberSigned = $this->contractService->memberHasSignature($property);
+        $agentSigned = $this->contractService->agentHasSignature($property);
+        $readyToSign = $this->contractService->isReadyToGenerate($property);
+        $alreadyFinalized = (bool) $property->contract_finalized_at;
 
         return view('plugins/real-estate::wizard.sign-contract-placeholder', [
             'role' => $role,
             'property' => $property,
             'requiresMember' => $requiresMember,
-            'signedByMember' => $signedByMember,
-            'signedByAgent' => $signedByAgent,
-            'signedByAdmin' => $signedByAdmin,
-            'allSigned' => $allSigned,
-            'signedByRole' => $signedByRoleMap[$role] ?? false,
+            'memberSigned' => $memberSigned,
+            'agentSigned' => $agentSigned,
+            'readyToSign' => $readyToSign,
+            'alreadyFinalized' => $alreadyFinalized,
+            'memberSignatureUrl' => route('member.settings', ['return_to' => 'wizard-contract', 'property' => $property->id]),
+            'agentSignatureUrl' => route('public.account.settings', ['return_to' => 'wizard-contract', 'property' => $property->id]),
+            'downloadUrl' => route($this->routeName($role, 'sign-contract.download'), [
+                'property' => $property->id,
+                'copy' => $role === 'member' ? 'member' : 'agent',
+            ]),
+            'finalizeUrl' => route($this->routeName($role, 'sign-contract.finalize'), ['property' => $property->id]),
             'chooseAgentUrl' => route($this->routeName($role, 'choose-agent'), ['property' => $property->id]),
             'adVerificationUrl' => route($this->routeName($role, 'ad-verification'), ['property' => $property->id]),
             'showBaseUrl' => route($this->routeName($role, 'show'), ['property' => $property->id]),
-            'signUrl' => route($this->routeName($role, 'sign-contract.sign'), ['property' => $property->id]),
-            'listingPaymentUrl' => $allSigned
+            'listingPaymentUrl' => $alreadyFinalized
                 ? route($this->routeName($role, 'listing-payment'), ['property' => $property->id])
                 : null,
         ]);
     }
 
     /**
-     * One party (whichever role the request belongs to) signs the contract.
-     * Order doesn't matter - each party's flag is independent, and Listing
-     * Payment only unlocks once all three are set.
+     * The "Save & Continue" action: finalizes the contract - writes both
+     * permanent copies to disk and emails each party their own copy - then
+     * moves on to Listing Payment. Only reachable once both required
+     * signatures actually exist. contract_finalized_at is the single,
+     * explicit source of truth for "has this actually been emailed" -
+     * deliberately not derived from "do the PDF files exist on disk", since
+     * files can exist without an email ever having been sent (e.g. from a
+     * previous, less careful version of this feature). Once set, this
+     * write-once-then-lock: re-submitting (or landing here again on a later
+     * wizard pass) never regenerates the files or re-sends the emails.
      */
-    public function signContract(Request $request, Property $property)
+    public function finalizeContract(Request $request, Property $property)
     {
         $role = $this->currentRole($request);
         $this->authorizeAccess($role, $property);
 
-        $column = [
-            'member' => 'contract_signed_by_member',
-            'agent' => 'contract_signed_by_agent',
-            'admin' => 'contract_signed_by_admin',
-        ][$role] ?? null;
+        abort_unless($this->contractService->isReadyToGenerate($property), 403);
 
-        abort_unless($column, 403);
+        if (! $property->contract_finalized_at) {
+            $this->contractService->generate($property);
+            $this->notifyContractFinalized($property);
 
-        if (! $property->{$column}) {
-            $property->{$column} = true;
+            $property->contract_finalized_at = now();
             $property->save();
-
-            $this->notifyContractSigned($property, $role);
         }
 
-        return redirect()->route($this->routeName($role, 'sign-contract'), ['property' => $property->id]);
+        return redirect()->route($this->routeName($role, 'listing-payment'), ['property' => $property->id]);
+    }
+
+    /**
+     * Streams one party's copy of the contract PDF. Once finalized
+     * (contract_finalized_at set), this is always the actual saved file -
+     * frozen, so it provably matches what was emailed even if the
+     * property's data changes afterward. Before that, it's a live preview
+     * rendered on the fly (not persisted) so the document is always
+     * visible on the page regardless of how many signatures are in yet.
+     * Reuses the same ownership gate every other wizard action uses, so a
+     * party can never fetch another property's contract by guessing an id.
+     */
+    public function downloadContract(Request $request, Property $property, string $copy)
+    {
+        $role = $this->currentRole($request);
+        $this->authorizeAccess($role, $property);
+
+        abort_unless(in_array($copy, ['member', 'agent'], true), 404);
+
+        if ($property->contract_finalized_at && $this->contractService->hasGeneratedCopies($property)) {
+            $pdfContent = Storage::disk('local')->get(
+                $copy === 'member'
+                    ? $this->contractService->memberCopyPath($property)
+                    : $this->contractService->agentCopyPath($property)
+            );
+        } else {
+            $pdfContent = $this->contractService->renderPdf($property);
+        }
+
+        return response($pdfContent, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => "inline; filename=\"signed-contract-{$copy}-copy.pdf\"",
+        ]);
     }
 
     /**
@@ -944,50 +1000,6 @@ class PropertyWizardController extends Controller
     }
 
     /**
-     * One party signed the Sign Contract step - notify whichever of the
-     * other two parties actually exist, using a template tailored to the
-     * (signer, recipient) pair (e.g. contract_signed_by_agent_member).
-     */
-    protected function notifyContractSigned(Property $property, string $signerRole): void
-    {
-        $member = $property->member;
-        $agent = $property->author_type === Account::class ? Account::find($property->author_id) : null;
-
-        $recipients = [
-            'member' => $member ? [
-                'name' => $member->full_name,
-                'email' => $member->email,
-                'url' => route('public.member.properties.wizard.sign-contract', ['property' => $property->id]),
-            ] : null,
-            'agent' => $agent ? [
-                'name' => $agent->getFullName(),
-                'email' => $agent->email,
-                'url' => route('public.account.properties.wizard.sign-contract', ['property' => $property->id]),
-            ] : null,
-            'admin' => [
-                'name' => __('Admin'),
-                'email' => setting('admin_email'),
-                'url' => route('property.wizard.sign-contract', ['property' => $property->id]),
-            ],
-        ];
-
-        $signerName = $recipients[$signerRole]['name'] ?? ucfirst($signerRole);
-
-        foreach ($recipients as $targetRole => $info) {
-            if ($targetRole === $signerRole || ! $info) {
-                continue;
-            }
-
-            $this->sendWizardEmail("contract_signed_by_{$signerRole}_{$targetRole}", $info['email'], [
-                'recipient_name' => $info['name'],
-                'signer_name' => $signerName,
-                'property_title' => $property->name,
-                'property_url' => $info['url'],
-            ]);
-        }
-    }
-
-    /**
      * The payer's payment went through - only the payer is emailed here (per
      * spec); agent/admin just see the updated state on the page. The payer
      * is the member for a member-owned listing, or the assigned agent
@@ -1016,12 +1028,44 @@ class PropertyWizardController extends Controller
     }
 
     /**
+     * The contract was just finalized (both required signatures were
+     * present, "Save & Continue" was clicked) - each party gets their own
+     * named copy attached. A property with no member (an agent's own
+     * listing) simply has no member email to send.
+     */
+    protected function notifyContractFinalized(Property $property): void
+    {
+        $member = $property->member;
+        $agent = $property->author_type === Account::class ? Account::find($property->author_id) : null;
+
+        if ($member) {
+            $this->sendWizardEmail('contract_finalized_member', $member->email, [
+                'recipient_name' => $member->full_name,
+                'property_title' => $property->name,
+                'property_url' => route('public.member.properties.wizard.sign-contract', ['property' => $property->id]),
+            ], [
+                Storage::disk('local')->path($this->contractService->memberCopyPath($property)),
+            ]);
+        }
+
+        if ($agent) {
+            $this->sendWizardEmail('contract_finalized_agent', $agent->email, [
+                'recipient_name' => $agent->getFullName(),
+                'property_title' => $property->name,
+                'property_url' => route('public.account.properties.wizard.sign-contract', ['property' => $property->id]),
+            ], [
+                Storage::disk('local')->path($this->contractService->agentCopyPath($property)),
+            ]);
+        }
+    }
+
+    /**
      * Every wizard notification email funnels through here - registered
      * under module 'real-estate' (see RealEstateServiceProvider::boot()) so
      * each template's body and on/off toggle are editable from Admin >
      * Settings > Email, same as every other template in this plugin.
      */
-    protected function sendWizardEmail(string $template, ?string $email, array $values): void
+    protected function sendWizardEmail(string $template, ?string $email, array $values, array $attachments = []): void
     {
         if (! $email) {
             return;
@@ -1037,10 +1081,12 @@ class PropertyWizardController extends Controller
         // same as the body - see EmailHandler::send()'s $title handling.
         $subject = config("plugins.real-estate.wizard-email.templates.$template.subject");
 
+        $args = $attachments ? ['attachments' => $attachments] : [];
+
         EmailHandler::setModule('real-estate')
             ->addVariables(config('plugins.real-estate.wizard-email.variables', []))
             ->setVariableValues($values)
-            ->sendUsingTemplate($template, $email, [], false, 'plugins', $subject);
+            ->sendUsingTemplate($template, $email, $args, false, 'plugins', $subject);
     }
 
     /**
@@ -1062,20 +1108,15 @@ class PropertyWizardController extends Controller
     }
 
     /**
-     * Whether every party that needs to sign the contract has signed it -
-     * i.e. whether Listing Payment is unlocked. A property with no member
-     * (an agent's own listing - there's no separate owner to sign) only
-     * needs the agent and admin; every other listing needs all three.
+     * Whether the contract has actually been finalized - both PDF copies
+     * written and both parties emailed - i.e. whether Listing Payment is
+     * unlocked. contract_finalized_at is the single source of truth here,
+     * not "do the PDF files exist" (files can exist without an email ever
+     * having been sent - see PropertyContractService/finalizeContract()).
      */
     protected function isContractFullySigned(Property $property): bool
     {
-        if (! $property->member_id) {
-            return (bool) $property->contract_signed_by_agent && (bool) $property->contract_signed_by_admin;
-        }
-
-        return (bool) $property->contract_signed_by_member
-            && (bool) $property->contract_signed_by_agent
-            && (bool) $property->contract_signed_by_admin;
+        return (bool) $property->contract_finalized_at;
     }
 
     /**

@@ -41,7 +41,7 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.lineWidth = 2;
             ctx.lineCap = 'round';
-            ctx.strokeStyle = '#111';
+            ctx.strokeStyle = '#0047ab';
             hasStroke = false;
         }
 
