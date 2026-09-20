@@ -51,6 +51,7 @@ return [
         'renting' => 'Renting',
         'rented' => 'Rented',
         'building' => 'Building',
+        'closed' => 'Closed',
     ],
     'types' => [
         'sale' => 'Sale',

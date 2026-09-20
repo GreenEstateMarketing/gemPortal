@@ -75,6 +75,8 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                     ->name('listing-payment');
                 Route::get('{property}/ad-listing', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'adListing'])
                     ->name('ad-listing');
+                Route::post('{property}/status', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'updateStatus'])
+                    ->name('update-status');
             });
         });
 

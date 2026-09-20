@@ -7,11 +7,13 @@ use Botble\Base\Events\CreatedContentEvent;
 use Botble\Base\Events\UpdatedContentEvent;
 use Botble\Location\Models\Country;
 use Botble\RealEstate\Enums\ModerationStatusEnum;
+use Botble\RealEstate\Enums\PropertyStatusEnum;
 use Botble\RealEstate\Http\Requests\PropertyWizardAgentStepRequest;
 use Botble\RealEstate\Http\Requests\PropertyWizardBasicsStepRequest;
 use Botble\RealEstate\Http\Requests\PropertyWizardLocationStepRequest;
 use Botble\RealEstate\Http\Requests\PropertyWizardMediaStepRequest;
 use Botble\RealEstate\Models\Account;
+use Botble\RealEstate\Models\Buyer;
 use Botble\RealEstate\Models\Category;
 use Botble\RealEstate\Models\Comment;
 use Botble\RealEstate\Models\CategoryDocument;
@@ -21,6 +23,7 @@ use Botble\RealEstate\Models\Feature;
 use Botble\RealEstate\Models\Member;
 use Botble\RealEstate\Models\Project;
 use Botble\RealEstate\Models\Property;
+use Botble\RealEstate\Models\PropertyStatusLog;
 use Botble\RealEstate\Services\PropertyContractService;
 use Botble\RealEstate\Services\PropertySubmissionService;
 use Illuminate\Http\Request;
@@ -810,6 +813,80 @@ class PropertyWizardController extends Controller
             'property' => $property,
             'dashboardUrl' => $this->dashboardUrlFor($role),
             'publicUrl' => $property->url,
+        ]);
+    }
+
+    /**
+     * Admin-only: change a property's listing status (selling/sold/renting/
+     * rented/etc - Property::$status, PropertyStatusEnum) once it's already
+     * approved. Deliberately separate from moderation_status/isLocked(),
+     * which gate the wizard's submission journey itself and stay frozen
+     * forever once approved - this is the one thing admins can still change
+     * on an approved listing, tracked as its own thing via PropertyStatusLog
+     * rather than reusing the Ad Verification chat's Comment/commentable
+     * plumbing (a status change is a structured audit entry with an
+     * optional note, not a chat message). Marking a property sold/rented
+     * also upserts its Buyer record (name/phone/email/amount) - one row per
+     * property, shared between the sold and rented cases since neither the
+     * DB schema nor the rest of the app distinguishes a buyer from a
+     * renter beyond that row's transaction_type.
+     */
+    public function updateStatus(Request $request, Property $property)
+    {
+        $role = $this->currentRole($request);
+        abort_unless($role === 'admin', 403);
+        $this->authorizeAccess($role, $property);
+        abort_unless($this->isLocked($property), 403);
+
+        $buyerRequiredStatuses = [PropertyStatusEnum::SOLD, PropertyStatusEnum::RENTED];
+
+        $validator = Validator::make($request->all(), [
+            'new_status' => ['required', 'string', 'in:' . implode(',', PropertyStatusEnum::values())],
+            'comment' => ['nullable', 'string', 'max:2000'],
+            'buyer_name' => ['required_if:new_status,' . implode(',', $buyerRequiredStatuses), 'nullable', 'string', 'max:255'],
+            'buyer_phone' => ['required_if:new_status,' . implode(',', $buyerRequiredStatuses), 'nullable', 'regex:/^\+?[1-9][0-9]{7,14}$/'],
+            'buyer_email' => ['nullable', 'email', 'max:255'],
+            'buyer_amount' => ['nullable', 'numeric', 'min:0'],
+        ], [
+            'buyer_phone.regex' => __('The phone number format is invalid. It must be a valid international number, e.g., +1234567890.'),
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $data = $validator->validated();
+        $oldStatus = (string) $property->status;
+
+        $property->status = $data['new_status'];
+        $property->save();
+
+        PropertyStatusLog::create([
+            'property_id' => $property->id,
+            'admin_id' => auth()->id(),
+            'old_status' => $oldStatus,
+            'new_status' => $data['new_status'],
+            'comment' => $data['comment'] ?? null,
+        ]);
+
+        if (in_array($data['new_status'], $buyerRequiredStatuses, true)) {
+            Buyer::updateOrCreate(
+                ['property_id' => $property->id],
+                [
+                    'name' => $data['buyer_name'],
+                    'phone' => $data['buyer_phone'],
+                    'email' => $data['buyer_email'] ?? null,
+                    'amount' => $data['buyer_amount'] ?? null,
+                    'seller_id' => $property->member_id,
+                    'agent_id' => $property->author_type === Account::class ? $property->author_id : null,
+                    'transaction_type' => $data['new_status'],
+                ]
+            );
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => __('Status updated to :status.', ['status' => PropertyStatusEnum::labels()[$data['new_status']] ?? $data['new_status']]),
         ]);
     }
 

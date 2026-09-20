@@ -33,6 +33,16 @@
                 {{ __('Back to My Properties') }}
             </a>
         </div>
+
+        @if ($role === 'admin')
+            <div class="wizard-status-trigger-row wizard-status-trigger-row--celebration">
+                <button type="button" class="wizard-btn wizard-btn--ghost wizard-btn--small" data-toggle="modal" data-target="#property-status-modal">
+                    <i class="fas fa-tags"></i> {{ __('Manage Listing Status') }}
+                </button>
+            </div>
+
+            @include('plugins/real-estate::wizard.partials.property-status-modal')
+        @endif
     </div>
 </div>
 

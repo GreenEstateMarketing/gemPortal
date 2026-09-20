@@ -268,6 +268,16 @@ class Property extends BaseModel
         return $this->hasMany(PropertyContract::class);
     }
 
+    public function statusLogs()
+    {
+        return $this->hasMany(PropertyStatusLog::class)->latest();
+    }
+
+    public function buyer()
+    {
+        return $this->hasOne(Buyer::class, 'property_id');
+    }
+
     /**
      * @return bool
      */

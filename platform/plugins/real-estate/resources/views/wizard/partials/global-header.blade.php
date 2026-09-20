@@ -95,6 +95,16 @@
     $progressPercent = (int) round((($completedCount + $step1PartialCredit + $step6FullCredit) / count($globalSteps)) * 100);
 @endphp
 
+@if (($role ?? null) === 'admin' && $isPaymentComplete)
+    <div class="wizard-status-trigger-row">
+        <button type="button" class="wizard-btn wizard-btn--ghost wizard-btn--small" data-toggle="modal" data-target="#property-status-modal">
+            <i class="fas fa-tags"></i> {{ __('Manage Listing Status') }}
+        </button>
+    </div>
+
+    @include('plugins/real-estate::wizard.partials.property-status-modal')
+@endif
+
 <div class="wizard-progress">
     <div class="wizard-progress__header">
         <span class="wizard-progress__label">{{ __('Application Progress') }}</span>

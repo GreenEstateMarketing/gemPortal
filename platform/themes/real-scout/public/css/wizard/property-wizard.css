@@ -1556,6 +1556,30 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
     font-size: 13px;
 }
 
+/* =========================================================
+   ADMIN "MANAGE LISTING STATUS" MODAL TRIGGER
+   ========================================================= */
+.wizard-status-trigger-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+}
+
+.wizard-status-trigger-row--celebration {
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 0;
+}
+
+.wizard-status-modal__alert {
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(192, 57, 43, 0.1);
+    color: var(--pw-danger);
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+
 @media (max-width: 480px) {
     .wizard-signature-row {
         flex-direction: column;
