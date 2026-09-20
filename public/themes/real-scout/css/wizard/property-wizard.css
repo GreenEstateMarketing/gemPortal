@@ -1295,6 +1295,10 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
     font-weight: 500;
 }
 
+.wizard-verify-status--gap-top {
+    margin-top: 24px;
+}
+
 .wizard-verify-status i {
     font-size: 20px;
 }

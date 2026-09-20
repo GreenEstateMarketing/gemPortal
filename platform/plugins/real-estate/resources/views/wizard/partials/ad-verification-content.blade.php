@@ -34,7 +34,7 @@
         ])
 
         @if ($role === 'admin' && ! $isVerifiedByAdmin && ! $isVerifiedByAgent)
-            <div class="wizard-verify-status wizard-verify-status--pending">
+            <div class="wizard-verify-status wizard-verify-status--pending wizard-verify-status--gap-top">
                 <i class="fas fa-hourglass-half"></i>
                 {{ __('Waiting for the agent to verify this property before you can verify it.') }}
             </div>
