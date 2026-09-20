@@ -910,7 +910,21 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
 }
 
 .wizard-review-section__head h3 {
-    font-size: 16px;
+    font-family: var(--pw-font-body);
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* Specificity note: needs to beat ".property-wizard h4" above, same reason
+   as the ".wizard-panel .wizard-panel__heading" override further up. */
+.wizard-review-section .wizard-review-subheading {
+    font-family: var(--pw-font-body);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--pw-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 24px 0 12px;
 }
 
 .wizard-review-grid {

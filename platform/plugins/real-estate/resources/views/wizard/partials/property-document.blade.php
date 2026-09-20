@@ -67,7 +67,8 @@
             @endforelse
         </div>
 
-        <div class="wizard-doc-grid" style="margin-top:14px;">
+        <h4 class="wizard-review-subheading">{{ __('Documents') }}</h4>
+        <div class="wizard-doc-grid">
             @forelse ($documentItems as $document)
                 @php
                     $documentId = is_array($document) ? ($document['document_id'] ?? null) : null;
