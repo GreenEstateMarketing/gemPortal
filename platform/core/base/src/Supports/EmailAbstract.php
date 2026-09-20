@@ -64,6 +64,22 @@ class EmailAbstract extends Mailable
             }
         }
 
+        // In-memory attachments: each item is ['data' => raw bytes, 'name' =>
+        // filename, 'options' => optional Mailable::attachData() options].
+        // For callers that have the bytes already in hand and no file on
+        // disk to point ->attach() at (e.g. because the only stored copy is
+        // encrypted, not a real file of that type).
+        $attachData = Arr::get($this->data, 'attach_data');
+        if (!empty($attachData)) {
+            foreach ($attachData as $item) {
+                $email->attachData(
+                    Arr::get($item, 'data'),
+                    Arr::get($item, 'name'),
+                    Arr::get($item, 'options', ['mime' => 'application/pdf'])
+                );
+            }
+        }
+
         return $email;
     }
 }

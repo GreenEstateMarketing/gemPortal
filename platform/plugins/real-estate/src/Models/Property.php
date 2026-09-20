@@ -263,6 +263,11 @@ class Property extends BaseModel
         return $this->belongsTo(Member::class);
     }
 
+    public function contracts()
+    {
+        return $this->hasMany(PropertyContract::class);
+    }
+
     /**
      * @return bool
      */

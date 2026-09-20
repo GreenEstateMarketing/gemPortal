@@ -4,6 +4,8 @@ namespace Botble\RealEstate\Services;
 
 use Botble\RealEstate\Models\Account;
 use Botble\RealEstate\Models\Property;
+use Botble\RealEstate\Models\PropertyContract;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Storage;
 use PDF;
 
@@ -48,20 +50,9 @@ class PropertyContractService
         return "contracts/{$property->id}";
     }
 
-    public function memberCopyPath(Property $property): string
-    {
-        return $this->directory($property) . '/signed-contract-member-copy.pdf';
-    }
-
-    public function agentCopyPath(Property $property): string
-    {
-        return $this->directory($property) . '/signed-contract-agent-copy.pdf';
-    }
-
     public function hasGeneratedCopies(Property $property): bool
     {
-        return Storage::disk('local')->exists($this->memberCopyPath($property))
-            && Storage::disk('local')->exists($this->agentCopyPath($property));
+        return PropertyContract::where('property_id', $property->id)->count() === 2;
     }
 
     /**
@@ -79,18 +70,70 @@ class PropertyContractService
     }
 
     /**
-     * Finalizes the contract: renders it once and writes identical bytes to
-     * both the member's and agent's copy - they're two recipients' copies
-     * of the same executed document, not different renderings. Only called
-     * from the "Save & Continue" action once both required signatures are
-     * present - see PropertyWizardController::finalizeContract().
+     * Finalizes the contract: renders it once, then envelope-encrypts it
+     * separately for each recipient copy - a single random 256-bit Key-1
+     * shared by both copies (they're byte-identical content, just two
+     * recipients' copies of the same executed document), each copy still
+     * getting its own random IV so the ciphertexts differ regardless. Key-1
+     * itself is "masked" via Laravel's own Crypt facade, which wraps it
+     * with the application's root APP_KEY - never stored anywhere in the
+     * clear. The plaintext PDF is never written to disk at any point; only
+     * IV + GCM auth tag + ciphertext ever touch the filesystem. Returns the
+     * plaintext bytes so the caller can email them directly from memory
+     * (see PropertyWizardController::finalizeContract()/
+     * notifyContractFinalized()) without ever re-reading/decrypting the
+     * file it just wrote.
      */
-    public function generate(Property $property): void
+    public function generate(Property $property): string
     {
-        $pdfContent = $this->renderPdf($property);
+        $plaintext = $this->renderPdf($property);
+        $key1 = random_bytes(32);
+        $maskedKey = Crypt::encryptString($key1);
 
-        Storage::disk('local')->put($this->memberCopyPath($property), $pdfContent);
-        Storage::disk('local')->put($this->agentCopyPath($property), $pdfContent);
+        foreach (['member', 'agent'] as $copyType) {
+            $iv = random_bytes(12);
+            $tag = '';
+            $ciphertext = openssl_encrypt($plaintext, 'aes-256-gcm', $key1, OPENSSL_RAW_DATA, $iv, $tag);
+            $path = $this->directory($property) . "/{$copyType}.enc";
+
+            Storage::disk('local')->put($path, $iv . $tag . $ciphertext);
+
+            PropertyContract::updateOrCreate(
+                ['property_id' => $property->id, 'copy_type' => $copyType],
+                ['file_path' => $path, 'masked_key' => $maskedKey]
+            );
+        }
+
+        return $plaintext;
+    }
+
+    /**
+     * Decrypts one party's finalized copy for viewing/downloading - reads
+     * the encrypted bytes, unmasks Key-1 via APP_KEY, decrypts in memory,
+     * and returns the plaintext PDF bytes without writing anything back to
+     * disk. Returns null if there's no finalized copy for this property/
+     * copy type, or if decryption fails (GCM auth tag mismatch - tampered
+     * or corrupted file - rather than silently returning garbage).
+     */
+    public function decryptCopy(Property $property, string $copyType): ?string
+    {
+        $row = PropertyContract::where('property_id', $property->id)
+            ->where('copy_type', $copyType)
+            ->first();
+
+        if (! $row || ! Storage::disk('local')->exists($row->file_path)) {
+            return null;
+        }
+
+        $raw = Storage::disk('local')->get($row->file_path);
+        $iv = substr($raw, 0, 12);
+        $tag = substr($raw, 12, 16);
+        $ciphertext = substr($raw, 28);
+        $key1 = Crypt::decryptString($row->masked_key);
+
+        $plaintext = openssl_decrypt($ciphertext, 'aes-256-gcm', $key1, OPENSSL_RAW_DATA, $iv, $tag);
+
+        return $plaintext === false ? null : $plaintext;
     }
 
     protected function buildViewData(Property $property): array

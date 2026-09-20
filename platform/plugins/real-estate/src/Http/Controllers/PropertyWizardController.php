@@ -30,7 +30,6 @@ use Theme;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use EmailHandler;
@@ -628,8 +627,8 @@ class PropertyWizardController extends Controller
         abort_unless($this->contractService->isReadyToGenerate($property), 403);
 
         if (! $property->contract_finalized_at) {
-            $this->contractService->generate($property);
-            $this->notifyContractFinalized($property);
+            $plaintext = $this->contractService->generate($property);
+            $this->notifyContractFinalized($property, $plaintext);
 
             $property->contract_finalized_at = now();
             $property->save();
@@ -640,13 +639,15 @@ class PropertyWizardController extends Controller
 
     /**
      * Streams one party's copy of the contract PDF. Once finalized
-     * (contract_finalized_at set), this is always the actual saved file -
-     * frozen, so it provably matches what was emailed even if the
-     * property's data changes afterward. Before that, it's a live preview
-     * rendered on the fly (not persisted) so the document is always
-     * visible on the page regardless of how many signatures are in yet.
-     * Reuses the same ownership gate every other wizard action uses, so a
-     * party can never fetch another property's contract by guessing an id.
+     * (contract_finalized_at set), this decrypts the actual saved,
+     * envelope-encrypted copy in memory - frozen, so it provably matches
+     * what was emailed even if the property's data changes afterward - and
+     * is never written back to disk in plaintext. Before finalization, it's
+     * a live preview rendered on the fly (never persisted either) so the
+     * document is always visible on the page regardless of how many
+     * signatures are in yet. Reuses the same ownership gate every other
+     * wizard action uses, so a party can never fetch another property's
+     * contract by guessing an id.
      */
     public function downloadContract(Request $request, Property $property, string $copy)
     {
@@ -655,12 +656,9 @@ class PropertyWizardController extends Controller
 
         abort_unless(in_array($copy, ['member', 'agent'], true), 404);
 
-        if ($property->contract_finalized_at && $this->contractService->hasGeneratedCopies($property)) {
-            $pdfContent = Storage::disk('local')->get(
-                $copy === 'member'
-                    ? $this->contractService->memberCopyPath($property)
-                    : $this->contractService->agentCopyPath($property)
-            );
+        if ($property->contract_finalized_at) {
+            $pdfContent = $this->contractService->decryptCopy($property, $copy);
+            abort_if($pdfContent === null, 500);
         } else {
             $pdfContent = $this->contractService->renderPdf($property);
         }
@@ -1032,8 +1030,13 @@ class PropertyWizardController extends Controller
      * present, "Save & Continue" was clicked) - each party gets their own
      * named copy attached. A property with no member (an agent's own
      * listing) simply has no member email to send.
+     *
+     * $plaintext is the same in-memory bytes PropertyContractService::
+     * generate() just encrypted for storage - attached here directly from
+     * memory (never re-read/decrypted from disk) so the plaintext PDF only
+     * ever exists transiently in this one request, never persisted.
      */
-    protected function notifyContractFinalized(Property $property): void
+    protected function notifyContractFinalized(Property $property, string $plaintext): void
     {
         $member = $property->member;
         $agent = $property->author_type === Account::class ? Account::find($property->author_id) : null;
@@ -1044,7 +1047,7 @@ class PropertyWizardController extends Controller
                 'property_title' => $property->name,
                 'property_url' => route('public.member.properties.wizard.sign-contract', ['property' => $property->id]),
             ], [
-                Storage::disk('local')->path($this->contractService->memberCopyPath($property)),
+                ['data' => $plaintext, 'name' => 'signed-contract-member-copy.pdf'],
             ]);
         }
 
@@ -1054,7 +1057,7 @@ class PropertyWizardController extends Controller
                 'property_title' => $property->name,
                 'property_url' => route('public.account.properties.wizard.sign-contract', ['property' => $property->id]),
             ], [
-                Storage::disk('local')->path($this->contractService->agentCopyPath($property)),
+                ['data' => $plaintext, 'name' => 'signed-contract-agent-copy.pdf'],
             ]);
         }
     }
@@ -1064,8 +1067,13 @@ class PropertyWizardController extends Controller
      * under module 'real-estate' (see RealEstateServiceProvider::boot()) so
      * each template's body and on/off toggle are editable from Admin >
      * Settings > Email, same as every other template in this plugin.
+     *
+     * $attachData items are ['data' => raw bytes, 'name' => filename] pairs
+     * attached directly from memory (EmailAbstract::build()'s attach_data
+     * support) - not file paths - since the only on-disk copy of a
+     * finalized contract is encrypted, not a real PDF.
      */
-    protected function sendWizardEmail(string $template, ?string $email, array $values, array $attachments = []): void
+    protected function sendWizardEmail(string $template, ?string $email, array $values, array $attachData = []): void
     {
         if (! $email) {
             return;
@@ -1081,7 +1089,7 @@ class PropertyWizardController extends Controller
         // same as the body - see EmailHandler::send()'s $title handling.
         $subject = config("plugins.real-estate.wizard-email.templates.$template.subject");
 
-        $args = $attachments ? ['attachments' => $attachments] : [];
+        $args = $attachData ? ['attach_data' => $attachData] : [];
 
         EmailHandler::setModule('real-estate')
             ->addVariables(config('plugins.real-estate.wizard-email.variables', []))
