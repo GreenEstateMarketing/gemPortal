@@ -1,5 +1,6 @@
 @php
     $currentBuyer = $property->buyer;
+    $latestComment = optional($property->statusLogs()->first())->comment;
     $statusOptions = \Botble\RealEstate\Enums\PropertyStatusEnum::labels();
     $buyerStatuses = [
         \Botble\RealEstate\Enums\PropertyStatusEnum::SOLD,
@@ -39,7 +40,7 @@
 
                     <div class="form-group">
                         <label for="property-status-comment">{{ __('Comment') }}</label>
-                        <textarea name="comment" id="property-status-comment" class="form-control" rows="3" placeholder="{{ __('Optional note about this status change...') }}"></textarea>
+                        <textarea name="comment" id="property-status-comment" class="form-control" rows="3" placeholder="{{ __('Optional note about this status change...') }}">{{ $latestComment }}</textarea>
                         <div class="wizard-error" data-error-for="comment"></div>
                     </div>
 
