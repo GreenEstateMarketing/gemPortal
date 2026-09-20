@@ -173,18 +173,12 @@
                     submitBtn.disabled = false;
                 }
                 if (result.ok) {
-                    // The success message needs to survive the reload below
-                    // (which is what refreshes the Current Status badge,
-                    // global-header lock state, etc. everywhere on the page)
-                    // - sessionStorage carries it across, picked up by the
-                    // toast check further down on the next load.
-                    try {
-                        sessionStorage.setItem('wizard_status_toast', result.json.message || '');
-                    } catch (e) {
-                        // Storage can throw in locked-down browser contexts
-                        // (private mode, disabled storage) - losing just the
-                        // toast isn't worth failing the save over.
-                    }
+                    // The confirmation itself is a flashed success_msg the
+                    // server set on this same request (see updateStatus()) -
+                    // this reload is what both picks that up (through the
+                    // same success_msg/Botble.showSuccess() toast every
+                    // other admin action already uses) and refreshes the
+                    // Current Status badge, global-header lock state, etc.
                     window.location.reload();
                 } else if (result.json && result.json.errors) {
                     applyErrors(result.json.errors);
@@ -200,18 +194,6 @@
                 alertBox.style.display = '';
             });
         });
-    }
-
-    try {
-        var toastMessage = sessionStorage.getItem('wizard_status_toast');
-        if (toastMessage) {
-            sessionStorage.removeItem('wizard_status_toast');
-            if (window.Botble && typeof window.Botble.showSuccess === 'function') {
-                window.Botble.showSuccess(toastMessage);
-            }
-        }
-    } catch (e) {
-        // Same storage-availability caveat as the save handler above.
     }
 })();
 </script>

@@ -884,10 +884,19 @@ class PropertyWizardController extends Controller
             );
         }
 
-        return response()->json([
-            'success' => true,
-            'message' => __('Status updated to :status.', ['status' => PropertyStatusEnum::labels()[$data['new_status']] ?? $data['new_status']]),
-        ]);
+        // Flashed rather than returned only in the JSON body: the page
+        // reloads right after this on the frontend (to refresh the Current
+        // Status badge, global-header lock state, etc.), and that reload is
+        // just another request to the admin panel - session flash data
+        // survives exactly one request forward, so it's picked up there by
+        // the same success_msg/Botble.showSuccess() toast every other admin
+        // action already uses (see core/base::elements.common), rather than
+        // needing bespoke toast UI/JS of its own.
+        session()->flash('success_msg', __('Status updated to :status.', [
+            'status' => PropertyStatusEnum::labels()[$data['new_status']] ?? $data['new_status'],
+        ]));
+
+        return response()->json(['success' => true]);
     }
 
     /**
