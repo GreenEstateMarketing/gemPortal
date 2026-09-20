@@ -38,7 +38,7 @@
             <a href="{{ $role === 'agent' ? $showBaseUrl . '?step=4' : $chooseAgentUrl }}" class="wizard-btn wizard-btn--ghost"><i class="fas fa-arrow-left"></i> {{ __('Back') }}</a>
 
             @if ($role === 'agent' && ! $isVerifiedByAgent)
-                <form method="post" action="{{ $verifyAgentUrl }}">
+                <form method="post" action="{{ $verifyAgentUrl }}" data-disable-on-submit>
                     @csrf
                     <button type="submit" class="wizard-btn wizard-btn--primary">
                         {{ __('Mark Property Verify') }} <i class="fas fa-check"></i>

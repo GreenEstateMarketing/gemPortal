@@ -1102,6 +1102,21 @@
         });
     }
 
+    // Plain (non-AJAX) wizard forms, e.g. the agent/admin "verify" buttons -
+    // the server redirects back to this same page on success, so disabling
+    // the submit button on 'submit' and leaving it disabled is enough to
+    // block double-submits; no re-enable is needed since the page reloads.
+    function initDisableOnSubmit(root) {
+        root.querySelectorAll('form[data-disable-on-submit]').forEach(function (form) {
+            form.addEventListener('submit', function () {
+                var button = form.querySelector('button[type="submit"]');
+                if (button) {
+                    button.disabled = true;
+                }
+            });
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         var root = document.querySelector('.property-wizard');
         if (!root) {
@@ -1130,5 +1145,6 @@
         initTypeToggle(root);
         initModerationStatus(root);
         initAgentPicker(root);
+        initDisableOnSubmit(root);
     });
 })();
