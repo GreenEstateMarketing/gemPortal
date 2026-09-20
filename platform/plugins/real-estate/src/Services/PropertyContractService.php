@@ -87,10 +87,11 @@ class PropertyContractService
      * it with the application's root APP_KEY - never stored anywhere in the
      * clear. The plaintext PDF is never written to disk at any point; only
      * IV + GCM auth tag + ciphertext ever touch the filesystem. Returns the
-     * plaintext bytes so the caller can email them directly from memory
-     * (see PropertyWizardController::finalizeContract()/
-     * notifyContractFinalized()) without ever re-reading/decrypting the
-     * file it just wrote.
+     * plaintext bytes so the caller can email them directly from memory on
+     * the one occasion it needs to (see PropertyWizardController::
+     * finalizeContract()/notifyContractFinalized() - only the first call
+     * for a given property actually emails anything) without ever
+     * re-reading/decrypting the file it just wrote.
      *
      * Callable any number of times, not just once - each call writes a new
      * timestamped file under contracts/ and repoints that property's

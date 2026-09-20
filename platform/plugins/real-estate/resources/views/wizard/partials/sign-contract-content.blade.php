@@ -69,7 +69,7 @@
             <div class="wizard-verify-status wizard-verify-status--{{ $alreadyFinalized ? 'success' : 'pending' }}">
                 <i class="fas {{ $alreadyFinalized ? 'fa-check-circle' : 'fa-file-signature' }}"></i>
                 {{ $alreadyFinalized
-                    ? __('The contract has been finalized and emailed to both parties. Save & Continue again anytime to send an updated copy reflecting the latest data.')
+                    ? __('The contract has been finalized and emailed to both parties. Save & Continue again anytime to keep the saved copy in sync with the latest data - this won\'t send another email.')
                     : __('Both signatures are on file. Save & Continue to finalize the contract and email both parties their copy.') }}
             </div>
         @else

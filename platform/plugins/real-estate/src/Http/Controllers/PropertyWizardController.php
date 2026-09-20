@@ -584,8 +584,9 @@ class PropertyWizardController extends Controller
      * for whoever hasn't signed yet), regardless of whether both parties
      * are done, and regardless of whether it's been finalized before. Once
      * finalized (contract_finalized_at set), "Save & Continue" is available
-     * again on any later pass through this step and simply regenerates and
-     * re-emails an up-to-date copy - see finalizeContract().
+     * again on any later pass through this step and simply regenerates an
+     * up-to-date copy on disk - without re-emailing, since that only ever
+     * goes out once - see finalizeContract().
      */
     public function signContractPlaceholder(Request $request, Property $property)
     {
@@ -628,18 +629,19 @@ class PropertyWizardController extends Controller
 
     /**
      * The "Save & Continue" action: finalizes the contract - renders it
-     * fresh from whatever data currently exists, writes both permanent
+     * fresh from whatever data currently exists and writes both permanent
      * copies to disk (each under its own new timestamped filename - see
-     * PropertyContractService::generate()), and emails each party their own
-     * copy - then moves on to Listing Payment. Only reachable once both
-     * required signatures actually exist. Every submission regenerates and
-     * re-sends: nothing about this is write-once - a property can cycle
-     * back through earlier steps (e.g. the price changes), return here, and
-     * the next "Save & Continue" produces an up-to-date contract reflecting
-     * that. contract_finalized_at just marks "has this happened at least
-     * once" for gating the rest of the journey (global step header,
-     * Listing Payment access) - it's refreshed on every regeneration but
-     * never used to skip one.
+     * PropertyContractService::generate()) - then moves on to Listing
+     * Payment. Only reachable once both required signatures actually exist.
+     * Every submission regenerates the PDFs: nothing about the files is
+     * write-once - a property can cycle back through earlier steps (e.g.
+     * the price changes), return here, and the next "Save & Continue"
+     * produces an up-to-date contract reflecting that.
+     *
+     * The notification email is different: it goes out exactly once, on
+     * the very first submission (contract_finalized_at not yet set) -
+     * later regenerations are silent so re-visiting this step to pick up a
+     * data change doesn't re-spam both parties' inboxes every click.
      */
     public function finalizeContract(Request $request, Property $property)
     {
@@ -649,11 +651,15 @@ class PropertyWizardController extends Controller
         abort_if($this->isLocked($property), 403);
         abort_unless($this->contractService->isReadyToGenerate($property), 403);
 
-        $plaintext = $this->contractService->generate($property);
-        $this->notifyContractFinalized($property, $plaintext);
+        $isFirstFinalization = ! $property->contract_finalized_at;
 
-        $property->contract_finalized_at = now();
-        $property->save();
+        $plaintext = $this->contractService->generate($property);
+
+        if ($isFirstFinalization) {
+            $this->notifyContractFinalized($property, $plaintext);
+            $property->contract_finalized_at = now();
+            $property->save();
+        }
 
         return redirect()->route($this->routeName($role, 'listing-payment'), ['property' => $property->id]);
     }
