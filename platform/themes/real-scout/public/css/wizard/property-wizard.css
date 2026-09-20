@@ -802,6 +802,100 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
 }
 
 /* =========================================================
+   DOCUMENT CARDS (Review / Ad Verification display)
+   ========================================================= */
+.wizard-doc-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.wizard-doc-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--pw-border);
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--pw-white);
+    transition: all 0.18s ease;
+}
+
+.wizard-doc-card:hover {
+    border-color: var(--pw-gold);
+    box-shadow: 0 8px 18px rgba(224, 166, 62, 0.14);
+}
+
+.wizard-doc-card__preview {
+    aspect-ratio: 4 / 3;
+    background: var(--pw-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--pw-gold-hover);
+    font-size: 34px;
+    overflow: hidden;
+}
+
+.wizard-doc-card__preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.wizard-doc-card__name {
+    padding: 10px 12px 0;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--pw-navy);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.wizard-doc-card__actions {
+    display: flex;
+    gap: 8px;
+    padding: 10px 12px 12px;
+    margin-top: auto;
+}
+
+.wizard-doc-card__btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 7px 6px;
+    border-radius: 8px;
+    border: 1px solid var(--pw-border);
+    background: var(--pw-bg);
+    color: var(--pw-navy) !important;
+    font-size: 11.5px;
+    font-weight: 600;
+    text-decoration: none !important;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.wizard-doc-card__btn:hover {
+    background: var(--pw-gold);
+    border-color: var(--pw-gold);
+    color: var(--pw-white) !important;
+}
+
+.wizard-doc-card__btn--primary {
+    background: var(--pw-navy);
+    border-color: var(--pw-navy);
+    color: var(--pw-white) !important;
+}
+
+.wizard-doc-card__btn--primary:hover {
+    background: var(--pw-gold);
+    border-color: var(--pw-gold);
+}
+
+/* =========================================================
    REVIEW STEP
    ========================================================= */
 .wizard-review-section {
@@ -987,11 +1081,19 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
     .wizard-review-grid {
         grid-template-columns: 1fr;
     }
+
+    .wizard-doc-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
 }
 
 @media (max-width: 860px) {
     .wizard-panel {
         padding: 24px 18px;
+    }
+
+    .wizard-doc-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .wizard-global-step__label {
@@ -1012,6 +1114,10 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
 @media (max-width: 480px) {
     .property-wizard {
         padding: 20px 12px 60px;
+    }
+
+    .wizard-doc-grid {
+        grid-template-columns: 1fr;
     }
 
     .wizard-checkbox-grid {
@@ -1368,7 +1474,7 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
 }
 
 .wizard-stamp--admin {
-    color: #1a1d24;
+    color: #d21f1f;
     top: 104px;
     right: 40px;
     transform: rotate(7deg);

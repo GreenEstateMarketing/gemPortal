@@ -58,7 +58,7 @@
             @endforelse
         </div>
 
-        <div class="wizard-thumbs wizard-thumbs--documents" style="margin-top:14px;">
+        <div class="wizard-doc-grid" style="margin-top:14px;">
             @forelse ($documentItems as $document)
                 @php
                     $documentId = is_array($document) ? ($document['document_id'] ?? null) : null;
@@ -67,24 +67,31 @@
                         : (is_array($document) ? ($document['name'] ?? __('Document')) : __('Document'));
                     $documentUrl = is_array($document) ? ($document['url'] ?? '') : '';
                     $documentExt = strtolower(pathinfo($documentUrl, PATHINFO_EXTENSION));
+                    $documentIsImage = in_array($documentExt, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']);
                     if ($documentExt === 'pdf') {
                         $documentIcon = 'fa-file-pdf';
                     } elseif (in_array($documentExt, ['doc', 'docx'])) {
                         $documentIcon = 'fa-file-word';
-                    } elseif (in_array($documentExt, ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'])) {
+                    } elseif ($documentIsImage) {
                         $documentIcon = 'fa-file-image';
                     } else {
                         $documentIcon = 'fa-file-alt';
                     }
                 @endphp
-                <div class="wizard-doc-item">
-                    <div class="wizard-doc-item__icon"><i class="fas {{ $documentIcon }}"></i></div>
-                    <div class="wizard-doc-item__body">
-                        <span class="wizard-doc-item__name">{{ $documentLabel }}</span>
-                        <span class="wizard-doc-item__meta">{{ __('Uploaded document') }}</span>
+                <div class="wizard-doc-card">
+                    <div class="wizard-doc-card__preview">
+                        @if ($documentIsImage && $documentUrl)
+                            <img src="{{ RvMedia::getImageUrl($documentUrl) }}" alt="{{ $documentLabel }}">
+                        @else
+                            <i class="fas {{ $documentIcon }}"></i>
+                        @endif
                     </div>
+                    <div class="wizard-doc-card__name" title="{{ $documentLabel }}">{{ $documentLabel }}</div>
                     @if ($documentUrl)
-                        <a href="{{ RvMedia::url($documentUrl) }}" target="_blank" rel="noopener" download class="wizard-doc-item__download" title="{{ __('Download') }}"><i class="fas fa-download"></i></a>
+                        <div class="wizard-doc-card__actions">
+                            <a href="{{ RvMedia::url($documentUrl) }}" target="_blank" rel="noopener" class="wizard-doc-card__btn" title="{{ __('Preview') }}"><i class="fas fa-eye"></i> {{ __('Preview') }}</a>
+                            <a href="{{ RvMedia::url($documentUrl) }}" download class="wizard-doc-card__btn wizard-doc-card__btn--primary" title="{{ __('Download') }}"><i class="fas fa-download"></i> {{ __('Download') }}</a>
+                        </div>
                     @endif
                 </div>
             @empty
