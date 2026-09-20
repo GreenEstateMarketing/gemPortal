@@ -1,5 +1,5 @@
 @php
-    $canReply = in_array($role, ['agent', 'member'], true);
+    $canReply = in_array($role, ['agent', 'member'], true) && ! ($locked ?? false);
 @endphp
 
 <div class="wizard-panel wizard-chat" id="wizard-chat">

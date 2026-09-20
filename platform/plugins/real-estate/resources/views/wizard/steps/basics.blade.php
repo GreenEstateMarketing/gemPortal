@@ -73,7 +73,8 @@
     <h2 class="wizard-panel__heading">{{ __('Basics & Price') }}</h2>
     <p class="wizard-panel__description">{{ __('Tell us what you are listing and how much it costs.') }}</p>
 
-    <form data-step-form action="{{ $stepUrls['basics'] }}" method="post" data-category-tree="{{ $categories->map(function ($c) { return ['id' => $c->id, 'name' => $c->name, 'parent_id' => (int) $c->parent_id]; })->toJson() }}">
+    <form {{ ($isLocked ?? false) ? '' : 'data-step-form' }} action="{{ $stepUrls['basics'] }}" method="post" data-category-tree="{{ $categories->map(function ($c) { return ['id' => $c->id, 'name' => $c->name, 'parent_id' => (int) $c->parent_id]; })->toJson() }}">
+        <fieldset {{ ($isLocked ?? false) ? 'disabled' : '' }} style="border:0; padding:0; margin:0;">
         <div class="wizard-field-grid">
             <div class="wizard-field wizard-field--span2">
                 <label>{{ __('Listing Type') }}</label>
@@ -188,12 +189,19 @@
                 <input type="number" min="0" class="wizard-input" data-field="number_floor" id="wizard-number-floor" value="{{ $p->number_floor }}" placeholder="{{ __('e.g. 1') }}">
             </div>
         </div>
+        </fieldset>
 
         <div class="wizard-panel__actions">
             <span></span>
-            <button type="submit" class="wizard-btn wizard-btn--primary" data-step-submit data-loading-text="{{ __('Saving...') }}">
-                {{ __('Save & Continue') }} <i class="fas fa-arrow-right"></i>
-            </button>
+            @if ($isLocked ?? false)
+                <a href="{{ $showBaseUrl }}?step=2" class="wizard-btn wizard-btn--primary">
+                    {{ __('Next') }} <i class="fas fa-arrow-right"></i>
+                </a>
+            @else
+                <button type="submit" class="wizard-btn wizard-btn--primary" data-step-submit data-loading-text="{{ __('Saving...') }}">
+                    {{ __('Save & Continue') }} <i class="fas fa-arrow-right"></i>
+                </button>
+            @endif
         </div>
     </form>
 </div>

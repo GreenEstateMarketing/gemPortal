@@ -177,8 +177,14 @@
 
     <div class="wizard-panel__actions">
         <a href="{{ $showBaseUrl }}?step=3" class="wizard-btn wizard-btn--ghost"><i class="fas fa-arrow-left"></i> {{ __('Back') }}</a>
-        <button type="button" class="wizard-btn wizard-btn--primary" data-finalize-submit data-loading-text="{{ __('Submitting...') }}">
-            {{ __('Submit Ad') }} <i class="fas fa-check"></i>
-        </button>
+        @if ($isLocked ?? false)
+            <a href="{{ $adVerificationUrl ?? $chooseAgentUrl }}" class="wizard-btn wizard-btn--primary">
+                {{ __('Next') }} <i class="fas fa-arrow-right"></i>
+            </a>
+        @else
+            <button type="button" class="wizard-btn wizard-btn--primary" data-finalize-submit data-loading-text="{{ __('Submitting...') }}">
+                {{ __('Submit Ad') }} <i class="fas fa-check"></i>
+            </button>
+        @endif
     </div>
 </div>

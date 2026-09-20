@@ -71,5 +71,6 @@
         'comments' => $comments,
         'role' => $role,
         'commentStoreUrl' => $commentStoreUrl,
+        'locked' => $locked,
     ])
 </div>

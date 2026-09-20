@@ -52,10 +52,10 @@
                 <span></span>
             </div>
         @else
-            <form data-step-form action="{{ $saveAgentUrl }}" method="post" data-agents="{{ $agentsData->toJson() }}">
+            <form {{ $locked ? '' : 'data-step-form' }} action="{{ $saveAgentUrl }}" method="post" data-agents="{{ $agentsData->toJson() }}">
                 <div class="wizard-field">
                     <label>{{ __('Select an Agent') }}</label>
-                    <select class="wizard-select" data-field="agent_id" id="wizard-agent-select" {{ $role === 'agent' ? 'disabled' : '' }}>
+                    <select class="wizard-select" data-field="agent_id" id="wizard-agent-select" {{ ($role === 'agent' || $locked) ? 'disabled' : '' }}>
                         <option value="">{{ __('Choose an agent...') }}</option>
                         @foreach ($agentsData as $agent)
                             <option value="{{ $agent['id'] }}" {{ (string) $currentAgentId === (string) $agent['id'] ? 'selected' : '' }}>{{ $agent['name'] }}</option>
@@ -63,6 +63,8 @@
                     </select>
                     @if ($role === 'agent')
                         <p class="wizard-hint">{{ __('This property is assigned to you as its listing agent, so this can\'t be changed here.') }}</p>
+                    @elseif ($locked)
+                        <p class="wizard-hint">{{ __('This listing has already been approved and can no longer be edited.') }}</p>
                     @endif
                     <div class="wizard-error" data-error-for="agent_id"></div>
                 </div>
@@ -71,9 +73,15 @@
 
                 <div class="wizard-panel__actions">
                     <a href="{{ $showBaseUrl }}?step=4" class="wizard-btn wizard-btn--ghost"><i class="fas fa-arrow-left"></i> {{ __('Back') }}</a>
-                    <button type="submit" class="wizard-btn wizard-btn--primary" data-step-submit data-loading-text="{{ __('Saving...') }}">
-                        {{ __('Save & Continue') }} <i class="fas fa-arrow-right"></i>
-                    </button>
+                    @if ($locked)
+                        <a href="{{ $adVerificationUrl }}" class="wizard-btn wizard-btn--primary">
+                            {{ __('Next') }} <i class="fas fa-arrow-right"></i>
+                        </a>
+                    @else
+                        <button type="submit" class="wizard-btn wizard-btn--primary" data-step-submit data-loading-text="{{ __('Saving...') }}">
+                            {{ __('Save & Continue') }} <i class="fas fa-arrow-right"></i>
+                        </button>
+                    @endif
                 </div>
             </form>
         @endif

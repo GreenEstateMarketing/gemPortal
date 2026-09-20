@@ -11,7 +11,8 @@
     <h2 class="wizard-panel__heading">{{ __('Location & Details') }}</h2>
     <p class="wizard-panel__description">{{ __('Where is the property, and what amenities does it offer?') }}</p>
 
-    <form data-step-form data-collect-facilities action="{{ $stepUrls['location'] }}" method="post">
+    <form {{ ($isLocked ?? false) ? '' : 'data-step-form' }} data-collect-facilities action="{{ $stepUrls['location'] }}" method="post">
+        <fieldset {{ ($isLocked ?? false) ? 'disabled' : '' }} style="border:0; padding:0; margin:0;">
         <div class="wizard-field-grid">
             <div class="wizard-field">
                 <label>{{ __('Country') }}</label>
@@ -61,7 +62,7 @@
 
             <div class="wizard-field wizard-field--span2">
                 <div class="wizard-map-notice" id="wizard-map-notice" style="display:none;"></div>
-                <div id="wizard-map" style="width:100%;height:320px;border-radius:12px;overflow:hidden;border:1px solid var(--pw-border);"></div>
+                <div id="wizard-map" style="width:100%;height:320px;border-radius:12px;overflow:hidden;border:1px solid var(--pw-border);{{ ($isLocked ?? false) ? ' pointer-events:none; opacity:0.7;' : '' }}"></div>
                 <span class="wizard-hint">{{ __('Drag the pin, click the map, or search above to fine-tune the exact location.') }}</span>
                 <input type="hidden" data-field="latitude" id="wizard-latitude" value="{{ $p->latitude }}">
                 <input type="hidden" data-field="longitude" id="wizard-longitude" value="{{ $p->longitude }}">
@@ -111,12 +112,19 @@
         <button type="button" class="wizard-btn wizard-btn--ghost" data-facility-add>
             <i class="fas fa-plus"></i> {{ __('Add Nearby Facility') }}
         </button>
+        </fieldset>
 
         <div class="wizard-panel__actions">
             <a href="{{ $showBaseUrl }}?step=1" class="wizard-btn wizard-btn--ghost"><i class="fas fa-arrow-left"></i> {{ __('Back') }}</a>
-            <button type="submit" class="wizard-btn wizard-btn--primary" data-step-submit data-loading-text="{{ __('Saving...') }}">
-                {{ __('Save & Continue') }} <i class="fas fa-arrow-right"></i>
-            </button>
+            @if ($isLocked ?? false)
+                <a href="{{ $showBaseUrl }}?step=3" class="wizard-btn wizard-btn--primary">
+                    {{ __('Next') }} <i class="fas fa-arrow-right"></i>
+                </a>
+            @else
+                <button type="submit" class="wizard-btn wizard-btn--primary" data-step-submit data-loading-text="{{ __('Saving...') }}">
+                    {{ __('Save & Continue') }} <i class="fas fa-arrow-right"></i>
+                </button>
+            @endif
         </div>
     </form>
 </div>

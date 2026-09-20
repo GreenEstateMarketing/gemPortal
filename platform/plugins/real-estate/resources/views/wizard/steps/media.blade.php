@@ -25,7 +25,8 @@
     <h2 class="wizard-panel__heading">{{ __('Media & Documents') }}</h2>
     <p class="wizard-panel__description">{{ __('Add photos of the property and any supporting documents.') }}</p>
 
-    <form data-step-form action="{{ $stepUrls['media'] }}" method="post">
+    <form {{ ($isLocked ?? false) ? '' : 'data-step-form' }} action="{{ $stepUrls['media'] }}" method="post">
+        <fieldset {{ ($isLocked ?? false) ? 'disabled' : '' }} style="border:0; padding:0; margin:0;{{ ($isLocked ?? false) ? ' pointer-events:none; opacity:0.7;' : '' }}">
         <div class="wizard-field wizard-field--span2">
             <label>{{ __('Photos') }}</label>
             <p class="wizard-hint" style="margin-bottom:10px;">{{ __('Add between 1 and 20 photos of the property.') }} <span data-uploader-count="images"></span></p>
@@ -117,12 +118,19 @@
                 </div>
             @endif
         </div>
+        </fieldset>
 
         <div class="wizard-panel__actions">
             <a href="{{ $showBaseUrl }}?step=2" class="wizard-btn wizard-btn--ghost"><i class="fas fa-arrow-left"></i> {{ __('Back') }}</a>
-            <button type="submit" class="wizard-btn wizard-btn--primary" data-step-submit data-loading-text="{{ __('Saving...') }}">
-                {{ __('Save & Continue') }} <i class="fas fa-arrow-right"></i>
-            </button>
+            @if ($isLocked ?? false)
+                <a href="{{ $showBaseUrl }}?step=4" class="wizard-btn wizard-btn--primary">
+                    {{ __('Next') }} <i class="fas fa-arrow-right"></i>
+                </a>
+            @else
+                <button type="submit" class="wizard-btn wizard-btn--primary" data-step-submit data-loading-text="{{ __('Saving...') }}">
+                    {{ __('Save & Continue') }} <i class="fas fa-arrow-right"></i>
+                </button>
+            @endif
         </div>
     </form>
 </div>

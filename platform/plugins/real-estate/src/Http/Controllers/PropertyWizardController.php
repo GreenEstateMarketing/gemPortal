@@ -110,6 +110,7 @@ class PropertyWizardController extends Controller
             'furthestReachable' => $furthestReachable,
             'wizardContext' => $this->wizardContext($role),
             'isGated' => $property->isDraft(),
+            'isLocked' => $this->isLocked($property),
             'showBaseUrl' => $showBaseUrl,
             'stepUrls' => [
                 'basics' => route($this->routeName($role, 'basics'), ['property' => $property->id]),
@@ -212,6 +213,8 @@ class PropertyWizardController extends Controller
         $role = $this->currentRole($request);
         $this->authorizeAccess($role, $property);
 
+        abort_if($this->isLocked($property), 403);
+
         // Whether this property already has a slugs row - checked before
         // saving name changes below, since CreatedContentEvent vs
         // UpdatedContentEvent must reflect the state *before* this save.
@@ -245,6 +248,8 @@ class PropertyWizardController extends Controller
         $role = $this->currentRole($request);
         $this->authorizeAccess($role, $property);
 
+        abort_if($this->isLocked($property), 403);
+
         $property = $this->service->saveLocation(
             $property,
             $request->validated(),
@@ -258,6 +263,8 @@ class PropertyWizardController extends Controller
     {
         $role = $this->currentRole($request);
         $this->authorizeAccess($role, $property);
+
+        abort_if($this->isLocked($property), 403);
 
         $data = $request->validated();
         $context = $this->wizardContext($role);
@@ -280,6 +287,8 @@ class PropertyWizardController extends Controller
     {
         $role = $this->currentRole($request);
         $this->authorizeAccess($role, $property);
+
+        abort_if($this->isLocked($property), 403);
 
         if ($role === 'guest' && ! $property->member_id) {
             return response()->json([
@@ -475,6 +484,7 @@ class PropertyWizardController extends Controller
         return view('plugins/real-estate::wizard.choose-agent-placeholder', [
             'role' => $role,
             'property' => $property,
+            'locked' => $this->isLocked($property),
             'chooseAgentUrl' => route($this->routeName($role, 'choose-agent'), ['property' => $property->id]),
             'saveAgentUrl' => route($this->routeName($role, 'save-agent'), ['property' => $property->id]),
             'showBaseUrl' => route($this->routeName($role, 'show'), ['property' => $property->id]),
@@ -489,6 +499,13 @@ class PropertyWizardController extends Controller
     {
         $role = $this->currentRole($request);
         $this->authorizeAccess($role, $property);
+
+        if ($this->isLocked($property)) {
+            return response()->json([
+                'success' => false,
+                'message' => __('This listing has already been approved and can no longer be edited.'),
+            ], 403);
+        }
 
         $newAgentId = (int) $request->validated()['agent_id'];
         $agentChanged = ! $this->hasAssignedAgent($property) || (int) $property->author_id !== $newAgentId;
@@ -528,6 +545,7 @@ class PropertyWizardController extends Controller
         return view('plugins/real-estate::wizard.ad-verification-placeholder', [
             'role' => $role,
             'property' => $property,
+            'locked' => $this->isLocked($property),
             'verified' => (bool) $property->verified,
             'verifiedByAdmin' => (bool) $property->verified_by_admin,
             'comments' => $property->comments()->orderBy('created_at')->get(),
@@ -624,6 +642,7 @@ class PropertyWizardController extends Controller
         $role = $this->currentRole($request);
         $this->authorizeAccess($role, $property);
 
+        abort_if($this->isLocked($property), 403);
         abort_unless($this->contractService->isReadyToGenerate($property), 403);
 
         if (! $property->contract_finalized_at) {
@@ -796,6 +815,8 @@ class PropertyWizardController extends Controller
         $role = $this->currentRole($request);
         $this->authorizeAccess($role, $property);
 
+        abort_if($this->isLocked($property), 403);
+
         $account = auth('account')->user();
 
         $property->verified = true;
@@ -815,6 +836,7 @@ class PropertyWizardController extends Controller
         $role = $this->currentRole($request);
         $this->authorizeAccess($role, $property);
 
+        abort_if($this->isLocked($property), 403);
         abort_unless($property->verified, 403);
 
         $property->verified_by_admin = true;
@@ -834,6 +856,7 @@ class PropertyWizardController extends Controller
         $role = $this->currentRole($request);
         $this->authorizeAccess($role, $property);
 
+        abort_if($this->isLocked($property), 403);
         abort_unless(in_array($role, ['agent', 'member'], true), 403);
 
         $data = $request->validate([
@@ -1113,6 +1136,19 @@ class PropertyWizardController extends Controller
     protected function isFullyVerified(Property $property): bool
     {
         return (bool) $property->verified && (bool) $property->verified_by_admin;
+    }
+
+    /**
+     * Once a listing is approved, it's done - nobody (member, agent, or
+     * admin) can change anything about it or its wizard state any further,
+     * and no wizard action should ever notify anyone again. Every mutating
+     * wizard action checks this before doing anything; view-only actions
+     * don't - people can still browse through the wizard's pages to see
+     * what happened, they just can't act on any of them anymore.
+     */
+    protected function isLocked(Property $property): bool
+    {
+        return (string) $property->moderation_status === ModerationStatusEnum::APPROVED;
     }
 
     /**
