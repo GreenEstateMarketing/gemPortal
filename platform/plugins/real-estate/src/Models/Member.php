@@ -30,6 +30,14 @@ class Member extends Authenticatable
         'remember_token',
         'verification_token',
         'email_verified',
+        'signature',
+        'signature_source',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+        'signature',
     ];
 
     public function properties()
@@ -44,6 +52,26 @@ class Member extends Authenticatable
     public function getAvatarUrlAttribute()
     {
         return $this->avatar->url ? Storage::url($this->avatar->url) : (new Avatar)->create($this->full_name)->toBase64();
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasSignature()
+    {
+        return ! empty($this->signature);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getSignatureDataUriAttribute()
+    {
+        if (! $this->hasSignature()) {
+            return null;
+        }
+
+        return 'data:image/png;base64,' . base64_encode($this->signature);
     }
     public function canPost(): bool
     {

@@ -493,9 +493,17 @@ class GeneralPropertyController extends Controller
 
     public function postSettings(MemberSettingRequest $request, BaseHttpResponse $response)
     {
+        $data = $request->except(['email', '_token', 'signature_file', 'signature_data']);
 
-        Member::where('id', auth('member')->user()->getAuthIdentifier())
-            ->update($request->except('email', '_token'));
+        $signaturePayload = $request->getSignaturePayload();
+
+        if ($signaturePayload) {
+            $data['signature'] = $signaturePayload['bytes'];
+            $data['signature_source'] = $signaturePayload['source'];
+        }
+
+        $this->memberRepository->createOrUpdate($data,
+            ['id' => auth('member')->user()->getAuthIdentifier()]);
         /*$this->activityLogRepository->createOrUpdate(['action' => 'update_setting']);*/
         return $response
             ->setNextUrl(route('member.settings'))
