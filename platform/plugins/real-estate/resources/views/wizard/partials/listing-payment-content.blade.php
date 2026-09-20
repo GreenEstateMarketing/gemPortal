@@ -15,12 +15,20 @@
                 <i class="fas fa-check-circle"></i>
                 {{ __('Payment has been completed by :name. This property is now listed.', ['name' => $payerName]) }}
             </div>
+            @if ($role === $payerRole && $credits !== null)
+                <p class="wizard-hint" style="margin-top:12px;">
+                    {{ trans_choice('1 credit was deducted. You have :count credit remaining.|1 credit was deducted. You have :count credits remaining.', $credits, ['count' => $credits]) }}
+                </p>
+            @endif
         @elseif ($role === $payerRole)
             @if ($hasCredits)
                 <div class="wizard-verify-status wizard-verify-status--pending">
                     <i class="fas fa-credit-card"></i>
                     {{ __('Confirming will deduct 1 credit from your account to publish this listing.') }}
                 </div>
+                <p class="wizard-hint" style="margin-top:12px;">
+                    {{ trans_choice('You currently have :count credit available.|You currently have :count credits available.', $credits, ['count' => $credits]) }}
+                </p>
             @else
                 <div class="wizard-verify-status wizard-verify-status--pending">
                     <i class="fas fa-triangle-exclamation"></i>

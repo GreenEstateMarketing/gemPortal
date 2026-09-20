@@ -716,6 +716,7 @@ class PropertyWizardController extends Controller
                 ? ($payerRole === 'member' ? $payer->full_name : $payer->getFullName())
                 : __('the member'),
             'hasCredits' => (bool) $payer && $payer->credits >= 1,
+            'credits' => $payer ? $payer->credits : null,
             'chooseAgentUrl' => route($this->routeName($role, 'choose-agent'), ['property' => $property->id]),
             'adVerificationUrl' => route($this->routeName($role, 'ad-verification'), ['property' => $property->id]),
             'signContractUrl' => route($this->routeName($role, 'sign-contract'), ['property' => $property->id]),
