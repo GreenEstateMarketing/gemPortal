@@ -33,6 +33,13 @@
             'verifiedByAdmin' => $isVerifiedByAdmin,
         ])
 
+        @if ($role === 'admin' && ! $isVerifiedByAdmin && ! $isVerifiedByAgent)
+            <div class="wizard-verify-status wizard-verify-status--pending">
+                <i class="fas fa-hourglass-half"></i>
+                {{ __('Waiting for the agent to verify this property before you can verify it.') }}
+            </div>
+        @endif
+
         <div class="wizard-panel__actions">
             {{-- An agent has no Choose Agent step to go back to - they're already the assigned agent - so their Back goes to Submit Ad's review instead. --}}
             <a href="{{ $role === 'agent' ? $showBaseUrl . '?step=4' : $chooseAgentUrl }}" class="wizard-btn wizard-btn--ghost"><i class="fas fa-arrow-left"></i> {{ __('Back') }}</a>
@@ -53,7 +60,7 @@
                         </button>
                     </form>
                 @else
-                    <button type="button" class="wizard-btn wizard-btn--primary" disabled title="{{ __('Waiting for the agent to verify this property first.') }}">
+                    <button type="button" class="wizard-btn wizard-btn--primary" disabled>
                         {{ __('Verify Property') }} <i class="fas fa-check"></i>
                     </button>
                 @endif
