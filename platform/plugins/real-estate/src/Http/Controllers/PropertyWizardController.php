@@ -435,6 +435,7 @@ class PropertyWizardController extends Controller
 
         $draft = Property::where('member_id', $member->id)
             ->where('submission_status', 'draft')
+            ->where('is_deleted', 0)
             ->latest('id')
             ->first();
 
@@ -1195,7 +1196,11 @@ class PropertyWizardController extends Controller
         }
 
         if (in_array($role, ['member', 'agent'], true)) {
-            $existingDraft = $this->ownedQuery($role)->where('submission_status', 'draft')->latest('id')->first();
+            $existingDraft = $this->ownedQuery($role)
+                ->where('submission_status', 'draft')
+                ->where('is_deleted', 0)
+                ->latest('id')
+                ->first();
 
             if ($existingDraft) {
                 return $existingDraft;
