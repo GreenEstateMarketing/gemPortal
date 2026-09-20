@@ -13,8 +13,8 @@
         <div class="modal-content" data-status-modal-content>
             <div class="modal-header">
                 <h5 class="modal-title">{{ __('Manage Listing Status') }}</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
+                <button type="button" class="wizard-status-modal__close" data-dismiss="modal" aria-label="{{ __('Close') }}">
+                    <i class="fas fa-times"></i>
                 </button>
             </div>
 

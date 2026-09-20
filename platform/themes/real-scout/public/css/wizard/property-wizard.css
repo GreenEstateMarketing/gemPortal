@@ -1580,6 +1580,43 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
     margin-bottom: 16px;
 }
 
+/* Self-styled rather than Bootstrap's own .close - guarantees a visible,
+   consistently-placed close control regardless of whether the admin
+   panel's base CSS happens to style/override .close inside a plain
+   .modal-header the way this wizard's markup expects. Anchored to the
+   header's own vertical center (not a fixed pixel offset from the modal
+   edge) so it stays centered against the title regardless of the header's
+   actual padding/line-height. */
+#property-status-modal .modal-header {
+    position: relative;
+    padding-right: 54px;
+}
+
+.wizard-status-modal__close {
+    position: absolute;
+    top: 50%;
+    right: 16px;
+    transform: translateY(-50%);
+    z-index: 5;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: var(--pw-bg);
+    color: var(--pw-navy);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.wizard-status-modal__close:hover {
+    background: var(--pw-gold);
+    color: var(--pw-white);
+}
+
 @media (max-width: 480px) {
     .wizard-signature-row {
         flex-direction: column;
