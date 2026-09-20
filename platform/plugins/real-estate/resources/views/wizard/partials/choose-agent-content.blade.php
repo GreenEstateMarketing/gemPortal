@@ -23,6 +23,8 @@
         ];
     })->values();
     $currentAgentId = $property->author_type === \Botble\RealEstate\Models\Account::class ? $property->author_id : null;
+    $currentAgentName = optional($agentsData->firstWhere('id', $currentAgentId))['name'] ?? null;
+    $agentFieldDisabled = $role === 'agent' || $locked;
 @endphp
 
 <link rel="stylesheet" href="{{ asset('themes/real-scout/css/fontawesome.min.css') }}">
@@ -55,12 +57,30 @@
             <form {{ $locked ? '' : 'data-step-form' }} action="{{ $saveAgentUrl }}" method="post" data-agents="{{ $agentsData->toJson() }}">
                 <div class="wizard-field">
                     <label>{{ __('Select an Agent') }}</label>
-                    <select class="wizard-select" data-field="agent_id" id="wizard-agent-select" {{ ($role === 'agent' || $locked) ? 'disabled' : '' }}>
-                        <option value="">{{ __('Choose an agent...') }}</option>
-                        @foreach ($agentsData as $agent)
-                            <option value="{{ $agent['id'] }}" {{ (string) $currentAgentId === (string) $agent['id'] ? 'selected' : '' }}>{{ $agent['name'] }}</option>
-                        @endforeach
-                    </select>
+                    <div class="wizard-searchable-select{{ $agentFieldDisabled ? ' wizard-searchable-select--disabled' : '' }}" data-searchable-select>
+                        <select class="wizard-select wizard-select--hidden" data-field="agent_id" id="wizard-agent-select" {{ $agentFieldDisabled ? 'disabled' : '' }}>
+                            <option value="">{{ __('Choose an agent...') }}</option>
+                            @foreach ($agentsData as $agent)
+                                <option value="{{ $agent['id'] }}" {{ (string) $currentAgentId === (string) $agent['id'] ? 'selected' : '' }}>{{ $agent['name'] }}</option>
+                            @endforeach
+                        </select>
+
+                        <button type="button" class="wizard-searchable-select__control" data-ss-control {{ $agentFieldDisabled ? 'disabled' : '' }}>
+                            <span class="wizard-searchable-select__control-label" data-ss-control-label>{{ $currentAgentName ?: __('Choose an agent...') }}</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+
+                        @unless ($agentFieldDisabled)
+                            <div class="wizard-searchable-select__panel" data-ss-panel hidden>
+                                <div class="wizard-searchable-select__search-wrap">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" class="wizard-searchable-select__search" data-ss-search placeholder="{{ __('Search agents...') }}" autocomplete="off">
+                                </div>
+                                <ul class="wizard-searchable-select__options" data-ss-options></ul>
+                                <p class="wizard-searchable-select__empty" data-ss-empty hidden>{{ __('No agents found.') }}</p>
+                            </div>
+                        @endunless
+                    </div>
                     @if ($role === 'agent')
                         <p class="wizard-hint">{{ __('This property is assigned to you as its listing agent, so this can\'t be changed here.') }}</p>
                     @elseif ($locked)

@@ -988,6 +988,126 @@
         sync();
     }
 
+    // Wraps the hidden <select id="wizard-agent-select"> with a search-
+    // filtered dropdown (button + panel), so long agent lists - e.g. every
+    // agent in the system for an admin, who isn't limited to this
+    // property's location coverage - stay easy to navigate. The native
+    // select remains the single source of truth for data-field="agent_id";
+    // this only drives its value and dispatches 'change' so the existing
+    // agent-card render (and the generic collectFormData reader) keep
+    // working unmodified. Not rendered at all when the field is disabled
+    // (agent's own listing, or a locked/approved property) - see
+    // choose-agent-content.blade.php.
+    function initSearchableSelect(select, agents) {
+        var wrap = select.closest('[data-searchable-select]');
+        if (!wrap) {
+            return;
+        }
+
+        var control = wrap.querySelector('[data-ss-control]');
+        var controlLabel = wrap.querySelector('[data-ss-control-label]');
+        var panel = wrap.querySelector('[data-ss-panel]');
+        var search = wrap.querySelector('[data-ss-search]');
+        var optionsList = wrap.querySelector('[data-ss-options]');
+        var empty = wrap.querySelector('[data-ss-empty]');
+
+        if (!control || !panel || !search || !optionsList || !empty) {
+            return;
+        }
+
+        var items = agents.map(function (agent) {
+            var el = document.createElement('li');
+            el.className = 'wizard-searchable-select__option';
+            el.setAttribute('data-ss-option', '');
+            el.setAttribute('data-value', String(agent.id));
+            el.textContent = agent.name || '';
+            optionsList.appendChild(el);
+            return el;
+        });
+
+        function syncSelected() {
+            items.forEach(function (el) {
+                el.classList.toggle('wizard-searchable-select__option--selected', el.getAttribute('data-value') === select.value);
+            });
+        }
+
+        function filter(term) {
+            term = term.trim().toLowerCase();
+            var visibleCount = 0;
+
+            items.forEach(function (el) {
+                var match = !term || el.textContent.toLowerCase().indexOf(term) !== -1;
+                el.style.display = match ? '' : 'none';
+                if (match) {
+                    visibleCount++;
+                }
+            });
+
+            empty.hidden = visibleCount !== 0;
+        }
+
+        function open() {
+            panel.hidden = false;
+            wrap.classList.add('wizard-searchable-select--open');
+            search.value = '';
+            filter('');
+            search.focus();
+        }
+
+        function close() {
+            panel.hidden = true;
+            wrap.classList.remove('wizard-searchable-select--open');
+        }
+
+        function selectAgent(id, name) {
+            select.value = id;
+            controlLabel.textContent = name;
+            syncSelected();
+            close();
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        control.addEventListener('click', function () {
+            if (panel.hidden) {
+                open();
+            } else {
+                close();
+            }
+        });
+
+        search.addEventListener('input', function () {
+            filter(search.value);
+        });
+
+        search.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                close();
+                control.focus();
+            } else if (event.key === 'Enter') {
+                event.preventDefault();
+                var firstVisible = items.filter(function (el) { return el.style.display !== 'none'; })[0];
+                if (firstVisible) {
+                    selectAgent(firstVisible.getAttribute('data-value'), firstVisible.textContent);
+                }
+            }
+        });
+
+        optionsList.addEventListener('click', function (event) {
+            var option = event.target.closest('[data-ss-option]');
+            if (option) {
+                selectAgent(option.getAttribute('data-value'), option.textContent);
+            }
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!wrap.contains(event.target)) {
+                close();
+            }
+        });
+
+        syncSelected();
+    }
+
     // Renders the picked agent's info card on the Choose Agent step.
     // Agent data is embedded once as JSON on the form (data-agents) rather
     // than fetched, since the eligible list is already fixed server-side
@@ -1007,6 +1127,8 @@
         } catch (e) {
             agents = [];
         }
+
+        initSearchableSelect(select, agents);
 
         function renderMetaRow(icon, text) {
             var row = document.createElement('p');

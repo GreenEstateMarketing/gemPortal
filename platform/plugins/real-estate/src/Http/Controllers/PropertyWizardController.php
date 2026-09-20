@@ -491,7 +491,7 @@ class PropertyWizardController extends Controller
             'adVerificationUrl' => $this->hasAssignedAgent($property)
                 ? route($this->routeName($role, 'ad-verification'), ['property' => $property->id])
                 : null,
-            'nearbyAgents' => $this->nearbyAgentsFor($property),
+            'nearbyAgents' => $this->nearbyAgentsFor($property, $role),
         ]);
     }
 
@@ -1178,10 +1178,15 @@ class PropertyWizardController extends Controller
      * Agents eligible for this property: whichever agents' drawn coverage
      * area contains its location, plus whichever agent is already assigned
      * (kept visible even if they no longer match, e.g. after the property's
-     * location was edited).
+     * location was edited). Admins aren't limited to location coverage -
+     * they can assign any agent in the system.
      */
-    protected function nearbyAgentsFor(Property $property)
+    protected function nearbyAgentsFor(Property $property, string $role = 'member')
     {
+        if ($role === 'admin') {
+            return Account::query()->orderBy('first_name')->orderBy('last_name')->get();
+        }
+
         $agents = $property->latitude && $property->longitude
             ? Account::query()->coveringPoint($property->longitude, $property->latitude)->get()
             : collect();
