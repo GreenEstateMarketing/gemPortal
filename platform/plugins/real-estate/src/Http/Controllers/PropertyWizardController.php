@@ -84,8 +84,12 @@ class PropertyWizardController extends Controller
         // Verification once an agent's assigned) rather than always
         // restarting at Submit Ad's first step - unless a specific step
         // was explicitly requested (e.g. the global header's "Submit Ad"
-        // link, or deliberately revisiting a step to edit it).
-        if ($property->isSubmitted() && !$request->has('step')) {
+        // link, or deliberately revisiting a step to edit it). Once the
+        // listing is approved there's no "where it left off" anymore - the
+        // whole journey is finished and permanently read-only (see
+        // isLocked()) - so it always opens at Submit Ad's first step, the
+        // natural starting point for a read-only walkthrough.
+        if ($property->isSubmitted() && ! $this->isLocked($property) && !$request->has('step')) {
             return redirect()->route(
                 $this->routeName($role, $this->hasAssignedAgent($property) ? 'ad-verification' : 'choose-agent'),
                 ['property' => $property->id]
