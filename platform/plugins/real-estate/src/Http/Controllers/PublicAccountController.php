@@ -23,8 +23,10 @@ use Botble\RealEstate\Http\Resources\ActivityLogResource;
 use Botble\RealEstate\Http\Resources\PackageResource;
 use Botble\RealEstate\Http\Resources\TransactionResource;
 use Botble\RealEstate\Models\Account;
+use Botble\RealEstate\Models\Category;
 use Botble\RealEstate\Models\Package;
 use Botble\RealEstate\Models\Property;
+use Botble\RealEstate\Models\SpokenLanguage;
 use Botble\RealEstate\Repositories\Interfaces\AccountActivityLogInterface;
 use Botble\RealEstate\Repositories\Interfaces\AccountInterface;
 use Botble\RealEstate\Repositories\Interfaces\PackageInterface;
@@ -110,7 +112,18 @@ class PublicAccountController extends Controller
             session(['wizard_contract_return_property_id' => $propertyId]);
         }
 
-        return view('plugins/real-estate::account.settings.index', compact('user'));
+        $spokenLanguages = SpokenLanguage::where('status', BaseStatusEnum::PUBLISHED)->orderBy('order')->get();
+        $specialtyCategories = Category::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get();
+        $selectedLanguageIds = $user->spokenLanguages()->pluck('re_spoken_languages.id')->all();
+        $selectedCategoryIds = $user->specialties()->pluck('re_categories.id')->all();
+
+        return view('plugins/real-estate::account.settings.index', compact(
+            'user',
+            'spokenLanguages',
+            'specialtyCategories',
+            'selectedLanguageIds',
+            'selectedCategoryIds'
+        ));
     }
 
     /**
@@ -136,7 +149,7 @@ class PublicAccountController extends Controller
             }
         }
 
-        $data = $request->except(['email', 'signature_file', 'signature_data']);
+        $data = $request->except(['email', 'signature_file', 'signature_data', 'languages', 'specialties']);
 
         $signaturePayload = $request->getSignaturePayload();
 
@@ -146,8 +159,12 @@ class PublicAccountController extends Controller
             $data['signature_created_at'] = now();
         }
 
-        $this->accountRepository->createOrUpdate($data,
-            ['id' => auth('account')->user()->getAuthIdentifier()]);
+        $account = auth('account')->user();
+
+        $this->accountRepository->createOrUpdate($data, ['id' => $account->getAuthIdentifier()]);
+
+        $account->spokenLanguages()->sync($request->input('languages', []));
+        $account->specialties()->sync($request->input('specialties', []));
 
         $this->activityLogRepository->createOrUpdate(['action' => 'update_setting']);
 

@@ -13,5 +13,6 @@ interface AccountInterface extends RepositoryInterface
      */
     public function createUsername($name, $id = null);
     public function agents();
+    public function searchAgents(array $filters = []);
     public function getPolygon($id);
 }

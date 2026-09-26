@@ -157,6 +157,17 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
             ]);
         });
 
+        Route::group(['prefix' => 'agent-spoken-languages', 'as' => 'agent_spoken_language.'], function () {
+            Route::resource('', 'SpokenLanguageController')
+                ->parameters(['' => 'agent_spoken_language']);
+
+            Route::delete('items/destroy', [
+                'as' => 'deletes',
+                'uses' => 'SpokenLanguageController@deletes',
+                'permission' => 'agent_spoken_language.destroy',
+            ]);
+        });
+
         Route::group(['prefix' => 'investors', 'as' => 'investor.'], function () {
             Route::resource('', 'InvestorController')
                 ->parameters(['' => 'investor']);

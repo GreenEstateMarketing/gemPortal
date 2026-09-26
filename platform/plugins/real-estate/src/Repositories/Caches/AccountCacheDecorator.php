@@ -19,6 +19,10 @@ class AccountCacheDecorator extends CacheAbstractDecorator implements AccountInt
         // TODO: Implement agents() method.
         return $this->getDataIfExistCache(__FUNCTION__, func_get_args());
     }
+    public function searchAgents(array $filters = [])
+    {
+        return $this->repository->searchAgents($filters);
+    }
     public function getPolygon($id=null)
     {
         // TODO: Implement agents() method.

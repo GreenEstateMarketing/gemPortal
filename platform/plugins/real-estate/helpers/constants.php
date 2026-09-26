@@ -68,3 +68,7 @@ if (!defined('CURRENCY_MODULE_SCREEN_NAME')) {
     define('CURRENCY_MODULE_SCREEN_NAME', 'currencies');
 }
 
+if (!defined('SPOKEN_LANGUAGE_MODULE_SCREEN_NAME')) {
+    define('SPOKEN_LANGUAGE_MODULE_SCREEN_NAME', 'agent_spoken_language');
+}
+

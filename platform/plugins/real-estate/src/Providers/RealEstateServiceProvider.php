@@ -21,6 +21,7 @@ use Botble\RealEstate\Models\Feature;
 use Botble\RealEstate\Models\Investor;
 use Botble\RealEstate\Models\Member;
 use Botble\RealEstate\Models\Package;
+use Botble\RealEstate\Models\SpokenLanguage;
 use BeyondCode\Vouchers\Models\Voucher;
 use Botble\RealEstate\Models\Project;
 use Botble\RealEstate\Models\Property;
@@ -44,6 +45,7 @@ use Botble\RealEstate\Repositories\Caches\FacilityCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\FeatureCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\InvestorCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\PackageCacheDecorator;
+use Botble\RealEstate\Repositories\Caches\SpokenLanguageCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\ProjectCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\PropertyCacheDecorator;
 use Botble\RealEstate\Repositories\Caches\FavouritePropertyCacheDecorator;
@@ -61,6 +63,7 @@ use Botble\RealEstate\Repositories\Eloquent\InvestorRepository;
 use Botble\RealEstate\Repositories\Eloquent\MemberActivityLogRepository;
 use Botble\RealEstate\Repositories\Eloquent\MemberRepository;
 use Botble\RealEstate\Repositories\Eloquent\PackageRepository;
+use Botble\RealEstate\Repositories\Eloquent\SpokenLanguageRepository;
 use Botble\RealEstate\Repositories\Eloquent\ProjectRepository;
 use Botble\RealEstate\Repositories\Eloquent\PropertyRepository;
 use Botble\RealEstate\Repositories\Eloquent\FavouritePropertyRepository;
@@ -81,6 +84,7 @@ use Botble\RealEstate\Repositories\Interfaces\InvestorInterface;
 use Botble\RealEstate\Repositories\Interfaces\MemberActivityLogInterface;
 use Botble\RealEstate\Repositories\Interfaces\MemberInterface;
 use Botble\RealEstate\Repositories\Interfaces\PackageInterface;
+use Botble\RealEstate\Repositories\Interfaces\SpokenLanguageInterface;
 use Botble\RealEstate\Repositories\Interfaces\ProjectInterface;
 use Botble\RealEstate\Repositories\Interfaces\PropertyInterface;
 use Botble\RealEstate\Repositories\Interfaces\FavouritePropertyInterface;
@@ -127,6 +131,12 @@ class RealEstateServiceProvider extends ServiceProvider
         $this->app->singleton(FeatureInterface::class, function () {
             return new FeatureCacheDecorator(
                 new FeatureRepository(new Feature)
+            );
+        });
+
+        $this->app->singleton(SpokenLanguageInterface::class, function () {
+            return new SpokenLanguageCacheDecorator(
+                new SpokenLanguageRepository(new SpokenLanguage)
             );
         });
 
@@ -311,6 +321,15 @@ class RealEstateServiceProvider extends ServiceProvider
                     'icon' => null,
                     'url' => route('facility.index'),
                     'permissions' => ['facility.index'],
+                ])
+                ->registerItem([
+                    'id' => 'cms-plugins-agent-spoken-language',
+                    'priority' => 4,
+                    'parent_id' => 'cms-plugins-real-estate',
+                    'name' => 'plugins/real-estate::spoken-language.name',
+                    'icon' => null,
+                    'url' => route('agent_spoken_language.index'),
+                    'permissions' => ['agent_spoken_language.index'],
                 ])
                 ->registerItem([
                     'id' => 'cms-plugins-investor',

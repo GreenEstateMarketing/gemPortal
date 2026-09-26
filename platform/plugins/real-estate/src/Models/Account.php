@@ -50,6 +50,7 @@ class Account extends Authenticatable
         'signature',
         'signature_source',
         'signature_created_at',
+        'years_of_experience',
     ];
 
     /**
@@ -156,6 +157,22 @@ class Account extends Authenticatable
     public function properties()
     {
         return $this->morphMany(Property::class, 'author');
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function spokenLanguages(): BelongsToMany
+    {
+        return $this->belongsToMany(SpokenLanguage::class, 're_account_spoken_languages', 'account_id', 'spoken_language_id');
+    }
+
+    /**
+     * @return BelongsToMany
+     */
+    public function specialties(): BelongsToMany
+    {
+        return $this->belongsToMany(Category::class, 're_account_categories', 'account_id', 'category_id');
     }
 
     /**

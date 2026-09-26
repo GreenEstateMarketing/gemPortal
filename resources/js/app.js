@@ -5,6 +5,7 @@ Vue.use(require('vue-resource'));
 window.axios = require('axios');
 import Welcome from './components/Welcome';
 import Properties from './components/Properties';
+import AgentSearch from './components/AgentSearch';
 import Blog from './components/BlogComponent';
 import MemberPaymentHistory from "./components/MemberPaymentHistory";
 import sanitizeHTML from 'sanitize-html';
@@ -17,6 +18,7 @@ import PackagesComponent
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 Vue.component('welcome',Welcome);
 Vue.component('properties',Properties);
+Vue.component('agent-search',AgentSearch);
 Vue.component('blog',Blog);
 Vue.component('member',MemberPaymentHistory);
 Vue.component('pagination', require('laravel-vue-pagination'));

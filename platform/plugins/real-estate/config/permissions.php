@@ -61,6 +61,26 @@ return [
         'parent_flag' => 'property_feature.index',
     ],
     [
+        'name' => 'Agent Spoken Languages',
+        'flag' => 'agent_spoken_language.index',
+    ],
+    [
+        'name'        => 'Create',
+        'flag'        => 'agent_spoken_language.create',
+        'parent_flag' => 'agent_spoken_language.index',
+    ],
+    [
+        'name'        => 'Edit',
+        'flag'        => 'agent_spoken_language.edit',
+        'parent_flag' => 'agent_spoken_language.index',
+    ],
+    [
+        'name'        => 'Delete',
+        'flag'        => 'agent_spoken_language.destroy',
+        'parent_flag' => 'agent_spoken_language.index',
+    ],
+
+    [
         'name' => 'Investors',
         'flag' => 'investor.index',
     ],

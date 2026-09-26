@@ -19,9 +19,9 @@ Route::group(['namespace' => 'Theme\FlexHome\Http\Controllers', 'middleware' => 
         Route::get('ajax/cities', 'FlexHomeController@ajaxGetCities')->name('public.ajax.cities');
         Route::get('ajax/properties', 'FlexHomeController@ajaxGetProperties')->name('public.ajax.properties');
         Route::get('ajax/posts', 'FlexHomeController@ajaxGetPosts')->name('public.ajax.posts');
-        Route::get('agents', 'FlexHomeController@getAgentList')->name('public.agent.list');
-        Route::get('agent-search', 'FlexHomeController@agent_search')->name('public.agent.search');
-        Route::post('agent-search', 'FlexHomeController@agent_search_post')->name('public.agent.search.post');
+        Route::get('agents', 'FlexHomeController@getAgents')->name('public.agent.list');
+        Route::get('ajax/agents', 'FlexHomeController@ajaxGetAgents')->name('public.ajax.agents');
+        Route::get('ajax/cities-by-country', 'FlexHomeController@ajaxGetCitiesByCountry')->name('public.ajax.cities-by-country');
         Route::get('agent-detail/{username}', 'FlexHomeController@getAgentDetial')->name('public.agent.detail');
         Route::get('get-search-area','FlexHomeController@getSearchAreaList');
         Route::get('ajax/projects', 'FlexHomeController@ajaxGetProjects')->name('public.ajax.projects');

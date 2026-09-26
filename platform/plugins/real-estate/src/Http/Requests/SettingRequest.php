@@ -22,6 +22,11 @@ class SettingRequest extends Request
             'dob'        => 'max:20|sometimes',
             'signature_file' => 'nullable|file|mimes:png',
             'signature_data' => 'nullable|string',
+            'years_of_experience' => 'nullable|integer|min:0|max:25',
+            'languages' => 'nullable|array',
+            'languages.*' => 'integer|exists:re_spoken_languages,id',
+            'specialties' => 'nullable|array',
+            'specialties.*' => 'integer|exists:re_categories,id',
         ];
     }
 

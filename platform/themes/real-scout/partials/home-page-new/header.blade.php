@@ -50,8 +50,10 @@
          reuses the shared .btn-outline class defined above. --}}
     <link rel="stylesheet" href="{{ Theme::asset()->url('css/home-page-new/cta-move.css') }}">
 
-    {{-- Site footer stylesheet - same dependencies. --}}
-    <link rel="stylesheet" href="{{ Theme::asset()->url('css/home-page-new/site-footer.css') }}">
+    {{-- Site footer stylesheet is now registered globally in config.php's
+         beforeRenderTheme (so the footer renders the same on every public
+         page), so it's loaded via Theme::header() above - no separate
+         <link> needed here. --}}
 
     {{-- Display fonts used in the hero headline / nav text. Swap for theme_option('primary_font')
          if you'd rather keep this on the same font system as the rest of the theme. --}}
@@ -177,7 +179,7 @@
                         Explore Properties
                         <i class="icon-arrow-right"></i>
                     </a>
-                    <a href="{{ route('public.agent.search') }}" class="btn-outline">Talk to an Agent</a>
+                    <a href="{{ route('public.agent.list') }}" class="btn-outline">Talk to an Agent</a>
                 </div>
             </div>
 

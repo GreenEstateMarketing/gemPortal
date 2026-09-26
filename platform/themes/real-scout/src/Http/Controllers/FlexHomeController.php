@@ -11,9 +11,11 @@ use Botble\Location\Repositories\Interfaces\CityInterface;
 use Botble\RealEstate\Enums\ModerationStatusEnum;
 use Botble\RealEstate\Enums\PropertyStatusEnum;
 use Botble\RealEstate\Enums\PropertyTypeEnum;
+use Botble\Location\Models\Country;
 use Botble\RealEstate\Models\Account;
 use Botble\RealEstate\Models\Category;
 use Botble\RealEstate\Models\City;
+use Botble\RealEstate\Models\SpokenLanguage;
 use Botble\RealEstate\Repositories\Interfaces\AccountInterface;
 use Botble\RealEstate\Repositories\Interfaces\CategoryInterface;
 use Botble\RealEstate\Repositories\Interfaces\ProjectInterface;
@@ -26,6 +28,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use SeoHelper;
 use Theme;
+use Theme\FlexHome\Http\Resources\AgentSearchResource;
 use Theme\FlexHome\Http\Resources\PostResource;
 use Theme\FlexHome\Http\Resources\PropertyResource;
 use App\Models\area;
@@ -463,33 +466,74 @@ class FlexHomeController extends PublicController
     {
         return view('welcom');
     }
-    public function getAgentList(
-        AccountInterface $accountRepository,
-        PropertyInterface $propertyRepository
-    ) {
-        $agents = $accountRepository->agents();
-        return Theme::scope('real-estate.agent_list', compact('agents'))->render();
-    }
-    public function agent_search(
-        AccountInterface $accountRepository,
-        PropertyInterface $propertyRepository
-    ) {
-        $agents = $accountRepository->agents();
-        return Theme::scope('real-estate.agent-search', compact('agents'))->render();
-    }
-    function agent_search_post(Request $request, AccountInterface $accountRepository)
+    /**
+     * @param AccountInterface $accountRepository
+     * @return \Response
+     */
+    public function getAgents()
     {
-        $list = Account::where('confirmed_at', '!=', null);
-        $first_name = $request['first_name'];
-        $last_name = $request['last_name'];
-        $location = $request['location'];
-        if ($first_name != "")
-            $list = $list->where('first_name', 'LIKE', '%' . $first_name . '%');
-        if ($last_name != "")
-            $list = $list->where('last_name', 'LIKE', '%' . $last_name . '%');
-        $agents = $list->get();
-        return Theme::scope('real-estate.agent-search-detail', compact('agents'))->render();
+        SeoHelper::setTitle(__('Agents'));
 
+        $countries = Country::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name']);
+        $cities = City::select('id', 'name')
+            ->where('status', 'published')
+            ->where('country_id', session('visitor_location.country_id', 166))
+            ->get();
+        $languages = SpokenLanguage::where('status', BaseStatusEnum::PUBLISHED)->orderBy('order')->get(['id', 'name']);
+        $categories = Category::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name']);
+        $defaultCountryId = session('visitor_location.country_id', 166);
+        $defaultCityId = session('visitor_location.city_id');
+
+        return Theme::scope('real-estate.agents', compact(
+            'countries',
+            'cities',
+            'languages',
+            'categories',
+            'defaultCountryId',
+            'defaultCityId'
+        ))->render();
+    }
+
+    /**
+     * @param Request $request
+     * @param AccountInterface $accountRepository
+     * @param BaseHttpResponse $response
+     * @return BaseHttpResponse
+     */
+    public function ajaxGetAgents(Request $request, AccountInterface $accountRepository, BaseHttpResponse $response)
+    {
+        $agents = $accountRepository->searchAgents([
+            'keyword' => $request->input('keyword'),
+            'country_id' => $request->input('country_id'),
+            'city_id' => $request->input('city_id'),
+            'language_ids' => (array) $request->input('language_ids', []),
+            'category_ids' => (array) $request->input('category_ids', []),
+            'min_experience' => $request->input('min_experience'),
+            'max_experience' => $request->input('max_experience'),
+            'lat' => $request->input('lat'),
+            'lng' => $request->input('lng'),
+            'sort_by' => $request->input('sort_by'),
+            'per_page' => (int) theme_option('number_of_agents_per_page', 10),
+            'current_paged' => (int) $request->input('page', 1),
+        ]);
+
+        return $response->setData(AgentSearchResource::collection($agents));
+    }
+
+    /**
+     * @param Request $request
+     * @param BaseHttpResponse $response
+     * @return BaseHttpResponse
+     */
+    public function ajaxGetCitiesByCountry(Request $request, BaseHttpResponse $response)
+    {
+        $cities = City::select('id', 'name')
+            ->where('status', 'published')
+            ->where('country_id', (int) $request->input('country_id'))
+            ->orderBy('name')
+            ->get();
+
+        return $response->setData($cities);
     }
     public function excerpt($title, $cutOffLength)
     {

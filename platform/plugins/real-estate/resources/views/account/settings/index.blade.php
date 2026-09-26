@@ -92,6 +92,35 @@
                   </span>
                                 </div>
                             </div>
+                            <!-- Years of experience -->
+                            <div class="form-group">
+                                <label for="years_of_experience">{{ trans('plugins/real-estate::dashboard.years_of_experience') }}</label>
+                                <input type="number" min="0" max="25" class="form-control" name="years_of_experience" id="years_of_experience" value="{{ old('years_of_experience') ?? $user->years_of_experience }}">
+                            </div>
+                            <!-- Spoken languages -->
+                            <div class="form-group">
+                                <label>{{ trans('plugins/real-estate::dashboard.languages') }}</label>
+                                <div class="checkbox-group">
+                                    @foreach ($spokenLanguages as $language)
+                                        <label class="checkbox-inline mr-3">
+                                            <input type="checkbox" name="languages[]" value="{{ $language->id }}" {{ in_array($language->id, old('languages', $selectedLanguageIds)) ? 'checked' : '' }}>
+                                            {{ $language->name }}
+                                        </label>
+                                    @endforeach
+                                </div>
+                            </div>
+                            <!-- Specialties / property types -->
+                            <div class="form-group">
+                                <label>{{ trans('plugins/real-estate::dashboard.specialties') }}</label>
+                                <div class="checkbox-group">
+                                    @foreach ($specialtyCategories as $category)
+                                        <label class="checkbox-inline mr-3">
+                                            <input type="checkbox" name="specialties[]" value="{{ $category->id }}" {{ in_array($category->id, old('specialties', $selectedCategoryIds)) ? 'checked' : '' }}>
+                                            {{ $category->name }}
+                                        </label>
+                                    @endforeach
+                                </div>
+                            </div>
                             <!-- Gender -->
                             <div class="form-group">
                                 <label for="gender">{{ trans('plugins/real-estate::dashboard.gender') }}</label>
