@@ -6,5 +6,8 @@
 {!! Theme::partial('home-page-new/meet-agents') !!}
 {!! Theme::partial('home-page-new/testimonials') !!}
 {!! Theme::partial('home-page-new/cta-move') !!}
-{!! Theme::partial('home-page-new/site-footer') !!}
-{!! Theme::partial('home-page-new/footer') !!}
+{!! Theme::partial('footer') !!}
+
+<script src="{{ Theme::asset()->url('js/new-home-page/header.js') }}"></script>
+<script src="{{ Theme::asset()->url('js/new-home-page/how-it-works.js') }}"></script>
+<script src="{{ Theme::asset()->url('js/new-home-page/property-categories.js') }}"></script>

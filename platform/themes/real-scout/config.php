@@ -75,6 +75,7 @@ return [
 
             $theme->asset()->add('choices-css', 'https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/choices.min.css', [], []);
             $theme->asset()->usePath()->add('theme-css', 'css/theme-css.css', [], [], $version);
+            $theme->asset()->usePath()->add('site-footer-css', 'css/home-page-new/site-footer.css', [], [], $version);
             $theme->asset()->add('select2-css', 'css/select2-custom.min.css', [], []);
             $theme->asset()->add('choosen-css', 'css/chosen.min.css', [], []);
             /* $theme->asset()->add('leaflet-css', 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.css');

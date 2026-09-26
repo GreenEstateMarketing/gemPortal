@@ -1,11 +1,27 @@
 /*
     Path in theme: platform/themes/real-scout/public/css/home-page-new/site-footer.css
-    Loaded via:    Theme::asset()->url('css/home-page-new/site-footer.css')
+    Loaded via:    Theme::asset()->url('css/home-page-new/site-footer.css'),
+                    registered globally in config.php's beforeRenderTheme so
+                    this footer renders the same on every public page, not
+                    just the homepage.
 
-    Relies on the --header-* custom properties defined on :root in
-    home-page-new/header.css (colors, fonts, --header-max-width) - that
-    stylesheet must be linked before this one.
+    Defines its own --header-* custom properties (matching home-page-new/
+    header.css) so it doesn't depend on that homepage-only stylesheet being
+    loaded. On the homepage, header.css sets the same values again - no
+    visual difference there.
 */
+
+:root {
+    --header-navy: #1a1d24;
+    --header-navy-light: #22262f;
+    --header-gold: #e0a63e;
+    --header-gold-hover: #cf9530;
+    --header-white: #ffffff;
+    --header-text-muted: #c9cdd3;
+    --header-font-heading: 'Playfair Display', Georgia, serif;
+    --header-font-body: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --header-max-width: 1320px;
+}
 
 .site-footer {
     background: var(--header-navy);

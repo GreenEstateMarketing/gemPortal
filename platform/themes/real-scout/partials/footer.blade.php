@@ -1,205 +1,165 @@
-<section class="footer-bar">
-    <div class="container">
-        <div class="inner wow fadeIn">
-            <div class="row">
-                <div class="col-lg-4 wow fadeInUp" data-wow-delay="0.05s">
-                    <figure><img src="{{ Theme::asset()->url('images/footer-icon01.png')  }}" alt="Image"></figure>
-                    <h3>Address Info</h3>
-                    <p>{{ theme_option('address') }}</p>
-                </div>
-                <!-- end col-4 -->
-                <div class="col-lg-4 wow fadeInUp" data-wow-delay="0.10s">
-                    <figure><img src="{{ Theme::asset()->url('images/footer-icon02.png')  }}" alt="Image"></figure>
-                    <h3>Working Hours</h3>
-                    <p>Monday to Friday <strong>09:00</strong> to <strong>18:30</strong> <br>
-                        Saturday we work until <strong>15:30</strong></p>
-                </div>
-                <!-- end col-4 -->
-                <div class="col-lg-4 wow fadeInUp" data-wow-delay="0.15s">
-                    <figure><img src="{{ Theme::asset()->url('images/footer-icon03.png')  }}" alt="Image"></figure>
-                    <h3>Sales Office</h3>
-                    <p># 23 Block - A North Avenue, Gulberg
-                        Greens, Islamabad</p>
-                </div>
-                <!-- end col-4 -->
-            </div>
-            <!-- end row -->
-        </div>
-        <!-- end inner -->
-    </div>
-    <!-- end container -->
-</section>
-<!-- end footer-bar -->
-<footer class="footer">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-4 wow fadeInUp" data-wow-delay="0.05s">
-                @if (theme_option('logo'))
-                    <a class="navbar-brand" href="{{ route('public.single') }}">
-                        <img src="{{ RvMedia::getImageUrl(theme_option('logo')) }}" class="logo" height="40"
-                            alt="{{ theme_option('site_name') }}">
-                    </a>
-                @endif
-                <p>GEM has been established in 2020 to
-                    introduce novelty and modernity to the real
-                    estate sector of Pakistan.</p>
+{{--
+    Shared site footer, included via {!! Theme::partial('footer') !!} from every
+    layout (default, homepage, homepagenew, realscouthomepage) so the whole
+    public site renders one footer design from one file.
 
-                <!-- end select-box -->
+    Dynamic data used wherever it actually exists in Theme Options:
+    - Logo: theme_option('logo') / site_title (same pattern as the header).
+    - Description: theme_option('seo_description') - there's no separate
+      "footer description" option, this is the closest real, non-empty
+      piece of company copy.
+    - Address / phone / email: theme_option('address') / ('hotline') / ('email').
+    - Social links: theme_option('facebook') / ('linkedin') are set;
+      ('instagram') is empty in Theme Options right now, so that icon is
+      hidden rather than linking to "#" - add a real URL there to have it
+      appear. WhatsApp isn't a theme option at all, built from the hotline
+      number instead (same wa.me pattern used on the agent cards).
+
+    DATA GAPS:
+    - No "working hours" theme option exists - falls back to the design's
+      static text ("Mon - Sat: 9:00 AM - 6:00 PM"). Add a real option later
+      if this should be editable.
+    - No newsletter plugin/route exists, so the "newsletter" input is a
+      plain GET form that redirects to the Contact Us page with the
+      entered address prefilled into its email field (see
+      partials/short-codes/contact-form.blade.php). Swap this out for a
+      real subscribe endpoint once one exists.
+
+    "Property Types" links point to route('public.properties',
+    ['category_id' => ...]) using REAL category ids looked up by name
+    (House, Flat, and the COMMERCIAL/PLOTS parent categories all exist).
+    "Villas" has no matching category in the database at all, so it links
+    to the plain properties page instead of a fabricated category id.
+--}}
+@php
+    $footerCategoryIds = \Botble\RealEstate\Models\Category::query()
+        ->whereIn('name', ['House', 'Flat', 'COMMERCIAL', 'PLOTS'])
+        ->pluck('id', 'name');
+
+    $footerAboutPage = app(\Botble\Page\Repositories\Interfaces\PageInterface::class)->getFirstBy(['name' => 'About us']);
+    $footerAboutSlug = $footerAboutPage
+        ? app(\Botble\Slug\Repositories\Interfaces\SlugInterface::class)->getFirstBy([
+            'reference_id' => $footerAboutPage->id,
+            'reference_type' => \Botble\Page\Models\Page::class,
+        ])
+        : null;
+    $footerAboutUrl = $footerAboutSlug ? url($footerAboutSlug->key) : '#';
+
+    $footerContactPage = app(\Botble\Page\Repositories\Interfaces\PageInterface::class)->getFirstBy(['name' => 'Contact']);
+    $footerContactSlug = $footerContactPage
+        ? app(\Botble\Slug\Repositories\Interfaces\SlugInterface::class)->getFirstBy([
+            'reference_id' => $footerContactPage->id,
+            'reference_type' => \Botble\Page\Models\Page::class,
+        ])
+        : null;
+    $footerContactUrl = $footerContactSlug ? url($footerContactSlug->key) : '#';
+
+    $footerWhatsapp = preg_replace('/\D/', '', (string) theme_option('hotline'));
+@endphp
+<footer class="site-footer">
+    <div class="container site-footer__inner">
+
+        <div class="site-footer__grid">
+            <div class="site-footer__col site-footer__col--brand">
+                <a href="{{ route('public.index') }}" class="site-footer__logo">
+                    @if (theme_option('logo'))
+                        <img src="{{ RvMedia::getImageUrl(theme_option('logo')) }}" alt="{{ theme_option('site_title') }}">
+                    @else
+                        {{ theme_option('site_title') }}
+                    @endif
+                </a>
+
+                <p class="site-footer__description">{{ theme_option('seo_description') }}</p>
+
+                <div class="site-footer__socials">
+                    @if (theme_option('facebook'))
+                        <a href="{{ theme_option('facebook') }}" target="_blank" rel="noopener" class="site-footer__social">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                    @endif
+                    @if (theme_option('instagram'))
+                        <a href="{{ theme_option('instagram') }}" target="_blank" rel="noopener" class="site-footer__social">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    @endif
+                    @if (theme_option('linkedin'))
+                        <a href="{{ theme_option('linkedin') }}" target="_blank" rel="noopener" class="site-footer__social">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    @endif
+                    @if ($footerWhatsapp)
+                        <a href="https://wa.me/{{ $footerWhatsapp }}" target="_blank" rel="noopener" class="site-footer__social">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                    @endif
+                </div>
             </div>
-            <!-- end col-4 -->
-            <div class="col-lg-2 col-md-6 wow fadeInUp" data-wow-delay="0.10s">
-                <ul class="footer-menu">
-                    <li><a href="/">Home</a></li>
-                    <li><a href="/pricing">Pricing</a></li>
-                    <li><a href="/contact">Contact</a></li>
-                    <li><a href="/faq">FAQ</a></li>
-                    <li><a href="/return-policy">Return Policy</a></li>
-                    <li><a href="/shipping-policy">Shipping/Delivery Policy</a></li>
-                    <li><a href="/gem-portal-disclaimer">Disclaimer</a></li>
+
+            <div class="site-footer__col">
+                <h4 class="site-footer__heading">{{ __('Quick Links') }}</h4>
+                <ul class="site-footer__links">
+                    <li><a href="{{ route('public.index') }}">{{ __('Home') }}</a></li>
+                    <li><a href="{{ route('public.properties') }}">{{ __('Properties') }}</a></li>
+                    <li><a href="{{ route('public.index') }}#why-choose-gem">{{ __('Why Choose GEM') }}</a></li>
+                    <li><a href="{{ route('public.index') }}#how-it-works">{{ __('How It Works') }}</a></li>
+                    <li><a href="{{ $footerAboutUrl }}">{{ __('About Us') }}</a></li>
+                    <li><a href="{{ route('public.agent.list') }}">{{ __('Our Agents') }}</a></li>
                 </ul>
             </div>
-            <!-- end col-2 -->
-            <div class="col-lg-2 col-md-6 wow fadeInUp" data-wow-delay="0.15s">
-                <ul class="footer-menu">
-                    <li><a href="#">Suites</a></li>
-                    <li><a href="#">Apartments</a></li>
-                    <li><a href="#">Villas & Houses</a></li>
-                    <li><a href="#">Butique Room</a></li>
-                    <li><a href="#">Buildings</a></li>
+
+            <div class="site-footer__col">
+                <h4 class="site-footer__heading">{{ __('Property Types') }}</h4>
+                <ul class="site-footer__links">
+                    <li>
+                        <a href="{{ route('public.properties', ['category_id' => $footerCategoryIds->get('House')]) }}">
+                            {{ __('Houses') }}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('public.properties', ['category_id' => $footerCategoryIds->get('Flat')]) }}">
+                            {{ __('Apartments') }}
+                        </a>
+                    </li>
+                    <li><a href="{{ route('public.properties') }}">{{ __('Villas') }}</a></li>
+                    <li>
+                        <a href="{{ route('public.properties', ['category_id' => $footerCategoryIds->get('COMMERCIAL')]) }}">
+                            {{ __('Commercial') }}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('public.properties', ['category_id' => $footerCategoryIds->get('PLOTS')]) }}">
+                            {{ __('Plots & Land') }}
+                        </a>
+                    </li>
+                    <li><a href="{{ route('wanted') }}">{{ __('Wanted Properties') }}</a></li>
                 </ul>
             </div>
-            <!-- end col-2 -->
-            <div class="col-lg-4 wow fadeInUp" data-wow-delay="0.20s">
-                <div class="contact-box">
-                    <h5>CALL CENTER</h5>
-                    <h3>{{ theme_option('hotline') }}</h3>
-                    <p><a href="#">{{ theme_option('email') }}</a></p>
-                    <ul>
-                        <!-- <li><a href="{{ theme_option('facebook') }}"><i class="fab fa-facebook-f"></i></a></li>
-                        <li><a href="{{ theme_option('twitter') }}"><i class="fab fa-twitter"></i></a></li>
-                        <li><a href="{{ theme_option('youtube') }}"><i class="fab fa-youtube"></i></a></li>
-                        <li><a href="{{ theme_option('linkedin') }}"><i class="fab fa-linkedin"></i></a></li> -->
-                        <li>
-    <a href="https://www.facebook.com/profile.php?id=61573161165755" target="_blank" rel="noopener noreferrer">
-        <i class="fab fa-facebook-f"></i>
-    </a>
-</li>
 
-<li>
-    <a href="https://x.com/Greens_GEM" target="_blank" rel="noopener noreferrer">
-        <i class="fab fa-twitter"></i>
-    </a>
-</li>
+            <div class="site-footer__col">
+                <h4 class="site-footer__heading">{{ __('Contact Us') }}</h4>
+                <ul class="site-footer__contact">
+                    @if (theme_option('address'))
+                        <li><i class="fas fa-map-marker-alt"></i> {{ theme_option('address') }}</li>
+                    @endif
+                    @if (theme_option('hotline'))
+                        <li><a href="tel:{{ theme_option('hotline') }}"><i class="fas fa-phone"></i> {{ theme_option('hotline') }}</a></li>
+                    @endif
+                    @if (theme_option('email'))
+                        <li><a href="mailto:{{ theme_option('email') }}"><i class="fas fa-envelope"></i> {{ theme_option('email') }}</a></li>
+                    @endif
+                    <li><i class="fas fa-clock"></i> {{ __('Mon - Sat: 9:00 AM - 6:00 PM') }}</li>
+                </ul>
 
-<li>
-    <a href="https://www.youtube.com/@GreensGEM" target="_blank" rel="noopener noreferrer">
-        <i class="fab fa-youtube"></i>
-    </a>
-</li>
-
-<li>
-    <a href="https://g.co/kgs/o1qyAyp" target="_blank" rel="noopener noreferrer">
-        <i class="fab fa-google"></i>
-    </a>
-</li>
-                        <li>
-    <a href="https://wa.me/923068675133" target="_blank">
-        <i class="fab fa-whatsapp"></i>
-    </a>
-</li>
-                    </ul>
-                </div>
-                <!-- end contact-box -->
+                {{-- No newsletter plugin/route exists yet - redirect to Contact Us with the email prefilled instead. --}}
+                <form class="site-footer__newsletter" action="{{ $footerContactUrl }}" method="get">
+                    <input type="email" name="email" placeholder="{{ __('Your email address') }}" class="site-footer__newsletter-input" required>
+                    <button type="submit" class="site-footer__newsletter-btn"><i class="fas fa-arrow-right"></i></button>
+                </form>
             </div>
-            <!-- end col-4 -->
-            <div class="col-12"><span class="copyright">© {{ date('Y') }}
-                    {!! clean(theme_option('copyright')) !!}</span> <span class="creation">Site created by <a
-                    href="https://linesquaretech.com/" target="_blank">LineSquare Technologies</a></span></div>
-            <!-- end col-12 -->
         </div>
-        <!-- end row -->
+
     </div>
-    <!-- end container -->
 </footer>
-<!-- WhatsApp Floating Button -->
-<a href="https://wa.me/923068675133"
-   class="gem-whatsapp"
-   target="_blank"
-   aria-label="Chat on WhatsApp">
-    <svg xmlns="http://www.w3.org/2000/svg"
-         width="32"
-         height="32"
-         fill="white"
-         viewBox="0 0 24 24">
-        <path d="M20.52 3.48A11.82 11.82 0 0012.06 0C5.5 0 .16 5.34.16 11.9c0 2.1.55 4.15 1.6 5.96L0 24l6.33-1.66a11.9 11.9 0 005.73 1.46h.01c6.56 0 11.9-5.34 11.9-11.9a11.8 11.8 0 00-3.45-8.42zM12.07 21.8a9.82 9.82 0 01-5.01-1.37l-.36-.21-3.76.99 1-3.67-.23-.38a9.83 9.83 0 01-1.5-5.25c0-5.42 4.42-9.83 9.86-9.83 2.63 0 5.1 1.03 6.95 2.88a9.77 9.77 0 012.89 6.95c0 5.43-4.43 9.84-9.84 9.84zm5.39-7.37c-.29-.14-1.72-.85-1.99-.95-.27-.1-.47-.14-.67.15-.2.29-.77.95-.95 1.15-.17.2-.35.22-.64.07-.29-.14-1.24-.45-2.36-1.44-.87-.77-1.46-1.71-1.63-2-.17-.29-.02-.45.13-.6.14-.14.29-.35.43-.52.14-.17.19-.29.29-.48.1-.2.05-.36-.02-.5-.07-.14-.67-1.62-.92-2.22-.24-.58-.48-.5-.67-.5h-.57c-.2 0-.5.07-.77.36-.27.29-1.04 1.02-1.04 2.48 0 1.46 1.07 2.87 1.22 3.07.14.2 2.1 3.21 5.08 4.5.71.31 1.27.49 1.71.63.72.23 1.38.2 1.9.12.58-.09 1.72-.7 1.96-1.37.24-.67.24-1.24.17-1.37-.07-.12-.26-.2-.55-.34z"/>
-    </svg>
-</a>
-
-<style>
-.gem-whatsapp{
-    position:fixed;
-    bottom:25px;
-    right:25px;
-    width:60px;
-    height:60px;
-    border-radius:50%;
-    background:#25D366;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    box-shadow:0 6px 20px rgba(0,0,0,.35);
-    z-index:99999;
-    transition:.3s;
-}
-
-.gem-whatsapp:hover{
-    transform:scale(1.1);
-    background:#20ba5a;
-}
-</style>
-<!-- end footer -->
-
-<!--FOOTER-->
-<!--
-<footer>
-    <br>
-    <div class="container-fluid w90">
-        <div class="row">
-            <div class="col-sm-3">
-                @if (theme_option('logo'))
-    <p>
-        <a href="{{ route('public.single') }}">
-                        <img src="{{ RvMedia::getImageUrl(theme_option('logo'))  }}" style="max-height: 38px" alt="{{ theme_option('site_name') }}">
-                    </a>
-                </p>
-                @endif
-    <p><i class="fas fa-map-marker-alt"></i> &nbsp;{{ theme_option('address') }}</p>
-                <p><i class="fas fa-phone-square"></i> {{ __('Hotline') }}: &nbsp;<a href="tel:{{ theme_option('hotline') }}">{{ theme_option('hotline') }}</a></p>
-                <p><i class="fas fa-envelope"></i> {{ __('Email') }}: &nbsp;<a href="mailto:{{ theme_option('email') }}">{{ theme_option('email') }}</a>
-                </p>
-            </div>
-            <div class="col-sm-9 padtop10">
-                <div class="row">
-                    {!! dynamic_sidebar('footer_sidebar') !!}
-    </div>
-</div>
-</div>
-<div class="row">
-<div class="col-12">
-{!! Theme::partial('language-switcher') !!}
-    </div>
-</div>
-<div class="copyright">
-    <div class="col-sm-12">
-        <p class="text-center">
-{!! clean(theme_option('copyright')) !!}
-    </p>
-</div>
-</div>
-</div>
-</footer>
--->
-<!--FOOTER-->
 
 <script>
     window.trans = {
@@ -314,19 +274,7 @@
             window.location.reload();
         }
     });
-
 </script>
-
-<!--END FOOTER-->
-<!--
-<div class="action_footer">
-    <a href="#" class="cd-top"><i class="fas fa-arrow-up"></i></a>
-    <a href="tel:{{ theme_option('hotline') }}" style="color: white;font-size: 17px;"><i class="fas fa-phone"></i> <span>  &nbsp;{{ theme_option('hotline') }}</span></a>
-</div>
-<div id="loading">
-    <div class="lds-hourglass">
-    </div>
-</div> -->
 
 {!! Theme::footer() !!}
 </body>
