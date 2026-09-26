@@ -121,6 +121,115 @@ class FlexHomeController extends PublicController
     }
 
     /**
+     * Featured/for-sale/for-rent carousels, scoped to the visitor's resolved
+     * location: city first, falling back to country-wide, falling back to
+     * the unscoped global list when neither has any matching properties.
+     *
+     * @param string $type
+     * @param int $limit
+     * @return \Illuminate\Support\Collection
+     */
+    private function getLocationScopedFeaturedProperties(string $type, int $limit)
+    {
+        $baseConditions = [
+            're_properties.is_featured' => true,
+            're_properties.type' => $type,
+            ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::NOT_AVAILABLE]],
+            're_properties.moderation_status' => ModerationStatusEnum::APPROVED,
+        ];
+
+        // 'default' means nothing was actually resolved (no IP match, no
+        // browser grant) - session('visitor_location.country_id') still
+        // carries the site's bare fallback (166) in that case, which isn't
+        // a real signal and would otherwise scope this to "the whole
+        // country" for every visitor everywhere nothing was detected.
+        $location = session('visitor_location', []);
+        $isResolved = ($location['source'] ?? 'default') !== 'default';
+        $cityId = $isResolved ? ($location['city_id'] ?? null) : null;
+        $countryId = $isResolved ? ($location['country_id'] ?? null) : null;
+
+        if ($cityId) {
+            $properties = app(PropertyInterface::class)->getPropertiesByConditions(
+                array_merge($baseConditions, ['re_properties.city_id' => $cityId]),
+                $limit,
+                ['currency']
+            );
+
+            if ($properties->isNotEmpty()) {
+                return $properties;
+            }
+        }
+
+        if ($countryId) {
+            $properties = app(PropertyInterface::class)->getPropertiesByConditions(
+                array_merge($baseConditions, ['re_properties.country_id' => $countryId]),
+                $limit,
+                ['currency']
+            );
+
+            if ($properties->isNotEmpty()) {
+                return $properties;
+            }
+        }
+
+        return app(PropertyInterface::class)->getPropertiesByConditions($baseConditions, $limit, ['currency']);
+    }
+
+    /**
+     * The properties search/map page's default (no explicit search yet)
+     * results, scoped to the visitor's resolved location: city first,
+     * falling back to country-wide, falling back to the full unscoped
+     * result set when neither scope has anything. If the visitor has
+     * already searched by city/location themselves (via the search bar),
+     * that explicit choice always takes precedence and this default never
+     * runs - it only fills in what an untouched search bar leaves blank.
+     *
+     * @param array $filters
+     * @param array $params
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    private function getMapSearchPropertiesWithLocationDefault(array $filters, array $params)
+    {
+        $userSuppliedLocation = !empty($filters['city_id']) || !empty($filters['location']);
+
+        if ($userSuppliedLocation) {
+            return app(PropertyInterface::class)->getPropertiesByMap($filters, $params);
+        }
+
+        // 'default' means nothing was actually resolved (no IP match, no
+        // browser grant) - see the identical guard/comment in
+        // getLocationScopedFeaturedProperties() above.
+        $location = session('visitor_location', []);
+        $isResolved = ($location['source'] ?? 'default') !== 'default';
+        $cityId = $isResolved ? ($location['city_id'] ?? null) : null;
+        $countryId = $isResolved ? ($location['country_id'] ?? null) : null;
+
+        if ($cityId) {
+            $properties = app(PropertyInterface::class)->getPropertiesByMap(
+                array_merge($filters, ['city_id' => $cityId]),
+                $params
+            );
+
+            if ($properties->total() > 0) {
+                return $properties;
+            }
+        }
+
+        if ($countryId) {
+            $properties = app(PropertyInterface::class)->getPropertiesByMap(
+                array_merge($filters, ['country_id' => $countryId]),
+                $params
+            );
+
+            if ($properties->total() > 0) {
+                return $properties;
+            }
+        }
+
+        return app(PropertyInterface::class)->getPropertiesByMap($filters, $params);
+    }
+
+    /**
      * @param Request $request
      * @param BaseHttpResponse $response
      * @return BaseHttpResponse
@@ -139,27 +248,15 @@ class FlexHomeController extends PublicController
                     );
                 break;
             case 'rent':
-                $properties = app(PropertyInterface::class)->getPropertiesByConditions(
-                    [
-                        're_properties.is_featured' => true,
-                        're_properties.type' => PropertyTypeEnum::RENT,
-                        ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::NOT_AVAILABLE]],
-                        're_properties.moderation_status' => ModerationStatusEnum::APPROVED,
-                    ],
-                    (int) theme_option('number_of_properties_for_sale', 8),
-                    ['currency']
+                $properties = $this->getLocationScopedFeaturedProperties(
+                    PropertyTypeEnum::RENT,
+                    (int) theme_option('number_of_properties_for_sale', 8)
                 );
                 break;
             case 'sale':
-                $properties = app(PropertyInterface::class)->getPropertiesByConditions(
-                    [
-                        're_properties.is_featured' => true,
-                        're_properties.type' => PropertyTypeEnum::SALE,
-                        ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::NOT_AVAILABLE]],
-                        're_properties.moderation_status' => ModerationStatusEnum::APPROVED,
-                    ],
-                    (int) theme_option('number_of_properties_for_sale', 8),
-                    ['currency']
+                $properties = $this->getLocationScopedFeaturedProperties(
+                    PropertyTypeEnum::SALE,
+                    (int) theme_option('number_of_properties_for_sale', 8)
                 );
                 break;
             case 'project-properties-for-sell':
@@ -202,7 +299,7 @@ class FlexHomeController extends PublicController
                     ],
                     'order_by' => ['re_properties.created_at' => 'DESC'],
                 ];
-                $properties = app(PropertyInterface::class)->getPropertiesByMap($filters, $params);
+                $properties = $this->getMapSearchPropertiesWithLocationDefault($filters, $params);
                 break;
         }
 
@@ -573,10 +670,60 @@ class FlexHomeController extends PublicController
             'order_by' => ['re_projects.created_at' => 'DESC'],
         ];
 
-        $project = app(ProjectInterface::class)->getProjectsMaps($filters, $params);
+        $project = $this->getMapSearchProjectsWithLocationDefault($filters, $params);
         return $response
             ->setData(ProjectResource::collection($project))
             ->toApiResponse();
+    }
+
+    /**
+     * The projects search/map page's default (no explicit search yet)
+     * results, scoped to the visitor's resolved location: city first,
+     * falling back to country-wide, falling back to the full unscoped
+     * result set when neither scope has anything. Mirrors
+     * getMapSearchPropertiesWithLocationDefault() above - see its docblock
+     * for the precedence/fallback rationale, identical here.
+     *
+     * @param array $filters
+     * @param array $params
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    private function getMapSearchProjectsWithLocationDefault(array $filters, array $params)
+    {
+        $userSuppliedLocation = !empty($filters['city_id']) || !empty($filters['location']);
+
+        if ($userSuppliedLocation) {
+            return app(ProjectInterface::class)->getProjectsMaps($filters, $params);
+        }
+
+        $location = session('visitor_location', []);
+        $isResolved = ($location['source'] ?? 'default') !== 'default';
+        $cityId = $isResolved ? ($location['city_id'] ?? null) : null;
+        $countryId = $isResolved ? ($location['country_id'] ?? null) : null;
+
+        if ($cityId) {
+            $projects = app(ProjectInterface::class)->getProjectsMaps(
+                array_merge($filters, ['city_id' => $cityId]),
+                $params
+            );
+
+            if ($projects->total() > 0) {
+                return $projects;
+            }
+        }
+
+        if ($countryId) {
+            $projects = app(ProjectInterface::class)->getProjectsMaps(
+                array_merge($filters, ['country_id' => $countryId]),
+                $params
+            );
+
+            if ($projects->total() > 0) {
+                return $projects;
+            }
+        }
+
+        return app(ProjectInterface::class)->getProjectsMaps($filters, $params);
     }
 
     public function ajaxGetParentCategories(Request $request, BaseHttpResponse $response)

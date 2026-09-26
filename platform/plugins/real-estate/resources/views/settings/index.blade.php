@@ -233,6 +233,28 @@
             </div>
         @endif
 
+        @if (!app()->environment('demo'))
+            <div class="flexbox-annotated-section">
+                <div class="flexbox-annotated-section-annotation">
+                    <div class="annotated-section-title pd-all-20">
+                        <h2>{{ trans('plugins/real-estate::real-estate.visitor_location') }}</h2>
+                    </div>
+                    <div class="annotated-section-description pd-all-20 p-none-t">
+                        <p class="color-note">{{ trans('plugins/real-estate::real-estate.visitor_location_description') }}</p>
+                    </div>
+                </div>
+                <div class="flexbox-annotated-section-content">
+                    <div class="wrapper-content pd-all-20">
+                        <div class="form-group">
+                            <label class="text-title-field" for="maxmind_license_key">{{ trans('plugins/real-estate::real-estate.maxmind_license_key') }}</label>
+                            <input type="text" class="form-control" name="maxmind_license_key" value="{{ setting('maxmind_license_key') }}" id="maxmind_license_key" placeholder="xxxxxxxxxxxxxxxx">
+                            <span class="help-ts">{{ trans('plugins/real-estate::real-estate.maxmind_license_key_helper') }} (<a href="https://www.maxmind.com/en/accounts/current/license-key" target="_blank">https://www.maxmind.com/en/accounts/current/license-key</a>)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <div class="flexbox-annotated-section">
             <div class="flexbox-annotated-section-annotation">
                 <div class="annotated-section-title pd-all-20">

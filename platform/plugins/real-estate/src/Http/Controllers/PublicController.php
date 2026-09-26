@@ -388,7 +388,7 @@ class PublicController extends Controller
         $categories = $categoryRepository->pluck('re_categories.name', 're_categories.id');
         $cities = City::select('id', 'name')
             ->where('status', 'published')
-            ->where('country_id', 166)
+            ->where('country_id', session('visitor_location.country_id', 166))
             ->get();
         // $cities = [];
         return Theme::scope('real-estate.projects', compact('categories', 'chosenArr', 'parent_id', 'chosenFullArr', 'cities'))->render();
@@ -435,7 +435,7 @@ class PublicController extends Controller
         $chosenFullArr = array();
         $cities = City::select('id', 'name')
             ->where('status', 'published')
-            ->where('country_id', 166)
+            ->where('country_id', session('visitor_location.country_id', 166))
             ->get();
         // $cities = [];
         // echo '<pre>';

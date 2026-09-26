@@ -2,6 +2,110 @@
     $(document).ready(function() {
         "use strict";
 
+        // Shared visitor-geolocation helper (application-wide). Reports a
+        // resolved lat/lng/city/country to the server session, which upgrades
+        // session('visitor_location') from IP-precision to browser-precision.
+        // Used by this file's own homepage block below, and by the
+        // properties/projects search-results pages trigger further down this
+        // file - both render through the same Vue-mounted #app wrapper, so
+        // their own blade views can't safely carry an inline <script> of
+        // their own (Vue's template compiler treats anything inside #app as
+        // part of its component tree and chokes on raw <script> tags found
+        // there - confirmed via a "Vue warn: Error compiling template"
+        // console warning when this was tried inline). The property wizard's
+        // location step and the agent coverage-area map keep their own
+        // separate, pre-existing geolocation code untouched - this helper is
+        // not used there.
+        window.GEM = window.GEM || {};
+        window.GEM.geo = window.GEM.geo || {
+            reportLocation: function (loc) {
+                $.get('/geo/set-browser-location', loc);
+                // Marks this browser tab as "done" so the properties/projects
+                // trigger below never re-requests (and reloads) again once a
+                // precise location has been reported once, from anywhere.
+                try {
+                    sessionStorage.setItem('gemGeoReported', '1');
+                } catch (e) {
+                    // Private browsing / storage disabled - worst case, the
+                    // trigger below re-attempts on the next page load, which
+                    // is harmless (see its own comment).
+                }
+            },
+            parseGeocoderResults: function (results) {
+                var city = null, country = null;
+                for (var r = 0; r < results.length; r++) {
+                    var result = results[r];
+                    if (!city && result.types[0] === 'locality') {
+                        for (var c = 0; c < result.address_components.length; c++) {
+                            if (result.address_components[c].types[0] === 'locality') {
+                                city = result.address_components[c].long_name;
+                                break;
+                            }
+                        }
+                    } else if (!country && result.types[0] === 'country') {
+                        country = result.address_components[0].long_name;
+                    }
+                    if (city && country) {
+                        break;
+                    }
+                }
+                return { city: city, country: country };
+            },
+            // Requests the browser's location, reverse-geocodes it (requires
+            // the Google Maps JS API to already be loaded on the page) and
+            // reports the resolved city/country to the server session.
+            requestPreciseLocation: function (onResult) {
+                if (!navigator.geolocation || typeof google === 'undefined' || !google.maps) {
+                    return;
+                }
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    var coords = position.coords;
+                    var latlng = new google.maps.LatLng(coords.latitude, coords.longitude);
+                    new google.maps.Geocoder().geocode({ latLng: latlng }, function (results, status) {
+                        if (status !== google.maps.GeocoderStatus.OK || !results || !results.length) {
+                            return;
+                        }
+                        var parsed = window.GEM.geo.parseGeocoderResults(results);
+                        window.GEM.geo.reportLocation({
+                            lat: coords.latitude,
+                            lng: coords.longitude,
+                            city: parsed.city,
+                            country: parsed.country
+                        });
+                        if (typeof onResult === 'function') {
+                            onResult(parsed);
+                        }
+                    });
+                }, function () {
+                    // Denied/unavailable - the IP-based session value already applies.
+                }, { timeout: 8000 });
+            }
+        };
+
+        // Properties/Projects search-results pages: neither has room for its
+        // own inline geolocation trigger (see the big comment above), so it
+        // lives here instead - request precise location once per browser tab
+        // (not gated on the server session, since this file can't read it;
+        // sessionStorage is the equivalent client-side "already handled"
+        // flag, set by reportLocation() above whenever it succeeds, from
+        // anywhere - the homepage's own grant included) and reload once so
+        // the now city-precision session value is reflected in the results.
+        // Denying the prompt (or it staying unresolved) leaves the flag
+        // unset, so this simply re-attempts next visit - browsers don't
+        // re-show a real prompt after a real denial, so that's a harmless
+        // no-op, not a repeated popup.
+        var alreadyReported;
+        try {
+            alreadyReported = !!sessionStorage.getItem('gemGeoReported');
+        } catch (e) {
+            alreadyReported = false;
+        }
+        if (!alreadyReported
+            && (document.location.pathname === '/properties' || document.location.pathname === '/projects')) {
+            window.GEM.geo.requestPreciseLocation(function () {
+                window.location.reload();
+            });
+        }
 
         // HOVER TOGGLE
         $('.side-navigation .menu ul li a').on('click', function(e) {
@@ -362,6 +466,7 @@
                             $('.select-city-state').val(city);
                         }
 
+                        window.GEM.geo.reportLocation({ lat: lat, lng: lng, city: city, country: country });
 
                     }
                 } else {

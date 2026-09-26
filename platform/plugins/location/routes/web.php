@@ -2,6 +2,13 @@
 
 Route::group(['namespace' => 'Botble\Location\Http\Controllers', 'middleware' => ['web', 'core']], function () {
 
+    // GET, not POST: the public theme layout has no CSRF meta tag (only the
+    // admin layout does), so a POST here would always fail CSRF verification.
+    // Matches this app's existing convention for other stateful public
+    // actions, e.g. the `currency/switch/{code?}` route below.
+    Route::get('geo/set-browser-location', 'GeoController@setBrowserLocation')
+        ->name('geo.set-browser-location');
+
     Route::group(['prefix' => BaseHelper::getAdminPrefix(), 'middleware' => 'auth'], function () {
         Route::group(['prefix' => 'countries', 'as' => 'country.'], function () {
             Route::resource('', 'CountryController')->parameters(['' => 'country']);

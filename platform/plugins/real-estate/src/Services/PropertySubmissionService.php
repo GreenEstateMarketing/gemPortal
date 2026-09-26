@@ -68,6 +68,11 @@ class PropertySubmissionService
         // revisit to this step with the same project still selected.
         if ($property->project_id && $property->project_id !== $previousProjectId) {
             $this->copyLocationFromProject($property);
+        } elseif (!$property->project_id && !$property->country_id) {
+            // No project chosen and nothing's been set yet (by a project or
+            // by hand) - the project always takes precedence when there is
+            // one, so this only ever fills in the gap it leaves behind.
+            $this->copyLocationFromVisitorLocation($property);
         }
 
         return $this->markStepComplete($property, 1);
@@ -96,6 +101,33 @@ class PropertySubmissionService
             $property->state_id = $city->state_id;
             $property->country_id = $city->country_id;
         }
+    }
+
+    /**
+     * Defaults the property's country/state/city to the visitor's own
+     * resolved location (session('visitor_location') - see GeoIpService /
+     * ResolveVisitorLocation middleware), so the Location step opens
+     * pre-filled from wherever they actually are instead of blank. Only
+     * copies what's genuinely known: city_area never gets resolved this way
+     * (too fine-grained for IP/browser geolocation to match), and the
+     * site's bare "couldn't tell where you are" fallback (source
+     * 'default') isn't a real location worth pre-filling with - it would
+     * otherwise silently pick the same country for every fresh draft
+     * regardless of who's actually creating it.
+     */
+    protected function copyLocationFromVisitorLocation(Property $property): void
+    {
+        $location = session('visitor_location', []);
+        $source = Arr::get($location, 'source');
+        $countryId = Arr::get($location, 'country_id');
+
+        if (!$countryId || $source === 'default') {
+            return;
+        }
+
+        $property->country_id = $countryId;
+        $property->state_id = Arr::get($location, 'state_id');
+        $property->city_id = Arr::get($location, 'city_id');
     }
 
     /**

@@ -430,6 +430,7 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
             'project' => null,
             'category_id' => null,
             'city_id' => null,
+            'country_id' => null,
             'city' => null,
             'location' => null,
             'sort_by' => null,
@@ -724,6 +725,11 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
                     ->join('cities', 'cities.id', '=', 're_properties.city_id')
                     ->where('cities.name', 'LIKE', '%' . $filters['location'] . '%');
             }
+        } elseif ($filters['country_id']) {
+            // Coarser country-wide fallback used when there's no city-level
+            // match for the visitor's resolved location (see
+            // FlexHomeController::getMapSearchPropertiesWithLocationDefault()).
+            $this->model = $this->model->where('re_properties.country_id', $filters['country_id']);
         }
 
         //$bindings = $this->model->getBindings();

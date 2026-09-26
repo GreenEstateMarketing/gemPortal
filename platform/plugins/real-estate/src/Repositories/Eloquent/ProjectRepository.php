@@ -218,6 +218,7 @@ class ProjectRepository extends RepositoriesAbstract implements ProjectInterface
             'max_flat' => null,
             'category_id' => null,
             'city_id' => null,
+            'country_id' => null,
             'location' => null,
             'sort_by' => null,
             'min_price' => null,
@@ -449,6 +450,15 @@ class ProjectRepository extends RepositoriesAbstract implements ProjectInterface
 
         if ($filters['city_id']) {
             $this->model = $this->model->where('re_projects.city_id', $filters['city_id']);
+        } elseif ($filters['country_id']) {
+            // Coarser country-wide fallback used when there's no city-level
+            // match for the visitor's resolved location (see
+            // FlexHomeController::getMapSearchProjectsWithLocationDefault()).
+            // re_projects has no country_id column of its own, unlike
+            // re_properties - only city_id - so this goes through cities.
+            $this->model = $this->model
+                ->join('cities', 'cities.id', '=', 're_projects.city_id')
+                ->where('cities.country_id', $filters['country_id']);
         }
 
         /*elseif ($filters['location']) {

@@ -19,6 +19,7 @@ use Botble\Location\Models\State;
 use Botble\Location\Repositories\Caches\StateCacheDecorator;
 use Botble\Location\Repositories\Eloquent\StateRepository;
 use Botble\Location\Repositories\Interfaces\StateInterface;
+use Botble\Location\Http\Middleware\ResolveVisitorLocation;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\ServiceProvider;
 use Botble\Base\Supports\Helper;
@@ -61,6 +62,8 @@ class LocationServiceProvider extends ServiceProvider
             ->loadAndPublishTranslations()
             ->loadRoutes(['web'])
             ->publishAssets();
+
+        $this->app['router']->pushMiddlewareToGroup('web', ResolveVisitorLocation::class);
 
         if (defined('LANGUAGE_MODULE_SCREEN_NAME')) {
             Language::registerModule([

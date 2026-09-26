@@ -63,14 +63,18 @@
                         <div class="hero-search-card__location-divider"></div>
 
                         <input id="city-name-from-map" type="hidden" class="select-city-state" autocomplete="off" />
+                        @php
+                            $visitorLocation = session('visitor_location', []);
+                        @endphp
                         <select class="hero-search-card__city-select" id="city_id" name="city_id">
                             <option value="0">{{ __('Select city...') }}</option>
                             @foreach (app(\Botble\Location\Repositories\Interfaces\CityInterface::class)->allBy(
-                                ['status' => \Botble\Base\Enums\BaseStatusEnum::PUBLISHED, 'country_id' => 166],
+                                ['status' => \Botble\Base\Enums\BaseStatusEnum::PUBLISHED, 'country_id' => $visitorLocation['country_id'] ?? 166],
                                 ['state', 'country'],
                                 ['cities.name', 'cities.state_id', 'cities.country_id', 'cities.id'],
                             ) as $city)
-                                <option value={{ $city->id }}>
+                                <option value={{ $city->id }}
+                                    @if (($visitorLocation['city_id'] ?? null) == $city->id) selected @endif>
                                     {{ $city->name . ($city->state->name ? ' (' . $city->state->name . ')' : '') }}
                                 </option>
                             @endforeach
