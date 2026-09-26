@@ -166,7 +166,6 @@ class PropertyContractService
                 ? $member->signature_created_at->format('d/m/Y')
                 : null,
             'agentName' => $agent ? $agent->getFullName() : null,
-            'agentContact' => $agent ? $this->formatPhone($agent->phone) : null,
             'agentSignatureDataUri' => $agent ? $agent->signature_data_uri : null,
             'agentDate' => $agent && $agent->signature_created_at
                 ? $agent->signature_created_at->format('d/m/Y')
@@ -174,27 +173,8 @@ class PropertyContractService
             'propertyAddress' => $property->location,
             'propertyType' => optional($property->category)->name,
             'propertySize' => $property->square_text,
-            'salePrice' => $this->formatExactPrice($property),
             'agreementDate' => now()->format('d / m / Y'),
         ];
-    }
-
-    /**
-     * format_price()/human_price_text() shortens large numbers to "X
-     * million"/"X billion" by default (display_big_money_in_million_billion),
-     * which is unacceptable for a legal document stating an exact agreed
-     * price - this bypasses that entirely.
-     */
-    protected function formatExactPrice(Property $property): string
-    {
-        $decimals = optional($property->currency)->decimals ?? 0;
-
-        return number_format(
-            (float) $property->price,
-            $decimals,
-            setting('real_estate_decimal_separator', '.'),
-            setting('real_estate_thousands_separator', ',')
-        );
     }
 
     /**
