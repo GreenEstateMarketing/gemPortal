@@ -19,10 +19,17 @@ class PropertyWizardAgentStepRequest extends Request
      * agent's drawn coverage area must contain it), so this can't be a
      * static rule. The already-assigned agent (if any) stays valid even if
      * they no longer match, so re-submitting the same choice never fails.
+     * Admins aren't limited to location coverage - they can assign any agent
+     * in the system (matches the picker shown to them, see
+     * PropertyWizardController::nearbyAgentsFor()).
      */
     public function withValidator($validator): void
     {
         $validator->after(function ($validator) {
+            if ($this->currentRole() === 'admin') {
+                return;
+            }
+
             /** @var \Botble\RealEstate\Models\Property|null $property */
             $property = $this->route('property');
             $agentId = (int) $this->input('agent_id');
@@ -50,5 +57,28 @@ class PropertyWizardAgentStepRequest extends Request
                 );
             }
         });
+    }
+
+    /**
+     * Mirrors PropertyWizardController::currentRole() - each role owns its
+     * own route names, so the role can be derived from the matched route.
+     */
+    protected function currentRole(): string
+    {
+        $name = optional($this->route())->getName() ?? '';
+
+        if (strpos($name, 'public.account.') === 0) {
+            return 'agent';
+        }
+
+        if (strpos($name, 'public.member.') === 0) {
+            return 'member';
+        }
+
+        if (strpos($name, 'general-property-wizard') === 0) {
+            return 'guest';
+        }
+
+        return 'admin';
     }
 }
