@@ -897,6 +897,7 @@
             $("#map-container").css("visibility","visible");
             $("#map-container").css("height","100%");
             $(".properties_side_list").css("display","block");
+            $(".resize-handle").css("display","block");
 
         }
         if(value=="list")
@@ -907,6 +908,7 @@
             $("#map-container").css("visibility","hidden");
             $("#map-container").css("height","0");
             $(".properties_side_list").css("display","none");
+            $(".resize-handle").css("display","none");
 
         }
 

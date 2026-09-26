@@ -387,8 +387,8 @@
         </label>
       </div>
     </div>
-    <div class="layout-properties">
-      <div class="properties_side_list">
+    <div class="layout-properties" ref="layoutProperties">
+      <div class="properties_side_list" :style="sideListStyle">
         <div class="bg-gray">
           <div class="results">
             <h4 class="ml-3">{{ resultTitle }}: {{ links.total }} Listing</h4>
@@ -462,8 +462,10 @@
         </div>
       </div>
 
-      <div id="map-container" style="height: 708.5px; position: relative">
-        <div id="property_search_map" style="height: 708.5px; position: relative"></div>
+      <div class="resize-handle" @mousedown="startResize"></div>
+
+      <div id="map-container" style="height: 708.5px; width: 100%; position: relative">
+        <div id="property_search_map" style="height: 708.5px; width: 100%; position: relative"></div>
       </div>
     </div>
     <div class="container porperties_list">
@@ -612,6 +614,8 @@ export default {
       map: "",
       unit: "",
       markerBounds: "",
+      isResizingList: false,
+      sideListWidth: null,
       current_unit:
         this.getParamByName("selected-unit") !== null
           ? "(" + this.getParamByName("selected-unit") + ")"
@@ -719,6 +723,16 @@ export default {
       }
 
       return "Results";
+    },
+    sideListStyle() {
+      if (!this.sideListWidth) {
+        return {};
+      }
+
+      return {
+        flex: "0 0 " + this.sideListWidth + "px",
+        width: this.sideListWidth + "px",
+      };
     },
   },
   methods: {
@@ -1088,6 +1102,38 @@ export default {
       );
       this.markerBounds = new google.maps.LatLngBounds();
     },
+    startResize: function (e) {
+      e.preventDefault();
+      this.isResizingList = true;
+      document.body.style.cursor = "col-resize";
+      document.body.style.userSelect = "none";
+      document.addEventListener("mousemove", this.onResize);
+      document.addEventListener("mouseup", this.stopResize);
+    },
+    onResize: function (e) {
+      if (!this.isResizingList || !this.$refs.layoutProperties) {
+        return;
+      }
+
+      var rect = this.$refs.layoutProperties.getBoundingClientRect();
+      var minWidth = 280;
+      var maxWidth = rect.width - 320;
+      var newWidth = e.clientX - rect.left;
+
+      newWidth = Math.max(minWidth, Math.min(newWidth, maxWidth));
+      this.sideListWidth = newWidth;
+
+      if (window.google && window.google.maps && this.map) {
+        window.google.maps.event.trigger(this.map, "resize");
+      }
+    },
+    stopResize: function () {
+      this.isResizingList = false;
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+      document.removeEventListener("mousemove", this.onResize);
+      document.removeEventListener("mouseup", this.stopResize);
+    },
     changeAreaUnit: function () {
       $(".area-unit").on("click", function () {
         $("#filterModal").hide();
@@ -1248,6 +1294,20 @@ export default {
     },
 
     insertMarkers: function () {
+      if (!(window.google && window.google.maps && window.google.maps.drawing)) {
+        this._mapsReadyRetries = (this._mapsReadyRetries || 0) + 1;
+
+        if (this._mapsReadyRetries > 100) {
+          console.error("Google Maps failed to load in time");
+          return;
+        }
+
+        setTimeout(this.insertMarkers, 100);
+        return;
+      }
+
+      this._mapsReadyRetries = 0;
+
       var mapOptions = {
         zoom: 8,
         center: {
@@ -1263,67 +1323,76 @@ export default {
         mapOptions,
       );
 
-      const drawingManager = new google.maps.drawing.DrawingManager({
-        drawingMode: google.maps.drawing.OverlayType.MARKER,
-        drawingControl: true,
-        drawingControlOptions: {
-          position: google.maps.ControlPosition.TOP_CENTER,
-          drawingModes: [google.maps.drawing.OverlayType.POLYGON],
-        },
-        markerOptions: {
-          icon: "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png",
-        },
-        circleOptions: {
-          fillColor: "#ffff00",
-          fillOpacity: 1,
-          strokeWeight: 5,
-          clickable: false,
-          editable: true,
-          zIndex: 1,
-        },
-        polygonOptions: {
-          fillColor: "#ffff00",
-          fillOpacity: 1,
-          strokeWeight: 5,
-          clickable: false,
-          editable: true,
-          zIndex: 1,
-        },
-      });
+      this.map = map;
 
-      drawingManager.setMap(map);
+      try {
+        const drawingManager = new google.maps.drawing.DrawingManager({
+          drawingMode: google.maps.drawing.OverlayType.MARKER,
+          drawingControl: true,
+          drawingControlOptions: {
+            position: google.maps.ControlPosition.TOP_CENTER,
+            drawingModes: [google.maps.drawing.OverlayType.POLYGON],
+          },
+          markerOptions: {
+            icon: "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png",
+          },
+          circleOptions: {
+            fillColor: "#ffff00",
+            fillOpacity: 1,
+            strokeWeight: 5,
+            clickable: false,
+            editable: true,
+            zIndex: 1,
+          },
+          polygonOptions: {
+            fillColor: "#ffff00",
+            fillOpacity: 1,
+            strokeWeight: 5,
+            clickable: false,
+            editable: true,
+            zIndex: 1,
+          },
+        });
 
-      google.maps.event.addListener(
-        drawingManager,
-        "overlaycomplete",
-        (event) => {
-          if (event.type === google.maps.drawing.OverlayType.POLYGON) {
-            const polygon = event.overlay;
-            const path = polygon.getPath();
-            const coordinates = [];
+        drawingManager.setMap(map);
 
-            for (let i = 0; i < path.getLength(); i++) {
-              const point = path.getAt(i);
-              coordinates.push({
-                lat: point.lat(),
-                lng: point.lng(),
-              });
+        google.maps.event.addListener(
+          drawingManager,
+          "overlaycomplete",
+          (event) => {
+            if (event.type === google.maps.drawing.OverlayType.POLYGON) {
+              const polygon = event.overlay;
+              const path = polygon.getPath();
+              const coordinates = [];
+
+              for (let i = 0; i < path.getLength(); i++) {
+                const point = path.getAt(i);
+                coordinates.push({
+                  lat: point.lat(),
+                  lng: point.lng(),
+                });
+              }
+
+              this.coordinates = coordinates;
+              this.getProperties();
+
+              // Optional: remove the drawing tools after drawing one polygon
+              // drawingManager.setDrawingMode(null);
+              // drawingManager.setOptions({
+              //     drawingControl: false
+              // });
+
+              // Now call your method to fetch filtered properties
+              // Example: this.fetchPropertiesWithinPolygon(coordinates);
             }
-
-            this.coordinates = coordinates;
-            this.getProperties();
-
-            // Optional: remove the drawing tools after drawing one polygon
-            // drawingManager.setDrawingMode(null);
-            // drawingManager.setOptions({
-            //     drawingControl: false
-            // });
-
-            // Now call your method to fetch filtered properties
-            // Example: this.fetchPropertiesWithinPolygon(coordinates);
-          }
-        },
-      );
+          },
+        );
+      } catch (error) {
+        // The Maps JS API has deprecated/removed DrawingManager in some
+        // channel versions; the polygon-search tool is a bonus feature, so
+        // skip it rather than let the whole map fail to render.
+        console.warn("Map drawing tools unavailable:", error);
+      }
 
       i = 0;
 
@@ -1443,5 +1512,63 @@ export default {
   display: block !important;
   opacity: 1 !important;
   z-index: 99999 !important;
+}
+
+.resize-handle {
+  flex: 0 0 10px;
+  width: 10px;
+  cursor: col-resize;
+  position: relative;
+  z-index: 2;
+  background-color: transparent;
+}
+
+.resize-handle::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  background-color: #c7c7c7;
+  transition: background-color 0.15s ease, width 0.15s ease;
+}
+
+.resize-handle::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 26px;
+  transform: translate(-50%, -50%);
+  background-image: radial-gradient(circle, #8c8c8c 1.3px, transparent 1.4px);
+  background-size: 4px 7px;
+  background-repeat: repeat-y;
+  background-position: center;
+  transition: opacity 0.15s ease;
+}
+
+.resize-handle:hover::before,
+.resize-handle:active::before {
+  width: 3px;
+  background-color: var(--primary-color, #c9a227);
+}
+
+.resize-handle:hover::after,
+.resize-handle:active::after {
+  background-image: radial-gradient(circle, var(--primary-color, #c9a227) 1.3px, transparent 1.4px);
+}
+
+@media only screen and (max-width: 600px) {
+  .resize-handle {
+    display: none !important;
+  }
+
+  .properties_side_list {
+    width: auto !important;
+    flex: 1 !important;
+  }
 }
 </style>
