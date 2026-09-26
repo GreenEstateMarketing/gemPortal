@@ -436,6 +436,7 @@
                     <h6 class="mb-0">{{ item.name_short }}</h6>
                   </a>
                   <p class="mb-0">{{ item.price }}</p>
+                  <p class="mb-0 item-description" v-if="showDescription">{{ descriptionExcerpt(item.description) }}</p>
                   <p class="mb-0">{{ item.city }}</p>
                   <p class="mb-0">{{ item.location }}</p>
                 </div>
@@ -616,6 +617,7 @@ export default {
       markerBounds: "",
       isResizingList: false,
       sideListWidth: null,
+      showDescription: false,
       current_unit:
         this.getParamByName("selected-unit") !== null
           ? "(" + this.getParamByName("selected-unit") + ")"
@@ -1122,6 +1124,7 @@ export default {
 
       newWidth = Math.max(minWidth, Math.min(newWidth, maxWidth));
       this.sideListWidth = newWidth;
+      this.showDescription = newWidth / rect.width >= 0.45;
 
       if (window.google && window.google.maps && this.map) {
         window.google.maps.event.trigger(this.map, "resize");
@@ -1133,6 +1136,15 @@ export default {
       document.body.style.userSelect = "";
       document.removeEventListener("mousemove", this.onResize);
       document.removeEventListener("mouseup", this.stopResize);
+    },
+    descriptionExcerpt: function (html) {
+      if (!html) {
+        return "";
+      }
+
+      var text = html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+
+      return text;
     },
     changeAreaUnit: function () {
       $(".area-unit").on("click", function () {
@@ -1512,6 +1524,13 @@ export default {
   display: block !important;
   opacity: 1 !important;
   z-index: 99999 !important;
+}
+
+.item-description {
+  color: #6c6c6c;
+  font-size: 12.5px;
+  line-height: 1.4;
+  margin-top: 2px !important;
 }
 
 .resize-handle {
