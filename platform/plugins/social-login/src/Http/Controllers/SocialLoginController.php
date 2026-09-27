@@ -3,10 +3,8 @@
 namespace Botble\SocialLogin\Http\Controllers;
 
 use Assets;
-use Botble\RealEstate\Repositories\Interfaces\AccountInterface;
 use Botble\RealEstate\Repositories\Interfaces\MemberInterface;
 use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Botble\Base\Http\Controllers\BaseController;
 use Botble\Base\Http\Responses\BaseHttpResponse;
@@ -14,7 +12,6 @@ use Botble\Setting\Supports\SettingStore;
 use Botble\SocialLogin\Http\Requests\SocialLoginRequest;
 use Exception;
 use Illuminate\Support\Str;
-use RvMedia;
 use Socialite;
 
 class SocialLoginController extends BaseController
@@ -23,13 +20,26 @@ class SocialLoginController extends BaseController
     /**
      * Redirect the user to the {provider} authentication page.
      *
+     * Agents don't get social login at all right now - only members do,
+     * regardless of the admin's per-provider settings - so anything that
+     * doesn't explicitly ask for the member flow is refused here before
+     * ever reaching the provider.
+     *
      * @param Request $request
+     * @param BaseHttpResponse $response
      * @param string $provider
      * @return mixed
      */
-    public function redirectToProvider(Request $request, $provider)
+    public function redirectToProvider(Request $request, BaseHttpResponse $response, $provider)
     {
-        session(['social_login_type' => $request->query('type') === 'member' ? 'member' : 'account']);
+        if ($request->query('type') !== 'member') {
+            return $response
+                ->setError()
+                ->setNextUrl(route('public.account.login'))
+                ->setMessage(__('Social login is not available for agents.'));
+        }
+
+        session(['social_login_type' => 'member']);
 
         return Socialite::driver($provider)->redirect();
     }
@@ -42,7 +52,14 @@ class SocialLoginController extends BaseController
      */
     public function handleProviderCallback($provider, BaseHttpResponse $response)
     {
-        $type = session()->pull('social_login_type', 'account');
+        $type = session()->pull('social_login_type');
+
+        if ($type !== 'member') {
+            return $response
+                ->setError()
+                ->setNextUrl(route('public.account.login'))
+                ->setMessage(__('Social login is not available for agents.'));
+        }
 
         try {
             /**
@@ -52,70 +69,18 @@ class SocialLoginController extends BaseController
         } catch (Exception $ex) {
             return $response
                 ->setError()
-                ->setNextUrl($type === 'member' ? route('member.login') : route('public.account.login'))
+                ->setNextUrl(route('member.login'))
                 ->setMessage($ex->getMessage());
         }
 
         if (!$oAuth->getEmail()) {
             return $response
                 ->setError()
-                ->setNextUrl($type === 'member' ? route('member.login') : route('public.account.login'))
+                ->setNextUrl(route('member.login'))
                 ->setMessage(__('Cannot login, no email provided!'));
         }
 
-        if ($type === 'member') {
-            return $this->loginMemberViaSocial($oAuth, $response);
-        }
-
-        return $this->loginAccountViaSocial($oAuth, $response);
-    }
-
-    /**
-     * @param \Laravel\Socialite\AbstractUser $oAuth
-     * @param BaseHttpResponse $response
-     * @return BaseHttpResponse
-     */
-    protected function loginAccountViaSocial($oAuth, BaseHttpResponse $response)
-    {
-        $user = app(AccountInterface::class)->getFirstBy(['email' => $oAuth->getEmail()]);
-
-        if (!$user) {
-            $firstName = implode(' ', explode(' ', $oAuth->getName(), -1));
-
-            $avatarId = null;
-            try {
-                $url = $oAuth->getAvatar();
-                if ($url) {
-                    $info = pathinfo($url);
-                    $contents = file_get_contents($url);
-                    $file = '/tmp/' . $info['basename'];
-                    file_put_contents($file, $contents);
-                    $fileUpload = new UploadedFile($file, Str::slug($oAuth->getName()) . '.png', 'image/png', null,
-                        true);
-                    $result = RvMedia::handleUpload($fileUpload, 0, 'accounts');
-                    if (!$result['error']) {
-                        $avatarId = $result['data']->id;
-                    }
-                }
-            } catch (Exception $exception) {
-                info($exception->getMessage());
-            }
-
-            $user = app(AccountInterface::class)->createOrUpdate([
-                'first_name'  => $firstName,
-                'last_name'   => trim(str_replace($firstName, '', $oAuth->getName())),
-                'email'       => $oAuth->getEmail(),
-                'verified_at' => now(),
-                'password'    => bcrypt(Str::random(36)),
-                'avatar_id'   => $avatarId,
-            ]);
-        }
-
-        Auth::guard('account')->login($user, true);
-
-        return $response
-            ->setNextUrl(route('public.account.dashboard'))
-            ->setMessage(trans('core/acl::auth.login.success'));
+        return $this->loginMemberViaSocial($oAuth, $response);
     }
 
     /**
