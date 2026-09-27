@@ -5,14 +5,8 @@ namespace Botble\RealEstate\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Botble\ACL\Traits\RegistersUsers;
 use Botble\Base\Http\Responses\BaseHttpResponse;
-use Botble\RealEstate\Models\Account;
 use Botble\RealEstate\Repositories\Interfaces\AccountInterface;
-use Carbon\Carbon;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use SeoHelper;
-use Theme;
 use URL;
 
 class RegisterController extends Controller
@@ -54,20 +48,15 @@ class RegisterController extends Controller
     }
 
     /**
-     * Show the application registration form.
+     * Agents can only be added by an admin - self-registration is disabled.
      *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View|\Response
-     * @throws \Illuminate\Contracts\Filesystem\FileNotFoundException
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function showRegistrationForm()
     {
-        SeoHelper::setTitle(__('Register'));
-
-        if (view()->exists(Theme::getThemeNamespace() . '::views.real-estate.account.auth.register')) {
-            return Theme::scope('real-estate.account.auth.register')->render();
-        }
-
-        return view('plugins/real-estate::account.auth.register');
+        return redirect()
+            ->route('public.account.login')
+            ->with('error_msg', __('Agent registration is not available. Please contact an administrator to get an account.'));
     }
 
     /**
@@ -153,7 +142,7 @@ class RegisterController extends Controller
     }
 
     /**
-     * Handle a registration request for the application.
+     * Agents can only be added by an admin - self-registration is disabled.
      *
      * @param \Illuminate\Http\Request $request
      * @param BaseHttpResponse $response
@@ -161,57 +150,10 @@ class RegisterController extends Controller
      */
     public function register(Request $request, BaseHttpResponse $response)
     {
-        $this->validator($request->input())->validate();
-
-        event(new Registered($account = $this->create($request->input())));
-
-        if (setting('verify_account_email', config('plugins.real-estate.real-estate.verify_email'))) {
-            \Log::info('Sending confirmation email to: ' . $account->email);
-            $this->sendConfirmationToUser($account);
-            return $this->registered($request, $account)
-                ?: $response->setNextUrl($this->redirectPath())
-                    ->setMessage(trans('plugins/real-estate::account.confirmation_info'));
-        }
-
-        $account->confirmed_at = Carbon::now()->format('Y-m-d H:i:s');
-        $this->accountRepository->createOrUpdate($account);
-        $this->guard()->login($account);
-
-        return $response->setNextUrl($this->redirectPath())->setMessage(__('Registered successfully!'));
-    }
-
-    /**
-     * Get a validator for an incoming registration request.
-     *
-     * @param array $data
-     * @return \Illuminate\Contracts\Validation\Validator
-     */
-    protected function validator(array $data)
-    {
-        return Validator::make($data, [
-            'first_name' => 'required|max:120',
-            'last_name'  => 'required|max:120',
-            'username'   => 'required|max:60|min:2|unique:re_accounts,username',
-            'email'      => 'required|email|max:255|unique:re_accounts',
-            'password'   => 'required|min:6|confirmed',
-        ]);
-    }
-
-    /**
-     * Create a new user instance after a valid registration.
-     *
-     * @param array $data
-     * @return Account
-     */
-    protected function create(array $data)
-    {
-        return $this->accountRepository->create([
-            'first_name' => $data['first_name'],
-            'last_name'  => $data['last_name'],
-            'username'   => $data['username'],
-            'email'      => $data['email'],
-            'password'   => bcrypt($data['password']),
-        ]);
+        return $response
+            ->setError()
+            ->setNextUrl(route('public.account.login'))
+            ->setMessage(__('Agent registration is not available. Please contact an administrator to get an account.'));
     }
 
     /**

@@ -69,8 +69,7 @@
     </button>
 
     <p class="gem-auth__footer-link">
-        {{ __("Don't have an account?") }}
-        <a class="gem-auth__link" href="{{ route('public.account.register') }}">{{ __('Create account') }}</a>
+        {{ __('Agent accounts are created by an administrator.') }}
     </p>
 </form>
 
