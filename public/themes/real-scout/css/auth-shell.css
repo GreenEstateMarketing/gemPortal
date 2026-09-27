@@ -311,6 +311,9 @@
     font-weight: 700;
     text-align: center;
     text-decoration: none;
+}
+
+.gem-auth__social-btn.is-disabled {
     cursor: not-allowed;
     opacity: 0.65;
 }

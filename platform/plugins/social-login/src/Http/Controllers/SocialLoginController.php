@@ -4,6 +4,8 @@ namespace Botble\SocialLogin\Http\Controllers;
 
 use Assets;
 use Botble\RealEstate\Repositories\Interfaces\AccountInterface;
+use Botble\RealEstate\Repositories\Interfaces\MemberInterface;
+use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Botble\Base\Http\Controllers\BaseController;
@@ -21,11 +23,14 @@ class SocialLoginController extends BaseController
     /**
      * Redirect the user to the {provider} authentication page.
      *
+     * @param Request $request
      * @param string $provider
      * @return mixed
      */
-    public function redirectToProvider($provider)
+    public function redirectToProvider(Request $request, $provider)
     {
+        session(['social_login_type' => $request->query('type') === 'member' ? 'member' : 'account']);
+
         return Socialite::driver($provider)->redirect();
     }
 
@@ -37,6 +42,8 @@ class SocialLoginController extends BaseController
      */
     public function handleProviderCallback($provider, BaseHttpResponse $response)
     {
+        $type = session()->pull('social_login_type', 'account');
+
         try {
             /**
              * @var \Laravel\Socialite\AbstractUser $oAuth
@@ -45,17 +52,31 @@ class SocialLoginController extends BaseController
         } catch (Exception $ex) {
             return $response
                 ->setError()
-                ->setNextUrl(route('public.account.login'))
+                ->setNextUrl($type === 'member' ? route('member.login') : route('public.account.login'))
                 ->setMessage($ex->getMessage());
         }
 
         if (!$oAuth->getEmail()) {
             return $response
                 ->setError()
-                ->setNextUrl(route('public.account.login'))
+                ->setNextUrl($type === 'member' ? route('member.login') : route('public.account.login'))
                 ->setMessage(__('Cannot login, no email provided!'));
         }
 
+        if ($type === 'member') {
+            return $this->loginMemberViaSocial($oAuth, $response);
+        }
+
+        return $this->loginAccountViaSocial($oAuth, $response);
+    }
+
+    /**
+     * @param \Laravel\Socialite\AbstractUser $oAuth
+     * @param BaseHttpResponse $response
+     * @return BaseHttpResponse
+     */
+    protected function loginAccountViaSocial($oAuth, BaseHttpResponse $response)
+    {
         $user = app(AccountInterface::class)->getFirstBy(['email' => $oAuth->getEmail()]);
 
         if (!$user) {
@@ -94,6 +115,32 @@ class SocialLoginController extends BaseController
 
         return $response
             ->setNextUrl(route('public.account.dashboard'))
+            ->setMessage(trans('core/acl::auth.login.success'));
+    }
+
+    /**
+     * @param \Laravel\Socialite\AbstractUser $oAuth
+     * @param BaseHttpResponse $response
+     * @return BaseHttpResponse
+     */
+    protected function loginMemberViaSocial($oAuth, BaseHttpResponse $response)
+    {
+        $user = app(MemberInterface::class)->getFirstBy(['email' => $oAuth->getEmail()]);
+
+        if (!$user) {
+            $user = app(MemberInterface::class)->createOrUpdate([
+                'full_name'      => $oAuth->getName(),
+                'email'          => $oAuth->getEmail(),
+                'mobile_no'      => '',
+                'password'       => bcrypt(Str::random(36)),
+                'email_verified' => true,
+            ]);
+        }
+
+        Auth::guard('member')->login($user, true);
+
+        return $response
+            ->setNextUrl(route('member.dashboard'))
             ->setMessage(trans('core/acl::auth.login.success'));
     }
 
