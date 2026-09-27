@@ -24,7 +24,12 @@ class AccountCreateRequest extends Request
             'password' => 'required|min:6|confirmed',
             'city_id' => ['required', 'integer', 'exists:cities,id'],
             'city_area_id' => ['required', 'array'],
-            'city_area_id.*' => 'string|max:256'
+            'city_area_id.*' => 'string|max:256',
+            'years_of_experience' => 'nullable|integer|min:0|max:25',
+            'languages' => 'nullable|array',
+            'languages.*' => 'integer|exists:re_spoken_languages,id',
+            'specialties' => 'nullable|array',
+            'specialties.*' => 'integer|exists:re_categories,id',
         ];
 
        

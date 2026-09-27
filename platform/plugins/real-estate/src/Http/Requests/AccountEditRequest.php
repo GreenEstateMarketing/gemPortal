@@ -24,7 +24,12 @@ class AccountEditRequest extends Request
             'image_path' => [new ImageDimension(5000, 5000)],
             'city_id' => ['required', 'integer', 'exists:cities,id'],
             'city_area_id' => ['required', 'array'],
-            'city_area_id.*' => 'string|max:256'
+            'city_area_id.*' => 'string|max:256',
+            'years_of_experience' => 'nullable|integer|min:0|max:25',
+            'languages' => 'nullable|array',
+            'languages.*' => 'integer|exists:re_spoken_languages,id',
+            'specialties' => 'nullable|array',
+            'specialties.*' => 'integer|exists:re_categories,id',
         ];
 
         if ($this->input('is_change_password') == 1) {

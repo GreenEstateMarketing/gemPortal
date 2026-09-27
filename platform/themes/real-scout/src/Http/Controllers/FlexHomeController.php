@@ -474,6 +474,25 @@ class FlexHomeController extends PublicController
     {
         SeoHelper::setTitle(__('Agents'));
 
+        // Same Playfair Display/Poppins pairing as the new homepage design
+        // (home-page-new/header.blade.php), so the agent directory matches
+        // it visually. Theme::asset() (not the unrelated Assets facade,
+        // which this theme's public layout never renders - only
+        // Theme::asset()->styles() is echoed in packages/theme's own
+        // partials.header) is the mechanism config.php itself uses for
+        // page CSS. Google's font URL has no literal ".css" extension
+        // (/css2?family=...), so AssetContainer::add()'s script-vs-style
+        // auto-detection (by file extension) misfiles it as a script -
+        // ->style() bypasses that and registers it correctly. A leading
+        // slash on the local stylesheet keeps it root-relative instead of
+        // theme-relative, matching config.php's own 'custom-app-js' =>
+        // '/js/app.js' entry.
+        Theme::asset()->style(
+            'google-fonts-playfair-poppins',
+            'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap'
+        );
+        Theme::asset()->add('agent-directory-css', '/css/agent-directory.css');
+
         $countries = Country::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name']);
         $cities = City::select('id', 'name')
             ->where('status', 'published')

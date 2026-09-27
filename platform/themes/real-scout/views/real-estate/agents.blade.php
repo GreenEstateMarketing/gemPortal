@@ -1,7 +1,13 @@
-<section class="sales-team">
-    <div class="container">
-        <h4 class="heading-center"><span>Agents</span></h4>
+<section class="agent-directory">
+    <div class="agent-directory__hero">
+        <div class="agent-directory__hero-inner">
+            <span class="agent-directory__eyebrow">Agent Directory</span>
+            <h1 class="agent-directory__heading">Find Your Perfect <span>Agent</span></h1>
+            <p class="agent-directory__subtext">Connect with top-performing, verified real estate agents in your area.</p>
+        </div>
+    </div>
 
+    <div class="agent-directory__body">
         <agent-search
             url="{{ route('public.ajax.agents') }}"
             cities-url="{{ route('public.ajax.cities-by-country') }}"

@@ -96,7 +96,14 @@ class AccountRepository extends RepositoriesAbstract implements AccountInterface
             });
         }
 
-        if ($filters['min_experience'] !== null && $filters['max_experience'] !== null) {
+        // The search UI's slider always submits a range (defaulting to the
+        // full 1-25), so only treat it as an active filter once the admin
+        // has actually narrowed it - otherwise every agent who never set
+        // years_of_experience would be silently hidden by the untouched
+        // default range on every page load.
+        $isDefaultExperienceRange = (int) $filters['min_experience'] <= 1 && (int) $filters['max_experience'] >= 25;
+
+        if ($filters['min_experience'] !== null && $filters['max_experience'] !== null && !$isDefaultExperienceRange) {
             $this->model = $this->model->whereBetween('years_of_experience', [
                 (int) $filters['min_experience'],
                 (int) $filters['max_experience'],

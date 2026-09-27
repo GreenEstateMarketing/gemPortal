@@ -185,6 +185,9 @@ class AccountController extends BaseController
     $account->confirmed_at = Carbon::now()->format('Y-m-d H:i:s');
     $account->save();
 
+    $account->spokenLanguages()->sync($request->input('languages', []));
+    $account->specialties()->sync($request->input('specialties', []));
+
     event(new CreatedContentEvent(ACCOUNT_MODULE_SCREEN_NAME, $request, $account));
 
     EmailHandler::setModule(ACCOUNT_MODULE_SCREEN_NAME)
@@ -295,6 +298,9 @@ class AccountController extends BaseController
         $account->password = bcrypt($request->input('password'));
         $account->save();
     }
+
+    $account->spokenLanguages()->sync($request->input('languages', []));
+    $account->specialties()->sync($request->input('specialties', []));
 
     event(new UpdatedContentEvent(ACCOUNT_MODULE_SCREEN_NAME, $request, $account));
 

@@ -8,8 +8,9 @@ use RvMedia;
 
 /**
  * Public-facing agent search result. Deliberately excludes fields that
- * AccountResource exposes for an agent's own dashboard (email, credits) -
- * this resource is served to anonymous visitors.
+ * AccountResource exposes for an agent's own dashboard (credits) - this
+ * resource is served to anonymous visitors. Phone/email are intentionally
+ * included so visitors can contact agents directly from the directory.
  */
 class AgentSearchResource extends JsonResource
 {
@@ -29,6 +30,7 @@ class AgentSearchResource extends JsonResource
             'name' => $this->getFullName(),
             'avatar' => $avatar,
             'phone' => $this->phone,
+            'email' => $this->email,
             'description' => $this->description,
             'years_of_experience' => $this->years_of_experience,
             'languages' => $this->spokenLanguages->pluck('name')->values(),
