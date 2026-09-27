@@ -90,8 +90,6 @@
         {{ __('Have an account already?') }}
         <a class="gem-auth__link" href="{{ route('public.account.login') }}">{{ __('Login') }}</a>
     </p>
-
-    {!! apply_filters(BASE_FILTER_AFTER_LOGIN_OR_REGISTER_FORM, null, \Botble\RealEstate\Models\Account::class) !!}
 </form>
 
 @include(Theme::getThemeNamespace() . '::views.real-estate.account.auth.includes.messages')

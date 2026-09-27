@@ -110,8 +110,6 @@
         {{ __('Have an account already?') }}
         <a class="gem-auth__link" href="{{ route('member.login') }}">{{ __('Login') }}</a>
     </p>
-
-    {!! apply_filters(BASE_FILTER_AFTER_LOGIN_OR_REGISTER_FORM, null, \Botble\RealEstate\Models\Member::class) !!}
 </form>
 
 {!! Theme::partial('auth-shell-close') !!}
