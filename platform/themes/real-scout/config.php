@@ -86,7 +86,7 @@ return [
             // <p> before the shortcode is expanded - a <link> placed inside
             // that content would end up nested in an empty <p>, whose default
             // browser margin renders as a stray gap under the site header.
-            if (request()->is('privacy-policy', 'terms-conditions', 'faq', 'shipping-delivery-policy', 'disclaimer')) {
+            if (request()->is('privacy-policy', 'terms-conditions', 'faq', 'shipping-delivery-policy', 'disclaimer', 'about-us')) {
                 $theme->asset()->usePath()->add('legal-css', 'css/home-page-new/legal.css', [], [], $version);
                 $theme->asset()->add('legal-fonts-css', 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap', [], []);
             }

@@ -81,6 +81,10 @@ add_shortcode('gem-disclaimer', __('GEMlisting Disclaimer'), __('Renders the GEM
     return Theme::partial('home-page-new/disclaimer');
 });
 
+add_shortcode('gem-about-us', __('GEMlisting About Us'), __('Renders the GEMlisting About Us content, styled to match the home page design.'), function () {
+    return Theme::partial('home-page-new/about-us-page');
+});
+
 theme_option()
     ->setField([
         'id' => 'copyright',
