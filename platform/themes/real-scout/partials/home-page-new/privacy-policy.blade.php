@@ -4,20 +4,21 @@
                      functions/functions.php), placed inside the Privacy
                      Policy admin Page's content field.
 
-    This partial is intentionally self-contained (own <link> for its CSS,
-    own :root fallback for the --header-* custom properties) rather than
-    relying on home-page-new/header.css being loaded, since this page uses
-    the plain "legal" template/layout (inner-header + footer), not the
-    homepagenew layout. Content itself never goes through the page module's
-    clean() HTML purifier - only the literal "[gem-privacy-policy]" token
-    in the Page's content field does, so this partial is free to use real
-    heading tags, classes and structure to match the home page's design.
+    This partial defines its own :root fallback for the --header-* custom
+    properties (same pattern as site-footer.css) rather than relying on
+    home-page-new/header.css being loaded, since this page uses the plain
+    "legal" template/layout (inner-header + footer), not the homepagenew
+    layout. Its CSS and fonts are registered globally in config.php's
+    beforeRenderTheme (gated on the "privacy-policy" URL) rather than as
+    <link> tags here - a <link> placed in this content ends up nested
+    inside the empty <p> that the page module's clean() helper wraps the
+    page's raw "[gem-privacy-policy]" text in before this shortcode is
+    expanded, and that empty <p>'s default browser margin then renders as
+    a stray gap under the site header. Content itself never goes through
+    clean() - only the literal "[gem-privacy-policy]" token in the Page's
+    content field does, so this partial is free to use real heading tags,
+    classes and structure to match the home page's design.
 --}}
-<link rel="stylesheet" href="{{ Theme::asset()->url('css/home-page-new/privacy-policy.css') }}">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-
 @php
     $privacySections = [
         [

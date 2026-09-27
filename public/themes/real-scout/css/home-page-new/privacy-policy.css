@@ -1,10 +1,11 @@
 /*
     Path in theme: platform/themes/real-scout/public/css/home-page-new/privacy-policy.css
-    Loaded via:    a <link> tag in partials/home-page-new/privacy-policy.blade.php
-                    (this page uses the "legal" template/layout, not the
-                    homepagenew layout, so home-page-new/header.css isn't
-                    guaranteed to be loaded - this file defines its own
-                    --header-* fallbacks, same pattern as site-footer.css).
+    Loaded via:    config.php's beforeRenderTheme, gated on the
+                    "privacy-policy" URL (this page uses the "legal"
+                    template/layout, not the homepagenew layout, so
+                    home-page-new/header.css isn't guaranteed to be loaded -
+                    this file defines its own --header-* fallbacks, same
+                    pattern as site-footer.css).
 */
 
 :root {
@@ -17,6 +18,18 @@
     --header-font-heading: 'Playfair Display', Georgia, serif;
     --header-font-body: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     --header-max-width: 1320px;
+}
+
+/* The page module's clean() helper auto-wraps the Privacy Policy page's raw
+   "[gem-privacy-policy]" content in a <p> before this shortcode expands -
+   the browser closes that <p> as soon as it hits .legal-hero (a block
+   element can't nest inside <p>), but the now-empty <p> still gets the
+   browser's default paragraph margin, showing as a stray gap under the
+   site header. Zero it out precisely (only the <p> immediately before
+   .legal-hero) rather than touching #app/p spacing generally. */
+#app > p:has(+ .legal-hero) {
+    margin: 0;
+    padding: 0;
 }
 
 .legal-hero,
