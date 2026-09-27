@@ -55,6 +55,15 @@
     $footerContactUrl = $footerContactSlug ? url($footerContactSlug->key) : '#';
 
     $footerWhatsapp = preg_replace('/\D/', '', (string) theme_option('hotline'));
+
+    $footerPrivacyPage = app(\Botble\Page\Repositories\Interfaces\PageInterface::class)->getFirstBy(['name' => 'Privacy Policy']);
+    $footerPrivacySlug = $footerPrivacyPage
+        ? app(\Botble\Slug\Repositories\Interfaces\SlugInterface::class)->getFirstBy([
+            'reference_id' => $footerPrivacyPage->id,
+            'reference_type' => \Botble\Page\Models\Page::class,
+        ])
+        : null;
+    $footerPrivacyUrl = $footerPrivacySlug ? url($footerPrivacySlug->key) : '#';
 @endphp
 <footer class="site-footer">
     <div class="container site-footer__inner">
@@ -104,6 +113,18 @@
                     <li><a href="{{ route('public.index') }}#how-it-works">{{ __('How It Works') }}</a></li>
                     <li><a href="{{ $footerAboutUrl }}">{{ __('About Us') }}</a></li>
                     <li><a href="{{ route('public.agent.list') }}">{{ __('Our Agents') }}</a></li>
+                </ul>
+            </div>
+
+            <div class="site-footer__col">
+                <h4 class="site-footer__heading">{{ __('Support') }}</h4>
+                <ul class="site-footer__links">
+                    <li><a href="#">{{ __('Pricing') }}</a></li>
+                    <li><a href="{{ $footerContactUrl }}">{{ __('Contact') }}</a></li>
+                    <li><a href="#">{{ __('FAQ') }}</a></li>
+                    <li><a href="{{ $footerPrivacyUrl }}">{{ __('Privacy Policy') }}</a></li>
+                    <li><a href="#">{{ __('Shipping/Delivery Policy') }}</a></li>
+                    <li><a href="#">{{ __('Disclaimer') }}</a></li>
                 </ul>
             </div>
 

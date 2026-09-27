@@ -27,6 +27,9 @@ register_page_template([
 register_page_template([
     'homepage' => __('Homepage'),
 ]);
+register_page_template([
+    'legal' => __('Legal Page (Home Page Design)'),
+]);
 
 register_sidebar([
     'id' => 'footer_sidebar',
@@ -61,6 +64,10 @@ if (is_plugin_active('blog')) {
         return Theme::partial('short-codes.latest-news');
     });
 }
+
+add_shortcode('gem-privacy-policy', __('GEM Privacy Policy'), __('Renders the gemlisting.co privacy policy content, styled to match the home page design.'), function () {
+    return Theme::partial('home-page-new/privacy-policy');
+});
 
 theme_option()
     ->setField([

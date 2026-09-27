@@ -112,7 +112,7 @@
                     <span class="how-it-works__step-number">04</span>
                     <span class="how-it-works__step-icon"><i class="fas fa-file-signature"></i></span>
                     <h4 class="how-it-works__step-title">{{ __('Sign Contract') }}</h4>
-                    <p class="how-it-works__step-text">{{ __('Sign the Letter of Representation with GEM Properties.') }}</p>
+                    <p class="how-it-works__step-text">{{ __('Sign the Letter of Representation with gemlisting.co.') }}</p>
                 </div>
 
                 <i class="fas fa-long-arrow-alt-right how-it-works__arrow"></i>

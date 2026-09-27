@@ -83,8 +83,8 @@
                     <span class="hero__heading--accent">You'll Love to Call Home.</span>
                 </h1>
                 <p class="hero__text">
-                    Discover premium homes, apartments, commercial properties and plots with GEM
-                    Properties. Your trusted partner for buying, selling and renting real estate.
+                    Discover premium homes, apartments, commercial properties and plots with
+                    gemlisting.co. Your trusted partner for buying, selling and renting real estate.
                 </p>
                 <div class="hero__actions">
                     <a href="{{ route('public.properties') }}" class="btn-primary">

@@ -13,7 +13,7 @@
         [
             'name' => 'Ahmed R.',
             'role' => __('Property Buyer'),
-            'quote' => __("GEM Properties made the process of finding our new home incredibly easy. Their team was professional, helpful and transparent."),
+            'quote' => __("gemlisting.co made the process of finding our new home incredibly easy. Their team was professional, helpful and transparent."),
         ],
         [
             'name' => 'Sara M.',
@@ -35,7 +35,7 @@
             <span class="testimonials__eyebrow">{{ __('Client Reviews') }}</span>
             <h2 class="testimonials__heading">{{ __('What Our Clients Say?') }}</h2>
             <p class="testimonials__text">
-                {{ __('Real experiences from people who trusted GEM Properties with their property journey.') }}
+                {{ __('Real experiences from people who trusted gemlisting.co with their property journey.') }}
             </p>
         </div>
 
