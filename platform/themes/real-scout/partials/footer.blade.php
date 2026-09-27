@@ -36,34 +36,30 @@
         ->whereIn('name', ['House', 'Flat', 'COMMERCIAL', 'PLOTS'])
         ->pluck('id', 'name');
 
-    $footerAboutPage = app(\Botble\Page\Repositories\Interfaces\PageInterface::class)->getFirstBy(['name' => 'About us']);
-    $footerAboutSlug = $footerAboutPage
-        ? app(\Botble\Slug\Repositories\Interfaces\SlugInterface::class)->getFirstBy([
-            'reference_id' => $footerAboutPage->id,
-            'reference_type' => \Botble\Page\Models\Page::class,
-        ])
-        : null;
-    $footerAboutUrl = $footerAboutSlug ? url($footerAboutSlug->key) : '#';
+    // Looks up each footer page's live slug by name, so links stay correct
+    // even if a page's URL is changed from admin. Falls back to "#" for any
+    // name below that doesn't (yet) have a matching, published Page.
+    $footerPageNames = ['About us', 'Contact', 'Privacy Policy', 'Terms & Conditions', 'FAQ', 'Shipping/Delivery Policy', 'Disclaimer'];
+    $footerPages = \Botble\Page\Models\Page::query()->whereIn('name', $footerPageNames)->pluck('id', 'name');
+    $footerSlugs = \Botble\Slug\Models\Slug::query()
+        ->where('reference_type', \Botble\Page\Models\Page::class)
+        ->whereIn('reference_id', $footerPages->values())
+        ->pluck('key', 'reference_id');
+    $footerPageUrl = function (string $name) use ($footerPages, $footerSlugs) {
+        $pageId = $footerPages->get($name);
+        $slug = $pageId ? $footerSlugs->get($pageId) : null;
+        return $slug ? url($slug) : '#';
+    };
 
-    $footerContactPage = app(\Botble\Page\Repositories\Interfaces\PageInterface::class)->getFirstBy(['name' => 'Contact']);
-    $footerContactSlug = $footerContactPage
-        ? app(\Botble\Slug\Repositories\Interfaces\SlugInterface::class)->getFirstBy([
-            'reference_id' => $footerContactPage->id,
-            'reference_type' => \Botble\Page\Models\Page::class,
-        ])
-        : null;
-    $footerContactUrl = $footerContactSlug ? url($footerContactSlug->key) : '#';
+    $footerAboutUrl = $footerPageUrl('About us');
+    $footerContactUrl = $footerPageUrl('Contact');
+    $footerPrivacyUrl = $footerPageUrl('Privacy Policy');
+    $footerTermsUrl = $footerPageUrl('Terms & Conditions');
+    $footerFaqUrl = $footerPageUrl('FAQ');
+    $footerShippingUrl = $footerPageUrl('Shipping/Delivery Policy');
+    $footerDisclaimerUrl = $footerPageUrl('Disclaimer');
 
     $footerWhatsapp = preg_replace('/\D/', '', (string) theme_option('hotline'));
-
-    $footerPrivacyPage = app(\Botble\Page\Repositories\Interfaces\PageInterface::class)->getFirstBy(['name' => 'Privacy Policy']);
-    $footerPrivacySlug = $footerPrivacyPage
-        ? app(\Botble\Slug\Repositories\Interfaces\SlugInterface::class)->getFirstBy([
-            'reference_id' => $footerPrivacyPage->id,
-            'reference_type' => \Botble\Page\Models\Page::class,
-        ])
-        : null;
-    $footerPrivacyUrl = $footerPrivacySlug ? url($footerPrivacySlug->key) : '#';
 @endphp
 <footer class="site-footer">
     <div class="container site-footer__inner">
@@ -121,10 +117,11 @@
                 <ul class="site-footer__links">
                     <li><a href="#">{{ __('Pricing') }}</a></li>
                     <li><a href="{{ $footerContactUrl }}">{{ __('Contact') }}</a></li>
-                    <li><a href="#">{{ __('FAQ') }}</a></li>
+                    <li><a href="{{ $footerFaqUrl }}">{{ __('FAQ') }}</a></li>
                     <li><a href="{{ $footerPrivacyUrl }}">{{ __('Privacy Policy') }}</a></li>
-                    <li><a href="#">{{ __('Shipping/Delivery Policy') }}</a></li>
-                    <li><a href="#">{{ __('Disclaimer') }}</a></li>
+                    <li><a href="{{ $footerTermsUrl }}">{{ __('Terms and Conditions') }}</a></li>
+                    <li><a href="{{ $footerShippingUrl }}">{{ __('Shipping/Delivery Policy') }}</a></li>
+                    <li><a href="{{ $footerDisclaimerUrl }}">{{ __('Disclaimer') }}</a></li>
                 </ul>
             </div>
 

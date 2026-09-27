@@ -69,6 +69,18 @@ add_shortcode('gem-privacy-policy', __('GEM Privacy Policy'), __('Renders the ge
     return Theme::partial('home-page-new/privacy-policy');
 });
 
+add_shortcode('gem-faq', __('GEM FAQ'), __('Renders the gemlisting.co frequently asked questions, styled to match the home page design.'), function () {
+    return Theme::partial('home-page-new/faq');
+});
+
+add_shortcode('gem-shipping-policy', __('GEM Shipping/Delivery Policy'), __('Renders the gemlisting.co shipping/delivery policy content, styled to match the home page design.'), function () {
+    return Theme::partial('home-page-new/shipping-policy');
+});
+
+add_shortcode('gem-disclaimer', __('GEM Disclaimer'), __('Renders the gemlisting.co disclaimer content, styled to match the home page design.'), function () {
+    return Theme::partial('home-page-new/disclaimer');
+});
+
 theme_option()
     ->setField([
         'id' => 'copyright',

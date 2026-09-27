@@ -123,30 +123,22 @@
     $privacyWhatsapp = preg_replace('/\D/', '', (string) theme_option('hotline'));
 @endphp
 
-<section class="legal-hero">
-    <div class="container legal-hero__inner">
-        <span class="legal-hero__eyebrow">{{ __('Legal') }}</span>
-        <h1 class="legal-hero__heading">{{ __('Privacy') }} <span class="legal-hero__heading--accent">{{ __('Policy') }}</span></h1>
-        <p class="legal-hero__breadcrumb">
-            <a href="{{ route('public.index') }}">{{ __('Home') }}</a>
-            <span>/</span>
-            {{ __('Privacy Policy') }}
-        </p>
-        <p class="legal-hero__updated">{{ __('Last updated') }}: {{ \Illuminate\Support\Carbon::now()->format('F j, Y') }}</p>
-    </div>
-</section>
+{{--
+    No <section class="legal-content">/container wrapper here - page.blade.php's
+    "legal" template branch already provides the hero (from $page->name) and
+    this wrapper around whatever [gem-*] shortcode expands to. This partial
+    renders only the inner content.
+--}}
+<p class="legal-content__updated">{{ __('Last updated') }}: {{ \Illuminate\Support\Carbon::now()->format('F j, Y') }}</p>
 
-<section class="legal-content">
-    <div class="container legal-content__inner">
-
-        <div class="legal-content__intro">
-            <p>
-                {{ __('gemlisting.co ("GEM", "we", "us" or "our") respects your privacy and is committed to protecting the personal information of everyone who uses our website and services, including buyers, tenants, landlords, members and agents. This Privacy Policy explains what information we collect, how we use and share it, and the choices you have.') }}
-            </p>
-            <p>
-                {{ __('By using gemlisting.co, you agree to the collection and use of information in accordance with this policy. If you do not agree, please discontinue use of our site and services.') }}
-            </p>
-        </div>
+<div class="legal-content__intro">
+    <p>
+        {{ __('gemlisting.co ("GEM", "we", "us" or "our") respects your privacy and is committed to protecting the personal information of everyone who uses our website and services, including buyers, tenants, landlords, members and agents. This Privacy Policy explains what information we collect, how we use and share it, and the choices you have.') }}
+    </p>
+    <p>
+        {{ __('By using gemlisting.co, you agree to the collection and use of information in accordance with this policy. If you do not agree, please discontinue use of our site and services.') }}
+    </p>
+</div>
 
         <div class="legal-content__sections">
             @foreach ($privacySections as $index => $section)
@@ -192,6 +184,3 @@
                 </ul>
             </div>
         </div>
-
-    </div>
-</section>

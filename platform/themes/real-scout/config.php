@@ -78,16 +78,17 @@ return [
             $theme->asset()->usePath()->add('site-footer-css', 'css/home-page-new/site-footer.css', [], [], $version);
             $theme->asset()->usePath()->add('site-header-css', 'css/site-header.css', [], [], $version);
 
-            // Privacy Policy page ([gem-privacy-policy] shortcode) needs its own
-            // stylesheet + fonts in <head>. Registered here (rather than as a
-            // <link> inside the shortcode-rendered content) because the page
-            // module's clean() helper auto-wraps the page's raw "[gem-privacy-policy]"
-            // text in a <p> before the shortcode is expanded - a <link> placed inside
-            // that content ends up nested in an empty <p>, whose default browser
-            // margin renders as a stray gap under the site header.
-            if (request()->is('privacy-policy')) {
-                $theme->asset()->usePath()->add('privacy-policy-css', 'css/home-page-new/privacy-policy.css', [], [], $version);
-                $theme->asset()->add('privacy-policy-fonts-css', 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap', [], []);
+            // "legal" template pages (Terms & Conditions, Privacy Policy, FAQ,
+            // Shipping/Delivery Policy, Disclaimer) need their own stylesheet +
+            // fonts in <head>. Registered here (rather than as a <link> inside
+            // shortcode-rendered content) because the page module's clean()
+            // helper auto-wraps a shortcode-only page's raw "[gem-*]" text in a
+            // <p> before the shortcode is expanded - a <link> placed inside
+            // that content would end up nested in an empty <p>, whose default
+            // browser margin renders as a stray gap under the site header.
+            if (request()->is('privacy-policy', 'terms-conditions', 'faq', 'shipping-delivery-policy', 'disclaimer')) {
+                $theme->asset()->usePath()->add('legal-css', 'css/home-page-new/legal.css', [], [], $version);
+                $theme->asset()->add('legal-fonts-css', 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap', [], []);
             }
             $theme->asset()->usePath()->add('auth-shell-css', 'css/auth-shell.css', [], [], $version);
             $theme->asset()->add('select2-css', 'css/select2-custom.min.css', [], []);

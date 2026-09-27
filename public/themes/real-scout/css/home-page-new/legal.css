@@ -1,11 +1,12 @@
 /*
-    Path in theme: platform/themes/real-scout/public/css/home-page-new/privacy-policy.css
-    Loaded via:    config.php's beforeRenderTheme, gated on the
-                    "privacy-policy" URL (this page uses the "legal"
-                    template/layout, not the homepagenew layout, so
+    Path in theme: platform/themes/real-scout/public/css/home-page-new/legal.css
+    Loaded via:    config.php's beforeRenderTheme, gated on the URLs of the
+                    "legal"-template pages (Terms & Conditions, Privacy
+                    Policy, FAQ, Shipping/Delivery Policy, Disclaimer). This
+                    page template isn't the homepagenew layout, so
                     home-page-new/header.css isn't guaranteed to be loaded -
                     this file defines its own --header-* fallbacks, same
-                    pattern as site-footer.css).
+                    pattern as site-footer.css.
 */
 
 :root {
@@ -20,13 +21,12 @@
     --header-max-width: 1320px;
 }
 
-/* The page module's clean() helper auto-wraps the Privacy Policy page's raw
-   "[gem-privacy-policy]" content in a <p> before this shortcode expands -
-   the browser closes that <p> as soon as it hits .legal-hero (a block
-   element can't nest inside <p>), but the now-empty <p> still gets the
-   browser's default paragraph margin, showing as a stray gap under the
-   site header. Zero it out precisely (only the <p> immediately before
-   .legal-hero) rather than touching #app/p spacing generally. */
+/* Defensive fallback: the page module's clean() helper auto-wraps a
+   shortcode-only page's raw "[gem-*]" content in a <p> before the
+   shortcode expands. The hero is rendered separately by page.blade.php
+   (outside this purified/shortcode content), so this shouldn't occur in
+   practice any more, but zero it out if it ever does rather than let a
+   stray empty <p>'s default browser margin show as a gap under the header. */
 #app > p:has(+ .legal-hero) {
     margin: 0;
     padding: 0;
@@ -45,7 +45,8 @@
 }
 
 /* =========================================================
-   HERO
+   HERO (generic - rendered by page.blade.php from $page->name
+   for every page using the "legal" template)
    ========================================================= */
 .legal-hero {
     background: var(--header-navy);
@@ -85,7 +86,7 @@
 .legal-hero__breadcrumb {
     color: var(--header-text-muted);
     font-size: 14px;
-    margin: 0 0 6px;
+    margin: 0;
 }
 
 .legal-hero__breadcrumb a {
@@ -103,14 +104,8 @@
     color: rgba(255, 255, 255, 0.3);
 }
 
-.legal-hero__updated {
-    color: rgba(255, 255, 255, 0.45);
-    font-size: 13px;
-    margin: 0;
-}
-
 /* =========================================================
-   CONTENT
+   CONTENT SHELL
    ========================================================= */
 .legal-content {
     background: var(--header-white);
@@ -121,6 +116,55 @@
     max-width: 900px;
     margin: 0 auto;
     padding: 0 24px;
+}
+
+.legal-content__updated {
+    color: #9ca3af;
+    font-size: 13px;
+    margin: 0 0 32px;
+}
+
+/* Baseline typography for plain admin-authored content (e.g. Terms &
+   Conditions, pasted straight into the Page WYSIWYG) that isn't built from
+   the .legal-section/.legal-content__intro markup below. The purifier only
+   lets a limited tag set through (div, b/strong, i/em, u, a, ul/ol/li,
+   p[style], br, span[style], img) - style these generically so any of
+   those looks reasonable without page-specific markup. */
+.legal-content__inner > p,
+.legal-content__inner > div > p {
+    color: #4b5563;
+    font-size: 15px;
+    line-height: 1.8;
+    margin: 0 0 16px;
+}
+
+.legal-content__inner > ul,
+.legal-content__inner > ol,
+.legal-content__inner > div > ul,
+.legal-content__inner > div > ol {
+    color: #4b5563;
+    font-size: 15px;
+    line-height: 1.8;
+    margin: 0 0 16px;
+    padding-left: 22px;
+}
+
+.legal-content__inner li {
+    margin-bottom: 8px;
+}
+
+.legal-content__inner a {
+    color: var(--header-gold-hover);
+}
+
+.legal-content__inner strong,
+.legal-content__inner b {
+    color: var(--header-navy);
+}
+
+.legal-content__inner img {
+    max-width: 100%;
+    height: auto;
 }
 
 .legal-content__intro {
@@ -134,6 +178,10 @@
     margin: 0 0 16px;
 }
 
+/* =========================================================
+   NUMBERED SECTIONS (Privacy Policy, Shipping/Delivery Policy,
+   Disclaimer)
+   ========================================================= */
 .legal-content__sections {
     display: flex;
     flex-direction: column;
@@ -211,6 +259,7 @@
     color: #4b5563;
     font-size: 15px;
     line-height: 1.7;
+    margin-bottom: 0;
 }
 
 .legal-section__list li i {
@@ -218,6 +267,90 @@
     margin-top: 4px;
     color: var(--header-gold);
     font-size: 12px;
+}
+
+/* =========================================================
+   FAQ ACCORDION
+   ========================================================= */
+.legal-faq {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.legal-faq__item {
+    border: 1px solid #ececec;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.legal-faq__question {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 20px;
+    background: var(--header-white);
+    border: none;
+    text-align: left;
+    font-family: var(--header-font-body);
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--header-navy);
+    cursor: pointer;
+    list-style: none;
+}
+
+/* .legal-faq__item is a <details> element, .legal-faq__question its
+   <summary> - reset the default disclosure triangle/marker so only our
+   own .legal-faq__icon shows. */
+.legal-faq__question::-webkit-details-marker {
+    display: none;
+}
+
+.legal-faq__question::marker {
+    content: '';
+}
+
+.legal-faq__icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(224, 166, 62, 0.12);
+    color: var(--header-gold);
+    font-size: 12px;
+    transition: transform 0.2s ease;
+}
+
+.legal-faq__item[open] .legal-faq__icon {
+    transform: rotate(45deg);
+}
+
+/* Override the browser's default "display: none" on closed <details>
+   content with a max-height collapse instead, so opening/closing animates. */
+.legal-faq__answer {
+    display: block;
+    max-height: 0;
+    overflow: hidden;
+    padding: 0 20px;
+    transition: max-height 0.25s ease, padding 0.25s ease;
+}
+
+.legal-faq__item[open] .legal-faq__answer {
+    max-height: 600px;
+    padding: 0 20px 20px;
+}
+
+.legal-faq__answer p {
+    color: #4b5563;
+    font-size: 14px;
+    line-height: 1.75;
+    margin: 0;
 }
 
 /* =========================================================
@@ -278,6 +411,7 @@
     color: var(--header-text-muted);
     font-size: 14px;
     line-height: 1.5;
+    margin-bottom: 0;
 }
 
 .legal-contact-card__details a {
