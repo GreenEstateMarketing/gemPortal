@@ -73,7 +73,6 @@
                         Greens Estate Marketing (Private) Limited
                     @endif
                 </a>
-                <p class="site-footer__legal-name">Greens Estate Marketing (Private) Limited</p>
 
                 <p class="site-footer__description">{{ theme_option('seo_description') }}</p>
 
