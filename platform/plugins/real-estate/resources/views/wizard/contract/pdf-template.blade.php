@@ -39,12 +39,12 @@
 </head>
 <body>
     @if ($logoDataUri)
-        <img class="logo" src="{{ $logoDataUri }}" alt="GEM">
+        <img class="logo" src="{{ $logoDataUri }}" alt="GEMlisting">
     @endif
 
-    <h1 class="title">GEM &ndash; SELLER AND AGENT AGREEMENT</h1>
+    <h1 class="title">GEMlisting &ndash; SELLER AND AGENT AGREEMENT</h1>
 
-    <p>This Digital Agreement is made between GEM and the Seller/Lessor for the listing and advertisement of the property on the GEM Portal.</p>
+    <p>This Digital Agreement is made between GEMlisting and the Seller/Lessor for the listing and advertisement of the property on the GEMlisting Portal.</p>
 
     <h2 class="section">1. Parties</h2>
 
@@ -79,29 +79,29 @@
 
     <ul class="terms">
         <li>The Seller/Lessor confirms that the information, images, documents, and other advertisement content submitted for the above-mentioned property are accurate and genuine to the best of their knowledge.</li>
-        <li>The Seller/Lessor confirms that they have the legal authority/right to list the property for advertisement through the GEM Portal.</li>
+        <li>The Seller/Lessor confirms that they have the legal authority/right to list the property for advertisement through the GEMlisting Portal.</li>
         <li>Where applicable, the Seller/Lessor agrees to provide valid ownership/title and other required property documents for verification.</li>
     </ul>
 
-    <h2 class="section">3. GEM Advertisement Service</h2>
+    <h2 class="section">3. GEMlisting Advertisement Service</h2>
 
     <ul class="terms">
-        <li>GEM agrees to process and publish the property's advertisement on its Portal after completion of the required content, accuracy, genuineness, and/or title verification process.</li>
+        <li>GEMlisting agrees to process and publish the property's advertisement on its Portal after completion of the required content, accuracy, genuineness, and/or title verification process.</li>
         <li>The Seller/Lessor agrees to proceed with the applicable advertisement payment after the required verification and completion of the Property Addition Workflow.</li>
     </ul>
 
     <h2 class="section">4. Digital Signature &amp; Agreement</h2>
 
-    <p>This Agreement shall be digitally signed by the Seller/Lessor through the GEM Portal using one of the approved digital-signing methods:</p>
+    <p>This Agreement shall be digitally signed by the Seller/Lessor through the GEMlisting Portal using one of the approved digital-signing methods:</p>
 
     <ul class="terms">
         <li>Uploading a signed image/photo, with automatic background removal and cropping; or</li>
         <li>Drawing the signature directly in the browser using the provided signature tool.</li>
     </ul>
 
-    <p>The Seller/Lessor's digital signature shall be securely maintained by GEM for future verification and authorized signing purposes.</p>
+    <p>The Seller/Lessor's digital signature shall be securely maintained by GEMlisting for future verification and authorized signing purposes.</p>
 
-    <p>The authorized GEM Agent's digital signature shall automatically appear below as:</p>
+    <p>The authorized GEMlisting Agent's digital signature shall automatically appear below as:</p>
 
     <table class="agent-inline">
         <tr>
@@ -116,11 +116,11 @@
         </tr>
     </table>
 
-    <p>For and on behalf of GEM</p>
+    <p>For and on behalf of GEMlisting</p>
 
     <h2 class="section">5. Confirmation</h2>
 
-    <p>By signing this Agreement, the Seller/Lessor confirms that they have read, understood, and accepted the terms of this Digital Agreement and authorize GEM to proceed with the applicable advertisement workflow.</p>
+    <p>By signing this Agreement, the Seller/Lessor confirms that they have read, understood, and accepted the terms of this Digital Agreement and authorize GEMlisting to proceed with the applicable advertisement workflow.</p>
 
     <p><strong>Agreement Date:</strong> {{ $agreementDate }}</p>
 
@@ -146,7 +146,7 @@
                 </div>
             </td>
             <td>
-                <div class="party-heading">For &amp; on behalf of GEM</div>
+                <div class="party-heading">For &amp; on behalf of GEMlisting</div>
                 <div class="sig-row">
                     <span class="sig-label">Agent Name:</span>
                     {{ $agentName ?? '—' }}

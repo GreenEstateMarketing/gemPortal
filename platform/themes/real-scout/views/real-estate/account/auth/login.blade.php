@@ -1,6 +1,6 @@
 {!! Theme::partial('auth-shell-open', [
     'heading' => 'Welcome Back to',
-    'headingAccent' => 'GEM Real Estate',
+    'headingAccent' => 'GEMlisting Real Estate',
     'description' => 'Discover the perfect property, connect with verified agents, and make your real estate journey easier and smarter.',
     'cardTitle' => 'Login to Your Account',
     'cardSubtitle' => 'Welcome back! Please sign in to continue to your dashboard.',

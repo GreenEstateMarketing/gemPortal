@@ -15,9 +15,9 @@
             <!-- end col-6 -->
             <div class="col-lg-6 wow fadeInUp">
                 <div class="content-box">
-                    <h4><span>GEM</span> Consultancy</h4>
+                    <h4><span>GEMlisting</span> Consultancy</h4>
                     <h3>Best Investment in Pakistan</h3>
-                    <p>100% refundable, safe and secure investments with GEM
+                    <p>100% refundable, safe and secure investments with GEMlisting
 
                         Our criteria to choose best investment projects</p>
                     <a href="/projects" class="link">SEE OUR PROJECTS <i class="fas fa-caret-right"></i></a>
@@ -84,7 +84,7 @@
     <div class="container">
         <div class="row">
             <div class="col-12 wow fadeInUp">
-                <h4><span>GEM</span> Property</h4>
+                <h4><span>GEMlisting</span> Property</h4>
                 <h3>Decorated Flats in Pakistan</h3>
             </div>
             <!-- end col-12 -->

@@ -123,7 +123,7 @@
                             <div class="">
                                 <input type="checkbox"
                                        name="terms" id="terms" value="1" required /><label>I accept</label>
-                                <span  style="cursor: pointer" class="red" data-toggle="modal" data-target="#exampleModal">GEM Terms & Conditions
+                                <span  style="cursor: pointer" class="red" data-toggle="modal" data-target="#exampleModal">GEMlisting Terms & Conditions
                                     </span>
                                 {{--{{ trans('plugins/real-estate::dashboard.gem-terms') }}--}}
 

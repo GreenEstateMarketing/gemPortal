@@ -22,7 +22,7 @@
                                     </p>
 
                                     <p style="font-size: 15px; color: #333;">
-                                        Thank you,<br>The GEM Listing Team
+                                        Thank you,<br>The GEMlisting Team
                                     </p>
                                 </td>
                             </tr>

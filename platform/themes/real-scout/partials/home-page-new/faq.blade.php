@@ -11,8 +11,8 @@
 @php
     $faqs = [
         [
-            'q' => __('Is it free to search for properties on gemlisting.co?'),
-            'a' => __('Yes. Browsing and searching property listings, viewing agent profiles and contacting agents through gemlisting.co is completely free for buyers and tenants.'),
+            'q' => __('Is it free to search for properties on GEMlisting?'),
+            'a' => __('Yes. Browsing and searching property listings, viewing agent profiles and contacting agents through GEMlisting is completely free for buyers and tenants.'),
         ],
         [
             'q' => __('How do I list my property for sale or rent?'),
@@ -23,12 +23,12 @@
             'a' => __('No. Property owners (members) can list their own properties directly. Real estate agents can also register for an agent account, which unlocks additional tools for managing multiple listings and clients.'),
         ],
         [
-            'q' => __('How are agents on gemlisting.co verified?'),
+            'q' => __('How are agents on GEMlisting verified?'),
             'a' => __('Agent accounts go through a review process before they\'re able to publish listings under an agent profile. We also encourage buyers and tenants to independently verify any agent\'s credentials before entering into an agreement.'),
         ],
         [
-            'q' => __('Does gemlisting.co charge a commission on sales or rentals?'),
-            'a' => __('gemlisting.co does not charge buyers or tenants any fee to use the platform. Listing fees or featured-listing charges may apply for agents and landlords - any such fees are shown clearly before you publish a paid listing.'),
+            'q' => __('Does GEMlisting charge a commission on sales or rentals?'),
+            'a' => __('GEMlisting does not charge buyers or tenants any fee to use the platform. Listing fees or featured-listing charges may apply for agents and landlords - any such fees are shown clearly before you publish a paid listing.'),
         ],
         [
             'q' => __('How do I contact an agent or property owner about a listing?'),
@@ -47,7 +47,7 @@
             'a' => __('Please contact our support team right away with the listing details. We take fraudulent or misleading listings seriously and will investigate and remove them where appropriate.'),
         ],
         [
-            'q' => __('Is my personal information safe with gemlisting.co?'),
+            'q' => __('Is my personal information safe with GEMlisting?'),
             'a' => __('We take reasonable measures to protect your personal information as described in our Privacy Policy. We never sell your personal information to third parties.'),
         ],
         [
@@ -59,7 +59,7 @@
 
 <div class="legal-content__intro">
     <p>
-        {{ __('Answers to the questions we hear most often from buyers, tenants, landlords, members and agents using gemlisting.co. Can\'t find what you\'re looking for? Reach out to us using the details below.') }}
+        {{ __('Answers to the questions we hear most often from buyers, tenants, landlords, members and agents using GEMlisting. Can\'t find what you\'re looking for? Reach out to us using the details below.') }}
     </p>
 </div>
 

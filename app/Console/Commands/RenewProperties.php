@@ -77,7 +77,7 @@ class RenewProperties extends Command
                                 'title' => $property->name,
                                 'dashboard_url' => route('member.dashboard'),
                             ])
-                            ->sendUsingTemplate('renew', $member->email, [], false, 'plugins', 'GEM - Property Renewed');
+                            ->sendUsingTemplate('renew', $member->email, [], false, 'plugins', 'GEMlisting - Property Renewed');
 
                     } else { //Email them if the credits are not available to top up their account
                         $variables = [
@@ -95,7 +95,7 @@ class RenewProperties extends Command
                                 'title' => $property->name,
                                 'credits_url' => route('public.member.packages')
                             ])
-                            ->sendUsingTemplate('renewfailed', $member->email, [], false, 'plugins', 'GEM - Property Expired');
+                            ->sendUsingTemplate('renewfailed', $member->email, [], false, 'plugins', 'GEMlisting - Property Expired');
                     }
                 } else if($property->author_id) { //if the property is owned by agent
                     $agent= DB::table('re_accounts')->where('id', '=', $property->author_id)->first();
@@ -126,7 +126,7 @@ class RenewProperties extends Command
                                 'title' => $property->name,
                                 'dashboard_url' => route('public.account.dashboard'),
                             ])
-                            ->sendUsingTemplate('renew', $agent->email, [], false, 'plugins', 'GEM - Property Renewed');
+                            ->sendUsingTemplate('renew', $agent->email, [], false, 'plugins', 'GEMlisting - Property Renewed');
 
                     } else { //Email them if the credits are not available to topup their account
                         $variables = [
@@ -144,7 +144,7 @@ class RenewProperties extends Command
                                 'title' => $property->name,
                                 'credits_url' => route('public.account.packages')
                             ])
-                            ->sendUsingTemplate('renewfailed', $agent->email, [], false, 'plugins', 'GEM - Property Expired');
+                            ->sendUsingTemplate('renewfailed', $agent->email, [], false, 'plugins', 'GEMlisting - Property Expired');
                     }
                 }
             }

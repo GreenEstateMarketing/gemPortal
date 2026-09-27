@@ -65,19 +65,19 @@ if (is_plugin_active('blog')) {
     });
 }
 
-add_shortcode('gem-privacy-policy', __('GEM Privacy Policy'), __('Renders the gemlisting.co privacy policy content, styled to match the home page design.'), function () {
+add_shortcode('gem-privacy-policy', __('GEMlisting Privacy Policy'), __('Renders the GEMlisting privacy policy content, styled to match the home page design.'), function () {
     return Theme::partial('home-page-new/privacy-policy');
 });
 
-add_shortcode('gem-faq', __('GEM FAQ'), __('Renders the gemlisting.co frequently asked questions, styled to match the home page design.'), function () {
+add_shortcode('gem-faq', __('GEMlisting FAQ'), __('Renders the GEMlisting frequently asked questions, styled to match the home page design.'), function () {
     return Theme::partial('home-page-new/faq');
 });
 
-add_shortcode('gem-shipping-policy', __('GEM Shipping/Delivery Policy'), __('Renders the gemlisting.co shipping/delivery policy content, styled to match the home page design.'), function () {
+add_shortcode('gem-shipping-policy', __('GEMlisting Shipping/Delivery Policy'), __('Renders the GEMlisting shipping/delivery policy content, styled to match the home page design.'), function () {
     return Theme::partial('home-page-new/shipping-policy');
 });
 
-add_shortcode('gem-disclaimer', __('GEM Disclaimer'), __('Renders the gemlisting.co disclaimer content, styled to match the home page design.'), function () {
+add_shortcode('gem-disclaimer', __('GEMlisting Disclaimer'), __('Renders the GEMlisting disclaimer content, styled to match the home page design.'), function () {
     return Theme::partial('home-page-new/disclaimer');
 });
 

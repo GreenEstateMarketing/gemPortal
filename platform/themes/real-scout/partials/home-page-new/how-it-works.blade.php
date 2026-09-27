@@ -18,7 +18,7 @@
             <span class="how-it-works__eyebrow">{{ __('Simple & Transparent') }}</span>
             <h2 class="how-it-works__heading">{{ __('How It Works?') }}</h2>
             <p class="how-it-works__text">
-                {{ __('Whether you are looking to buy, rent, sell or list a property, GEM keeps the process simple.') }}
+                {{ __('Whether you are looking to buy, rent, sell or list a property, GEMlisting keeps the process simple.') }}
             </p>
 
             <div class="how-it-works__toggle" role="tablist">
@@ -59,7 +59,7 @@
                     <span class="how-it-works__step-number">03</span>
                     <span class="how-it-works__step-icon"><i class="fas fa-comments"></i></span>
                     <h4 class="how-it-works__step-title">{{ __('Connect') }}</h4>
-                    <p class="how-it-works__step-text">{{ __('Contact the owner or connect with a professional GEM agent.') }}</p>
+                    <p class="how-it-works__step-text">{{ __('Contact the owner or connect with a professional GEMlisting agent.') }}</p>
                 </div>
 
                 <i class="fas fa-long-arrow-alt-right how-it-works__arrow"></i>
@@ -94,7 +94,7 @@
                     <span class="how-it-works__step-number">02</span>
                     <span class="how-it-works__step-icon"><i class="fas fa-user-check"></i></span>
                     <h4 class="how-it-works__step-title">{{ __('Choose Agent') }}</h4>
-                    <p class="how-it-works__step-text">{{ __('Pick your favorite agent or let GEM choose the right professional for you.') }}</p>
+                    <p class="how-it-works__step-text">{{ __('Pick your favorite agent or let GEMlisting choose the right professional for you.') }}</p>
                 </div>
 
                 <i class="fas fa-long-arrow-alt-right how-it-works__arrow"></i>
@@ -112,7 +112,7 @@
                     <span class="how-it-works__step-number">04</span>
                     <span class="how-it-works__step-icon"><i class="fas fa-file-signature"></i></span>
                     <h4 class="how-it-works__step-title">{{ __('Sign Contract') }}</h4>
-                    <p class="how-it-works__step-text">{{ __('Sign the Letter of Representation with gemlisting.co.') }}</p>
+                    <p class="how-it-works__step-text">{{ __('Sign the Letter of Representation with GEMlisting.') }}</p>
                 </div>
 
                 <i class="fas fa-long-arrow-alt-right how-it-works__arrow"></i>

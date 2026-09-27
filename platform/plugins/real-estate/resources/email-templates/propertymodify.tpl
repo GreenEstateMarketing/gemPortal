@@ -14,7 +14,7 @@
                             If you have any questions or need assistance, feel free to contact us.
                         </p>
                         <p style="font-size: 15px; color: #333333;">
-                            Best regards,<br/>The GEM Listing Team
+                            Best regards,<br/>The GEMlisting Team
                         </p>
                     </td>
                 </tr>

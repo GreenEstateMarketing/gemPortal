@@ -10,7 +10,7 @@
                             <tr>
                                 <td align="left" style="padding: 20px 50px;">
                                     <p><strong>Hello {{ member_name }}</strong></p>
-                                    <p>Your account has been created on GEM. You can login from <a href="{{ login_url }}">Here</a> </p>.
+                                    <p>Your account has been created on GEMlisting. You can login from <a href="{{ login_url }}">Here</a> </p>.
                                     <p>Thanks</p>
                                 </td>
                             </tr>

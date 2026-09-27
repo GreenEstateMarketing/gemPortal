@@ -32,7 +32,7 @@
         </h2>
 
         <p class="cta-move__text">
-            {{ __("Whether you're buying, renting, selling or investing, gemlisting.co is here to help.") }}
+            {{ __("Whether you're buying, renting, selling or investing, GEMlisting is here to help.") }}
         </p>
 
         <div class="cta-move__actions">

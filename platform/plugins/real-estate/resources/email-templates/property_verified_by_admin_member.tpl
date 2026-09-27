@@ -25,12 +25,12 @@
                 </tr>
                 <tr>
                     <td style="padding: 28px 40px 32px;">
-                        <p style="font-size:13px; color:#333333; margin:0;">Best regards,<br/>The GEM Listing Team</p>
+                        <p style="font-size:13px; color:#333333; margin:0;">Best regards,<br/>The GEMlisting Team</p>
                     </td>
                 </tr>
                 <tr>
                     <td style="padding: 18px 40px; border-top:1px solid #e6e2d8; background-color:#faf8f4;">
-                        <p style="font-size:12px; color:#6b7280; margin:0;">This is an automated message from GEM Listing regarding property "{{ property_title }}".</p>
+                        <p style="font-size:12px; color:#6b7280; margin:0;">This is an automated message from GEMlisting regarding property "{{ property_title }}".</p>
                     </td>
                 </tr>
             </table>

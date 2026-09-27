@@ -4,7 +4,7 @@
                      functions/functions.php), placed inside the
                      Shipping/Delivery Policy admin Page's content field.
 
-    GEM Properties doesn't ship physical goods - this page instead covers
+    GEMlisting doesn't ship physical goods - this page instead covers
     how our digital services (listing publication, notifications, document
     delivery) are "delivered", which is the common framing payment
     providers expect from a Shipping/Delivery Policy page even for a
@@ -17,7 +17,7 @@
         [
             'title' => __('Nature of Our Services'),
             'body' => [
-                __('gemlisting.co is an online real estate marketplace. We do not sell, ship or deliver any physical goods. Everything we provide - property listings, agent connections, inquiries and account features - is delivered digitally through our website.'),
+                __('GEMlisting is an online real estate marketplace. We do not sell, ship or deliver any physical goods. Everything we provide - property listings, agent connections, inquiries and account features - is delivered digitally through our website.'),
             ],
         ],
         [
@@ -66,7 +66,7 @@
 
 <div class="legal-content__intro">
     <p>
-        {{ __('This Shipping/Delivery Policy explains how gemlisting.co delivers its services to buyers, tenants, landlords, members and agents. As an online real estate marketplace, we do not ship physical products - "delivery" here refers to how and when our digital services reach you.') }}
+        {{ __('This Shipping/Delivery Policy explains how GEMlisting delivers its services to buyers, tenants, landlords, members and agents. As an online real estate marketplace, we do not ship physical products - "delivery" here refers to how and when our digital services reach you.') }}
     </p>
 </div>
 

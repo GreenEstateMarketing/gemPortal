@@ -179,7 +179,7 @@
         /* Base rule's gap:80px (meant for the desktop side-by-side
            columns) was still adding 80px between the image+badge and
            this content block on top of the 44px margin-top below - about
-           124px of empty space before "WHY CHOOSE GEM". */
+           124px of empty space before "WHY CHOOSE GEMLISTING". */
         gap: 0;
     }
 
@@ -190,7 +190,7 @@
            that same 480px sizes .why-choose__media's HEIGHT instead -
            its actual content (the 320px image + overlapping badge) only
            fills about 360px of it, leaving ~120px of invisible empty
-           space inside the media box before "WHY CHOOSE GEM" below it. */
+           space inside the media box before "WHY CHOOSE GEMLISTING" below it. */
         flex: 0 1 auto;
     }
 

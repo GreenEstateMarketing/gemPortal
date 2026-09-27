@@ -377,7 +377,7 @@ class PublicAccountController extends Controller
 
         //Create Payment With Pending Status
         $member = auth('account')->user();
-        $orderId = 'GEM-' . date('is') . '-' . rand(1000, 9999);
+        $orderId = 'GEMlisting-' . date('is') . '-' . rand(1000, 9999);
         $paymentData = [
             'amount' => $package->price,
             'currency' => 'PKR',

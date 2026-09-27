@@ -13,19 +13,19 @@
         [
             'title' => __('Listing Accuracy'),
             'body' => [
-                __('Property listings on gemlisting.co - including descriptions, photos, floor plans, pricing, availability and location details - are submitted by agents, landlords and members. While we take reasonable steps to moderate listings, we do not independently verify every detail and cannot guarantee that any listing is complete, accurate, current or error-free. Prices, availability and features can change without notice.'),
+                __('Property listings on GEMlisting - including descriptions, photos, floor plans, pricing, availability and location details - are submitted by agents, landlords and members. While we take reasonable steps to moderate listings, we do not independently verify every detail and cannot guarantee that any listing is complete, accurate, current or error-free. Prices, availability and features can change without notice.'),
             ],
         ],
         [
             'title' => __('No Professional Advice'),
             'body' => [
-                __('Nothing on gemlisting.co constitutes legal, financial, tax or investment advice. Content on this site is provided for general informational purposes only. Before making any property, financial or legal decision, you should seek advice from a qualified real estate agent, lawyer, financial advisor or other relevant professional.'),
+                __('Nothing on GEMlisting constitutes legal, financial, tax or investment advice. Content on this site is provided for general informational purposes only. Before making any property, financial or legal decision, you should seek advice from a qualified real estate agent, lawyer, financial advisor or other relevant professional.'),
             ],
         ],
         [
             'title' => __('Not a Party to Transactions'),
             'body' => [
-                __('gemlisting.co is a platform that connects buyers, tenants, landlords, members and agents - we are not a party to any sale, purchase, lease or other transaction arranged between users. We do not guarantee the conduct, reliability or qualifications of any agent, landlord, tenant or buyer using our platform, and any agreement you enter into is solely between you and the other party.'),
+                __('GEMlisting is a platform that connects buyers, tenants, landlords, members and agents - we are not a party to any sale, purchase, lease or other transaction arranged between users. We do not guarantee the conduct, reliability or qualifications of any agent, landlord, tenant or buyer using our platform, and any agreement you enter into is solely between you and the other party.'),
             ],
         ],
         [
@@ -47,13 +47,13 @@
         [
             'title' => __('No Warranty'),
             'body' => [
-                __('gemlisting.co and its content are provided "as is" and "as available" without warranties of any kind, whether express or implied, including but not limited to warranties of accuracy, merchantability, fitness for a particular purpose or non-infringement. We do not guarantee that the site will be uninterrupted, secure or error-free.'),
+                __('GEMlisting and its content are provided "as is" and "as available" without warranties of any kind, whether express or implied, including but not limited to warranties of accuracy, merchantability, fitness for a particular purpose or non-infringement. We do not guarantee that the site will be uninterrupted, secure or error-free.'),
             ],
         ],
         [
             'title' => __('Limitation of Liability'),
             'body' => [
-                __('To the fullest extent permitted by law, gemlisting.co and its owners, employees and affiliates shall not be liable for any direct, indirect, incidental or consequential loss or damage arising from your use of the site, reliance on any listing or content, or any transaction or dealing with another user.'),
+                __('To the fullest extent permitted by law, GEMlisting and its owners, employees and affiliates shall not be liable for any direct, indirect, incidental or consequential loss or damage arising from your use of the site, reliance on any listing or content, or any transaction or dealing with another user.'),
             ],
         ],
         [
@@ -69,7 +69,7 @@
 
 <div class="legal-content__intro">
     <p>
-        {{ __('The following disclaimer applies to your use of gemlisting.co ("GEM", "we", "us" or "our") and the property listings, agent information and other content available on our platform. Please read it carefully alongside our Terms & Conditions and Privacy Policy.') }}
+        {{ __('The following disclaimer applies to your use of GEMlisting ("we", "us" or "our") and the property listings, agent information and other content available on our platform. Please read it carefully alongside our Terms & Conditions and Privacy Policy.') }}
     </p>
 </div>
 

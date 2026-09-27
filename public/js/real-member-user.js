@@ -462,7 +462,7 @@ $("#btnSave").click(function (e) {
   //----------------------------------------------------------
 
   if (!$("#terms").is(":checked")) {
-    addError("#terms", "Please accept GEM Terms & Conditions.");
+    addError("#terms", "Please accept GEMlisting Terms & Conditions.");
   }
 
   //----------------------------------------------------------

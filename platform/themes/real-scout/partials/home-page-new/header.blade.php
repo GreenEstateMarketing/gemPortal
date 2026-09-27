@@ -22,7 +22,7 @@
     {{-- Header-specific stylesheet for this design --}}
     <link rel="stylesheet" href="{{ Theme::asset()->url('css/home-page-new/header.css') }}">
 
-    {{-- "Why Choose GEM" section stylesheet - relies on the color/font
+    {{-- "Why Choose GEMlisting" section stylesheet - relies on the color/font
          custom properties (--header-navy, --header-gold, etc.) defined
          on :root in header.css above, so header.css must load first. --}}
     <link rel="stylesheet" href="{{ Theme::asset()->url('css/home-page-new/why-choose.css') }}">
@@ -84,7 +84,7 @@
                 </h1>
                 <p class="hero__text">
                     Discover premium homes, apartments, commercial properties and plots with
-                    gemlisting.co. Your trusted partner for buying, selling and renting real estate.
+                    GEMlisting. Your trusted partner for buying, selling and renting real estate.
                 </p>
                 <div class="hero__actions">
                     <a href="{{ route('public.properties') }}" class="btn-primary">

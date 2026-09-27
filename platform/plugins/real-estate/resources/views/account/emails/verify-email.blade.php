@@ -2,7 +2,7 @@
 
 {{ header }}
 
-<strong>Welcome to GEM!</strong><br><br>
+<strong>Welcome to GEMlisting!</strong><br><br>
 
 Thank you for creating your account.
 

@@ -1,7 +1,7 @@
 {!! Theme::partial('auth-shell-open', [
     'heading' => 'Reset Your',
     'headingAccent' => 'Password',
-    'description' => 'Choose a new password for your GEM account to get back to managing your listings and saved properties.',
+    'description' => 'Choose a new password for your GEMlisting account to get back to managing your listings and saved properties.',
     'cardTitle' => 'Choose a New Password',
     'cardSubtitle' => 'Enter and confirm your new password below.',
 ]) !!}

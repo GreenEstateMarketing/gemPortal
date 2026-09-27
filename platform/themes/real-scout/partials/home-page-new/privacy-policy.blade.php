@@ -37,7 +37,7 @@
         [
             'title' => __('Information Collected Automatically'),
             'body' => [
-                __('When you browse gemlisting.co, we automatically collect certain information about your device and how you use our site, including:'),
+                __('When you browse GEMlisting, we automatically collect certain information about your device and how you use our site, including:'),
             ],
             'list' => [
                 __('Usage data - pages viewed, searches performed, properties saved and time spent on the site.'),
@@ -65,14 +65,14 @@
             'list' => [
                 __('With agents and landlords - so they can respond to your property inquiries or manage listings you interact with.'),
                 __('With service providers - payment processors, hosting providers and analytics partners who help us operate the platform, under contractual confidentiality obligations.'),
-                __('For legal reasons - if required by law, regulation, legal process or governmental request, or to protect the rights, property and safety of gemlisting.co, our users or the public.'),
-                __('In a business transfer - if gemlisting.co is involved in a merger, acquisition or sale of assets, your information may be transferred as part of that transaction.'),
+                __('For legal reasons - if required by law, regulation, legal process or governmental request, or to protect the rights, property and safety of GEMlisting, our users or the public.'),
+                __('In a business transfer - if GEMlisting is involved in a merger, acquisition or sale of assets, your information may be transferred as part of that transaction.'),
             ],
         ],
         [
             'title' => __('Cookies & Tracking Technologies'),
             'body' => [
-                __('We use cookies and similar technologies to keep you signed in, remember your search preferences (such as currency and area unit), and understand how visitors use our site so we can improve it. You can control or disable cookies through your browser settings, though some parts of gemlisting.co may not function properly without them.'),
+                __('We use cookies and similar technologies to keep you signed in, remember your search preferences (such as currency and area unit), and understand how visitors use our site so we can improve it. You can control or disable cookies through your browser settings, though some parts of GEMlisting may not function properly without them.'),
             ],
         ],
         [
@@ -103,7 +103,7 @@
         [
             'title' => __('Children\'s Privacy'),
             'body' => [
-                __('gemlisting.co is not directed to children under 18, and we do not knowingly collect personal information from children. If you believe a child has provided us with personal information, please contact us so we can remove it.'),
+                __('GEMlisting is not directed to children under 18, and we do not knowingly collect personal information from children. If you believe a child has provided us with personal information, please contact us so we can remove it.'),
             ],
         ],
         [
@@ -133,10 +133,10 @@
 
 <div class="legal-content__intro">
     <p>
-        {{ __('gemlisting.co ("GEM", "we", "us" or "our") respects your privacy and is committed to protecting the personal information of everyone who uses our website and services, including buyers, tenants, landlords, members and agents. This Privacy Policy explains what information we collect, how we use and share it, and the choices you have.') }}
+        {{ __('GEMlisting ("we", "us" or "our") respects your privacy and is committed to protecting the personal information of everyone who uses our website and services, including buyers, tenants, landlords, members and agents. This Privacy Policy explains what information we collect, how we use and share it, and the choices you have.') }}
     </p>
     <p>
-        {{ __('By using gemlisting.co, you agree to the collection and use of information in accordance with this policy. If you do not agree, please discontinue use of our site and services.') }}
+        {{ __('By using GEMlisting, you agree to the collection and use of information in accordance with this policy. If you do not agree, please discontinue use of our site and services.') }}
     </p>
 </div>
 

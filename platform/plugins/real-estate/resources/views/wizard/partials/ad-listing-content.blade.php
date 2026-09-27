@@ -10,7 +10,7 @@
         <h1 class="wizard-celebration__title">{{ __('Congratulations!') }}</h1>
         <p class="wizard-celebration__property">{{ $property->name }}</p>
         <p class="wizard-celebration__message">
-            {{ __('Your property is finally listed successfully! It\'s now live on GEM Listing for everyone to see. Thank you for completing every step along the way.') }}
+            {{ __('Your property is finally listed successfully! It\'s now live on GEMlisting for everyone to see. Thank you for completing every step along the way.') }}
         </p>
 
         <div class="wizard-celebration__link-card">

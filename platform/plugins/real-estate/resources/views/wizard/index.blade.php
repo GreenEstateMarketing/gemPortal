@@ -12,7 +12,7 @@
     <div class="property-wizard__intro">
         <span class="property-wizard__eyebrow">{{ __('List Your Property With Confidence') }}</span>
         <h1 class="property-wizard__title">{{ __('Add Property') }}</h1>
-        <p class="property-wizard__subtitle">{{ __('Follow the journey below to get your property listed with GEM.') }}</p>
+        <p class="property-wizard__subtitle">{{ __('Follow the journey below to get your property listed with GEMlisting.') }}</p>
     </div>
 
     @include('plugins/real-estate::wizard.partials.global-header')

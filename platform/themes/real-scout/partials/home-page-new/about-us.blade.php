@@ -27,7 +27,7 @@
 <section class="about-us" style="background-image: url('{{ Theme::asset()->url('images/home-page-new/about-us-bg.png') }}')">
     <div class="about-us__overlay"></div>
     <div class="container about-us__inner">
-        <span class="about-us__eyebrow">{{ __('About gemlisting.co') }}</span>
+        <span class="about-us__eyebrow">{{ __('About GEMlisting') }}</span>
 
         <h2 class="about-us__heading">
             {{ __('Your Property.') }}<br>

@@ -1,6 +1,6 @@
 {!! Theme::partial('auth-shell-open', [
     'heading' => 'Join',
-    'headingAccent' => 'GEM Real Estate',
+    'headingAccent' => 'GEMlisting Real Estate',
     'description' => 'Create your free account to save favorite properties, contact agents, and track your real estate search.',
     'cardTitle' => 'Create Your Account',
     'cardSubtitle' => 'Fill in your details to get started.',
@@ -39,7 +39,7 @@
                         <input type="checkbox" name="modal_terms" id="modal_terms" value="1" required />
                     </label>
                     <label>&nbsp; I accept</label>
-                    <span style="cursor: pointer" class="red">GEM Terms &amp; Conditions</span>
+                    <span style="cursor: pointer" class="red">GEMlisting Terms &amp; Conditions</span>
                 </div>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
@@ -97,7 +97,7 @@
         <input type="checkbox" name="terms" id="terms" value="1" required>
         <span>
             I accept
-            <span data-toggle="modal" data-target="#exampleModal">GEM Terms &amp; Conditions</span>
+            <span data-toggle="modal" data-target="#exampleModal">GEMlisting Terms &amp; Conditions</span>
         </span>
     </label>
 

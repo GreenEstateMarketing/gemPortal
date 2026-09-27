@@ -1,7 +1,7 @@
 {!! Theme::partial('auth-shell-open', [
     'heading' => 'Join',
-    'headingAccent' => 'GEM Real Estate',
-    'description' => 'Create your agent account to list properties, reach verified buyers, and grow your business with GEM.',
+    'headingAccent' => 'GEMlisting Real Estate',
+    'description' => 'Create your agent account to list properties, reach verified buyers, and grow your business with GEMlisting.',
     'cardTitle' => 'Create Your Agent Account',
     'cardSubtitle' => 'Fill in your details to get started.',
     'features' => [

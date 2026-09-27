@@ -16,8 +16,8 @@
         // location step and the agent coverage-area map keep their own
         // separate, pre-existing geolocation code untouched - this helper is
         // not used there.
-        window.GEM = window.GEM || {};
-        window.GEM.geo = window.GEM.geo || {
+        window.GEMlisting = window.GEMlisting || {};
+        window.GEMlisting.geo = window.GEMlisting.geo || {
             reportLocation: function (loc) {
                 $.get('/geo/set-browser-location', loc);
                 // Marks this browser tab as "done" so the properties/projects
@@ -65,8 +65,8 @@
                         if (status !== google.maps.GeocoderStatus.OK || !results || !results.length) {
                             return;
                         }
-                        var parsed = window.GEM.geo.parseGeocoderResults(results);
-                        window.GEM.geo.reportLocation({
+                        var parsed = window.GEMlisting.geo.parseGeocoderResults(results);
+                        window.GEMlisting.geo.reportLocation({
                             lat: coords.latitude,
                             lng: coords.longitude,
                             city: parsed.city,
@@ -102,7 +102,7 @@
         }
         if (!alreadyReported
             && (document.location.pathname === '/properties' || document.location.pathname === '/projects')) {
-            window.GEM.geo.requestPreciseLocation(function () {
+            window.GEMlisting.geo.requestPreciseLocation(function () {
                 window.location.reload();
             });
         }
@@ -466,7 +466,7 @@
                             $('.select-city-state').val(city);
                         }
 
-                        window.GEM.geo.reportLocation({ lat: lat, lng: lng, city: city, country: country });
+                        window.GEMlisting.geo.reportLocation({ lat: lat, lng: lng, city: city, country: country });
 
                     }
                 } else {

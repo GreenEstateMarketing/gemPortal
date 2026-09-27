@@ -169,7 +169,7 @@ class PropertyController extends BaseController
                                 'title' => $title,
                                 'credits_url' => route('public.account.packages'),
                             ])
-                            ->sendUsingTemplate('paymentmail', $account->email, [], false, 'plugins', 'GEM - Payment Pending');
+                            ->sendUsingTemplate('paymentmail', $account->email, [], false, 'plugins', 'GEMlisting - Payment Pending');
 
                         if ($from == 'agent') {
                             return $response
@@ -196,7 +196,7 @@ class PropertyController extends BaseController
                                 'title' => $title,
                                 'credits_url' => route('public.member.packages'),
                             ])
-                            ->sendUsingTemplate('paymentmail', $member->email, [], false, 'plugins', 'GEM - Payment Pending');
+                            ->sendUsingTemplate('paymentmail', $member->email, [], false, 'plugins', 'GEMlisting - Payment Pending');
 
                         if ($from == 'agent') {
                             return $response

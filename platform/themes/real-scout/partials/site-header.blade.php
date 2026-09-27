@@ -17,7 +17,7 @@
 
     Uses the site's real logo asset (theme_option('logo'), same as every
     other header) rather than a hand-drawn mark, since that file already is
-    the icon + "GEM" + tagline lockup.
+    the icon + "GEMlisting" + tagline lockup.
 
     No Bootstrap-JS dependency (dropdown/hamburger use plain classList
     toggles in site-header.js) because the two dashboard skeletons don't

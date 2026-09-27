@@ -12,7 +12,7 @@
         <div class="wizard-stamp wizard-stamp--agent">{{ __('Verified by Agent') }}</div>
     @endif
     @if ($verifiedByAdmin)
-        <div class="wizard-stamp wizard-stamp--admin">{{ __('Verified by GEM') }}</div>
+        <div class="wizard-stamp wizard-stamp--admin">{{ __('Verified by GEMlisting') }}</div>
     @endif
 
     <div class="wizard-document__header">

@@ -12,7 +12,7 @@
     <div class="container why-choose__inner">
 
         <div class="why-choose__content">
-            <span class="why-choose__eyebrow">{{ __('Why Choose GEM') }}</span>
+            <span class="why-choose__eyebrow">{{ __('Why Choose GEMlisting') }}</span>
 
             <h2 class="why-choose__heading">
                 {{ __('A Better Way to') }} <span class="why-choose__heading--accent">{{ __('Find') }}</span><br>

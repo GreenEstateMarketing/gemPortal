@@ -13,7 +13,7 @@
         [
             'name' => 'Ahmed R.',
             'role' => __('Property Buyer'),
-            'quote' => __("gemlisting.co made the process of finding our new home incredibly easy. Their team was professional, helpful and transparent."),
+            'quote' => __("GEMlisting made the process of finding our new home incredibly easy. Their team was professional, helpful and transparent."),
         ],
         [
             'name' => 'Sara M.',
@@ -23,7 +23,7 @@
         [
             'name' => 'Hassan K.',
             'role' => __('Property Seller'),
-            'quote' => __('Professional service from start to finish. GEM helped us sell our property smoothly and at a good market value.'),
+            'quote' => __('Professional service from start to finish. GEMlisting helped us sell our property smoothly and at a good market value.'),
         ],
     ];
     $featuredIndex = 1;
@@ -35,7 +35,7 @@
             <span class="testimonials__eyebrow">{{ __('Client Reviews') }}</span>
             <h2 class="testimonials__heading">{{ __('What Our Clients Say?') }}</h2>
             <p class="testimonials__text">
-                {{ __('Real experiences from people who trusted gemlisting.co with their property journey.') }}
+                {{ __('Real experiences from people who trusted GEMlisting with their property journey.') }}
             </p>
         </div>
 

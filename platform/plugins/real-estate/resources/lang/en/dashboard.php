@@ -36,7 +36,7 @@ return [
     'change_avatar_description'  => 'Click on image to change avatar',
     'full_name'  => 'Full Name',
     'mobile_no'  => 'Mobile Number',
-    //'gem-terms' =>'I accept GEM <b>terms and condition</b>',
+    //'gem-terms' =>'I accept GEMlisting <b>terms and condition</b>',
     'notices'                    => [
         'error'   => 'Error!',
         'success' => 'Success!',
