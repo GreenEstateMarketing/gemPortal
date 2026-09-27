@@ -68,9 +68,9 @@
             <div class="site-footer__col site-footer__col--brand">
                 <a href="{{ route('public.index') }}" class="site-footer__logo">
                     @if (theme_option('logo'))
-                        <img src="{{ RvMedia::getImageUrl(theme_option('logo')) }}" alt="{{ theme_option('site_title') }}">
+                        <img src="{{ RvMedia::getImageUrl(theme_option('logo')) }}" alt="Greens Estate Marketing (Private) Limited">
                     @else
-                        {{ theme_option('site_title') }}
+                        Greens Estate Marketing (Private) Limited
                     @endif
                 </a>
 
