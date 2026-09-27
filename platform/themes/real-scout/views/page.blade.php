@@ -40,7 +40,10 @@
     <section class="legal-hero">
         <div class="container legal-hero__inner">
             <span class="legal-hero__eyebrow">{{ __('Legal') }}</span>
-            <h1 class="legal-hero__heading">{{ $page->name }}</h1>
+            {{-- Playfair Display's "&" glyph is a heavily stylized ligature -
+                 swap to the plain body font for any title that contains one
+                 (e.g. "Terms & Conditions") so the heading stays simple. --}}
+            <h1 class="legal-hero__heading @if (str_contains($page->name, '&')) legal-hero__heading--plain @endif">{{ $page->name }}</h1>
             <p class="legal-hero__breadcrumb">
                 <a href="{{ route('public.index') }}">{{ __('Home') }}</a>
                 <span>/</span>

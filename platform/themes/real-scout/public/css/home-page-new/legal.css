@@ -83,6 +83,14 @@
     color: var(--header-gold);
 }
 
+/* Playfair Display's "&" is a heavily stylized ligature - pages whose
+   title contains one (e.g. "Terms & Conditions") use the plain body font
+   for the heading instead, so it doesn't look overly decorative. */
+.legal-hero__heading--plain {
+    font-family: var(--header-font-body);
+    font-weight: 600;
+}
+
 .legal-hero__breadcrumb {
     color: var(--header-text-muted);
     font-size: 14px;
