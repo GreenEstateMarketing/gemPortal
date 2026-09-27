@@ -224,7 +224,7 @@ class GeneralPropertyController extends Controller
             ]);
         }
 
-        if (Auth::guard('member')->attempt(['email' => $request->email, 'password' => $request->password])) {
+        if (Auth::guard('member')->attempt(['email' => $request->email, 'password' => $request->password], $request->boolean('remember'))) {
             return redirect('/member/dashboard');
         }
 

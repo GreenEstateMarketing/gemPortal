@@ -22,6 +22,7 @@
   <!-- Styles -->
   <link href="{{ asset('vendor/core/plugins/real-estate/css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('custom/css/agent_style.css') }}" rel="stylesheet">
+    <link href="{{ asset('themes/real-scout/css/site-header.css') }}" rel="stylesheet">
   @stack('styles')
 
     <script src="{{ asset('/themes/real-scout/js/jquery.min.js')}}"></script>
@@ -43,7 +44,7 @@
 <body>
   @include('core/base::layouts.partials.svg-icon')
   <div id="app">
-    @include('plugins/real-estate::member.components.header')
+    {!! Theme::partial('site-header') !!}
     <main class="main_form">
    @yield('content')
     </main>
@@ -86,6 +87,7 @@
   @endif
 
   <!-- Scripts -->
+  <script src="{{ asset('themes/real-scout/js/site-header.js') }}"></script>
   <script src="{{ asset('vendor/core/plugins/real-estate/js/app.js') }}"></script>
   <!-- <script src="{{ asset('/js/app.js') }}"></script> -->
 

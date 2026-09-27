@@ -1,0 +1,274 @@
+/* Shared navbar (partials/site-header.blade.php) - one design for every
+   public page, the member dashboard and the agent dashboard. */
+:root {
+    --gem-header-bg: #1a1a1a;
+    --gem-header-gold: #e0a63e;
+    --gem-header-text: #ffffff;
+    --gem-header-text-dim: rgba(255, 255, 255, 0.78);
+}
+
+.gem-header {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    background: var(--gem-header-bg);
+    width: 100%;
+}
+
+.gem-header__inner {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 76px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.gem-header__brand {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.gem-header__brand img {
+    height: 42px;
+    width: auto;
+    display: block;
+}
+
+.gem-header__brand-text {
+    color: var(--gem-header-text);
+    font-weight: 800;
+    font-size: 22px;
+}
+
+.gem-header__toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 5px;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.gem-header__toggle span {
+    display: block;
+    height: 2px;
+    background: var(--gem-header-text);
+    border-radius: 2px;
+    transition: transform .2s ease, opacity .2s ease, width .2s ease;
+    width: 24px;
+}
+
+.gem-header__toggle span:nth-child(2) {
+    width: 18px;
+}
+
+.gem-header__toggle.is-open span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+    width: 24px;
+}
+
+.gem-header__toggle.is-open span:nth-child(2) {
+    opacity: 0;
+}
+
+.gem-header__toggle.is-open span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+    width: 24px;
+}
+
+.gem-header__links {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    margin: 0;
+    padding: 0;
+}
+
+.gem-header__links > li > a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--gem-header-text-dim);
+    font-weight: 600;
+    font-size: 15px;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color .15s ease;
+}
+
+.gem-header__links > li > a:hover,
+.gem-header__links > li > a:focus {
+    color: var(--gem-header-text);
+    text-decoration: none;
+}
+
+.gem-header__icon {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+}
+
+.gem-header__login {
+    color: var(--gem-header-gold) !important;
+    font-weight: 700 !important;
+    margin-left: 8px;
+    padding-left: 20px;
+    border-left: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.gem-header__login:hover {
+    color: #f0bc63 !important;
+}
+
+/* Account/member profile dropdown */
+.gem-header__account {
+    position: relative;
+    margin-left: 8px;
+    padding-left: 20px;
+    border-left: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.gem-header__account-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    color: var(--gem-header-text);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.gem-header__account-toggle img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.gem-header__account-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    min-width: 190px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+    padding: 8px;
+    z-index: 1040;
+}
+
+.gem-header__account-menu.is-open {
+    display: block;
+}
+
+.gem-header__account-menu a,
+.gem-header__account-menu button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    padding: 10px 12px;
+    border-radius: 6px;
+    color: #1a1a1a;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.gem-header__account-menu a:hover,
+.gem-header__account-menu button:hover {
+    background: #f5f2ec;
+    color: #1a1a1a;
+    text-decoration: none;
+}
+
+.gem-header__account-menu form {
+    margin: 0;
+}
+
+@media (max-width: 991px) {
+    .gem-header__toggle {
+        display: inline-flex;
+    }
+
+    .gem-header__nav {
+        display: none;
+        position: absolute;
+        top: 76px;
+        left: 0;
+        right: 0;
+        background: var(--gem-header-bg);
+        box-shadow: 0 16px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    .gem-header__nav.is-open {
+        display: block;
+    }
+
+    .gem-header__links {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 12px 24px 20px;
+    }
+
+    .gem-header__links > li {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .gem-header__links > li:last-child {
+        border-bottom: 0;
+    }
+
+    .gem-header__links > li > a {
+        padding: 14px 0;
+        width: 100%;
+    }
+
+    .gem-header__login,
+    .gem-header__account {
+        margin-left: 0;
+        padding-left: 0;
+        border-left: 0;
+    }
+
+    .gem-header__account-toggle {
+        padding: 14px 0;
+        width: 100%;
+    }
+
+    .gem-header__account-menu {
+        position: static;
+        box-shadow: none;
+        background: rgba(255, 255, 255, 0.04);
+        margin-bottom: 10px;
+    }
+
+    .gem-header__account-menu a,
+    .gem-header__account-menu button {
+        color: var(--gem-header-text);
+    }
+
+    .gem-header__account-menu a:hover,
+    .gem-header__account-menu button:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--gem-header-text);
+    }
+}
