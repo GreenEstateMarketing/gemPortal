@@ -133,7 +133,7 @@
 
 <div class="legal-content__intro">
     <p>
-        {{ __('GEMlisting ("we", "us" or "our") respects your privacy and is committed to protecting the personal information of everyone who uses our website and services, including buyers, tenants, landlords, members and agents. This Privacy Policy explains what information we collect, how we use and share it, and the choices you have.') }}
+        {{ __('Greens Estate Marketing (Private) Limited also mentioned as GEMlisting ("we", "us" or "our") respects your privacy and is committed to protecting the personal information of everyone who uses our website and services, including buyers, tenants, landlords, members and agents. This Privacy Policy explains what information we collect, how we use and share it, and the choices you have.') }}
     </p>
     <p>
         {{ __('By using GEMlisting, you agree to the collection and use of information in accordance with this policy. If you do not agree, please discontinue use of our site and services.') }}
