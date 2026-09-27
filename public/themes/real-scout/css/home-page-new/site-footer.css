@@ -64,6 +64,13 @@
     max-height: 40px;
 }
 
+.site-footer__legal-name {
+    color: var(--header-text-muted);
+    font-size: 13px;
+    font-weight: 500;
+    margin: 0 0 16px;
+}
+
 .site-footer__description {
     color: var(--header-text-muted);
     font-size: 14px;
