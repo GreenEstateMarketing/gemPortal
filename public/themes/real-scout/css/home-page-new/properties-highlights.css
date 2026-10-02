@@ -1,0 +1,179 @@
+/*
+    Path in theme: platform/themes/real-scout/public/css/home-page-new/properties-highlights.css
+    Loaded via:    config.php's beforeRenderTheme, gated on route name "public.properties".
+
+    Card skeleton is a deliberate copy of property-categories.css's
+    .property-categories__card (radius/shadow/colors), kept under its own
+    class name rather than shared, so a future change to the homepage's
+    category carousel can't silently ripple into this page.
+*/
+
+:root {
+    --header-navy: #1a1d24;
+    --header-gold: #e0a63e;
+    --header-white: #ffffff;
+    --header-font-body: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --header-font-heading: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --header-max-width: 1320px;
+}
+
+.properties-highlights {
+    background: var(--header-white);
+    padding: 56px 0 80px;
+    font-family: var(--header-font-body);
+}
+
+/* The results grid sits directly under the photo hero (no section above it
+   to create natural spacing), so it gets a bit less top padding. */
+.properties-highlights--results {
+    padding-top: 48px;
+}
+
+.properties-highlights * {
+    box-sizing: border-box;
+}
+
+.properties-highlights__inner {
+    max-width: var(--header-max-width);
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.properties-highlights__heading {
+    font-family: var(--header-font-heading);
+    font-weight: 700;
+    color: var(--header-navy);
+    font-size: 28px;
+    line-height: 1.2;
+    margin: 0 0 8px;
+}
+
+.properties-highlights__text {
+    color: #6b7280;
+    font-size: 15px;
+    margin: 0 0 32px;
+}
+
+.properties-highlights__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+}
+
+.properties-highlights__card {
+    display: flex;
+    flex-direction: column;
+    background: var(--header-white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(26, 29, 36, 0.08);
+    border: 1px solid #ececec;
+    text-decoration: none;
+}
+
+.properties-highlights__card-image-wrap {
+    position: relative;
+    aspect-ratio: 16 / 11;
+    overflow: hidden;
+    background: #f3f3f3;
+}
+
+.properties-highlights__card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.properties-highlights__card-badge {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    background: var(--header-gold);
+    color: var(--header-navy);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: 6px;
+}
+
+.properties-highlights__card-body {
+    padding: 20px;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.properties-highlights__card-price {
+    color: var(--header-gold);
+    font-weight: 700;
+    font-size: 19px;
+    margin: 0 0 8px;
+}
+
+.properties-highlights__card-title {
+    font-weight: 600;
+    color: var(--header-navy);
+    font-size: 17px;
+    line-height: 1.35;
+    margin: 0 0 8px;
+}
+
+.properties-highlights__card-location {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #6b7280;
+    font-size: 13px;
+    margin: 0 0 16px;
+}
+
+.properties-highlights__card-location i {
+    color: var(--header-gold);
+}
+
+.properties-highlights__card-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: #6b7280;
+    font-size: 13px;
+    border-top: 1px solid #ececec;
+    padding-top: 14px;
+    margin-top: auto;
+}
+
+.properties-highlights__card-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.properties-highlights__card-meta i {
+    color: var(--header-gold);
+}
+
+.properties-highlights__empty {
+    color: #9ca3af;
+    font-size: 14px;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 960px) {
+    .properties-highlights__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .properties-highlights {
+        padding: 40px 0 56px;
+    }
+
+    .properties-highlights__grid {
+        grid-template-columns: 1fr;
+    }
+}

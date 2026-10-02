@@ -77,7 +77,7 @@ $(document).ready(function () {
             },
             success: function (response) {
                 $('#autocomplete-ajax').val('');
-                $('#autocomplete-ajax').autocomplete('clear');
+                $('#autocomplete-ajax').devbridgeAutocomplete('clear');
                 $('#chipContainer .chip').children('.chip-close').each(function () {
                     $(this).click();
                 });
@@ -98,8 +98,17 @@ $(document).ready(function () {
         }
     });
 
-    // Initialize ajax autocomplete:
-    $('#autocomplete-ajax').autocomplete({
+    // Initialize ajax autocomplete. NOTE: jQuery UI (also loaded on this
+    // page) defines its own $.fn.autocomplete first; the devbridge plugin
+    // below only claims the plain "autocomplete" method name when nothing
+    // else already has (see jquery.autocomplete.min.js's own
+    // `fn.autocomplete||(fn.autocomplete=fn.devbridgeAutocomplete)` guard),
+    // so with jQuery UI present it's only ever reachable as
+    // "devbridgeAutocomplete" - calling plain .autocomplete() here would
+    // silently invoke jQuery UI's widget instead, with an unsupported
+    // options shape (lookup/onSearchStart/etc. are devbridge-only), which
+    // is exactly what caused the location search to hang with no results.
+    $('#autocomplete-ajax').devbridgeAutocomplete({
 
         lookup: function (query, done) {
             var result = {

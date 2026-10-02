@@ -99,6 +99,27 @@ return [
                 $theme->asset()->usePath()->add('blog-css', 'css/home-page-new/blog.css', [], [], $version);
                 $theme->asset()->add('blog-fonts-css', 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap', [], []);
             }
+
+            // Properties listing/map page - route-name gated (not
+            // request()->is('properties')) because the path prefix is
+            // admin-configurable via SlugHelper::getPrefix(Property::class,
+            // 'properties'); "public.properties" is the stable identifier,
+            // already used this same way elsewhere in this file below.
+            if (Route::current() && Route::current()->getName() === 'public.properties') {
+                $theme->asset()->add('leaflet-css', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css', [], []);
+                $theme->asset()->container('footer')->add('leaflet-js', 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js', [], []);
+                // The reused search bar (partials/home-page-new/search-bar.blade.php)
+                // is styled entirely by header.css's .hero-search-card* rules.
+                // header.css is normally only pulled in via an inline <link> inside
+                // partials/home-page-new/header.blade.php (the homepage's hero),
+                // which this page doesn't include - load it directly here instead.
+                $theme->asset()->usePath()->add('home-page-header-css', 'css/home-page-new/header.css', [], [], $version);
+                $theme->asset()->usePath()->add('properties-search-css', 'css/home-page-new/properties-search.css', [], [], $version);
+                $theme->asset()->usePath()->add('properties-map-css', 'css/home-page-new/properties-map.css', [], [], $version);
+                $theme->asset()->usePath()->add('properties-highlights-css', 'css/home-page-new/properties-highlights.css', [], [], $version);
+                $theme->asset()->add('properties-fonts-css', 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap', [], []);
+                $theme->asset()->container('footer')->usePath()->add('properties-map-js', 'js/new-home-page/properties-map.js', ['leaflet-js'], [], $version);
+            }
             $theme->asset()->usePath()->add('auth-shell-css', 'css/auth-shell.css', [], [], $version);
             $theme->asset()->add('select2-css', 'css/select2-custom.min.css', [], []);
             $theme->asset()->add('choosen-css', 'css/chosen.min.css', [], []);
@@ -122,8 +143,42 @@ return [
             $theme->asset()->container('footer')->usePath()->add('components-js', 'js/components.js', [], [], $version);
             $theme->asset()->container('footer')->usePath()->add('wishlist', 'js/wishlist.js', [], [], $version);
 
+            // 'custom-app-js' => '/js/app.js' (no usePath() - deliberately
+            // resolves from the APPLICATION root's public/js/app.js, compiled
+            // from resources/js/app.js, NOT this theme's own compiled app.js
+            // - handle 'app-js' above is that one, from the theme's own
+            // assets/js/app.js, a different file that happens to share a
+            // filename). This root bundle registers the site's OTHER Vue
+            // custom elements - <projects>, <welcome>, <agent-search>,
+            // <blog>, <member>, <facility>, <related>, <packages> - onto a
+            // SEPARATE Vue instance mounted on #app (resources/js/app.js's
+            // own `new Vue({el:'#app'})`). It does NOT touch window.jQuery
+            // anywhere (confirmed: zero `window.jQuery =` / `window.$ =` in
+            // the compiled output), so it was never actually part of the
+            // jQuery duplication bug below - a prior pass here wrongly
+            // removed it thinking it was an unrelated/duplicate bundle,
+            // which broke /projects (Vue: "Unknown custom element: <projects>").
+            // Restored.
             $theme->asset()->container('footer')->add('custom-app-js', '/js/app.js', [], [], $version);
-            $theme->asset()->container('footer')->usePath()->add('jquery-js', 'js/jquery.min.js');
+
+            // jQuery used to be loaded THREE times total on every public page:
+            // once correctly here (handle 'jquery', libraries/jquery.min.js,
+            // v3.4.1, in the header container - everything below, incl.
+            // owl-carousel-js above and app.js's own $(document).ready()
+            // handler, is written against this one), then again here as
+            // 'jquery-js' (js/jquery.min.js, v1.12.4), then again further
+            // below as 'tabs-div' (CDN jquery-1.12.0.min.js). Each later load
+            // replaces window.jQuery/$ with a fresh instance that never had
+            // owl-carousel's plugin registered on it, which crashed app.js's
+            // ready handler partway through (a $('#cityslide').owlCarousel()
+            // call throws "not a function") and silently broke everything
+            // bound further down in that same handler - including the search
+            // bar's Buy/Rent/Projects tab switching. Removed both duplicate
+            // jQuery loads (but NOT 'custom-app-js' above, see its own
+            // comment); grepped scripts.js/app.js for the common
+            // jQuery-1.x-only APIs
+            // (.live/.die/.toggle(fn,fn)/.size()/$.browser) removed in 3.x -
+            // none found, so consolidating onto the one v3.4.1 load is safe.
             $theme->asset()->container('footer')->usePath()->add('proper-js', 'js/popper.min.js');
             $theme->asset()->container('footer')->usePath()->add('bootstrap-js', 'js/bootstrap.min.js');
             $theme->asset()->container('footer')->usePath()->add('swiper-js', 'js/swiper.min.js');
@@ -178,7 +233,10 @@ return [
             /* if(Route::current() && Route::current()->getName()=="general-add-property")
              $theme->asset()->container('footer')->add('real-estate-admin-js', 'js/real-member-user.js', [], []);*/
             //if( Route::current() && Route::current()->getName()=="public.property.show" || Route::current() && Route::current()->getName()=="public.project.show" || Route::current() && Route::current()->getName()=="public.index")
-            $theme->asset()->container('footer')->add('tabs-div', 'https://code.jquery.com/jquery-1.12.0.min.js');
+            // 'tabs-div' => CDN jquery-1.12.0.min.js removed here - see the
+            // jQuery duplication comment above 'jquery-js' further up; this
+            // was the third/final jQuery reload and the one that actually
+            // "won" as window.jQuery by the time any post-load code ran.
             $theme->asset()->container('footer')->add('validate-app-js', '/js/jquery.validate.min.js');
             $theme->asset()->container('footer')->add('additional-methods-js', '/js/additional-methods.min.js');
 

@@ -1,0 +1,109 @@
+/*
+    Path in theme: platform/themes/real-scout/public/css/home-page-new/properties-search.css
+    Loaded via:    config.php's beforeRenderTheme, gated on route name "public.properties".
+
+    Photo hero matching the home page's own hero (header.css's .hero*
+    rules) - same background image/overlay treatment, sized down for an
+    inner page. Wraps the SAME search bar partial the home page uses
+    (partials/home-page-new/search-bar.blade.php) reused unmodified - the
+    card component itself (.hero-search-card) has no positioning rules of
+    its own, so only light touch-ups are needed here, not a fork.
+*/
+
+:root {
+    --header-navy: #1a1d24;
+    --header-gold: #e0a63e;
+    --header-white: #ffffff;
+    --header-font-body: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --header-font-heading: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --header-max-width: 1320px;
+}
+
+.properties-hero {
+    position: relative;
+    font-family: var(--header-font-body);
+    /* Same placeholder photo as the home page hero (header.css's .hero) -
+       swap this one file to update both at once, or give this selector
+       its own background-image later to use a different photo here. */
+    background-image: url('../../images/home-page-new/header-bar-bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.properties-hero * {
+    box-sizing: border-box;
+}
+
+.properties-hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(15, 17, 22, 0.78) 0%, rgba(15, 17, 22, 0.6) 55%, rgba(15, 17, 22, 0.45) 100%);
+}
+
+.properties-hero__inner {
+    position: relative;
+    z-index: 2;
+    max-width: var(--header-max-width);
+    margin: 0 auto;
+    padding: 72px 24px 60px;
+    text-align: left;
+}
+
+.properties-hero__eyebrow {
+    display: inline-block;
+    color: var(--header-gold);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+}
+
+.properties-hero__heading {
+    font-family: var(--header-font-heading);
+    font-weight: 700;
+    color: var(--header-white);
+    font-size: 38px;
+    line-height: 1.2;
+    margin: 0 0 14px;
+}
+
+.properties-hero__heading--accent {
+    color: var(--header-gold);
+}
+
+.properties-hero__text {
+    color: #e5e5e5;
+    font-size: 15px;
+    line-height: 1.7;
+    max-width: 560px;
+    margin: 0 0 36px;
+}
+
+.properties-hero__search {
+    text-align: left;
+}
+
+/* The "Projects" tab makes sense on the home page (searching there can lead
+   to the separate Projects listing) but not on this page, which is already
+   properties-only - hidden here rather than forking the shared search-bar
+   partial. Each tab already has its own border-radius (header.css), so
+   hiding the last one doesn't leave a square corner needing a fix-up. */
+.properties-hero .hero-search-card__tab[rel="project"] {
+    display: none;
+}
+
+/* The home-page hero overlaps this card on top of the photo with a heavy
+   drop shadow - that's exactly what we want here too, no override needed
+   (unlike the earlier flat-section version of this file). */
+
+@media (max-width: 640px) {
+    .properties-hero__inner {
+        padding: 48px 20px 40px;
+    }
+
+    .properties-hero__heading {
+        font-size: 28px;
+    }
+}

@@ -3,6 +3,8 @@
 namespace Botble\RealEstate\Http\Controllers;
 
 use Botble\Base\Http\Responses\BaseHttpResponse;
+use Botble\RealEstate\Enums\ModerationStatusEnum;
+use Botble\RealEstate\Enums\PropertyStatusEnum;
 use Botble\RealEstate\Http\Requests\SendConsultRequest;
 use Botble\RealEstate\Models\Category;
 use Botble\RealEstate\Models\City;
@@ -475,7 +477,16 @@ class PublicController extends Controller
 
         $categories = $categoryRepository->pluck('re_categories.name', 're_categories.id');
 
-        return Theme::scope('real-estate.properties', compact('categories', 'chosenArr', 'category_id', 'parent_id', 'chosenFullArr', 'cities'))->render();
+        $randomProperties = Property::query()
+            ->notExpired()
+            ->whereNotIn('status', [PropertyStatusEnum::NOT_AVAILABLE])
+            ->where('moderation_status', ModerationStatusEnum::APPROVED)
+            ->with(['currency', 'city'])
+            ->inRandomOrder()
+            ->limit(3)
+            ->get();
+
+        return Theme::scope('real-estate.properties', compact('categories', 'chosenArr', 'category_id', 'parent_id', 'chosenFullArr', 'cities', 'randomProperties'))->render();
     }
 
     /**
