@@ -90,6 +90,15 @@ return [
                 $theme->asset()->usePath()->add('legal-css', 'css/home-page-new/legal.css', [], [], $version);
                 $theme->asset()->add('legal-fonts-css', 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap', [], []);
             }
+
+            // Blog listing (/blog) and single post (/blog/{slug}) pages - same
+            // navy/gold design language as the "legal" pages above, but using
+            // only the plain Poppins body font (no Playfair Display) for
+            // headings too, intentionally kept simple rather than decorative.
+            if (request()->is('blog', 'blog/*')) {
+                $theme->asset()->usePath()->add('blog-css', 'css/home-page-new/blog.css', [], [], $version);
+                $theme->asset()->add('blog-fonts-css', 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap', [], []);
+            }
             $theme->asset()->usePath()->add('auth-shell-css', 'css/auth-shell.css', [], [], $version);
             $theme->asset()->add('select2-css', 'css/select2-custom.min.css', [], []);
             $theme->asset()->add('choosen-css', 'css/chosen.min.css', [], []);

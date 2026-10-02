@@ -56,6 +56,11 @@ Route::group(['namespace' => 'Botble\Blog\Http\Controllers', 'middleware' => ['w
 
     if (defined('THEME_MODULE_SCREEN_NAME')) {
         Route::group(apply_filters(BASE_FILTER_GROUP_PUBLIC_ROUTE, []), function () {
+            Route::get(SlugHelper::getPrefix(Post::class, 'blog'), [
+                'as'   => 'public.blog',
+                'uses' => 'PublicController@getIndex',
+            ]);
+
             Route::get('search', [
                 'as'   => 'public.search',
                 'uses' => 'PublicController@getSearch',
@@ -66,11 +71,10 @@ Route::group(['namespace' => 'Botble\Blog\Http\Controllers', 'middleware' => ['w
                 'uses' => 'PublicController@getTag',
             ]);
 
-            if (SlugHelper::getPrefix(Post::class)) {
-                Route::get(SlugHelper::getPrefix(Post::class) . '/{slug}', [
-                    'uses' => 'PublicController@getPost',
-                ]);
-            }
+            Route::get(SlugHelper::getPrefix(Post::class, 'blog') . '/{slug}', [
+                'as'   => 'public.single',
+                'uses' => 'PublicController@getPost',
+            ]);
 
             if (SlugHelper::getPrefix(Category::class)) {
                 Route::get(SlugHelper::getPrefix(Category::class) . '/{slug}', [

@@ -1,68 +1,103 @@
-<div class="bgheadproject hidden-xs">
-    <div class="description">
-        <div class="container-fluid w90">
-            <h1 class="text-center">{{ $post->name }}</h1>
-            {!! Theme::partial('breadcrumb') !!}
+<section class="blog-post-hero">
+    <div class="blog-post-hero__inner">
+        @if ($post->categories->count())
+            <span class="blog-post-hero__category">{{ $post->categories->first()->name }}</span>
+        @endif
+        <h1 class="blog-post-hero__title">{{ $post->name }}</h1>
+        <div class="blog-post-hero__meta">
+            <span><i class="fas fa-calendar"></i> {{ $post->created_at->format('d M, Y') }}</span>
+            <span><i class="fas fa-eye"></i> {{ $post->views }}</span>
         </div>
+        <p class="blog-post-hero__breadcrumb">
+            <a href="{{ route('public.index') }}">{{ __('Home') }}</a>
+            <span>/</span>
+            <a href="{{ route('public.blog') }}">{{ __('Blog') }}</a>
+            <span>/</span>
+            {{ $post->name }}
+        </p>
     </div>
-</div>
+</section>
 
-<div class="container padtop50">
-    <div class="row">
-        <div class="col-sm-9">
-            {!! Theme::partial('post-meta', compact('post')) !!}
-            <div class="scontent">
+@if ($post->image)
+    <div class="blog-post-image">
+        <img src="{{ RvMedia::getImageUrl($post->image, 'medium', false, RvMedia::getDefaultImage()) }}"
+            alt="{{ $post->name }}">
+    </div>
+@endif
+
+<section class="blog-section">
+    <div class="blog-section__inner">
+        <div class="blog-section__main">
+            <div class="blog-post-content">
                 {!! clean($post->content, 'youtube') !!}
-                <br>
-                @if ($post->tags->count())
-                    <div class="ps-tags">
-                        <p>
-                            <strong>{{ __('Tags') }}</strong>: @foreach ($post->tags as $tag)
-                                <a href="{{ $tag->url }}">{{ $tag->name }}</a>@if (!$loop->last), @endif
-                            @endforeach
-                        </p>
-                    </div>
-                @endif
-                <br>
-                {!! Theme::partial('share', ['title' => __('Share this post'), 'description' => $post->description]) !!}
             </div>
-            <div class="clearfix"></div>
-            <br>
-            <h5><strong>{{ __('Related posts') }}</strong>:</h5>
-            <div class="blog-container">
-                <div class="row">
-                    @foreach (get_related_posts($post->id, 2) as $relatedItem)
-                        <div class="col-md-6 col-sm-6 container-grid">
-                            <div class="grid-in">
-                                <div class="grid-shadow grid-shadow-gray">
-                                    <div class="hourseitem" style="margin-top: 0;">
-                                        <div class="blii">
-                                            <div class="img"><img style="border-radius: 0" class="thumb" data-src="{{ RvMedia::getImageUrl($relatedItem->image, 'small', false, RvMedia::getDefaultImage()) }}" src="{{ RvMedia::getImageUrl($relatedItem->image, 'small', false, RvMedia::getDefaultImage()) }}" alt="{{ $relatedItem->name }}">
-                                            </div>
-                                            <a href="{{ $relatedItem->url }}" class="linkdetail"></a>
-                                        </div>
-                                    </div>
-                                    <div class="grid-h">
-                                        <div class="blog-title">
-                                            <a href="{{ route('public.single', $relatedItem->slug) }}">
-                                                <h2>{{ $relatedItem->name }}</h2></a>
-                                            <div class="post-meta"><p class="d-inline-block">{{ $relatedItem->created_at->format('d M, Y') }}</p> - <p class="d-inline-block"><i class="fa fa-eye"></i> {{ $relatedItem->views }}</p></div>
-                                        </div>
-                                        <div class="blog-excerpt">
-                                            <p>{{ Str::words($relatedItem->description, 40) }}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+
+            @if ($post->tags->count())
+                <div class="blog-post-tags">
+                    <span class="blog-post-tags__label">{{ __('Tags') }}:</span>
+                    @foreach ($post->tags as $tag)
+                        <a href="{{ $tag->url }}">{{ $tag->name }}</a>
                     @endforeach
                 </div>
+            @endif
+
+            <div class="blog-post-share">
+                {!! Theme::partial('share', ['title' => __('Share this post'), 'description' => $post->description]) !!}
             </div>
+
+            @php $relatedPosts = get_related_posts($post->id, 2); @endphp
+            @if ($relatedPosts->count())
+                <div class="blog-post-related">
+                    <h3 class="blog-post-related__title">{{ __('Related posts') }}</h3>
+                    <div class="blog-card-grid blog-card-grid--related">
+                        @foreach ($relatedPosts as $relatedItem)
+                            <article class="blog-card">
+                                <a href="{{ $relatedItem->url }}" title="{{ $relatedItem->name }}" class="blog-card__image-link">
+                                    <img
+                                        src="{{ RvMedia::getImageUrl($relatedItem->image, 'small', false, RvMedia::getDefaultImage()) }}"
+                                        alt="{{ $relatedItem->name }}" class="blog-card__image" loading="lazy">
+                                </a>
+                                <div class="blog-card__body">
+                                    <h3 class="blog-card__title">
+                                        <a href="{{ $relatedItem->url }}" title="{{ $relatedItem->name }}">{{ $relatedItem->name }}</a>
+                                    </h3>
+                                    <p class="blog-card__excerpt">{{ Str::words($relatedItem->description, 24) }}</p>
+                                    <div class="blog-card__meta">
+                                        <span><i class="fas fa-calendar"></i> {{ $relatedItem->created_at->format('d M, Y') }}</span>
+                                        <span><i class="fas fa-eye"></i> {{ $relatedItem->views }}</span>
+                                    </div>
+                                </div>
+                            </article>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         </div>
-        <div class="col-sm-3">
-            {!! dynamic_sidebar('primary_sidebar') !!}
-        </div>
+
+        <aside class="blog-sidebar">
+            <div class="blog-sidebar__widget">
+                <h4 class="blog-sidebar__title">{{ __('Categories') }}</h4>
+                <ul class="blog-sidebar__list">
+                    @foreach (get_categories(['select' => ['categories.id', 'categories.name']]) as $category)
+                        <li><a href="{{ $category->url }}">{{ $category->name }}</a></li>
+                    @endforeach
+                </ul>
+            </div>
+            <div class="blog-sidebar__widget">
+                <h4 class="blog-sidebar__title">{{ __('Recent Posts') }}</h4>
+                <ul class="blog-sidebar__recent">
+                    @foreach (get_recent_posts(5) as $recentPost)
+                        <li>
+                            <a href="{{ $recentPost->url }}" class="blog-sidebar__recent-link">
+                                <img
+                                    src="{{ RvMedia::getImageUrl($recentPost->image, 'thumb', false, RvMedia::getDefaultImage()) }}"
+                                    alt="{{ $recentPost->name }}">
+                                <span>{{ $recentPost->name }}</span>
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        </aside>
     </div>
-</div>
-<br>
-<br>
+</section>

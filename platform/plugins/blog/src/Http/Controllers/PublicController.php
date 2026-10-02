@@ -21,6 +21,26 @@ class PublicController extends Controller
      * @param PostInterface $postRepository
      * @return Response
      */
+    public function getIndex(Request $request, PostInterface $postRepository)
+    {
+        SeoHelper::setTitle(__('Blog'))
+            ->setDescription(__('Blog'));
+
+        Theme::breadcrumb()
+            ->add(__('Home'), url('/'))
+            ->add(__('Blog'), route('public.blog'));
+
+        $posts = $postRepository->getAllPosts(theme_option('number_of_posts_in_a_category', 12));
+
+        return Theme::scope('blog.blog', compact('posts'), 'plugins/blog::themes.loop')
+            ->render();
+    }
+
+    /**
+     * @param Request $request
+     * @param PostInterface $postRepository
+     * @return Response
+     */
     public function getSearch(Request $request, PostInterface $postRepository)
     {
         $query = $request->input('q');
@@ -67,7 +87,7 @@ class PublicController extends Controller
      */
     public function getPost($slug, BlogService $blogService)
     {
-        $slug = SlugHelper::getSlug($slug, SlugHelper::getPrefix(Post::class));
+        $slug = SlugHelper::getSlug($slug, SlugHelper::getPrefix(Post::class, 'blog'));
 
         if (!$slug) {
             abort(404);
@@ -76,7 +96,7 @@ class PublicController extends Controller
         $data = $blogService->handleFrontRoutes($slug);
 
         if (isset($data['slug']) && $data['slug'] !== $slug->key) {
-            return redirect()->to(url(SlugHelper::getPrefix(Post::class) . '/' . $data['slug']));
+            return redirect()->to(url(SlugHelper::getPrefix(Post::class, 'blog') . '/' . $data['slug']));
         }
 
         return Theme::scope($data['view'], $data['data'], $data['default_view'])
