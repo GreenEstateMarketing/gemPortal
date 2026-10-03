@@ -96,18 +96,19 @@ class AccountRepository extends RepositoriesAbstract implements AccountInterface
             });
         }
 
-        // The search UI's slider always submits a range (defaulting to the
-        // full 1-25), so only treat it as an active filter once the admin
-        // has actually narrowed it - otherwise every agent who never set
-        // years_of_experience would be silently hidden by the untouched
-        // default range on every page load.
-        $isDefaultExperienceRange = (int) $filters['min_experience'] <= 1 && (int) $filters['max_experience'] >= 25;
-
-        if ($filters['min_experience'] !== null && $filters['max_experience'] !== null && !$isDefaultExperienceRange) {
-            $this->model = $this->model->whereBetween('years_of_experience', [
-                (int) $filters['min_experience'],
-                (int) $filters['max_experience'],
-            ]);
+        // The search UI's experience filter is a bucket dropdown (1-5, 6-10,
+        // ..., 25+) - it either submits an explicit min/max pair or sends
+        // nothing at all when left on "All Experience", so no default-range
+        // detection is needed here unlike the old dual-thumb slider.
+        if ($filters['min_experience'] !== null) {
+            if ($filters['max_experience'] !== null) {
+                $this->model = $this->model->whereBetween('years_of_experience', [
+                    (int) $filters['min_experience'],
+                    (int) $filters['max_experience'],
+                ]);
+            } else {
+                $this->model = $this->model->where('years_of_experience', '>=', (int) $filters['min_experience']);
+            }
         }
 
         $nearMe = $filters['lat'] !== null && $filters['lng'] !== null;
@@ -154,10 +155,18 @@ class AccountRepository extends RepositoriesAbstract implements AccountInterface
             $orderBy = ['properties_count' => 'desc'];
         }
 
+        // Registers an eager-load aggregate on the query builder (not a
+        // select column), so it composes safely with both the 'select' => []
+        // passthrough below and the withCount config in the same call,
+        // exactly like the near-me selectRaw() above does.
+        $this->model = $this->model->withAvg(['ratings as rating_avg' => function ($query) {
+            $query->where('status', 1);
+        }], 'rating');
+
         return $this->advancedGet([
             'condition' => [],
             'order_by' => $orderBy,
-            'with' => ['spokenLanguages', 'specialties'],
+            'with' => ['spokenLanguages', 'specialties', 'city'],
             'withCount' => [
                 'properties as properties_count' => function ($query) {
                     $query->where('moderation_status', ModerationStatusEnum::APPROVED);

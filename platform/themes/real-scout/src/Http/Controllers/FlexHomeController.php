@@ -15,7 +15,9 @@ use Botble\Location\Models\Country;
 use Botble\RealEstate\Models\Account;
 use Botble\RealEstate\Models\Category;
 use Botble\RealEstate\Models\City;
+use Botble\RealEstate\Models\Property;
 use Botble\RealEstate\Models\SpokenLanguage;
+use App\Models\Rating;
 use Botble\RealEstate\Repositories\Interfaces\AccountInterface;
 use Botble\RealEstate\Repositories\Interfaces\CategoryInterface;
 use Botble\RealEstate\Repositories\Interfaces\ProjectInterface;
@@ -500,16 +502,42 @@ class FlexHomeController extends PublicController
             ->get();
         $languages = SpokenLanguage::where('status', BaseStatusEnum::PUBLISHED)->orderBy('order')->get(['id', 'name']);
         $categories = Category::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name']);
+        // Pulled from real agent specialty assignments (not just any
+        // top-level category) so every pill is guaranteed to return at
+        // least one agent on its own - clicking one is never a dead end.
+        $topCategories = Category::query()
+            ->select('re_categories.id', 're_categories.name')
+            ->join('re_account_categories', 're_account_categories.category_id', '=', 're_categories.id')
+            ->join('re_accounts', 're_accounts.id', '=', 're_account_categories.account_id')
+            ->whereNotNull('re_accounts.confirmed_at')
+            ->where('re_categories.status', BaseStatusEnum::PUBLISHED)
+            ->groupBy('re_categories.id', 're_categories.name')
+            ->orderByRaw('COUNT(*) DESC')
+            ->limit(6)
+            ->get();
         $defaultCountryId = session('visitor_location.country_id', 166);
         $defaultCityId = session('visitor_location.city_id');
+
+        $statVerifiedAgents = Account::whereNotNull('confirmed_at')->count();
+        $statCities = Account::whereNotNull('confirmed_at')
+            ->whereNotNull('city_id')
+            ->distinct('city_id')
+            ->count('city_id');
+        $statProperties = Property::where('moderation_status', ModerationStatusEnum::APPROVED)->count();
+        $statRating = round((float) (Rating::where('status', 1)->avg('rating') ?? 0), 1);
 
         return Theme::scope('real-estate.agents', compact(
             'countries',
             'cities',
             'languages',
             'categories',
+            'topCategories',
             'defaultCountryId',
-            'defaultCityId'
+            'defaultCityId',
+            'statVerifiedAgents',
+            'statCities',
+            'statProperties',
+            'statRating'
         ))->render();
     }
 
@@ -532,11 +560,19 @@ class FlexHomeController extends PublicController
             'lat' => $request->input('lat'),
             'lng' => $request->input('lng'),
             'sort_by' => $request->input('sort_by'),
-            'per_page' => (int) theme_option('number_of_agents_per_page', 10),
+            'per_page' => (int) theme_option('number_of_agents_per_page', 6),
             'current_paged' => (int) $request->input('page', 1),
         ]);
 
-        return $response->setData(AgentSearchResource::collection($agents));
+        return $response->setData([
+            'data' => AgentSearchResource::collection($agents)->resolve($request),
+            'meta' => [
+                'current_page' => $agents->currentPage(),
+                'last_page' => $agents->lastPage(),
+                'total' => $agents->total(),
+                'per_page' => $agents->perPage(),
+            ],
+        ]);
     }
 
     /**

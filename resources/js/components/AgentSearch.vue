@@ -9,106 +9,72 @@
             class="agent-search__input"
             v-model="keyword"
             @keyup.enter="search"
-            placeholder="e.g. Charles Leclerc"
+            placeholder="e.g. Sarah Ahmed"
           />
         </div>
-        <button type="button" class="agent-btn agent-btn--outline" @click="requestNearMe" :disabled="locating">
-          <i class="fas fa-location-arrow"></i> {{ locating ? 'Locating…' : 'Near Me' }}
-        </button>
-        <button
-          type="button"
-          class="agent-btn agent-btn--ghost agent-search__filters-toggle d-md-none"
-          data-toggle="collapse"
-          data-target="#agent-filters-collapse"
-        >
-          <i class="fas fa-sliders-h"></i> Filters
+        <agent-select-dropdown
+          label="City"
+          :options="cityOptions"
+          v-model="cityId"
+          :multiple="false"
+          variant="boxed"
+          style="--ms-basis: 200px"
+        />
+        <div class="agent-search__field agent-search__field--boxed">
+          <label class="agent-search__label">Experience</label>
+          <select v-model="experienceBucket" class="agent-search__select">
+            <option value="">All Experience</option>
+            <option v-for="bucket in experienceBuckets" :key="bucket.value" :value="bucket.value">
+              {{ bucket.label }}
+            </option>
+          </select>
+        </div>
+        <button type="button" class="agent-btn agent-btn--primary agent-search__submit" @click="search">
+          <i class="fas fa-search"></i> Search
         </button>
       </div>
 
-      <div class="collapse d-md-block" id="agent-filters-collapse">
-        <div class="agent-search__row agent-search__row--location">
-          <div class="agent-search__field">
-            <label class="agent-search__label">Country</label>
-            <select v-model="countryId" @change="onCountryChange" class="agent-search__select">
-              <option value="">All Countries</option>
-              <option v-for="country in countryList" :key="country.id" :value="country.id">{{ country.name }}</option>
-            </select>
-          </div>
-          <div class="agent-search__field-divider"></div>
-          <div class="agent-search__field">
-            <label class="agent-search__label">City</label>
-            <select v-model="cityId" class="agent-search__select">
-              <option value="">All Cities</option>
-              <option v-for="city in cityList" :key="city.id" :value="city.id">{{ city.name }}</option>
-            </select>
-          </div>
-        </div>
+      <div class="agent-search__row agent-search__row--secondary">
+        <agent-select-dropdown
+          label="Country"
+          :options="countryOptions"
+          v-model="countryId"
+          :multiple="false"
+          style="--ms-grow: 1.5"
+        />
+        <div class="agent-search__field-divider"></div>
 
-        <div class="agent-search__row agent-search__row--filters">
-          <div class="agent-search__dropdown">
-            <button type="button" class="agent-btn agent-btn--ghost dropdown-toggle" data-toggle="dropdown">
-              Languages<template v-if="languageIds.length"> ({{ languageIds.length }})</template>
-            </button>
-            <div class="dropdown-menu agent-search__panel">
-              <label v-for="language in languageList" :key="language.id" class="agent-search__checkbox">
-                <input type="checkbox" :value="language.id" v-model="languageIds" /> {{ language.name }}
-              </label>
-            </div>
-          </div>
+        <agent-select-dropdown label="Languages" :options="languageList" v-model="languageIds" />
+        <agent-select-dropdown label="Specialty" :options="categoryList" v-model="categoryIds" />
 
-          <div class="agent-search__dropdown">
-            <button type="button" class="agent-btn agent-btn--ghost dropdown-toggle" data-toggle="dropdown">
-              Specialty<template v-if="categoryIds.length"> ({{ categoryIds.length }})</template>
-            </button>
-            <div class="dropdown-menu agent-search__panel">
-              <label v-for="category in categoryList" :key="category.id" class="agent-search__checkbox">
-                <input type="checkbox" :value="category.id" v-model="categoryIds" /> {{ category.name }}
-              </label>
-            </div>
-          </div>
+        <button type="button" class="agent-btn agent-btn--outline agent-search__near-me" @click="requestNearMe" :disabled="locating">
+          <i class="fas fa-location-arrow"></i> {{ locating ? 'Locating…' : 'Near Me' }}
+        </button>
+      </div>
+    </div>
 
-          <div class="agent-search__dropdown">
-            <button type="button" class="agent-btn agent-btn--ghost dropdown-toggle" data-toggle="dropdown">
-              Experience ({{ minExperience }}–{{ maxExperience }}y)
-            </button>
-            <div class="dropdown-menu agent-search__panel agent-search__slider-panel">
-              <div class="agent-search__slider" :class="{ 'agent-search__slider--active': isDraggingExperience }">
-                <div class="agent-search__slider-track"></div>
-                <div class="agent-search__slider-fill" :style="experienceFillStyle"></div>
-                <input
-                  type="range"
-                  min="1"
-                  max="25"
-                  v-model.number="minExperience"
-                  @input="clampMin"
-                  @mousedown="isDraggingExperience = true"
-                  @touchstart="isDraggingExperience = true"
-                  @mouseup="isDraggingExperience = false"
-                  @touchend="isDraggingExperience = false"
-                />
-                <input
-                  type="range"
-                  min="1"
-                  max="25"
-                  v-model.number="maxExperience"
-                  @input="clampMax"
-                  @mousedown="isDraggingExperience = true"
-                  @touchstart="isDraggingExperience = true"
-                  @mouseup="isDraggingExperience = false"
-                  @touchend="isDraggingExperience = false"
-                />
-              </div>
-              <div class="agent-search__slider-labels">
-                <span>{{ minExperience }}y</span>
-                <span>{{ maxExperience }}y</span>
-              </div>
-            </div>
-          </div>
-
-          <button type="button" class="agent-btn agent-btn--primary agent-search__submit" @click="search">
-            Search
-          </button>
-        </div>
+    <div class="agent-search__meta-row">
+      <span class="agent-search__count">{{ meta.total }} agent{{ meta.total === 1 ? '' : 's' }} found</span>
+      <div class="agent-search__pills">
+        <button
+          type="button"
+          class="agent-pill"
+          :class="{ 'agent-pill--active': categoryIds.length === 0 }"
+          @click="selectPill(null)"
+        >
+          All Agents
+        </button>
+        <button
+          type="button"
+          class="agent-pill"
+          v-for="category in topCategoryList"
+          :key="category.id"
+          :class="{ 'agent-pill--active': categoryIds.length === 1 && categoryIds[0] === category.id }"
+          @click="selectPill(category.id)"
+        >
+          {{ category.name }}
+        </button>
+        <button type="button" class="agent-pill agent-pill--reset" @click="resetAll">Reset</button>
       </div>
     </div>
 
@@ -122,56 +88,98 @@
       <div v-else-if="!data.length" class="agent-search__empty">No agents found matching your search.</div>
       <div v-else class="agent-search__grid">
         <figure class="agent-card" v-for="agent in data" :key="agent.id">
-          <img :src="agent.avatar" :alt="agent.name" class="agent-card__photo" />
+          <div class="agent-card__media">
+            <img :src="agent.avatar" :alt="agent.name" class="agent-card__photo" />
+            <span class="agent-card__verified"><i class="fas fa-check-circle"></i> Verified</span>
+            <span class="agent-card__exp-badge" v-if="agent.years_of_experience">
+              {{ agent.years_of_experience }} Years Experience
+            </span>
+          </div>
           <div class="agent-card__body">
-            <span class="agent-card__role" v-if="agent.specialties.length">{{ agent.specialties[0] }}</span>
-            <span class="agent-card__role" v-else>Real Estate Agent</span>
-            <figcaption class="agent-card__name">{{ agent.name }}</figcaption>
+            <div class="agent-card__top">
+              <div class="agent-card__identity">
+                <span class="agent-card__role" v-if="agent.specialties.length">{{ agent.specialties[0] }}</span>
+                <span class="agent-card__role" v-else>Real Estate Agent</span>
+                <figcaption class="agent-card__name">{{ agent.name }}</figcaption>
+                <p class="agent-card__location" v-if="agent.city">
+                  <i class="fas fa-map-marker-alt"></i> {{ agent.city }}<template v-if="agent.country">, {{ agent.country }}</template>
+                </p>
+              </div>
+              <div class="agent-card__top-actions">
+                <span class="agent-card__rating" v-if="agent.rating !== null">
+                  <i class="fas fa-star"></i> {{ agent.rating }}
+                </span>
+                <div class="agent-card__action-wrap" v-if="agent.phone">
+                  <a
+                    class="agent-card__action"
+                    :href="'tel:' + agent.phone"
+                    @click="onPhoneClick($event, agent)"
+                    title="Call agent"
+                  >
+                    <i class="fa fa-phone"></i>
+                  </a>
+                  <span v-if="!isMobile && phoneTooltipId === agent.id" class="agent-card__tooltip">{{ agent.phone }}</span>
+                </div>
+                <a
+                  v-if="agent.email"
+                  class="agent-card__action"
+                  :href="'mailto:' + agent.email"
+                  title="Email agent"
+                >
+                  <i class="fa fa-envelope"></i>
+                </a>
+              </div>
+            </div>
+
+            <div class="agent-card__tags" v-if="agent.specialties.length">
+              <span class="agent-card__tag" v-for="specialty in agent.specialties.slice(0, 2)" :key="specialty">
+                {{ specialty }}
+              </span>
+            </div>
+
             <p class="agent-card__meta" v-if="agent.description">{{ agent.description }}</p>
             <p class="agent-card__meta" v-if="agent.distance !== null">{{ agent.distance }} km away</p>
-            <p class="agent-card__meta" v-if="agent.years_of_experience">{{ agent.years_of_experience }} yrs experience</p>
             <p class="agent-card__meta" v-if="agent.languages.length">{{ agent.languages.join(', ') }}</p>
-            <div class="agent-card__actions">
-              <div class="agent-card__action-wrap" v-if="agent.phone">
-                <a
-                  class="agent-card__action"
-                  :href="'tel:' + agent.phone"
-                  @click="onPhoneClick($event, agent)"
-                  title="Call agent"
-                >
-                  <i class="fa fa-phone"></i>
-                </a>
-                <span v-if="!isMobile && phoneTooltipId === agent.id" class="agent-card__tooltip">{{ agent.phone }}</span>
+
+            <div class="agent-card__footer">
+              <div class="agent-card__stat">
+                <strong>{{ agent.properties_count }}</strong>
+                <span>{{ agent.properties_count === 1 ? 'Listing' : 'Listings' }}</span>
               </div>
-              <a
-                v-if="agent.email"
-                class="agent-card__action"
-                :href="'mailto:' + agent.email"
-                title="Email agent"
-              >
-                <i class="fa fa-envelope"></i>
+              <a class="agent-card__view-profile" :href="'/agent-detail/' + agent.username">
+                View Profile <i class="fas fa-arrow-right"></i>
               </a>
-              <a
-                v-if="agent.properties_count > 0"
-                class="agent-card__listings"
-                :href="'/agent-detail/' + agent.username"
-              >
-                <i class="fa fa-home"></i> {{ agent.properties_count }} listing{{ agent.properties_count === 1 ? '' : 's' }}
-              </a>
-              <span v-else class="agent-card__listings agent-card__listings--empty">
-                <i class="fa fa-home"></i> 0 listings
-              </span>
             </div>
           </div>
         </figure>
       </div>
-      <pagination :data="links" @pagination-change-page="fetchAgents"></pagination>
+
+      <div class="agent-search__load-more" v-if="hasMore">
+        <button type="button" class="agent-btn agent-btn--outline" @click="loadMore" :disabled="isLoadingMore">
+          <template v-if="isLoadingMore">Loading…</template>
+          <template v-else>Load More Agents <i class="fas fa-arrow-down"></i></template>
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import AgentSelectDropdown from './AgentSelectDropdown.vue';
+
+const EXPERIENCE_BUCKETS = {
+  '1-5': [1, 5],
+  '6-10': [6, 10],
+  '11-15': [11, 15],
+  '16-20': [16, 20],
+  '21-25': [21, 25],
+  '25+': [26, null],
+};
+
 export default {
+  components: {
+    AgentSelectDropdown,
+  },
   props: {
     url: {
       type: String,
@@ -197,6 +205,10 @@ export default {
       type: String,
       default: '[]',
     },
+    topCategories: {
+      type: String,
+      default: '[]',
+    },
     defaultCountryId: {
       type: [String, Number],
       default: '',
@@ -213,21 +225,33 @@ export default {
       cityId: this.defaultCityId || '',
       languageIds: [],
       categoryIds: [],
-      minExperience: 1,
-      maxExperience: 25,
+      experienceBucket: '',
       lat: null,
       lng: null,
       locating: false,
-      isDraggingExperience: false,
       isLoading: true,
+      isLoadingMore: false,
       data: [],
-      links: {},
+      meta: {
+        current_page: 1,
+        last_page: 1,
+        total: 0,
+      },
       isMobile: false,
       phoneTooltipId: null,
       countryList: JSON.parse(this.countries),
       cityList: JSON.parse(this.cities),
       languageList: JSON.parse(this.languages),
       categoryList: JSON.parse(this.categories),
+      topCategoryList: JSON.parse(this.topCategories),
+      experienceBuckets: [
+        { value: '1-5', label: '1-5 Years' },
+        { value: '6-10', label: '6-10 Years' },
+        { value: '11-15', label: '11-15 Years' },
+        { value: '16-20', label: '16-20 Years' },
+        { value: '21-25', label: '21-25 Years' },
+        { value: '25+', label: '25+ Years' },
+      ],
     };
   },
   mounted() {
@@ -239,16 +263,19 @@ export default {
     document.removeEventListener('click', this.handleOutsideClick);
   },
   computed: {
-    experienceFillStyle() {
-      const min = 1;
-      const max = 25;
-      const leftPct = ((this.minExperience - min) / (max - min)) * 100;
-      const rightPct = ((this.maxExperience - min) / (max - min)) * 100;
-
-      return {
-        left: leftPct + '%',
-        width: Math.max(0, rightPct - leftPct) + '%',
-      };
+    hasMore() {
+      return this.meta.current_page < this.meta.last_page;
+    },
+    countryOptions() {
+      return [{ id: '', name: 'All Countries' }].concat(this.countryList);
+    },
+    cityOptions() {
+      return [{ id: '', name: 'All Cities' }].concat(this.cityList);
+    },
+  },
+  watch: {
+    countryId() {
+      this.onCountryChange();
     },
   },
   methods: {
@@ -263,16 +290,6 @@ export default {
       axios.get(this.citiesUrl, { params: { country_id: this.countryId } }).then((response) => {
         this.cityList = response.data.data;
       });
-    },
-    clampMin() {
-      if (this.minExperience > this.maxExperience) {
-        this.maxExperience = this.minExperience;
-      }
-    },
-    clampMax() {
-      if (this.maxExperience < this.minExperience) {
-        this.minExperience = this.maxExperience;
-      }
     },
     requestNearMe() {
       if (!navigator.geolocation) {
@@ -293,8 +310,37 @@ export default {
         }
       );
     },
+    selectPill(categoryId) {
+      if (categoryId === null) {
+        this.categoryIds = [];
+      } else if (this.categoryIds.length === 1 && this.categoryIds[0] === categoryId) {
+        this.categoryIds = [];
+      } else {
+        this.categoryIds = [categoryId];
+      }
+
+      this.search();
+    },
+    resetAll() {
+      this.keyword = '';
+      this.countryId = this.defaultCountryId || '';
+      this.cityId = this.defaultCityId || '';
+      this.languageIds = [];
+      this.categoryIds = [];
+      this.experienceBucket = '';
+      this.lat = null;
+      this.lng = null;
+      this.search();
+    },
     search() {
-      this.fetchAgents(1);
+      this.fetchAgents(1, false);
+    },
+    loadMore() {
+      if (!this.hasMore || this.isLoadingMore) {
+        return;
+      }
+
+      this.fetchAgents(this.meta.current_page + 1, true);
     },
     onPhoneClick(event, agent) {
       if (this.isMobile) {
@@ -309,8 +355,14 @@ export default {
         this.phoneTooltipId = null;
       }
     },
-    fetchAgents(page = 1) {
-      this.isLoading = true;
+    fetchAgents(page = 1, append = false) {
+      if (append) {
+        this.isLoadingMore = true;
+      } else {
+        this.isLoading = true;
+      }
+
+      const bucket = EXPERIENCE_BUCKETS[this.experienceBucket];
 
       axios
         .get(this.url, {
@@ -321,16 +373,22 @@ export default {
             city_id: this.cityId || undefined,
             language_ids: this.languageIds.length ? this.languageIds : undefined,
             category_ids: this.categoryIds.length ? this.categoryIds : undefined,
-            min_experience: this.minExperience,
-            max_experience: this.maxExperience,
+            min_experience: bucket ? bucket[0] : undefined,
+            max_experience: bucket && bucket[1] !== null ? bucket[1] : undefined,
             lat: this.lat || undefined,
             lng: this.lng || undefined,
           },
         })
         .then((response) => {
-          this.data = response.data.data;
-          this.links = response.data.meta;
+          // BaseHttpResponse wraps whatever the controller passes to
+          // setData() under its own top-level 'data' key, so our
+          // {data, meta} payload ends up nested one level deeper than a
+          // typical Laravel Resource collection response.
+          const payload = response.data.data;
+          this.data = append ? this.data.concat(payload.data) : payload.data;
+          this.meta = payload.meta;
           this.isLoading = false;
+          this.isLoadingMore = false;
         });
     },
   },
@@ -363,7 +421,6 @@ export default {
   border-radius: 12px;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.16);
   padding: 24px;
-  margin-top: -48px;
   position: relative;
   z-index: 2;
 }
@@ -379,27 +436,33 @@ export default {
   align-items: stretch;
 }
 
-.agent-search__row--location {
-  border: 1px solid var(--agent-border);
-  border-radius: 8px;
-  padding: 6px 16px;
+.agent-search__row--secondary {
+  border-top: 1px solid var(--agent-border);
   margin-top: 16px;
+  padding-top: 16px;
   align-items: center;
 }
 
-.agent-search__row--filters {
-  margin-top: 16px;
-  align-items: center;
+.agent-search__near-me {
+  flex: 0.7;
+  height: 40px;
 }
 
 .agent-search__keyword-field {
-  flex: 1 1 260px;
+  flex: 0 1 300px;
 }
 
 .agent-search__field {
   flex: 1;
   min-width: 0;
   padding: 8px 0;
+}
+
+.agent-search__field--boxed {
+  border: 1px solid var(--agent-border);
+  border-radius: 8px;
+  padding: 8px 16px;
+  flex: 1 1 200px;
 }
 
 .agent-search__field-divider {
@@ -453,6 +516,11 @@ export default {
   white-space: nowrap;
 }
 
+.agent-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 .agent-btn--primary {
   background: var(--agent-gold);
   color: var(--agent-white);
@@ -482,115 +550,69 @@ export default {
   background: #eceef0;
 }
 
-.agent-search__submit {
-  margin-left: auto;
-  height: 40px;
-}
+/* .agent-search__submit intentionally has no explicit height - the row's
+   align-items: stretch (see .agent-search__row--primary) sizes it to match
+   its labelled sibling fields automatically. */
 
-/* ---- Dropdown panels ---- */
-.agent-search__dropdown .dropdown-menu {
-  border: none;
-  box-shadow: 0 16px 40px rgba(26, 29, 36, 0.16);
-  border-radius: 8px;
-  padding: 16px;
-}
-
-.agent-search__panel {
-  min-width: 220px;
-  max-height: 260px;
-  overflow-y: auto;
-}
-
-.agent-search__checkbox {
-  display: block;
-  font-size: 14px;
-  color: var(--agent-navy);
-  padding: 4px 0;
-  cursor: pointer;
-}
-
-.agent-search__slider-panel {
-  min-width: 260px;
-}
-
-.agent-search__slider {
-  position: relative;
-  height: 30px;
-}
-
-.agent-search__slider-track {
-  position: absolute;
-  top: 17px;
-  left: 0;
-  right: 0;
-  height: 4px;
-  border-radius: 2px;
-  background: var(--agent-border);
-}
-
-.agent-search__slider-fill {
-  position: absolute;
-  top: 17px;
-  height: 4px;
-  border-radius: 2px;
-  background: var(--agent-gold);
-  transition: background 0.15s ease;
-}
-
-.agent-search__slider--active .agent-search__slider-fill {
-  background: var(--agent-gold-hover);
-}
-
-.agent-search__slider input[type='range'] {
-  position: absolute;
-  width: 100%;
-  top: 8px;
-  pointer-events: none;
-  -webkit-appearance: none;
-  background: transparent;
-}
-
-.agent-search__slider input[type='range']::-webkit-slider-thumb {
-  pointer-events: auto;
-  -webkit-appearance: none;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--agent-gold);
-  cursor: pointer;
-  transition: background 0.15s ease;
-}
-
-.agent-search__slider input[type='range']::-moz-range-thumb {
-  pointer-events: auto;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--agent-gold);
-  cursor: pointer;
-  border: none;
-  transition: background 0.15s ease;
-}
-
-.agent-search__slider--active input[type='range']::-webkit-slider-thumb {
-  background: var(--agent-gold-hover);
-}
-
-.agent-search__slider--active input[type='range']::-moz-range-thumb {
-  background: var(--agent-gold-hover);
-}
-
-.agent-search__slider-labels {
+/* ---- Agents-found / pill row ---- */
+.agent-search__meta-row {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  margin-top: 10px;
-  font-size: 13px;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 32px;
+}
+
+.agent-search__count {
+  font-size: 14px;
   color: var(--agent-text-muted);
+  flex-shrink: 0;
+}
+
+.agent-search__pills {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.agent-pill {
+  background: #f4f4f5;
+  color: var(--agent-navy);
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+}
+
+.agent-pill:hover {
+  background: #eceef0;
+}
+
+.agent-pill--active {
+  background: var(--agent-navy);
+  color: var(--agent-white);
+}
+
+.agent-pill--reset {
+  background: transparent;
+  border-color: var(--agent-border);
+  color: var(--agent-text-muted);
+}
+
+.agent-pill--reset:hover {
+  border-color: var(--agent-gold);
+  color: var(--agent-gold-hover);
 }
 
 /* ---- Results ---- */
 .agent-search__results {
-  padding: 60px 0 90px;
+  padding: 24px 0 90px;
 }
 
 .agent-search__loading,
@@ -603,7 +625,7 @@ export default {
 
 .agent-search__grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 24px;
 }
 
@@ -614,6 +636,10 @@ export default {
   margin: 0;
 }
 
+.agent-card__media {
+  position: relative;
+}
+
 .agent-card__photo {
   display: block;
   width: 100%;
@@ -621,8 +647,47 @@ export default {
   object-fit: cover;
 }
 
+.agent-card__verified {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(16, 24, 16, 0.55);
+  backdrop-filter: blur(2px);
+  color: #6fe08a;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 999px;
+}
+
+.agent-card__exp-badge {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.6), transparent);
+  color: var(--agent-white);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 24px 14px 10px;
+}
+
 .agent-card__body {
   padding: 24px;
+}
+
+.agent-card__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.agent-card__identity {
+  min-width: 0;
 }
 
 .agent-card__role {
@@ -638,35 +703,100 @@ export default {
 .agent-card__name {
   font-family: var(--agent-font-heading);
   font-weight: 700;
-  font-size: 22px;
+  font-size: 20px;
   color: var(--agent-navy);
   margin: 0 0 6px;
+}
+
+.agent-card__location {
+  color: var(--agent-text-muted);
+  font-size: 13px;
+  margin: 0;
+}
+
+.agent-card__top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.agent-card__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--agent-navy);
+}
+
+.agent-card__rating i {
+  color: var(--agent-gold);
+}
+
+.agent-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.agent-card__tag {
+  background: var(--agent-white);
+  border: 1px solid var(--agent-border);
+  color: var(--agent-navy);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
 }
 
 .agent-card__meta {
   color: var(--agent-text-muted);
   font-size: 14px;
-  margin: 0 0 4px;
+  margin: 10px 0 0;
 }
 
-.agent-card__actions {
+.agent-card__footer {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
-  margin-top: 16px;
-  flex-wrap: wrap;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--agent-border);
+}
+
+.agent-card__stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.agent-card__stat strong {
+  font-family: var(--agent-font-heading);
+  font-size: 18px;
+  color: var(--agent-navy);
+  line-height: 1.2;
+}
+
+.agent-card__stat span {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--agent-label-gray);
 }
 
 .agent-card__action {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: var(--agent-navy);
   color: var(--agent-white);
-  font-size: 14px;
+  font-size: 12px;
   border: none;
   cursor: pointer;
   transition: background 0.2s ease;
@@ -707,29 +837,29 @@ export default {
   border-top-color: var(--agent-navy);
 }
 
-.agent-card__listings {
+.agent-card__view-profile {
   font-size: 13px;
   font-weight: 600;
   color: var(--agent-navy);
   text-decoration: none;
   border-bottom: 2px solid var(--agent-gold);
   padding-bottom: 2px;
+  white-space: nowrap;
 }
 
-.agent-card__listings--empty {
-  color: var(--agent-text-muted);
-  border-bottom-color: transparent;
-  cursor: default;
+.agent-card__view-profile:hover {
+  color: var(--agent-gold-hover);
+}
+
+/* ---- Load more ---- */
+.agent-search__load-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
 }
 
 /* ---- Responsive ---- */
 @media (max-width: 1200px) {
-  .agent-search__grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 1024px) {
   .agent-search__grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -741,7 +871,6 @@ export default {
   }
 
   .agent-search__card {
-    margin-top: -32px;
     padding: 16px;
   }
 
@@ -754,24 +883,22 @@ export default {
     flex: 1 1 auto;
   }
 
-  .agent-search__row--location {
-    flex-direction: row;
+  .agent-search__field--boxed {
+    flex: 1 1 auto;
   }
 
   .agent-search__field-divider {
     display: none;
   }
 
-  .agent-search__dropdown,
-  .agent-search__dropdown .dropdown-menu,
-  .agent-search__panel {
+  .agent-search__submit,
+  .agent-search__near-me {
     width: 100%;
-    min-width: 0;
   }
 
-  .agent-search__submit {
-    margin-left: 0;
-    width: 100%;
+  .agent-search__meta-row {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .agent-search__grid {

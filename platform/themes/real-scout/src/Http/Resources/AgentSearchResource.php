@@ -37,6 +37,9 @@ class AgentSearchResource extends JsonResource
             'specialties' => $this->specialties->pluck('name')->values(),
             'properties_count' => (int) $this->properties_count,
             'distance' => $this->distance !== null ? round((float) $this->distance, 1) : null,
+            'city' => $this->city->name ?: null,
+            'country' => $this->city->country->name ?: null,
+            'rating' => $this->rating_avg !== null ? round((float) $this->rating_avg, 1) : null,
         ];
     }
 }

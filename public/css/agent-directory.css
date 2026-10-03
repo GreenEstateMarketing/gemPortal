@@ -1,70 +1,343 @@
 /*
     Loaded via:    Theme::asset()->add()/->style() in FlexHomeController::getAgents()
 
-    Hero band for the /agents page, matching the color/type system used by
-    the new homepage (home-page-new/header.css's --header-* tokens) without
-    depending on that stylesheet being loaded here too.
+    Full page CSS for /agents: photo hero, overlapping stat bar, section
+    intro, and the bottom "Join GEMlisting" CTA banner. The search
+    card/filters/results grid themselves are styled in AgentSearch.vue's own
+    <style scoped> block - this file only covers the Blade-rendered chrome
+    around that component.
 */
 
 .agent-directory {
     font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --agent-directory-navy: #1a1d24;
+    --agent-directory-gold: #e0a63e;
+    --agent-directory-gold-hover: #cf9530;
 }
 
+/* ---- Hero ---- */
 .agent-directory__hero {
-    /* Light warm cream (the same tone the agent result cards already use)
-       with a soft gold glow, instead of a dark navy block - text below
-       switches to dark navy/gray to stay readable on this light background. */
-    background:
-        radial-gradient(circle at 25% 0%, rgba(224, 166, 62, 0.18), transparent 55%),
-        linear-gradient(160deg, #fbf8f3 0%, #f6f2ea 60%, #f0e7d5 100%);
-    padding: 70px 24px 110px;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    padding: 110px 24px 150px;
     text-align: center;
+    overflow: hidden;
+}
+
+.agent-directory__hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(10, 12, 16, 0.78) 0%, rgba(10, 12, 16, 0.62) 55%, rgba(10, 12, 16, 0.82) 100%);
 }
 
 .agent-directory__hero-inner {
-    max-width: 720px;
+    position: relative;
+    max-width: 760px;
     margin: 0 auto;
 }
 
 .agent-directory__eyebrow {
     display: inline-block;
-    color: #e0a63e;
+    color: var(--agent-directory-gold);
     font-weight: 600;
     font-size: 13px;
     letter-spacing: 2px;
     text-transform: uppercase;
-    margin-bottom: 16px;
+    margin-bottom: 18px;
 }
 
 .agent-directory__heading {
     font-family: 'Playfair Display', Georgia, serif;
     font-weight: 700;
-    color: #1a1d24;
-    font-size: 42px;
-    line-height: 1.2;
-    margin: 0 0 14px;
+    color: #ffffff;
+    font-size: 46px;
+    line-height: 1.25;
+    margin: 0 0 18px;
 }
 
 .agent-directory__heading span {
-    color: #cf9530;
+    color: var(--agent-directory-gold);
+    font-style: italic;
 }
 
 .agent-directory__subtext {
-    color: #6b7280;
+    color: rgba(255, 255, 255, 0.82);
     font-size: 16px;
+    line-height: 1.6;
+    max-width: 560px;
+    margin: 0 auto 32px;
+}
+
+.agent-directory__hero-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.agent-directory__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 14px 28px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    white-space: nowrap;
+}
+
+.agent-directory__btn--primary {
+    background: var(--agent-directory-gold);
+    color: #1a1d24;
+}
+
+.agent-directory__btn--primary:hover {
+    background: var(--agent-directory-gold-hover);
+    color: #1a1d24;
+}
+
+.agent-directory__btn--outline {
+    background: transparent;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.agent-directory__btn--outline:hover {
+    border-color: var(--agent-directory-gold);
+    color: var(--agent-directory-gold);
+}
+
+/* ---- Stat bar (overlaps the hero's bottom edge) ---- */
+.agent-directory__stats-wrap {
+    position: relative;
+    max-width: 1100px;
+    margin: -72px auto 0;
+    padding: 0 24px;
+    z-index: 2;
+}
+
+.agent-directory__stats {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.16);
+    padding: 28px 32px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+}
+
+.agent-directory__stat {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.agent-directory__stat-icon {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: #f6f2ea;
+    color: var(--agent-directory-gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.agent-directory__stat-body {
+    display: flex;
+    flex-direction: column;
+}
+
+.agent-directory__stat-body strong {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 22px;
+    color: var(--agent-directory-navy);
+    line-height: 1.2;
+}
+
+.agent-directory__stat-body span {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #9ca3af;
+}
+
+/* ---- Body / section intro ---- */
+.agent-directory__body {
+    background: #ffffff;
+    padding-top: 70px;
+}
+
+.agent-directory__intro {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 0 24px 32px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.agent-directory__intro-eyebrow {
+    display: block;
+    color: var(--agent-directory-gold);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.agent-directory__intro-heading {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-size: 32px;
+    color: var(--agent-directory-navy);
     margin: 0;
 }
 
-.agent-directory__body {
-    background: #ffffff;
+.agent-directory__intro-heading span {
+    color: var(--agent-directory-gold);
+}
+
+.agent-directory__intro-subtext {
+    color: #6b7280;
+    font-size: 15px;
+    max-width: 420px;
+    margin: 0;
+}
+
+/* ---- CTA banner ---- */
+.agent-directory__cta {
+    padding: 0 24px 90px;
+}
+
+.agent-directory__cta-inner {
+    max-width: 1320px;
+    margin: 0 auto;
+    background: var(--agent-directory-navy);
+    border-radius: 16px;
+    padding: 40px 48px;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    flex-wrap: wrap;
+}
+
+.agent-directory__cta-icon {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    background: rgba(224, 166, 62, 0.16);
+    color: var(--agent-directory-gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+
+.agent-directory__cta-text {
+    flex: 1 1 320px;
+}
+
+.agent-directory__cta-eyebrow {
+    display: block;
+    color: var(--agent-directory-gold);
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.agent-directory__cta-heading {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-size: 26px;
+    color: #ffffff;
+    margin: 0 0 6px;
+}
+
+.agent-directory__cta-subtext {
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 14px;
+    margin: 0;
+}
+
+.agent-directory__cta-btn {
+    flex-shrink: 0;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 992px) {
+    .agent-directory__stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media (max-width: 768px) {
     .agent-directory__hero {
-        padding: 50px 16px 80px;
+        padding: 70px 16px 120px;
     }
 
     .agent-directory__heading {
-        font-size: 30px;
+        font-size: 32px;
+    }
+
+    .agent-directory__stats-wrap {
+        margin-top: -56px;
+    }
+
+    .agent-directory__stats {
+        padding: 20px;
+        gap: 18px;
+    }
+
+    .agent-directory__body {
+        padding-top: 48px;
+    }
+
+    .agent-directory__intro {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .agent-directory__intro-heading {
+        font-size: 26px;
+    }
+
+    .agent-directory__cta-inner {
+        padding: 28px;
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .agent-directory__cta-icon {
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 480px) {
+    .agent-directory__stats {
+        grid-template-columns: 1fr;
+    }
+
+    .agent-directory__hero-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .agent-directory__btn {
+        width: 100%;
+        justify-content: center;
     }
 }

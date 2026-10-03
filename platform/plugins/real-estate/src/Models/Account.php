@@ -4,9 +4,12 @@ namespace Botble\RealEstate\Models;
 
 use App\Models\Rating;
 use Botble\Base\Supports\Avatar;
+use Botble\Location\Models\City;
 use Botble\Media\Models\MediaFile;
 use Botble\RealEstate\Notifications\ResetPasswordNotification;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
@@ -173,6 +176,22 @@ class Account extends Authenticatable
     public function specialties(): BelongsToMany
     {
         return $this->belongsToMany(Category::class, 're_account_categories', 'account_id', 'category_id');
+    }
+
+    /**
+     * @return BelongsTo
+     */
+    public function city(): BelongsTo
+    {
+        return $this->belongsTo(City::class)->withDefault();
+    }
+
+    /**
+     * @return HasMany
+     */
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(Rating::class, 'agent_id');
     }
 
     /**
