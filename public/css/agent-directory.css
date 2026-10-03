@@ -15,6 +15,14 @@
     --agent-directory-gold-hover: #cf9530;
 }
 
+/* This stylesheet is only ever loaded on /agents (see controller note
+   above), so scoping smooth-scroll to the page via `html` here is safe -
+   it won't affect anchor jumps anywhere else on the site. Used by the
+   hero's "Explore Agents" -> #agent-search-section anchor link. */
+html {
+    scroll-behavior: smooth;
+}
+
 /* ---- Hero ---- */
 .agent-directory__hero {
     position: relative;
