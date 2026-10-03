@@ -19,6 +19,7 @@ class SpokenLanguageForm extends FormAbstract
         $this
             ->setupModel(new SpokenLanguage)
             ->setValidatorClass(SpokenLanguageRequest::class)
+            ->withCustomFields()
             ->add('name', 'text', [
                 'label' => trans('plugins/real-estate::spoken-language.form.name'),
                 'label_attr' => ['class' => 'control-label required'],
