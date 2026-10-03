@@ -111,10 +111,24 @@ class AccountForm extends FormAbstract
         // the account's stored city_id so these cascading dropdowns show what's
         // already saved instead of appearing empty and forcing the admin to
         // re-pick location on every edit even when it hasn't changed.
-        $selectedCityId = $this->getModel()->city_id;
-        $selectedCity = $selectedCityId ? $this->cityRepository->getModel()->find($selectedCityId) : null;
-        $selectedStateId = $selectedCity->state_id ?? null;
-        $selectedCountryId = $selectedCity->country_id ?? null;
+        //
+        // On a redisplay after a failed submission (e.g. missing agent_area),
+        // prefer whatever was actually submitted over the stored model so the
+        // cascading dropdowns' option lists are rebuilt for that selection and
+        // old() has a matching <option> to re-select instead of falling back
+        // to the empty placeholder.
+        $hasOldLocationInput = old('city_id') !== null || old('country_id') !== null || old('state_id') !== null;
+
+        $selectedCityId = old('city_id', $this->getModel()->city_id);
+
+        if ($hasOldLocationInput) {
+            $selectedStateId = old('state_id');
+            $selectedCountryId = old('country_id');
+        } else {
+            $selectedCity = $selectedCityId ? $this->cityRepository->getModel()->find($selectedCityId) : null;
+            $selectedStateId = $selectedCity->state_id ?? null;
+            $selectedCountryId = $selectedCity->country_id ?? null;
+        }
 
         $states = $selectedCountryId
             ? $this->stateRepository->getModel()->where('country_id', $selectedCountryId)->pluck('name', 'id')->toArray()
@@ -183,7 +197,10 @@ class AccountForm extends FormAbstract
                     'name' => 'city_area_id[]'
                 ],
                 'choices' => $cityAreaChoices,
-                'selected' => explode(',', $this->getModel()->city_area_id)
+                'selected' => old(
+                    'city_area_id',
+                    $this->getModel()->city_area_id ? explode(',', $this->getModel()->city_area_id) : []
+                ),
             ]);
 
         $languageChoices = SpokenLanguage::where('status', BaseStatusEnum::PUBLISHED)->orderBy('order')->pluck('name', 'id')->toArray();
