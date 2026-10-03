@@ -22,10 +22,7 @@
 .properties-hero {
     position: relative;
     font-family: var(--header-font-body);
-    /* Same placeholder photo as the home page hero (header.css's .hero) -
-       swap this one file to update both at once, or give this selector
-       its own background-image later to use a different photo here. */
-    background-image: url('../../images/home-page-new/header-bar-bg.png');
+    background-image: url('../../images/home-page-new/properties-hero-bg.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

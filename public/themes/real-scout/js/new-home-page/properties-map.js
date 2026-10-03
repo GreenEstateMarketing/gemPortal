@@ -177,6 +177,30 @@
             });
     }
 
+    // The "Area" range inputs/hidden field use different names AND a
+    // different value format than what PropertyRepository::getPropertiesByMap()
+    // actually reads - the form was never wired to the real filter keys
+    // (min_square/max_square/unit), so selecting e.g. "1 to 15 marla"
+    // silently filtered nothing at all server-side and every property
+    // leaked through regardless of size.
+    var FIELD_REMAP = {
+        'min_unit': 'min_square',
+        'max_unit': 'max_square',
+        'selected-unit': 'unit'
+    };
+
+    // #selected-unit's value is a human label from getDefaultAreaByUnitForNextPage()
+    // ("Marla", "Square feet", ...) - the backend's unit-conversion switch
+    // in getPropertiesByMap() matches on the short codes used by the Area
+    // Unit modal's own <select> (m², ft², marla, yard, kanal) instead.
+    var UNIT_LABEL_TO_CODE = {
+        'Square meter': 'm²',
+        'Square feet': 'ft²',
+        'Marla': 'marla',
+        'Yards': 'yard',
+        'Kanal': 'kanal'
+    };
+
     function buildSearchParams(form) {
         var formData = new FormData(form);
         var params = new URLSearchParams();
@@ -185,8 +209,12 @@
             if (key === 'type') {
                 return; // remapped below
             }
+            var realKey = FIELD_REMAP[key] || key;
+            if (realKey === 'unit') {
+                value = UNIT_LABEL_TO_CODE[value] || value;
+            }
             if (value !== '') {
-                params.append(key, value);
+                params.append(realKey, value);
             }
         });
 

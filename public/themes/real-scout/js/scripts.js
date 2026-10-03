@@ -142,11 +142,23 @@
 
 
         // PARALLAX
-        $.stellar({
-            horizontalScrolling: false,
-            verticalOffset: 0,
-            responsive:true
-        });
+        // jquery.stellar's internal viewport-detection throws
+        // ("r.getClientRects is not a function") on pages/elements it
+        // doesn't expect, which previously silently killed the rest of
+        // this file's $(document).ready() handler - everything below this
+        // point (price/area dropdowns, the category popover that drives
+        // the "Property Type" field, bedroom/bathroom toggles, tab
+        // switching, etc.) never ran as a result. Guarded so a Stellar
+        // failure can't take the rest of the page's search UI down with it.
+        try {
+            $.stellar({
+                horizontalScrolling: false,
+                verticalOffset: 0,
+                responsive:true
+            });
+        } catch (e) {
+            console.error('jquery.stellar init failed, continuing without parallax:', e);
+        }
 
 
 
@@ -295,7 +307,7 @@
 
 
     // MASONRY
-    $(window).load(function(){
+    $(window).on('load', function(){
         $('.gallery').isotope({
             itemSelector: '.gallery li',
             percentPosition: true
@@ -344,7 +356,7 @@
     wow.init();
 
     // PRELOADER
-    $(window).load(function(){
+    $(window).on('load', function(){
         $("body").addClass("page-loaded");
     });
 
@@ -480,7 +492,7 @@
 
 
 
-    $(window).load(function () {
+    $(window).on('load', function () {
         $(".nearyby:first").trigger("click");
 
         function initMap() {
@@ -588,8 +600,24 @@
                 $('#longitude').val(marker.getPosition().lng());
             });
         }
-        if(document.location.pathname === "/") {
+        // initMap() wires up the "Search Location" modal's own Google Map
+        // (#search_map_modal, opened via #search_map) - unrelated to the
+        // category popover below, kept home-page-only since nothing else
+        // currently opens that modal.
+        if (document.location.pathname === "/") {
             initMap();
+        }
+
+        // Category-tab switching (clicking HOME/PLOTS/COMMERCIAL in the
+        // "Property Type" popover, and the auto-click below that populates
+        // the subcategory grid with the first tab's items on load) used to
+        // be gated inside the same `if (pathname === "/")` block as
+        // initMap() above, for no reason tied to Google Maps at all - that
+        // silently broke the whole "Property Type" field (tabs did nothing,
+        // the subcategory grid never populated) on every other page reusing
+        // this same search bar, including /properties. Moved out so it runs
+        // on any page.
+        (function () {
             $(".category-parent-active").click(function () {
                 $(".p-category").removeClass("category-parent-active").addClass('category-parent-inactive');
                 $(this).addClass('category-parent-active');
@@ -643,7 +671,7 @@
             });
 
             $(".category-parent-active").trigger("click");
-        }
+        })();
 
     });
     //////////////home page popup for change price unit & change area units
@@ -1143,7 +1171,7 @@
 
         });
     });
-    $(window).load(function () {
+    $(window).on('load', function () {
         $('.price-min-ul li').each(function(i, obj) {
             //test
             var min_price=$("input[name='min_price']").val();

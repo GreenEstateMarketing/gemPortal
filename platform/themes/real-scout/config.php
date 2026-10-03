@@ -119,6 +119,16 @@ return [
                 $theme->asset()->usePath()->add('properties-highlights-css', 'css/home-page-new/properties-highlights.css', [], [], $version);
                 $theme->asset()->add('properties-fonts-css', 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap', [], []);
                 $theme->asset()->container('footer')->usePath()->add('properties-map-js', 'js/new-home-page/properties-map.js', ['leaflet-js'], [], $version);
+                // Same reason as header.css above: this page reuses the search
+                // bar but not its usual parent partial (home-page-new/header.blade.php),
+                // which is the only place js/new-home-page/header.js is normally
+                // enqueued. That script is what forwards a click anywhere on the
+                // "Property Type" trigger to the actual (zero-size, empty)
+                // #propertydropdownMenuLink element scripts.js listens on -
+                // without it the visible label/arrow aren't clickable, only
+                // that exact empty span is. Plain vanilla JS, no jQuery
+                // dependency, safe to load standalone here.
+                $theme->asset()->container('footer')->usePath()->add('home-page-header-js', 'js/new-home-page/header.js', [], [], $version);
             }
             $theme->asset()->usePath()->add('auth-shell-css', 'css/auth-shell.css', [], [], $version);
             $theme->asset()->add('select2-css', 'css/select2-custom.min.css', [], []);
@@ -180,7 +190,19 @@ return [
             // (.live/.die/.toggle(fn,fn)/.size()/$.browser) removed in 3.x -
             // none found, so consolidating onto the one v3.4.1 load is safe.
             $theme->asset()->container('footer')->usePath()->add('proper-js', 'js/popper.min.js');
-            $theme->asset()->container('footer')->usePath()->add('bootstrap-js', 'js/bootstrap.min.js');
+            // 'bootstrap-js' => js/bootstrap.min.js removed here - it's the
+            // exact same Bootstrap v4.3.1 already loaded above (handle
+            // 'bootstrap-js', libraries/bootstrap/bootstrap.min.js, header
+            // container) under the same asset name but a different
+            // container, so Botble's per-container dedup never caught it.
+            // Loading Bootstrap twice means its data-api delegated click
+            // handler for [data-toggle="modal"] (and dropdown/collapse/tab)
+            // gets bound twice - one real click fired BOTH, which call
+            // .modal('toggle') in sequence: show, then immediately hide
+            // again in the same click. That's why "Area Unit"/"Change
+            // Currency" (both data-toggle="modal" links) looked like they
+            // did nothing on click, on every page, not just this session's
+            // new ones.
             $theme->asset()->container('footer')->usePath()->add('swiper-js', 'js/swiper.min.js');
             $theme->asset()->container('footer')->usePath()->add('fancybox-js', 'js/fancybox.min.js');
             $theme->asset()->container('footer')->usePath()->add('load-js', 'js/load.min.js');
@@ -224,7 +246,15 @@ return [
 
 
             $theme->asset()->container('footer')->add('show-contact-js', 'js/show-contact.js', [], []);
-            if (Route::current() && Route::current()->getName() != "public.index" && Route::current() && Route::current()->getName() != "public.property.show" && Route::current() && Route::current()->getName() != "public.project.show")
+            // real-estate-admin.js is the admin/wizard category picker - it
+            // binds its own click handlers to the SAME class names as the
+            // public search bar's category popover (.p-category etc.), but
+            // reads a `data-category_name` attribute the public markup
+            // doesn't have, so clicking a category there injects the
+            // literal text "undefined". public.index/property.show/project.show
+            // were already excluded for this exact reason; public.properties
+            // needs the same exclusion now that it reuses the same search bar.
+            if (Route::current() && Route::current()->getName() != "public.index" && Route::current() && Route::current()->getName() != "public.property.show" && Route::current() && Route::current()->getName() != "public.project.show" && Route::current() && Route::current()->getName() != "public.properties")
                 $theme->asset()->container('footer')->add('real-estate-admin-js', 'js/real-estate-admin.js', [], []);
 
             /* if(Route::current() && Route::current()->getName()=="general-add-property")
