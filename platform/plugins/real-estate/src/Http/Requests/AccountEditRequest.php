@@ -4,6 +4,7 @@ namespace Botble\RealEstate\Http\Requests;
 
 use Botble\Support\Http\Requests\Request;
 use Botble\RealEstate\Http\Requests\Rules\ImageDimension;
+use Botble\RealEstate\Http\Requests\Rules\AgentAreaRule;
 
 class AccountEditRequest extends Request
 {
@@ -44,5 +45,20 @@ class AccountEditRequest extends Request
         return [
             'phone.regex' => 'The phone number format is invalid. It must be a valid international number, e.g., +1234567890.',
         ];
+    }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            $hasPolygon = AgentAreaRule::hasPolygon($this->input('agent_area'))
+                || AgentAreaRule::hasPolygon($this->input('agent_area_edit'));
+
+            if (!$hasPolygon) {
+                $validator->errors()->add(
+                    'agent_area',
+                    'This agent has no coverage area yet. Please draw the agent\'s coverage area on the map.'
+                );
+            }
+        });
     }
 }

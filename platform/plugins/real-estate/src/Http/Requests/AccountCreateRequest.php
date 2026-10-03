@@ -4,6 +4,7 @@ namespace Botble\RealEstate\Http\Requests;
 
 use Botble\Support\Http\Requests\Request;
 use Botble\RealEstate\Http\Requests\Rules\ImageDimension;
+use Botble\RealEstate\Http\Requests\Rules\AgentAreaRule;
 
 class AccountCreateRequest extends Request
 {
@@ -30,9 +31,10 @@ class AccountCreateRequest extends Request
             'languages.*' => 'integer|exists:re_spoken_languages,id',
             'specialties' => 'nullable|array',
             'specialties.*' => 'integer|exists:re_categories,id',
+            'agent_area' => [new AgentAreaRule],
         ];
 
-       
+
 
         if ($this->hasFile('image_path')) {
             $rules['image_path'] = [new ImageDimension(500, 500)];
@@ -49,5 +51,5 @@ class AccountCreateRequest extends Request
         ];
     }
 
-    
+
 }

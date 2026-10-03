@@ -239,8 +239,8 @@ class AccountController extends BaseController
      */
     public function update($id, AccountEditRequest $request, BaseHttpResponse $response)
 {
-    $agent_area = json_decode($request->input('agent_area'));
-    $agent_area_edit = json_decode($request->input('agent_area_edit'));
+    $agent_area = json_decode($request->input('agent_area')) ?: [];
+    $agent_area_edit = json_decode($request->input('agent_area_edit')) ?: [];
 
     if (count($agent_area) > 0) {
 
