@@ -22,7 +22,10 @@
 
         <div class="properties-map">
             <div id="properties-map-canvas" class="properties-map-canvas"
-                data-ajax-url="{{ route('public.ajax.properties') }}"></div>
+                data-ajax-url="{{ route('public.ajax.properties') }}"
+                data-visitor-lat="{{ session('visitor_location.lat') }}"
+                data-visitor-lng="{{ session('visitor_location.lng') }}"
+                data-visitor-source="{{ session('visitor_location.source') }}"></div>
             <div id="properties-map-count" class="properties-map__count-badge">0 {{ __('Properties Found') }}</div>
         </div>
     </div>

@@ -17,6 +17,9 @@
     }
 
     var ajaxUrl = canvas.getAttribute('data-ajax-url');
+    var visitorLat = parseFloat(canvas.getAttribute('data-visitor-lat'));
+    var visitorLng = parseFloat(canvas.getAttribute('data-visitor-lng'));
+    var visitorSource = canvas.getAttribute('data-visitor-source');
     var countBadge = document.getElementById('properties-map-count');
     var searchForm = document.getElementById('frmhomesearch');
     var locationBtn = document.getElementById('propertiesMyLocationBtn');
@@ -40,7 +43,20 @@
         });
     });
 
-    var map = L.map(canvas, { scrollWheelZoom: false }).setView([30.3753, 69.3451], 6); // Pakistan-wide default
+    // Pakistan-wide fallback, used whenever the visitor's location couldn't be
+    // resolved to anything better than the app's hardcoded default (source "default").
+    var initialCenter = [30.3753, 69.3451];
+    var initialZoom = 6;
+
+    var hasVisitorCoords = (visitorSource === 'ip' || visitorSource === 'browser') &&
+        !isNaN(visitorLat) && !isNaN(visitorLng) && (visitorLat !== 0 || visitorLng !== 0);
+
+    if (hasVisitorCoords) {
+        initialCenter = [visitorLat, visitorLng];
+        initialZoom = 11; // city-level zoom, since ip/browser coords are city-precision
+    }
+
+    var map = L.map(canvas, { scrollWheelZoom: true }).setView(initialCenter, initialZoom);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
