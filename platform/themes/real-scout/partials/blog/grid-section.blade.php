@@ -7,7 +7,7 @@
     <div class="blog-listing-grid__inner">
         @if ($hasFilters)
             <div class="blog-listing-grid__filtered-bar">
-                <span>{{ __('Showing filtered results') }}</span>
+                <span><i class="fas fa-filter"></i> {{ __('Showing filtered results') }}</span>
                 <a href="{{ route('public.blog') }}" class="blog-listing-grid__clear">
                     <i class="fas fa-undo"></i> {{ __('Clear Filters') }}
                 </a>
