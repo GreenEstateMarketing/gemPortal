@@ -12,7 +12,7 @@
     "Featured & Latest" spotlight rather than making them scroll past it.
 --}}
 {!! Theme::partial('blog/hero-section') !!}
-{!! Theme::partial('blog/filter-section', compact('categories', 'categoryId', 'keyword')) !!}
+{!! Theme::partial('blog/filter-section', compact('filterCategories', 'categoryId', 'keyword')) !!}
 @if ($hasFilters)
     {!! Theme::partial('blog/grid-section', compact('posts', 'hasFilters')) !!}
     {!! Theme::partial('blog/featured-section', compact('featuredPost')) !!}

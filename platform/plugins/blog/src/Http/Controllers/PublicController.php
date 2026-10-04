@@ -54,16 +54,52 @@ class PublicController extends Controller
             ->when($categoryId, fn ($query) => $query->whereHas('categories', fn ($q) => $q->where('categories.id', $categoryId)))
             ->when($keyword, fn ($query) => $query->where('name', 'LIKE', '%' . $keyword . '%'))
             ->orderByDesc('created_at')
-            ->paginate((int) ($request->input('per_page') ?: 6));
+            ->paginate((int) ($request->input('per_page') ?: 8));
 
+        // Full category list - used by the topic tiles section, which looks
+        // up specific named categories (Market Trends/Property Guide/
+        // Investment) regardless of the current filter state.
         $categories = Category::query()
             ->where('status', BaseStatusEnum::PUBLISHED)
             ->orderBy('order')
             ->get();
 
+        // Category PILLS are a different, narrower list than $categories
+        // above: every pill shown must be guaranteed to produce a non-empty
+        // result when clicked.
+        // - No filter active: a random up-to-6 sample of categories that
+        //   actually have at least one published post.
+        // - A filter is active: only categories attached to posts that match
+        //   the CURRENT filters (same conditions as $posts, keyword AND
+        //   category_id, unpaginated) - so every visible pill corresponds to
+        //   a real post in the current result set. Pill links preserve the
+        //   current keyword (see filter-section.blade.php) so clicking one
+        //   still matches the same post that justified showing it.
+        if ($hasFilters) {
+            $matchingPostIds = Post::query()
+                ->where('status', BaseStatusEnum::PUBLISHED)
+                ->when($categoryId, fn ($query) => $query->whereHas('categories', fn ($q) => $q->where('categories.id', $categoryId)))
+                ->when($keyword, fn ($query) => $query->where('name', 'LIKE', '%' . $keyword . '%'))
+                ->pluck('id');
+
+            $filterCategories = Category::query()
+                ->where('status', BaseStatusEnum::PUBLISHED)
+                ->whereHas('posts', fn ($query) => $query->whereIn('posts.id', $matchingPostIds))
+                ->orderBy('order')
+                ->limit(6)
+                ->get();
+        } else {
+            $filterCategories = Category::query()
+                ->where('status', BaseStatusEnum::PUBLISHED)
+                ->whereHas('posts', fn ($query) => $query->where('posts.status', BaseStatusEnum::PUBLISHED))
+                ->inRandomOrder()
+                ->limit(6)
+                ->get();
+        }
+
         return Theme::scope(
             'blog.blog',
-            compact('posts', 'featuredPost', 'categories', 'categoryId', 'keyword', 'hasFilters'),
+            compact('posts', 'featuredPost', 'categories', 'filterCategories', 'categoryId', 'keyword', 'hasFilters'),
             'plugins/blog::themes.loop'
         )->render();
     }
