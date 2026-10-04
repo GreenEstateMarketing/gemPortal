@@ -334,66 +334,69 @@ class PublicController extends Controller
     ) {
 
         SeoHelper::setTitle(__('Projects'));
-        $chosenArr = $request->get('k');
-        $chosenFullArr = array();
 
-        if (!isset($chosenArr))
-            $chosenArr = array();
-        else {
-            $chosenFullArr = $chosenArr;
-            foreach ($chosenArr as $key => $val) {
-                $chosenArr[$key] = substr($val, 0, 15);
-            }
+        $name = $request->input('name');
+        $cityId = $request->input('city_id');
+        $categoryId = $request->input('category_id');
+        $hasFilters = (bool) ($name || $cityId || $categoryId);
 
+        // Fixed at 6 to match the design's 2x3 grid, regardless of the
+        // admin-configurable theme_option (which already defaults to 12 for
+        // flex-home's own paginated grid) - only an explicit ?per_page=
+        // overrides it.
+        $perPage = (int) ($request->input('per_page') ?: 6);
+
+        $projects = Project::query()
+            ->with(['currency', 'city', 'category'])
+            ->when($name, fn ($query) => $query->where('name', 'LIKE', '%' . $name . '%'))
+            ->when($cityId, fn ($query) => $query->where('city_id', $cityId))
+            ->when($categoryId, fn ($query) => $query->where('category_id', $categoryId))
+            ->orderByDesc('created_at')
+            ->paginate($perPage);
+
+        $spotlightProject = Project::query()
+            ->with(['currency', 'city', 'features'])
+            ->where('is_featured', true)
+            ->inRandomOrder()
+            ->first();
+
+        if (!$spotlightProject) {
+            $spotlightProject = Project::query()
+                ->with(['currency', 'city', 'features'])
+                ->orderByDesc('created_at')
+                ->first();
         }
-
-        $category_id = $request->get('category_id');
-        $parent_id = 0;
-        if ($category_id != "")
-            $parent_id = getParentCategory($category_id);
-
-        /*//$chosenArr=array(0=>'C');
-       // print_r($chosenFullArr);exit;
-        $filters = [
-            'keyword'     => $request->input('k'),
-            'blocks'      => $request->input('blocks'),
-            'min_floor'   => $request->input('min_floor'),
-            'max_floor'   => $request->input('max_floor'),
-            'min_flat'    => $request->input('min_flat'),
-            'max_flat'    => $request->input('max_flat'),
-            'category_id' => $request->input('category_id'),
-            'city_id'     => $request->input('city_id'),
-            'location'    => $request->input('location'),
-            'sort_by'     => $request->input('sort_by'),
-        ];
-
-        $params = [
-            'paginate' => [
-                'per_page'      => $request->input('per_page') ? (int)$request->input('per_page') : (int)theme_option('number_of_projects_per_page',
-                    12),
-                'current_paged' => $request->input('page', 1),
-            ],
-            'order_by' => ['re_projects.created_at' => 'DESC'],
-        ];
-
-
-        $projects = $projectRepository->getProjects($filters, $params);
-
-        Theme::breadcrumb()
-            ->add(__('Home'), url('/'))
-            ->add(__('Projects'), route('public.projects'));
-
-        if ($request->ajax()) {
-            return $response->setData(Theme::partial('search-suggestion', ['items' => $projects]));
-        }*/
 
         $categories = $categoryRepository->pluck('re_categories.name', 're_categories.id');
         $cities = City::select('id', 'name')
             ->where('status', 'published')
             ->where('country_id', session('visitor_location.country_id', 166))
             ->get();
-        // $cities = [];
-        return Theme::scope('real-estate.projects', compact('categories', 'chosenArr', 'parent_id', 'chosenFullArr', 'cities'))->render();
+
+        // Both the bottom CTA and the spotlight's "Contact Us" button link
+        // to the Contact CMS page - resolved via its Slug row the same way
+        // partials/home-page-new/cta-move.blade.php already does (the Page
+        // model has no "url" accessor).
+        $contactUrl = '#';
+        $contactPage = app(\Botble\Page\Repositories\Interfaces\PageInterface::class)->getFirstBy(['name' => 'Contact']);
+        if ($contactPage) {
+            $contactSlug = app(SlugInterface::class)->getFirstBy([
+                'reference_id' => $contactPage->id,
+                'reference_type' => \Botble\Page\Models\Page::class,
+            ]);
+            if ($contactSlug) {
+                $contactUrl = url($contactSlug->key);
+            }
+        }
+
+        Theme::breadcrumb()
+            ->add(__('Home'), url('/'))
+            ->add(__('Projects'), route('public.projects'));
+
+        return Theme::scope(
+            'real-estate.projects',
+            compact('categories', 'cities', 'projects', 'spotlightProject', 'hasFilters', 'name', 'cityId', 'categoryId', 'contactUrl')
+        )->render();
     }
 
     /**

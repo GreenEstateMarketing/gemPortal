@@ -130,6 +130,26 @@ return [
                 // dependency, safe to load standalone here.
                 $theme->asset()->container('footer')->usePath()->add('home-page-header-js', 'js/new-home-page/header.js', [], [], $version);
             }
+
+            // Projects listing page - same stable-route-name gating as
+            // "public.properties" above. No Leaflet/map JS needed: the map
+            // section is a plain Google Maps iframe embed (see
+            // partials/projects/map-section.blade.php).
+            if (Route::current() && Route::current()->getName() === 'public.projects') {
+                $theme->asset()->usePath()->add('home-page-header-css', 'css/home-page-new/header.css', [], [], $version);
+                $theme->asset()->usePath()->add('projects-hero-css', 'css/home-page-new/projects-hero.css', [], [], $version);
+                $theme->asset()->usePath()->add('projects-grid-css', 'css/home-page-new/projects-grid.css', [], [], $version);
+                $theme->asset()->usePath()->add('projects-spotlight-css', 'css/home-page-new/projects-spotlight.css', [], [], $version);
+                $theme->asset()->usePath()->add('projects-map-css', 'css/home-page-new/projects-map.css', [], [], $version);
+                $theme->asset()->usePath()->add('projects-cta-css', 'css/home-page-new/projects-cta.css', [], [], $version);
+                $theme->asset()->add('projects-fonts-css', 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap', [], []);
+                // 'homechoosen2-js' (select2) is enqueued further below, in
+                // the same route-gated block that also covers public.index
+                // and public.properties - depending on its handle here
+                // guarantees load order regardless of which block runs
+                // first.
+                $theme->asset()->container('footer')->usePath()->add('projects-search-js', 'js/new-home-page/projects-search.js', ['homechoosen2-js'], [], $version);
+            }
             $theme->asset()->usePath()->add('auth-shell-css', 'css/auth-shell.css', [], [], $version);
             $theme->asset()->add('select2-css', 'css/select2-custom.min.css', [], []);
             $theme->asset()->add('choosen-css', 'css/chosen.min.css', [], []);

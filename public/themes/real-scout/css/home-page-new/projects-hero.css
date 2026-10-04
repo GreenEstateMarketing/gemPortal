@@ -1,0 +1,248 @@
+/*
+    Path in theme: platform/themes/real-scout/public/css/home-page-new/projects-hero.css
+    Loaded via:    config.php's beforeRenderTheme, gated on route name "public.projects".
+
+    Photo hero - deliberately reuses the SAME background image as
+    /properties' hero (properties-search.css), per design request to match
+    that page's look. Own class prefix (projects-hero*) rather than sharing
+    properties-search.css, same reasoning as that file's own header comment:
+    no fork, just parallel copies so either page's hero can change
+    independently later.
+
+    The search form here is custom-built (name/location/type), NOT the
+    shared home-page-new/search-bar partial - that one is property-rental
+    specific (bedrooms/price range tabs) and doesn't fit a project search.
+*/
+
+:root {
+    --header-navy: #1a1d24;
+    --header-gold: #e0a63e;
+    --header-gold-hover: #cf9530;
+    --header-white: #ffffff;
+    --header-font-body: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --header-font-heading: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --header-max-width: 1320px;
+}
+
+.projects-hero {
+    position: relative;
+    font-family: var(--header-font-body);
+    background-image: url('../../images/home-page-new/properties-hero-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.projects-hero * {
+    box-sizing: border-box;
+}
+
+.projects-hero__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(15, 17, 22, 0.78) 0%, rgba(15, 17, 22, 0.6) 55%, rgba(15, 17, 22, 0.45) 100%);
+}
+
+.projects-hero__inner {
+    position: relative;
+    z-index: 2;
+    max-width: var(--header-max-width);
+    margin: 0 auto;
+    padding: 72px 24px 60px;
+    text-align: left;
+}
+
+.projects-hero__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--header-gold);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+}
+
+.projects-hero__heading {
+    font-family: var(--header-font-heading);
+    font-weight: 700;
+    color: var(--header-white);
+    font-size: 38px;
+    line-height: 1.2;
+    margin: 0 0 14px;
+}
+
+.projects-hero__heading--accent {
+    color: var(--header-gold);
+}
+
+.projects-hero__text {
+    color: #e5e5e5;
+    font-size: 15px;
+    line-height: 1.7;
+    max-width: 560px;
+    margin: 0 0 36px;
+}
+
+/* ---- Search card ---- */
+.projects-search-card {
+    background: var(--header-white);
+    border-radius: 12px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    padding: 10px;
+    width: 100%;
+}
+
+.projects-search-card__field {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 8px 18px;
+    border-right: 1px solid #e5e7eb;
+}
+
+.projects-search-card__field:last-of-type {
+    border-right: none;
+}
+
+.projects-search-card__field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #9ca3af;
+    margin-bottom: 4px;
+}
+
+.projects-search-card__input {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.projects-search-card__input i {
+    color: var(--header-gold);
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.projects-search-card__input input,
+.projects-search-card__input select {
+    border: none;
+    outline: none;
+    background: transparent;
+    width: 100%;
+    font-family: var(--header-font-body);
+    font-size: 14px;
+    color: var(--header-navy);
+    padding: 4px 0;
+}
+
+/* ---- Searchable location dropdown (select2, see js/new-home-page/projects-search.js) ----
+   select2-custom.min.css (loaded site-wide) gives the widget its structural
+   CSS; these overrides just strip its default boxed look (border/height/
+   background) so it reads as plain text like the field's other inputs. */
+.projects-search-card__input .select2-container {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.projects-search-card__input .select2-selection--single {
+    height: auto !important;
+    border: none !important;
+    background: transparent !important;
+}
+
+.projects-search-card__input .select2-selection__rendered {
+    padding: 4px 18px 4px 0 !important;
+    font-family: var(--header-font-body);
+    font-size: 14px;
+    line-height: 1.4 !important;
+    color: var(--header-navy);
+}
+
+.projects-search-card__input .select2-selection__arrow {
+    top: 0 !important;
+    height: 100% !important;
+    right: 0;
+}
+
+/* The base CSS draws the triangle with "top: 50%; margin-top: 12px" -
+   tuned for select2's default 50px-tall box, so on our much shorter
+   auto-height box that offset pushed the glyph past the bottom edge
+   entirely. Override both to the standard absolute-centering trick
+   (top: 50% + negative margin of half the glyph's own height) instead,
+   which centers it regardless of the parent's height. */
+.projects-search-card__input .select2-selection__arrow b {
+    top: 50% !important;
+    margin-top: -2px !important;
+}
+
+.projects-search-card__input .select2-selection__placeholder {
+    color: var(--header-navy);
+}
+
+.projects-search-card__submit {
+    flex-shrink: 0;
+    align-self: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--header-gold);
+    color: var(--header-navy);
+    border: none;
+    border-radius: 8px;
+    padding: 14px 28px;
+    font-family: var(--header-font-body);
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.projects-search-card__submit:hover {
+    background: var(--header-gold-hover);
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (max-width: 960px) {
+    .projects-search-card {
+        flex-wrap: wrap;
+    }
+
+    .projects-search-card__field {
+        flex: 1 1 45%;
+        border-right: none;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .projects-search-card__submit {
+        width: 100%;
+        padding: 14px 0;
+        margin-top: 8px;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 640px) {
+    .projects-hero__inner {
+        padding: 48px 20px 40px;
+    }
+
+    .projects-hero__heading {
+        font-size: 28px;
+    }
+
+    .projects-search-card__field {
+        flex: 1 1 100%;
+        border-bottom: 1px solid #e5e7eb;
+    }
+}

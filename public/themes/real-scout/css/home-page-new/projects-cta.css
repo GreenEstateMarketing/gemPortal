@@ -1,0 +1,89 @@
+/*
+    Path in theme: platform/themes/real-scout/public/css/home-page-new/projects-cta.css
+    Loaded via:    config.php's beforeRenderTheme, gated on route name "public.projects".
+
+    Flat navy banner (no background photo) - deliberately simpler than
+    cta-move.css's photo+overlay treatment, matching this page's design.
+*/
+
+:root {
+    --header-navy: #1a1d24;
+    --header-gold: #e0a63e;
+    --header-gold-hover: #cf9530;
+    --header-white: #ffffff;
+    --header-font-body: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --header-font-heading: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --header-max-width: 1320px;
+}
+
+.projects-cta {
+    background: var(--header-navy);
+    font-family: var(--header-font-body);
+}
+
+.projects-cta * {
+    box-sizing: border-box;
+}
+
+.projects-cta__inner {
+    max-width: var(--header-max-width);
+    margin: 0 auto;
+    padding: 48px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.projects-cta__eyebrow {
+    display: block;
+    color: var(--header-gold);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.projects-cta__heading {
+    font-family: var(--header-font-heading);
+    font-weight: 700;
+    color: var(--header-white);
+    font-size: 24px;
+    line-height: 1.3;
+    margin: 0;
+}
+
+.projects-cta__btn {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--header-gold);
+    color: var(--header-navy);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 14px 28px;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.projects-cta__btn:hover {
+    background: var(--header-gold-hover);
+    color: var(--header-navy);
+}
+
+@media (max-width: 640px) {
+    .projects-cta__inner {
+        padding: 36px 20px;
+        text-align: center;
+        justify-content: center;
+    }
+
+    .projects-cta__btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
