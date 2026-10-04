@@ -52,6 +52,26 @@ Route::group(['namespace' => 'Botble\Blog\Http\Controllers', 'middleware' => ['w
                 'permission' => 'tags.index',
             ]);
         });
+
+        Route::group(['prefix' => 'subscribers', 'as' => 'subscribers.'], function () {
+            Route::get('', [
+                'as'         => 'index',
+                'uses'       => 'SubscriberController@index',
+                'permission' => 'subscribers.index',
+            ]);
+
+            Route::delete('{id}', [
+                'as'         => 'destroy',
+                'uses'       => 'SubscriberController@destroy',
+                'permission' => 'subscribers.destroy',
+            ]);
+
+            Route::delete('items/destroy', [
+                'as'         => 'deletes',
+                'uses'       => 'SubscriberController@deletes',
+                'permission' => 'subscribers.destroy',
+            ]);
+        });
     });
 
     if (defined('THEME_MODULE_SCREEN_NAME')) {
@@ -81,6 +101,16 @@ Route::group(['namespace' => 'Botble\Blog\Http\Controllers', 'middleware' => ['w
                     'uses' => 'PublicController@getCategory',
                 ]);
             }
+
+            Route::post('newsletter/subscribe', [
+                'as'   => 'public.blog.subscribe',
+                'uses' => 'PublicController@postSubscribe',
+            ]);
+
+            Route::get('newsletter/unsubscribe/{token}', [
+                'as'   => 'public.blog.unsubscribe',
+                'uses' => 'PublicController@getUnsubscribe',
+            ]);
         });
     }
 });

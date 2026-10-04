@@ -169,11 +169,14 @@
                     <li><i class="fas fa-clock"></i> {{ __('Mon - Sat: 9:00 AM - 6:00 PM') }}</li>
                 </ul>
 
-                {{-- No newsletter plugin/route exists yet - redirect to Contact Us with the email prefilled instead. --}}
-                <form class="site-footer__newsletter" action="{{ $footerContactUrl }}" method="get">
+                <form class="site-footer__newsletter" action="{{ route('public.blog.subscribe') }}" method="post">
+                    @csrf
                     <input type="email" name="email" placeholder="{{ __('Your email address') }}" class="site-footer__newsletter-input" required>
                     <button type="submit" class="site-footer__newsletter-btn"><i class="fas fa-arrow-right"></i></button>
                 </form>
+                @if (session('newsletter_subscribed') && session('success_msg'))
+                    <p class="site-footer__newsletter-message">{{ session('success_msg') }}</p>
+                @endif
             </div>
         </div>
 

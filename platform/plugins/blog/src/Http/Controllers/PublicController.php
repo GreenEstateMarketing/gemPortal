@@ -2,8 +2,11 @@
 
 namespace Botble\Blog\Http\Controllers;
 
+use Botble\Base\Enums\BaseStatusEnum;
+use Botble\Base\Http\Responses\BaseHttpResponse;
 use Botble\Blog\Models\Category;
 use Botble\Blog\Models\Post;
+use Botble\Blog\Models\Subscriber;
 use Botble\Blog\Models\Tag;
 use Botble\Blog\Repositories\Interfaces\PostInterface;
 use Botble\Blog\Services\BlogService;
@@ -30,10 +33,83 @@ class PublicController extends Controller
             ->add(__('Home'), url('/'))
             ->add(__('Blog'), route('public.blog'));
 
-        $posts = $postRepository->getAllPosts(theme_option('number_of_posts_in_a_category', 12));
+        $categoryId = $request->input('category_id');
+        $keyword = $request->input('q');
+        $hasFilters = (bool) ($categoryId || $keyword);
 
-        return Theme::scope('blog.blog', compact('posts'), 'plugins/blog::themes.loop')
-            ->render();
+        $featuredPost = get_featured_posts(1, ['slugable', 'categories', 'author'])->first();
+
+        if (!$featuredPost) {
+            $featuredPost = Post::query()
+                ->with(['slugable', 'categories', 'author'])
+                ->where('status', BaseStatusEnum::PUBLISHED)
+                ->orderByDesc('created_at')
+                ->first();
+        }
+
+        $posts = Post::query()
+            ->with(['slugable', 'categories'])
+            ->where('status', BaseStatusEnum::PUBLISHED)
+            ->when($featuredPost && !$hasFilters, fn ($query) => $query->where('id', '!=', $featuredPost->id))
+            ->when($categoryId, fn ($query) => $query->whereHas('categories', fn ($q) => $q->where('categories.id', $categoryId)))
+            ->when($keyword, fn ($query) => $query->where('name', 'LIKE', '%' . $keyword . '%'))
+            ->orderByDesc('created_at')
+            ->paginate((int) ($request->input('per_page') ?: 6));
+
+        $categories = Category::query()
+            ->where('status', BaseStatusEnum::PUBLISHED)
+            ->orderBy('order')
+            ->get();
+
+        return Theme::scope(
+            'blog.blog',
+            compact('posts', 'featuredPost', 'categories', 'categoryId', 'keyword', 'hasFilters'),
+            'plugins/blog::themes.loop'
+        )->render();
+    }
+
+    /**
+     * @param Request $request
+     * @param BaseHttpResponse $response
+     * @return BaseHttpResponse
+     */
+    public function postSubscribe(Request $request, BaseHttpResponse $response)
+    {
+        $request->validate(['email' => 'required|email|max:191']);
+
+        $subscriber = Subscriber::query()->firstOrNew(['email' => $request->input('email')]);
+        $subscriber->status = BaseStatusEnum::PUBLISHED;
+        $subscriber->save();
+
+        // Dedicated flash flag (rather than relying on the shared success_msg
+        // alone) so the footer/newsletter partials - visible on every public
+        // page - only show this specific message, not any other unrelated
+        // BaseHttpResponse-based form's flash message sitewide.
+        session()->flash('newsletter_subscribed', true);
+
+        return $response->setMessage(__('Thank you for subscribing to our newsletter!'));
+    }
+
+    /**
+     * @param string $token
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function getUnsubscribe($token)
+    {
+        $subscriber = Subscriber::query()->where('token', $token)->first();
+
+        if ($subscriber) {
+            // BaseStatusEnum has no "unsubscribed" value of its own - DRAFT
+            // (not live/not published) is reused here as "inactive" rather
+            // than inventing a new enum just for this one flag.
+            $subscriber->status = BaseStatusEnum::DRAFT;
+            $subscriber->save();
+        }
+
+        return redirect()
+            ->route('public.blog')
+            ->with('newsletter_unsubscribed', true)
+            ->with('success_msg', __("You've been unsubscribed from our newsletter."));
     }
 
     /**

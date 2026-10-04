@@ -5,6 +5,7 @@ namespace Botble\Blog\Models;
 use Botble\ACL\Models\User;
 use Botble\Base\Traits\EnumCastable;
 use Botble\Base\Enums\BaseStatusEnum;
+use Botble\Blog\Jobs\SendPostPublishedNewsletterJob;
 use Botble\Revision\RevisionableTrait;
 use Botble\Base\Models\BaseModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -120,6 +121,14 @@ class Post extends BaseModel
         static::deleting(function (Post $post) {
             $post->categories()->detach();
             $post->tags()->detach();
+        });
+
+        static::saved(function (Post $post) {
+            $justPublished = $post->wasRecentlyCreated || $post->wasChanged('status');
+
+            if ($justPublished && $post->status == BaseStatusEnum::PUBLISHED) {
+                SendPostPublishedNewsletterJob::dispatch($post->id);
+            }
         });
     }
 }

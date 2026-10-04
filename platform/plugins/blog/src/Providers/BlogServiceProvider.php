@@ -20,6 +20,10 @@ use Botble\Blog\Models\Tag;
 use Botble\Blog\Repositories\Caches\TagCacheDecorator;
 use Botble\Blog\Repositories\Eloquent\TagRepository;
 use Botble\Blog\Repositories\Interfaces\TagInterface;
+use Botble\Blog\Models\Subscriber;
+use Botble\Blog\Repositories\Eloquent\SubscriberRepository;
+use Botble\Blog\Repositories\Interfaces\SubscriberInterface;
+use EmailHandler;
 use Language;
 use Note;
 use SeoHelper;
@@ -46,6 +50,10 @@ class BlogServiceProvider extends ServiceProvider
             return new TagCacheDecorator(new TagRepository(new Tag));
         });
 
+        $this->app->bind(SubscriberInterface::class, function () {
+            return new SubscriberRepository(new Subscriber);
+        });
+
         Helper::autoload(__DIR__ . '/../../helpers');
     }
 
@@ -58,7 +66,7 @@ class BlogServiceProvider extends ServiceProvider
         SlugHelper::setPrefix(Tag::class, 'tag');
 
         $this->setNamespace('plugins/blog')
-            ->loadAndPublishConfigurations(['permissions'])
+            ->loadAndPublishConfigurations(['permissions', 'email'])
             ->loadAndPublishViews()
             ->loadAndPublishTranslations()
             ->loadRoutes(['web', 'api'])
@@ -104,7 +112,18 @@ class BlogServiceProvider extends ServiceProvider
                     'icon'        => null,
                     'url'         => route('tags.index'),
                     'permissions' => ['tags.index'],
+                ])
+                ->registerItem([
+                    'id'          => 'cms-plugins-blog-subscribers',
+                    'priority'    => 4,
+                    'parent_id'   => 'cms-plugins-blog',
+                    'name'        => 'plugins/blog::subscribers.menu_name',
+                    'icon'        => null,
+                    'url'         => route('subscribers.index'),
+                    'permissions' => ['subscribers.index'],
                 ]);
+
+            EmailHandler::addTemplateSettings('blog', config('plugins.blog.email', []));
         });
 
         $this->app->booted(function () {

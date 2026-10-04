@@ -67,4 +67,15 @@ return [
         'flag'        => 'tags.destroy',
         'parent_flag' => 'tags.index',
     ],
+
+    [
+        'name'        => 'Newsletter Subscribers',
+        'flag'        => 'subscribers.index',
+        'parent_flag' => 'plugins.blog',
+    ],
+    [
+        'name'        => 'Delete',
+        'flag'        => 'subscribers.destroy',
+        'parent_flag' => 'subscribers.index',
+    ],
 ];

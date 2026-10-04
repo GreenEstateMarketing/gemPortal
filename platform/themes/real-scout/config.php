@@ -100,6 +100,16 @@ return [
                 $theme->asset()->add('blog-fonts-css', 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap', [], []);
             }
 
+            // Blog LISTING page redesign (2026) - route-name gated (not
+            // request()->is('blog')) so it never also loads on /blog/{slug}
+            // (public.single) or the category page, which still render with
+            // the plain blog.css above - no shared classes, no regression
+            // risk to those two pages.
+            if (Route::current() && Route::current()->getName() === 'public.blog') {
+                $theme->asset()->usePath()->add('blog-listing-css', 'css/home-page-new/blog-listing.css', [], [], $version);
+                $theme->asset()->add('blog-listing-fonts-css', 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap', [], []);
+            }
+
             // Properties listing/map page - route-name gated (not
             // request()->is('properties')) because the path prefix is
             // admin-configurable via SlugHelper::getPrefix(Property::class,

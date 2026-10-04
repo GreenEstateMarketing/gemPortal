@@ -196,6 +196,13 @@
     background: var(--header-gold-hover);
 }
 
+.site-footer__newsletter-message {
+    margin: 10px 0 0;
+    color: var(--header-gold);
+    font-family: var(--header-font-body);
+    font-size: 12.5px;
+}
+
 /* =========================================================
    RESPONSIVE
    ========================================================= */
