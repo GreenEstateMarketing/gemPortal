@@ -6,6 +6,7 @@ use Botble\Media\Http\Resources\FileResource;
 use Botble\Media\Models\MediaFile;
 use Botble\Media\Repositories\Interfaces\MediaFileInterface;
 use Botble\Media\Repositories\Interfaces\MediaFolderInterface;
+use Botble\Media\Events\MediaFileUploaded;
 use Botble\Media\Services\ThumbnailService;
 use Botble\Media\Services\UploadsManager;
 use Exception;
@@ -542,6 +543,8 @@ class RvMedia
 
 //            $this->watermarkImage($folderPath, $fileName);
 
+            event(new MediaFileUploaded($file));
+
             return [
                 'error' => false,
                 'data' => new FileResource($file),
@@ -644,6 +647,7 @@ class RvMedia
 
         if (
             !$this->isUploadedFromThemeOptions()
+            && !$this->isUploadedForPropertyOrProject()
             && setting('media_watermark_enabled', config('core.media.media.watermark.enabled'))
         ) {
             $image = Image::make($this->getRealPath($file->url));
@@ -664,7 +668,7 @@ class RvMedia
                 ->resize($watermarkSize, null, function ($constraint) {
                     $constraint->aspectRatio();
                 })
-                ->opacity(setting('media_watermark_opacity', config('core.media.media.watermark.opacity')));
+                ->opacity(setting('watermark_opacity', config('core.media.media.watermark.opacity')));
 
             $image->insert(
                 $watermark,
@@ -692,6 +696,25 @@ class RvMedia
         $referer = request()->headers->get('referer');
 
         return $referer && Str::contains($referer, 'theme/options');
+    }
+
+    /**
+     * Property/project images get their own centered, more-visible watermark
+     * (applied to the main file and every thumbnail, see
+     * EnhancePropertyImageListener/PropertyImageEnhancementService in the
+     * real-estate plugin) - skip the sitewide bottom-right watermark above
+     * for them so the main file doesn't end up stamped twice.
+     */
+    protected function isUploadedForPropertyOrProject(): bool
+    {
+        $referer = request()->headers->get('referer');
+
+        return $referer && Str::contains($referer, [
+            'member/properties',
+            'account/properties',
+            'real-estate/properties',
+            'real-estate/projects',
+        ]);
     }
 
     /**

@@ -76,6 +76,7 @@ class MediaServiceProvider extends ServiceProvider
         $setting = $this->app->make(SettingStore::class);
 
         $config->set([
+            'image.driver'                => extension_loaded('imagick') ? 'imagick' : 'gd',
             'filesystems.default'         => $setting->get('media_driver', 'public'),
             'filesystems.disks.s3.key'    => $setting
                 ->get('media_aws_access_key_id', $config->get('filesystems.disks.s3.key')),
