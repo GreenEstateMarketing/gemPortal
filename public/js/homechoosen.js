@@ -52,7 +52,19 @@ $(document).ready(function () {
     }
 
     function mapCityCallback(el) {
-        let val = $('#city_id').find("option:contains('" + $('#city-name-from-map').val() + "')").val();
+        var cityName = $('#city-name-from-map').val();
+        if (!cityName) {
+            // waitForEl gives up after its retry budget and calls back
+            // regardless of whether a value ever showed up - nothing on this
+            // page currently writes into #city-name-from-map, so without this
+            // guard every call here falls through with an empty string,
+            // "option:contains('')" matches every <option> (every string
+            // contains ""), .val() picks the first match ("Select city..."),
+            // and that blanks out whatever city was already correctly
+            // selected (server-rendered or from the query string).
+            return;
+        }
+        let val = $('#city_id').find("option:contains('" + cityName + "')").val();
         $('#city_id').val(val).trigger('change.select2');
         $('#city_id').trigger('change');
         $("#city_id")[0].dispatchEvent(new Event('change'));

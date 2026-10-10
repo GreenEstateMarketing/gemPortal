@@ -32,7 +32,10 @@
     // the tab-click binding - now fixed at the source). Kept this redundant,
     // idempotent handler anyway so this page's search still doesn't depend on
     // that global script succeeding.
-    var tabs = searchForm ? searchForm.querySelectorAll('.hero-search-card__tab') : [];
+    // The tabs are rendered as siblings of #frmhomesearch, not inside it
+    // (see search-bar.blade.php), so they must be queried from the document,
+    // not scoped to the form - scoping to the form here always finds none.
+    var tabs = document.querySelectorAll('.hero-search-card__tab');
     tabs.forEach(function (tab) {
         tab.addEventListener('click', function () {
             tabs.forEach(function (t) { t.classList.remove('active'); });
@@ -242,8 +245,122 @@
         return params;
     }
 
-    // Initial, unfiltered load (reuses the server's location-default fallback).
-    fetchAndRenderPins({ type: 'mapsearch', per_page: 300 });
+    // When arriving here with a query string (e.g. from the home page's own
+    // copy of this same search form, submitted as a plain GET), reflect
+    // those values back into the form's fields - and the separate label
+    // spans that mirror hidden/range fields but don't listen for this kind
+    // of programmatic update - so the UI shows what was actually searched.
+    function populateFormFromQuery(form) {
+        if (!form) {
+            return false;
+        }
+
+        var query = new URLSearchParams(window.location.search);
+        var hasFilters = false;
+
+        query.forEach(function (value, key) {
+            if (!value) {
+                return;
+            }
+            var fields = form.querySelectorAll('[name="' + key + '"]');
+            if (!fields.length) {
+                return;
+            }
+            fields.forEach(function (field) {
+                field.value = value;
+                // #city_id is wrapped in select2 (homechoosen.js) - it only
+                // redraws its own fake widget in response to a jQuery
+                // "change" event, so a plain DOM .value assignment leaves
+                // the correct option selected under the hood but the
+                // visible label stuck on whatever it showed before.
+                if (field.tagName === 'SELECT' && window.jQuery) {
+                    window.jQuery(field).trigger('change');
+                }
+            });
+            hasFilters = true;
+        });
+
+        if (!hasFilters) {
+            return false;
+        }
+
+        tabs.forEach(function (tab) {
+            tab.classList.toggle('active', !!typeField && tab.getAttribute('rel') === typeField.value);
+        });
+
+        var categoryId = query.get('category_id');
+        var categoryLabel = categoryId &&
+            form.querySelector('.p-category[data-id="' + categoryId + '"], .category-li-item[data-id="' + categoryId + '"]');
+        if (categoryLabel) {
+            form.querySelectorAll('.category_id_text').forEach(function (el) {
+                el.textContent = categoryLabel.textContent.trim();
+            });
+        }
+
+        var textMirrors = {
+            min_price: '.min_price_text',
+            max_price: '.max_price_text',
+            min_unit: '.min_unit_text',
+            max_unit: '.max_unit_text'
+        };
+        Object.keys(textMirrors).forEach(function (key) {
+            var value = query.get(key);
+            if (value) {
+                form.querySelectorAll(textMirrors[key]).forEach(function (el) {
+                    el.textContent = value;
+                });
+            }
+        });
+
+        return true;
+    }
+
+    var initialQuery = new URLSearchParams(window.location.search);
+    var hasQueryFilters = false;
+    initialQuery.forEach(function (value, key) {
+        if (value && searchForm && searchForm.querySelector('[name="' + key + '"]')) {
+            hasQueryFilters = true;
+        }
+    });
+
+    if (!hasQueryFilters) {
+        // Initial, unfiltered load (reuses the server's location-default fallback).
+        fetchAndRenderPins({ type: 'mapsearch', per_page: 300 });
+    } else if (searchForm) {
+        if (resultsGrid) {
+            resultsGrid.innerHTML = '<p class="properties-highlights__empty">Searching...</p>';
+        }
+
+        // scripts.js's "Property Type" popover init (loaded further down the
+        // page) unconditionally resets the category field/label to the first
+        // category on every load, inside a jQuery $(document).ready callback
+        // - which, being deferred, runs after this plain script regardless of
+        // tag order, clobbering any category restored here synchronously.
+        // `load` reliably fires after that deferred callback has already run.
+        window.addEventListener('load', function () {
+            populateFormFromQuery(searchForm);
+            fetchAndRenderPins(buildSearchParams(searchForm));
+        });
+    }
+
+    // Raw (un-remapped) form values, matching exactly the query-string shape
+    // populateFormFromQuery() above reads back - buildSearchParams()'s output
+    // can't be reused here as-is: it's remapped/padded for the ajax endpoint
+    // (min_square/max_square/unit, property_type, type=mapsearch, per_page),
+    // which would both look wrong in the address bar and fail to round-trip
+    // through populateFormFromQuery on a later reload.
+    function buildRawQueryParams(form) {
+        var formData = new FormData(form);
+        var params = new URLSearchParams();
+
+        formData.forEach(function (value, key) {
+            if (value !== '') {
+                params.set(key, value);
+            }
+        });
+
+        return params;
+    }
 
     if (searchForm) {
         searchForm.addEventListener('submit', function (event) {
@@ -252,6 +369,14 @@
                 return; // let it navigate normally to public.projects
             }
             event.preventDefault();
+
+            // Keep the address bar in sync with whatever was just searched,
+            // so reloading (or sharing/bookmarking the URL) reproduces the
+            // same results instead of whatever was in it on first arrival.
+            var rawParams = buildRawQueryParams(searchForm);
+            var newUrl = window.location.pathname + (rawParams.toString() ? '?' + rawParams.toString() : '');
+            history.replaceState(null, '', newUrl);
+
             fetchAndRenderPins(buildSearchParams(searchForm));
         });
     }

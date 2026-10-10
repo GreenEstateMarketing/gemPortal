@@ -65,6 +65,11 @@
                         <input id="city-name-from-map" type="hidden" class="select-city-state" autocomplete="off" />
                         @php
                             $visitorLocation = session('visitor_location', []);
+                            // A city_id already in the query string (e.g. carried over from
+                            // this same form's own submission on another page) reflects what
+                            // was actually searched for and must win over the session's
+                            // geo-detected visitor city, which is only a first-visit default.
+                            $selectedCityId = request()->input('city_id', $visitorLocation['city_id'] ?? null);
                         @endphp
                         <select class="hero-search-card__city-select" id="city_id" name="city_id">
                             <option value="0">{{ __('Select city...') }}</option>
@@ -74,7 +79,7 @@
                                 ['cities.name', 'cities.state_id', 'cities.country_id', 'cities.id'],
                             ) as $city)
                                 <option value={{ $city->id }}
-                                    @if (($visitorLocation['city_id'] ?? null) == $city->id) selected @endif>
+                                    @if ($selectedCityId == $city->id) selected @endif>
                                     {{ $city->name . ($city->state->name ? ' (' . $city->state->name . ')' : '') }}
                                 </option>
                             @endforeach
