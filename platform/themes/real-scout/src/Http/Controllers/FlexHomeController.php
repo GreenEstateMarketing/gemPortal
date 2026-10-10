@@ -235,6 +235,123 @@ class FlexHomeController extends PublicController
     }
 
     /**
+     * Used only when a /properties search comes back with zero results.
+     * Progressively drops filters and retries, so "You might also be
+     * interested in" can offer the closest non-empty result set instead of
+     * ever being left empty itself - area -> city -> country for location,
+     * then (since price/bedroom/bathroom/etc can just as easily be what's
+     * filtering everything out, even once location is as broad as it gets)
+     * price range -> bedroom -> bathroom -> floor -> area/unit -> category
+     * -> buy/rent, each step reusing whatever the previous step already
+     * dropped. The last step drops everything, which can only still be
+     * empty if there are literally zero published properties on the site.
+     *
+     * @param array $filters
+     * @return array{scope: string, text: string, data: \Illuminate\Support\Collection}|null
+     */
+    private function buildEmptyResultSuggestions(array $filters)
+    {
+        $suggestionParams = [
+            'paginate' => [
+                'per_page' => 6,
+                'current_paged' => 1,
+            ],
+            'order_by' => ['re_properties.created_at' => 'DESC'],
+        ];
+
+        if (!empty($filters['keyword'])) {
+            $withoutArea = $filters;
+            $withoutArea['keyword'] = null;
+
+            $properties = app(PropertyInterface::class)->getPropertiesByMap($withoutArea, $suggestionParams);
+
+            if ($properties->total() > 0) {
+                $city = !empty($filters['city_id']) ? City::find($filters['city_id']) : null;
+                $cityName = $city ? $city->name : __('this city');
+
+                return [
+                    'scope' => 'city',
+                    'text' => __('Properties in :city.', ['city' => $cityName]),
+                    'data' => PropertyResource::collection($properties),
+                ];
+            }
+
+            $filters = $withoutArea;
+        }
+
+        if (!empty($filters['city_id'])) {
+            $city = City::find($filters['city_id']);
+            $countryId = $city ? $city->country_id : null;
+
+            $withoutCity = $filters;
+            $withoutCity['city_id'] = null;
+            $withoutCity['country_id'] = $countryId;
+
+            $properties = app(PropertyInterface::class)->getPropertiesByMap($withoutCity, $suggestionParams);
+
+            if ($properties->total() > 0) {
+                $country = $countryId ? Country::find($countryId) : null;
+                $countryName = $country ? $country->name : __('this country');
+
+                return [
+                    'scope' => 'country',
+                    'text' => __('Properties in :country.', ['country' => $countryName]),
+                    'data' => PropertyResource::collection($properties),
+                ];
+            }
+
+            $filters = $withoutCity;
+        }
+
+        // Location is now as broad as it gets (country-wide, or unrestricted
+        // if there was no location filter to begin with) - if it's still
+        // empty, one of the non-location filters is what's actually
+        // filtering everything out. Drop them one group at a time, most
+        // specific first, re-testing after each so the result stays as
+        // close to the original search as the data allows.
+        $relaxGroups = [
+            ['min_price', 'max_price'],
+            ['bedroom'],
+            ['bathroom'],
+            ['floor'],
+            ['min_square', 'max_square', 'unit'],
+            ['category_id'],
+            // Last resort: buy vs rent is the only filter left - dropping it
+            // means "no filters at all", so this can only still be empty if
+            // the site has no published properties whatsoever.
+            ['type'],
+        ];
+
+        foreach ($relaxGroups as $group) {
+            $hasValue = false;
+
+            foreach ($group as $key) {
+                if (!empty($filters[$key])) {
+                    $hasValue = true;
+                }
+
+                $filters[$key] = null;
+            }
+
+            if (!$hasValue) {
+                continue;
+            }
+
+            $properties = app(PropertyInterface::class)->getPropertiesByMap($filters, $suggestionParams);
+
+            if ($properties->total() > 0) {
+                return [
+                    'scope' => 'relaxed',
+                    'text' => __('Similar properties you might like.'),
+                    'data' => PropertyResource::collection($properties),
+                ];
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @param Request $request
      * @param BaseHttpResponse $response
      * @return BaseHttpResponse
@@ -244,6 +361,7 @@ class FlexHomeController extends PublicController
         //This is the flex controller
         $properties = [];
         $links = [];
+        $suggestions = null;
         switch ($request->input('type')) {
             case 'related':
                 $properties = app(PropertyInterface::class)
@@ -305,10 +423,15 @@ class FlexHomeController extends PublicController
                     'order_by' => ['re_properties.created_at' => 'DESC'],
                 ];
                 $properties = $this->getMapSearchPropertiesWithLocationDefault($filters, $params);
+
+                if ($properties->total() === 0) {
+                    $suggestions = $this->buildEmptyResultSuggestions($filters);
+                }
                 break;
         }
 
         return $response
+            ->setAdditional(['suggestions' => $suggestions])
             ->setData(PropertyResource::collection($properties))
             ->toApiResponse();
     }

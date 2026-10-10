@@ -41,7 +41,9 @@ class PropertyResource extends JsonResource
             'image'           => $image,
             'images'          => $this->images,
             'price'           => $price,
-            'location'        => $this->city->name . ', ' . $this->city->state->name,
+            'location'        => $this->city
+                ? $this->city->name . ($this->city->state ? ', ' . $this->city->state->name : '')
+                : null,
             'number_bedroom'  => $this->number_bedroom,
             'number_bathroom' => $this->number_bathroom,
             'square'          => $this->square,
@@ -49,9 +51,9 @@ class PropertyResource extends JsonResource
             'type'            => $this->type,
             'period'          => $this->period,
             'status_html'     => $this->status->toHtml(),
-            'category_name'   => $this->category->name,
-            'category_id'   => $this->category->id,
-            'category_parent_id'   => $this->category->parent_id,
+            'category_name'   => $this->category->name ?? null,
+            'category_id'   => $this->category->id ?? null,
+            'category_parent_id'   => $this->category->parent_id ?? null,
             'latitude'   => $this->latitude,
             'longitude'   => $this->longitude
         ];

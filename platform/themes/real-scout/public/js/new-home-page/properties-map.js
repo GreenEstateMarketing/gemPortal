@@ -25,6 +25,9 @@
     var locationBtn = document.getElementById('propertiesMyLocationBtn');
     var typeField = document.getElementById('txttypesearch');
     var resultsGrid = document.getElementById('properties-search-results');
+    var suggestionsSection = document.getElementById('properties-search-suggestions');
+    var suggestionsGrid = suggestionsSection ? suggestionsSection.querySelector('.properties-highlights__grid') : null;
+    var suggestionsText = suggestionsSection ? suggestionsSection.querySelector('.properties-highlights__suggestions-text') : null;
 
     // The search bar's own Buy/Rent/Projects tab-switching used to be broken
     // site-wide (a duplicate jQuery include in config.php wiped out the
@@ -132,17 +135,47 @@
         );
     }
 
-    function renderResultsGrid(properties) {
+    function renderResultsGrid(properties, suggestions) {
         if (!resultsGrid) {
             return;
         }
 
         if (!properties.length) {
-            resultsGrid.innerHTML = '<p class="properties-highlights__empty">No properties match your search.</p>';
+            resultsGrid.innerHTML = '<p class="properties-highlights__empty">No properties found matching your search criteria.</p>';
+            renderSuggestions(suggestions);
             return;
         }
 
         resultsGrid.innerHTML = properties.map(buildResultCardHtml).join('');
+        // Only ever relevant as a "nothing matched, here's something close"
+        // fallback - hide it the moment there IS a real result set, even if
+        // the response happened to carry suggestions from an earlier filter
+        // state.
+        renderSuggestions(null);
+    }
+
+    // "suggestions" (added by FlexHomeController::ajaxGetProperties's
+    // mapsearch branch) is the progressively-broadened result set - area
+    // removed, then city removed too - used only when the exact search came
+    // back empty, so the visitor isn't just left looking at "no properties".
+    function renderSuggestions(suggestions) {
+        if (!suggestionsSection) {
+            return;
+        }
+
+        if (!suggestions || !suggestions.data || !suggestions.data.length) {
+            suggestionsSection.style.display = 'none';
+            return;
+        }
+
+        if (suggestionsText) {
+            suggestionsText.textContent = suggestions.text;
+        }
+        if (suggestionsGrid) {
+            suggestionsGrid.innerHTML = suggestions.data.map(buildResultCardHtml).join('');
+        }
+
+        suggestionsSection.style.display = '';
     }
 
     function renderPins(properties) {
@@ -186,7 +219,7 @@
             .then(function (json) {
                 var data = json && Array.isArray(json.data) ? json.data : [];
                 renderPins(data);
-                renderResultsGrid(data);
+                renderResultsGrid(data, json && json.suggestions);
             })
             .catch(function () {
                 if (countBadge) {
@@ -262,18 +295,38 @@
             if (!value) {
                 return;
             }
+            if (key.slice(-2) === '[]') {
+                // Array-style fields (currently just the area/neighborhood
+                // "keyword[]" chips) aren't plain single-value fields with a
+                // fixed set of elements to write into - homechoosen.js's
+                // own restoreAreaChipsFromQuery() rebuilds those chips (and
+                // their hidden inputs) from the same query string already,
+                // so this generic single-value setter must leave them alone:
+                // it would otherwise stamp every matching hidden input with
+                // whichever value it last saw, losing all but one chip.
+                hasFilters = true;
+                return;
+            }
             var fields = form.querySelectorAll('[name="' + key + '"]');
             if (!fields.length) {
                 return;
             }
             fields.forEach(function (field) {
+                var changed = field.value !== value;
                 field.value = value;
                 // #city_id is wrapped in select2 (homechoosen.js) - it only
                 // redraws its own fake widget in response to a jQuery
                 // "change" event, so a plain DOM .value assignment leaves
                 // the correct option selected under the hood but the
-                // visible label stuck on whatever it showed before.
-                if (field.tagName === 'SELECT' && window.jQuery) {
+                // visible label stuck on whatever it showed before. Only
+                // fire that when the value is actually changing though:
+                // homechoosen.js's own change handler clears every area
+                // chip on a city change (correctly, for a real change) -
+                // triggering it here when city_id already had this exact
+                // value (the common case, since the blade template now
+                // also restores it server-side) would wipe out the area
+                // chips restoreAreaChipsFromQuery() just finished adding.
+                if (changed && field.tagName === 'SELECT' && window.jQuery) {
                     window.jQuery(field).trigger('change');
                 }
             });
@@ -339,7 +392,31 @@
         // `load` reliably fires after that deferred callback has already run.
         window.addEventListener('load', function () {
             populateFormFromQuery(searchForm);
-            fetchAndRenderPins(buildSearchParams(searchForm));
+
+            // homechoosen.js's own restoreAreaChipsFromQuery() (its city-areas
+            // ajax call is sent with jQuery's async:false) rebuilds the area
+            // chips' hidden "keyword[]" inputs from this same query string -
+            // in practice that doesn't reliably finish before `load` fires,
+            // so fetching immediately here can race it and search without
+            // the area filter the URL actually asked for. Poll briefly for
+            // those hidden inputs to show up before searching; give up and
+            // search without them rather than hang if something's wrong.
+            var expectedAreaIds = initialQuery.getAll('keyword[]');
+            var waited = 0;
+
+            (function waitForAreaChipsThenFetch() {
+                var restored = expectedAreaIds.every(function (id) {
+                    return !!searchForm.querySelector('input[name="keyword[]"][value="' + id + '"]');
+                });
+
+                if (restored || waited >= 2000) {
+                    fetchAndRenderPins(buildSearchParams(searchForm));
+                    return;
+                }
+
+                waited += 100;
+                setTimeout(waitForAreaChipsThenFetch, 100);
+            })();
         });
     }
 
@@ -354,7 +431,18 @@
         var params = new URLSearchParams();
 
         formData.forEach(function (value, key) {
-            if (value !== '') {
+            if (value === '') {
+                return;
+            }
+            // "keyword[]" (area chips) legitimately repeats once per chip -
+            // .set() would keep only the last one. Every other field only
+            // ever repeats as an exact duplicate of itself (the same price/
+            // area inputs appear in more than one category-dependent block
+            // of the form), where de-duping via .set() is what keeps the
+            // URL readable.
+            if (key.slice(-2) === '[]') {
+                params.append(key, value);
+            } else {
                 params.set(key, value);
             }
         });

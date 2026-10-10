@@ -47,6 +47,32 @@ $(document).ready(function () {
             },
             success: function (response) {
                 cityAreaArray = response.data;
+                restoreAreaChipsFromQuery();
+            }
+        });
+    }
+
+    // Restores any area/neighborhood chips the user had picked before this
+    // same search was submitted (search-bar.blade.php's #frmhomesearch
+    // carries them as plain city_area ids in "keyword[]", matching
+    // PropertyRepository::getPropertiesByMap()'s filter key) - addChip()
+    // only ever gets called from a live autocomplete pick, so without this
+    // a search with an area filter that lands here (e.g. from the home
+    // page, or on reload) shows the area's hidden inputs gone and the
+    // chips empty, even though city_id/other filters came back fine.
+    function restoreAreaChipsFromQuery() {
+        var ids = new URLSearchParams(window.location.search).getAll('keyword[]');
+
+        ids.forEach(function (id) {
+            var match = null;
+            for (var i = 0; i < cityAreaArray.length; i++) {
+                if (String(cityAreaArray[i].id) === String(id)) {
+                    match = cityAreaArray[i];
+                    break;
+                }
+            }
+            if (match) {
+                addChip({ data: match.id, value: match.city_area_name });
             }
         });
     }
@@ -159,11 +185,17 @@ $(document).ready(function () {
     });
 
     function addChip(chipContent) {
+        // The hidden input is what actually makes the chip part of the
+        // search - FormData(#frmhomesearch) picks it up by name just like
+        // any other field - removing the chip (see the chip-close handler
+        // below) removes this whole <div class="chip">, taking the input
+        // with it, so no separate cleanup is needed there.
         var chipHtml = '<div class="chip">' +
             '<div class="chip-content" data-value=' + chipContent.data + '>' + chipContent.value + '</div>' +
             '<div class="chip-close">' +
             '<svg class="chip-svg" focusable="false" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"></path></svg>' +
-            '</div>';
+            '</div>' +
+            '<input type="hidden" name="keyword[]" value="' + chipContent.data + '">';
 
         var index = findNode(chipContent.data);
         if (index <= -1) {

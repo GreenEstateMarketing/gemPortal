@@ -159,6 +159,27 @@
     font-size: 14px;
 }
 
+.properties-highlights__suggestions {
+    margin-top: 40px;
+    padding-top: 40px;
+    border-top: 1px solid #ececec;
+}
+
+.properties-highlights__suggestions-heading {
+    font-family: var(--header-font-heading);
+    font-weight: 700;
+    color: var(--header-navy);
+    font-size: 22px;
+    line-height: 1.2;
+    margin: 0 0 8px;
+}
+
+.properties-highlights__suggestions-text {
+    color: #6b7280;
+    font-size: 14px;
+    margin: 0 0 24px;
+}
+
 /* =========================================================
    RESPONSIVE
    ========================================================= */
