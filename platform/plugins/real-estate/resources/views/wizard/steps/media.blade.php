@@ -28,7 +28,7 @@
     <form {{ ($isLocked ?? false) ? '' : 'data-step-form' }} action="{{ $stepUrls['media'] }}" method="post">
         <fieldset {{ ($isLocked ?? false) ? 'disabled' : '' }} style="border:0; padding:0; margin:0;{{ ($isLocked ?? false) ? ' pointer-events:none; opacity:0.7;' : '' }}">
         <div class="wizard-field wizard-field--span2">
-            <label>{{ __('Photos') }}</label>
+            <label class="required">{{ __('Photos') }}</label>
             <p class="wizard-hint" style="margin-bottom:10px;">{{ __('Add between 1 and 20 photos of the property.') }} <span data-uploader-count="images"></span></p>
             <div data-uploader="images">
                 <div class="wizard-upload">
@@ -52,9 +52,11 @@
                     $slotItems = $documentItemsByType->get($document->id, collect())->values()->all();
                 @endphp
                 <div class="wizard-field wizard-field--span2" style="margin-top:20px;">
-                    <label>
+                    <label class="{{ $categoryDocument->required ? 'required' : '' }}">
                         {{ $document->name }}
-                        <span class="wizard-hint">({{ $categoryDocument->required ? __('required') : __('optional') }})</span>
+                        @unless ($categoryDocument->required)
+                            <span class="wizard-hint">({{ __('optional') }})</span>
+                        @endunless
                     </label>
                     <div data-uploader="documents_{{ $document->id }}">
                         <div class="wizard-upload">

@@ -19,6 +19,10 @@
 
     @include('plugins/real-estate::wizard.partials.sub-header')
 
+    @if ($activeStep >= 1 && $activeStep <= 3)
+        <p class="wizard-required-notice">{{ __('Fields marked with a red') }} <span class="wizard-required-notice__mark">*</span> {{ __('are required.') }}</p>
+    @endif
+
     @if ($activeStep === 1)
         @include('plugins/real-estate::wizard.steps.basics')
     @elseif ($activeStep === 2)

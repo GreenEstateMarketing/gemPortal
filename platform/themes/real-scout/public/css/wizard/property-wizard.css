@@ -360,10 +360,27 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
     color: var(--pw-navy);
 }
 
+.wizard-field label.required::after {
+    content: " *";
+    color: var(--pw-danger);
+    font-weight: 700;
+}
+
 .wizard-field .wizard-hint {
     font-size: 12px;
     color: var(--pw-text-muted);
     font-weight: 400;
+}
+
+.wizard-required-notice {
+    font-size: 13px;
+    color: var(--pw-text-muted);
+    margin: -6px 0 20px;
+}
+
+.wizard-required-notice .wizard-required-notice__mark {
+    color: var(--pw-danger);
+    font-weight: 700;
 }
 
 /* Listing-type toggle (For Sale / For Rent) */

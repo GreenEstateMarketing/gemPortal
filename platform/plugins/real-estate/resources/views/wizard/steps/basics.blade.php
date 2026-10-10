@@ -77,7 +77,7 @@
         <fieldset {{ ($isLocked ?? false) ? 'disabled' : '' }} style="border:0; padding:0; margin:0;">
         <div class="wizard-field-grid">
             <div class="wizard-field wizard-field--span2">
-                <label>{{ __('Listing Type') }}</label>
+                <label class="required">{{ __('Listing Type') }}</label>
                 <div class="wizard-toggle-group" data-type-toggle>
                     <button type="button" class="wizard-toggle-btn {{ $effectiveType == 'sale' ? 'wizard-toggle-btn--active' : '' }}" data-type-value="sale">
                         <i class="fas fa-tag"></i> {{ __('For Sale') }}
@@ -91,7 +91,7 @@
             </div>
 
             <div class="wizard-field wizard-field--span2">
-                <label>{{ __('Category') }}</label>
+                <label class="required">{{ __('Category') }}</label>
                 <div class="wizard-chip-row" data-category-row>
                     @foreach ($topCategories as $category)
                         <button type="button" class="wizard-chip-btn {{ $selectedParentId == $category->id ? 'wizard-chip-btn--active' : '' }}" data-category-option="{{ $category->id }}">{{ $category->name }}</button>
@@ -113,7 +113,7 @@
             <input type="hidden" id="wizard-category-name" value="{{ $categoryNameValue }}">
 
             <div class="wizard-field wizard-field--span2">
-                <label>{{ __('Ad Title') }} <span class="wizard-hint">({{ __('be clear and specific - this is the first thing buyers see') }})</span></label>
+                <label class="required">{{ __('Ad Title') }} <span class="wizard-hint">({{ __('be clear and specific - this is the first thing buyers see') }})</span></label>
                 <input type="text" class="wizard-input" data-field="name" value="{{ $p->name === 'Untitled draft' ? '' : $p->name }}" placeholder="{{ __('e.g. Modern 3 Bedroom Apartment in Downtown') }}">
                 <div class="wizard-error" data-error-for="name"></div>
             </div>
@@ -141,7 +141,7 @@
             </div>
 
             <div class="wizard-field">
-                <label>{{ __('Price') }}</label>
+                <label class="required">{{ __('Price') }}</label>
                 <div class="wizard-input-group">
                     <input type="number" step="0.01" min="0" class="wizard-input" data-field="price" value="{{ $p->price }}" placeholder="{{ __('e.g. 150000') }}">
                     <select class="wizard-select" data-field="currency_id" style="max-width: 110px;">
@@ -160,7 +160,7 @@
             </div>
 
             <div class="wizard-field">
-                <label>{{ __('Area') }}</label>
+                <label class="required">{{ __('Area') }}</label>
                 <div class="wizard-input-group">
                     <input type="number" step="0.01" min="0" class="wizard-input" data-field="square" id="wizard-square" value="{{ $squareValue }}" placeholder="{{ __('e.g. 1200') }}">
                     <select class="wizard-select" data-field="area_units" id="wizard-area-units" style="max-width: 110px;" data-area-factors="{{ json_encode($areaUnitToSqFtFactor) }}" data-previous-unit="{{ $selectedAreaUnit }}">

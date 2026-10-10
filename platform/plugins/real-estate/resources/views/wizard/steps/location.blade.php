@@ -15,7 +15,7 @@
         <fieldset {{ ($isLocked ?? false) ? 'disabled' : '' }} style="border:0; padding:0; margin:0;">
         <div class="wizard-field-grid">
             <div class="wizard-field">
-                <label>{{ __('Country') }}</label>
+                <label class="required">{{ __('Country') }}</label>
                 <div class="wizard-combobox" data-combobox="country" data-combobox-options="{{ $countries->map(function ($c) { return ['id' => $c->id, 'name' => $c->name]; })->toJson() }}">
                     <input type="text" class="wizard-input" data-combobox-input autocomplete="off" placeholder="{{ __('Search country...') }}" value="{{ optional($countries->firstWhere('id', $p->country_id))->name }}">
                     <input type="hidden" data-field="country_id" data-combobox-value value="{{ $p->country_id }}">
@@ -25,7 +25,7 @@
             </div>
 
             <div class="wizard-field">
-                <label>{{ __('State') }}</label>
+                <label class="required">{{ __('State') }}</label>
                 <div class="wizard-combobox" data-combobox="state">
                     <input type="text" class="wizard-input" data-combobox-input autocomplete="off" placeholder="{{ __('Search state...') }}" value="{{ optional($selectedState)->name }}">
                     <input type="hidden" data-field="state_id" data-combobox-value value="{{ $p->state_id }}">
@@ -35,7 +35,7 @@
             </div>
 
             <div class="wizard-field">
-                <label>{{ __('City') }}</label>
+                <label class="required">{{ __('City') }}</label>
                 <div class="wizard-combobox" data-combobox="city">
                     <input type="text" class="wizard-input" data-combobox-input autocomplete="off" placeholder="{{ __('Search city...') }}" value="{{ optional($p->city)->name }}">
                     <input type="hidden" data-field="city_id" data-combobox-value value="{{ $p->city_id }}">
@@ -45,7 +45,7 @@
             </div>
 
             <div class="wizard-field">
-                <label>{{ __('City Area') }}</label>
+                <label class="required">{{ __('City Area') }}</label>
                 <div class="wizard-combobox" data-combobox="city_area">
                     <input type="text" class="wizard-input" data-combobox-input autocomplete="off" placeholder="{{ __('Search city area...') }}" value="{{ optional($p->cityArea)->city_area_name }}">
                     <input type="hidden" data-field="city_area_id" data-combobox-value value="{{ $p->city_area_id }}">
@@ -55,7 +55,7 @@
             </div>
 
             <div class="wizard-field wizard-field--span2">
-                <label>{{ __('Address') }}</label>
+                <label class="required">{{ __('Address') }}</label>
                 <input type="text" class="wizard-input" data-field="location" id="wizard-location-input" value="{{ $p->location }}" placeholder="{{ __('Search for an address...') }}">
                 <div class="wizard-error" data-error-for="location"></div>
             </div>
