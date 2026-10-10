@@ -90,11 +90,35 @@
             ? '<img class="properties-map-popup__image" src="' + escapeHtml(property.image) + '" alt="' + escapeHtml(property.name) + '">'
             : '';
 
+        var location = property.location
+            ? '<p class="properties-map-popup__location"><i class="fas fa-map-marker-alt"></i> ' + escapeHtml(property.location) + '</p>'
+            : '';
+
+        var meta = '';
+        if (property.number_bedroom) {
+            meta += '<span><i class="fas fa-bed"></i> ' + escapeHtml(property.number_bedroom) + ' Beds</span>';
+        }
+        if (property.number_bathroom) {
+            meta += '<span><i class="fas fa-bath"></i> ' + escapeHtml(property.number_bathroom) + ' Baths</span>';
+        }
+        if (property.square_text) {
+            meta += '<span><i class="fas fa-ruler-combined"></i> ' + escapeHtml(property.square_text) + '</span>';
+        }
+        var metaHtml = meta ? '<div class="properties-map-popup__meta">' + meta + '</div>' : '';
+
         return (
             '<div class="properties-map-popup">' +
             image +
-            '<p class="properties-map-popup__price">' + escapeHtml(property.price) + '</p>' +
-            '<a class="properties-map-popup__title" href="' + escapeHtml(property.url) + '">' + escapeHtml(property.name_short || property.name) + '</a>' +
+            // A <p> here collides with Leaflet's own ".leaflet-popup-content p"
+            // base rule (margin: 18px 0), which outranks a single-class
+            // selector on specificity - using <div> avoids fighting that.
+            '<div class="properties-map-popup__price">' + escapeHtml(property.price) + '</div>' +
+            '<a class="properties-map-popup__title" href="' + escapeHtml(property.url) + '">' +
+            '<span class="properties-map-popup__title-text">' + escapeHtml(property.name_short || property.name) + '</span>' +
+            '<i class="fas fa-arrow-right properties-map-popup__title-arrow"></i>' +
+            '</a>' +
+            location +
+            metaHtml +
             '</div>'
         );
     }
@@ -182,7 +206,14 @@
         markersLayer.clearLayers();
 
         var bounds = [];
+        var coordGroups = {};
 
+        // Some listings share identical lat/lng (e.g. several properties
+        // saved against the same unvalidated city-center point) - stacking
+        // them exactly on top of each other makes the map show fewer
+        // visible pins than there are search results. Group by coordinate
+        // and nudge duplicates into a small ring around the shared point so
+        // every result still gets its own, clickable marker.
         (properties || []).forEach(function (property) {
             var lat = parseFloat(property.latitude);
             var lng = parseFloat(property.longitude);
@@ -191,9 +222,39 @@
                 return;
             }
 
-            var marker = L.marker([lat, lng], { icon: goldPinIcon }).bindPopup(buildPopupHtml(property));
-            markersLayer.addLayer(marker);
-            bounds.push([lat, lng]);
+            var key = lat.toFixed(5) + ',' + lng.toFixed(5);
+            (coordGroups[key] = coordGroups[key] || []).push({ property: property, lat: lat, lng: lng });
+        });
+
+        Object.keys(coordGroups).forEach(function (key) {
+            var group = coordGroups[key];
+
+            group.forEach(function (entry, index) {
+                var lat = entry.lat;
+                var lng = entry.lng;
+
+                if (group.length > 1) {
+                    var angle = (2 * Math.PI * index) / group.length;
+                    var radius = 0.0004; // ~40m - enough to visually separate pins at typical zoom
+                    lat += radius * Math.cos(angle);
+                    lng += (radius * Math.sin(angle)) / Math.cos((lat * Math.PI) / 180);
+                }
+
+                var marker = L.marker([lat, lng], { icon: goldPinIcon })
+                    .bindPopup(buildPopupHtml(entry.property), {
+                        minWidth: 230,
+                        maxWidth: 230,
+                        // style.css has a pre-existing global
+                        // ".leaflet-popup-content-wrapper/-content { width: ... !important }"
+                        // rule (left over from another map elsewhere in the
+                        // theme) that overrides minWidth/maxWidth site-wide.
+                        // This className scopes a matching-specificity
+                        // override in properties-map.css to just this popup.
+                        className: 'properties-map-popup-leaflet'
+                    });
+                markersLayer.addLayer(marker);
+                bounds.push([lat, lng]);
+            });
         });
 
         if (countBadge) {

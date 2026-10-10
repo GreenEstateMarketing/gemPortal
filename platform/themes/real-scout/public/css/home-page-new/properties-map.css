@@ -148,8 +148,23 @@
     border-radius: 10px;
 }
 
+/*
+   style.css has a global ".leaflet-popup-content-wrapper / -content
+   { width: 380px / 350px !important }" rule left over from another map
+   elsewhere in the theme, which overrides this popup's intended width
+   regardless of source order. These two-class selectors outrank that
+   single-class rule even though both are !important.
+*/
+.properties-map-popup-leaflet .leaflet-popup-content-wrapper {
+    width: 270px !important;
+}
+
+.properties-map-popup-leaflet .leaflet-popup-content {
+    width: 230px !important;
+}
+
 .properties-map-popup {
-    width: 200px;
+    width: 230px;
     font-family: var(--header-font-body);
 }
 
@@ -170,17 +185,108 @@
 }
 
 .properties-map-popup__title {
-    display: block;
-    color: var(--header-navy);
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    width: fit-content;
+    max-width: 100%;
     font-weight: 600;
-    font-size: 13.5px;
     line-height: 1.4;
     text-decoration: none;
-    margin: 0;
+    margin: 0 0 6px;
+    cursor: pointer;
+    transition: color 0.2s ease, gap 0.2s ease;
 }
 
-.properties-map-popup__title:hover {
-    color: var(--header-gold-hover);
+/*
+   style.css's global ".leaflet-container a { color: black !important;
+   font-size: 17px !important }" (left over from another map elsewhere in
+   the theme) otherwise silently overrides this link's color and size, and
+   would also block the :hover color change below - !important alone isn't
+   enough to beat it, since that rule's class+element selector (0,1,1)
+   outranks a plain ".properties-map-popup__title" (0,1,0). Scoping through
+   the popup's own className (0,2,0) wins on specificity instead.
+*/
+.properties-map-popup-leaflet .properties-map-popup__title {
+    color: var(--header-navy) !important;
+    font-size: 13.5px !important;
+}
+
+.properties-map-popup__title::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 100%;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.25s ease;
+}
+
+.properties-map-popup__title-text {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.properties-map-popup__title-arrow {
+    font-size: 10px;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.properties-map-popup-leaflet .properties-map-popup__title:hover {
+    color: var(--header-gold-hover) !important;
+    gap: 6px;
+}
+
+.properties-map-popup__title:hover::after {
+    transform: scaleX(1);
+}
+
+.properties-map-popup__title:hover .properties-map-popup__title-arrow {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.properties-map-popup__location {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: #6b7280;
+    font-size: 12px;
+    margin: 0 0 8px;
+}
+
+.properties-map-popup__location i {
+    color: var(--header-gold);
+    font-size: 11px;
+}
+
+.properties-map-popup__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-top: 8px;
+    border-top: 1px solid #ececec;
+}
+
+.properties-map-popup__meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--header-navy);
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.properties-map-popup__meta i {
+    color: var(--header-gold);
+    font-size: 11px;
 }
 
 .properties-map-section__empty {
