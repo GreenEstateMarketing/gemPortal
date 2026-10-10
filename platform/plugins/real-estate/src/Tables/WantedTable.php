@@ -166,7 +166,9 @@ class WantedTable extends TableAbstract
                 'type' => 'select',
                 'choices' => [
                     'buy' => 'Buy',
-                    'rent' => 'Rent'
+                    'rent' => 'Rent',
+                    'invest' => 'Invest',
+                    'build' => 'Build & Construct',
                 ],
             ],
         ];

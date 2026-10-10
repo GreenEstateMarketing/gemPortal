@@ -1,0 +1,391 @@
+/*
+    Path in theme: platform/themes/real-scout/public/css/wanted/wanted-page.css
+    Served copy:   public/themes/real-scout/css/wanted/wanted-page.css (keep both in sync manually)
+
+    Redesign of the public "Wanted" lead-capture page (/wanted), replacing the
+    old Bootstrap-4 markup with the site's 2026 navy/gold/cream design
+    language. Deliberately NOT a from-scratch system: the form card itself
+    reuses platform/themes/real-scout/public/css/wizard/property-wizard.css's
+    .wizard-panel / .wizard-field-grid / .wizard-chip-* / .wizard-input /
+    .wizard-btn classes verbatim (loaded alongside this file - see
+    wanted.blade.php) so the page matches the Add Property wizard's form
+    styling exactly. This file only adds what has no existing precedent: the
+    split photo hero and the 4-tile goal selector.
+*/
+
+:root {
+    --wp-navy: #1a1d24;
+    --wp-gold: #e0a63e;
+    --wp-gold-hover: #cf9530;
+    --wp-white: #ffffff;
+    --wp-text-muted: #6b7280;
+    --wp-border: #e6e2d8;
+    --wp-bg: #f6f2ea;
+    --wp-danger: #c0392b;
+    --wp-font-heading: 'Playfair Display', Georgia, serif;
+    --wp-font-body: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --wp-max-width: 1200px;
+}
+
+.wanted-page, .wanted-page * {
+    box-sizing: border-box;
+}
+
+.wanted-page {
+    font-family: var(--wp-font-body);
+    color: var(--wp-navy);
+    background: var(--wp-bg);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* =========================================================
+   HERO
+   ========================================================= */
+.wanted-hero__inner {
+    max-width: var(--wp-max-width);
+    margin: 0 auto;
+    padding: 64px 24px 48px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 56px;
+    align-items: center;
+}
+
+.wanted-hero__content {
+    max-width: 520px;
+}
+
+.wanted-hero__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--wp-gold);
+    font-weight: 600;
+    font-size: 12.5px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+}
+
+.wanted-hero__eyebrow::before {
+    content: "";
+    display: inline-block;
+    width: 24px;
+    height: 2px;
+    background: var(--wp-gold);
+}
+
+.wanted-hero__heading {
+    font-family: var(--wp-font-heading);
+    font-weight: 700;
+    color: var(--wp-navy);
+    font-size: 42px;
+    line-height: 1.18;
+    margin: 0 0 18px;
+}
+
+.wanted-hero__heading-accent {
+    color: var(--wp-gold);
+    font-style: italic;
+}
+
+.wanted-hero__text {
+    color: var(--wp-text-muted);
+    font-size: 15px;
+    line-height: 1.7;
+    margin: 0 0 26px;
+}
+
+.wanted-hero__highlights {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+}
+
+.wanted-hero__highlight {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--wp-navy);
+}
+
+.wanted-hero__highlight i {
+    color: var(--wp-gold);
+    font-size: 14px;
+}
+
+.wanted-hero__image-wrap {
+    position: relative;
+}
+
+.wanted-hero__image {
+    width: 100%;
+    height: 380px;
+    object-fit: cover;
+    display: block;
+    border-radius: 20px 72px 20px 20px;
+    box-shadow: 0 20px 48px rgba(26, 29, 36, 0.18);
+}
+
+.wanted-hero__caption {
+    position: absolute;
+    left: 24px;
+    bottom: 24px;
+    background: var(--wp-white);
+    border-radius: 12px;
+    padding: 14px 18px;
+    box-shadow: 0 10px 28px rgba(26, 29, 36, 0.16);
+    max-width: 260px;
+}
+
+.wanted-hero__caption-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--wp-navy);
+    margin: 0 0 3px;
+}
+
+.wanted-hero__caption-text {
+    font-size: 12px;
+    color: var(--wp-text-muted);
+    margin: 0;
+}
+
+/* =========================================================
+   FORM SECTION
+   ========================================================= */
+.wanted-form-section {
+    max-width: var(--wp-max-width);
+    margin: 0 auto;
+    padding: 0 24px 80px;
+}
+
+.wanted-panel-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+
+.wanted-panel-head__eyebrow {
+    display: block;
+    color: var(--wp-gold);
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.wanted-panel-head__title {
+    font-family: var(--wp-font-heading);
+    font-weight: 700;
+    font-size: 28px;
+    color: var(--wp-navy);
+    margin: 0 0 8px;
+}
+
+.wanted-panel-head__desc {
+    font-size: 14px;
+    color: var(--wp-text-muted);
+    margin: 0;
+}
+
+.wanted-protected-note {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #2f9e5c;
+    white-space: nowrap;
+    margin-top: 6px;
+}
+
+.wanted-divider {
+    border: none;
+    border-top: 1px solid var(--wp-border);
+    margin: 0 0 28px;
+}
+
+.wanted-section-label {
+    display: block;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--wp-navy);
+    margin-bottom: 12px;
+}
+
+/* Goal selector (Buy / Rent / Invest / Build) */
+.wanted-goal-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 28px;
+}
+
+.wanted-goal-tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    text-align: left;
+    padding: 18px 16px;
+    border-radius: 14px;
+    border: 2px solid var(--wp-border);
+    background: var(--wp-white);
+    font-family: var(--wp-font-body);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.wanted-goal-tile:focus-visible,
+.wizard-chip-btn:focus-visible {
+    outline: 2px solid var(--wp-gold);
+    outline-offset: 2px;
+}
+
+.wanted-goal-tile:hover {
+    border-color: var(--wp-gold);
+}
+
+.wanted-goal-tile--active {
+    border-color: var(--wp-gold);
+    background: rgba(224, 166, 62, 0.08);
+    box-shadow: 0 6px 16px rgba(224, 166, 62, 0.18);
+}
+
+.wanted-goal-tile__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--wp-bg);
+    color: var(--wp-text-muted);
+    font-size: 16px;
+}
+
+.wanted-goal-tile--active .wanted-goal-tile__icon {
+    background: var(--wp-gold);
+    color: var(--wp-white);
+}
+
+.wanted-goal-tile__title {
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    color: var(--wp-navy);
+}
+
+.wanted-goal-tile__subtitle {
+    font-size: 12.5px;
+    color: var(--wp-text-muted);
+    margin-top: -6px;
+}
+
+.wanted-goal-tile__check {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--wp-gold);
+    color: var(--wp-white);
+    font-size: 10px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.wanted-goal-tile--active .wanted-goal-tile__check {
+    display: inline-flex;
+}
+
+/* Nested category/type box */
+.wanted-subgroup {
+    background: var(--wp-bg);
+    border: 1px solid var(--wp-border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    margin-bottom: 28px;
+}
+
+.wanted-subgroup__row + .wanted-subgroup__row {
+    margin-top: 18px;
+}
+
+/* Invest/Build project sub-block */
+.wanted-project-block {
+    margin-bottom: 8px;
+}
+
+.wanted-form-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 28px;
+    padding-top: 24px;
+    border-top: 1px solid var(--wp-border);
+}
+
+.wanted-form-footer__note {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--wp-text-muted);
+}
+
+.wanted-form-footer__note i {
+    color: #2f9e5c;
+}
+
+@media (max-width: 1024px) {
+    .wanted-hero__inner {
+        grid-template-columns: 1fr;
+        padding: 48px 20px 36px;
+    }
+
+    .wanted-hero__content {
+        max-width: none;
+    }
+
+    .wanted-goal-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .wanted-hero__heading {
+        font-size: 32px;
+    }
+
+    .wanted-hero__image {
+        height: 260px;
+        border-radius: 16px 48px 16px 16px;
+    }
+
+    .wanted-panel-head {
+        flex-direction: column;
+    }
+
+    .wanted-form-footer {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .wanted-form-footer .wizard-btn {
+        width: 100%;
+    }
+}

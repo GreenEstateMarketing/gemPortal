@@ -303,12 +303,13 @@ return [
             if (Route::current() && Route::current()->getName() == "public.member.package.subscribe" && Route::current() && Route::current()->getName() == "public.account.package.subscribe") {
                 $theme->asset()->container('footer')->add('checkout-js', '/js/checkout.js');
             }
-            if (Route::current() && Route::current()->getName() == "wanted") {
-                $theme->asset()->add('select2-css', '/vendor/core/core/base/libraries/select2/css/select2.min.css', [], []);
-                $theme->asset()->add('wanted-css', 'css/wanted.css', [], []);
-                $theme->asset()->container('footer')->add('wanted-js', '/js/wanted.js');
-                $theme->asset()->container('footer')->add('select2-js', '/vendor/core/core/base/libraries/select2/js/select2.min.js');
-            }
+            // Wanted page redesign (2026) - the CSS/JS for this page are now
+            // loaded directly via <link>/<script> tags inside
+            // views/real-estate/member/wanted.blade.php (same convention the
+            // Add Property wizard's views use for property-wizard.css/js),
+            // not route-gated here. select2/wanted.css/wanted.js are no
+            // longer used by this page - the redesign uses plain styled
+            // <select> elements and its own wanted-page.css/js instead.
             if (Route::current() && Route::current()->getName() == "public.index" || Route::current() && Route::current()->getName() == "public.properties" || Route::current() && Route::current()->getName() == "public.projects") {
 
                 //$theme->asset()->container('footer')->add('choosen-js', '/js/chosen.jquery.min.js');
