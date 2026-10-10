@@ -734,7 +734,11 @@
         $(".property-category-search-dropdown").css('display','none');
 
     });
-    $( "#hometypesearch" ).on( "click","a", function( event ) {
+    // Scoped to the Buy/Rent/Projects tabs specifically, not "a" generally -
+    // #hometypesearch now also contains the "Reset Filters" link
+    // (search-bar.blade.php), which must navigate normally instead of
+    // being caught here, preventDefault()'d, and treated as a tab switch.
+    $( "#hometypesearch" ).on( "click",".hero-search-card__tab", function( event ) {
         event.preventDefault();
         type=$("#txttypesearch").val();
         $(this).parent().parent().find(".p-category").first().addClass("category-parent-active");
@@ -1006,6 +1010,69 @@
         $(".unit-min-ul li").removeClass("category-li-item-active");
         $(".unit-max-ul li").removeClass("category-li-item-active");
     });
+
+    // Per-field "x" clear buttons on the shared search bar
+    // (home-page-new/search-bar.blade.php). Each only clears that one
+    // field's current value - nothing here submits the form or touches the
+    // URL, so an emptied field simply won't be part of the filters the next
+    // time the user actually searches (buildSearchParams()/
+    // buildRawQueryParams() in properties-map.js already skip empty values).
+    //
+    // The city/category/price/area buttons all live INSIDE a trigger
+    // element that has its own click-to-open behavior - Bootstrap's
+    // [data-toggle="dropdown"] handling for price/area, and the
+    // #propertydropdownMenuLink-forwarding click handler (below, this same
+    // file) for category. Those are also bound via document-delegation and
+    // call stopPropagation() themselves, and since they were bound first
+    // (Bootstrap's dropdown.js loads before this file), a same-phase (i.e.
+    // bubble, jQuery .on()'s default) delegated handler registered here
+    // would lose that race and never even run. Using the CAPTURE phase
+    // (plain addEventListener's 3rd arg) runs this first, before the event
+    // ever reaches those bubble-phase handlers, so stopPropagation() here
+    // reliably pre-empts them instead of racing them.
+    document.addEventListener("click", function (e) {
+        var button = e.target.closest(".hero-search-card__field-clear");
+
+        if (!button) {
+            return;
+        }
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        var target = button.getAttribute("data-clear-target");
+
+        switch (target) {
+            case "city":
+                // Triggering "change" also runs homechoosen.js's own
+                // handler, which clears every area chip - correct here
+                // since the area/neighborhood list is scoped to a city.
+                $("#city_id").val("0").trigger("change");
+                break;
+            case "category":
+                $(".category_id").val("");
+                $(".category_id_text").text("Any Type");
+                break;
+            case "bedroom":
+                $("select[name='bedroom']").val("");
+                break;
+            case "bathroom":
+                $("select[name='bathroom']").val("");
+                break;
+            case "floor":
+                // Two <select name="floor"> exist (home + commercial
+                // variant, toggled via category selection) - clear both.
+                $("select[name='floor']").val("");
+                break;
+            case "price":
+                $(".btn-reset-price").trigger("click");
+                break;
+            case "unit":
+                $(".btn-reset-unit").trigger("click");
+                break;
+        }
+    }, true);
+
     /*$('#area_units-val').on('change',function(e) {
         e.stopPropagation();
         $("input[name='max_unit']").val('');

@@ -21,9 +21,14 @@
             <a href="javascript:void(0)" class="top-right-radius hero-search-card__tab" rel="project"
                 data-url="{{ route('public.projects') }}">{{ __('Projects') }}</a>
 
-            <span class="hero-search-card__search-label">
-                <i class="far fa-search"></i> {{ __('Search Property') }}
-            </span>
+            {{-- Plain link, not JS: request()->url() is always the current
+                 path with no query string, so this works identically on
+                 every page the shared search bar renders on (home,
+                 /properties) without needing to know which one it's on. --}}
+            <a href="{{ request()->url() }}" class="hero-search-card__search-label hero-search-card__reset-all"
+                title="{{ __('Reset all filters') }}">
+                <i class="far fa-times-circle"></i> {{ __('Reset Filters') }}
+            </a>
         </div>
 
         <form action="{{ route('public.properties') }}" method="GET" id="frmhomesearch" class="hero-search-card__form">
@@ -84,6 +89,8 @@
                                 </option>
                             @endforeach
                         </select>
+                        <button type="button" class="hero-search-card__field-clear" data-clear-target="city"
+                            title="{{ __('Clear city') }}" aria-label="{{ __('Clear city') }}">&times;</button>
                     </div>
                 </div>
 
@@ -110,6 +117,8 @@
                              (.hero-search-card__dropdown-trigger::after) should show. --}}
                         <span id="propertydropdownMenuLink"></span>
                         <span class="category_id_text hero-search-card__dropdown-toggle">{{ __('Any Type') }}</span>
+                        <button type="button" class="hero-search-card__field-clear" data-clear-target="category"
+                            title="{{ __('Clear property type') }}" aria-label="{{ __('Clear property type') }}">&times;</button>
                     </div>
 
                     {{-- Category popover -- unchanged markup, just relocated to sit near its trigger --}}
@@ -177,6 +186,8 @@
                                 {{ __('Price Range') }}:
                                 <span class="min_price_text">0</span> - <span class="max_price_text">{{ __('Any') }}</span>
                                 <span class="currency">{{ CurrentCurrency()->title }}</span>
+                                <button type="button" class="hero-search-card__field-clear" data-clear-target="price"
+                                    title="{{ __('Clear price range') }}" aria-label="{{ __('Clear price range') }}">&times;</button>
                             </a>
                             <div class="dropdown-menu" style="padding:10px;width:100%">
                                 <div class="row justify-content-center">
@@ -234,6 +245,8 @@
                                         <option value="5" @if (request()->input('bedroom') == 5) selected @endif>
                                             {{ __('5+ rooms') }}</option>
                                     </select>
+                                    <button type="button" class="hero-search-card__field-clear hero-search-card__field-clear--select"
+                                        data-clear-target="bedroom" title="{{ __('Clear bedrooms') }}" aria-label="{{ __('Clear bedrooms') }}">&times;</button>
                                     <i class="fas fa-angle-down"></i>
                                 </div>
                             </div>
@@ -249,6 +262,8 @@
                                         <option value="5" @if (request()->input('bathroom') == 5) selected @endif>
                                             {{ __('5+ rooms') }}</option>
                                     </select>
+                                    <button type="button" class="hero-search-card__field-clear hero-search-card__field-clear--select"
+                                        data-clear-target="bathroom" title="{{ __('Clear bathrooms') }}" aria-label="{{ __('Clear bathrooms') }}">&times;</button>
                                     <i class="fas fa-angle-down"></i>
                                 </div>
                             </div>
@@ -264,6 +279,8 @@
                                         <option value="5" @if (request()->input('floor') == 5) selected @endif>
                                             {{ __('5+ floors') }}</option>
                                     </select>
+                                    <button type="button" class="hero-search-card__field-clear hero-search-card__field-clear--select"
+                                        data-clear-target="floor" title="{{ __('Clear floors') }}" aria-label="{{ __('Clear floors') }}">&times;</button>
                                     <i class="fas fa-angle-down"></i>
                                 </div>
                             </div>
@@ -279,6 +296,8 @@
                                         <option value="5" @if (request()->input('floor') == 5) selected @endif>
                                             {{ __('5+ floors') }}</option>
                                     </select>
+                                    <button type="button" class="hero-search-card__field-clear hero-search-card__field-clear--select"
+                                        data-clear-target="floor" title="{{ __('Clear floors') }}" aria-label="{{ __('Clear floors') }}">&times;</button>
                                     <i class="fas fa-angle-down"></i>
                                 </div>
                             </div>
@@ -292,6 +311,8 @@
                                             href="#" data-toggle="dropdown">{{ __('Price') }}
                                             <span class="currency">{{ CurrentCurrency()->title }}</span>
                                             <strong class="caret"></strong>
+                                            <button type="button" class="hero-search-card__field-clear" data-clear-target="price"
+                                                title="{{ __('Clear price range') }}" aria-label="{{ __('Clear price range') }}">&times;</button>
                                         </a>
                                         <div class="row price-from-to">
                                             <div class="col-md-4"><span class="min_price_text">0</span></div>
@@ -344,6 +365,8 @@
                                             data-toggle="dropdown">{{ __('Area') }}
                                             <span class="currency">({{ getDefaultAreaUnit() }})</span>
                                             <strong class="caret"></strong>
+                                            <button type="button" class="hero-search-card__field-clear" data-clear-target="unit"
+                                                title="{{ __('Clear area range') }}" aria-label="{{ __('Clear area range') }}">&times;</button>
                                         </a>
                                         <div class="row unit-from-to">
                                             <div class="col-md-4"><span class="min_unit_text">0</span></div>
@@ -405,6 +428,8 @@
                                             data-toggle="dropdown">{{ __('Price') }}
                                             <span class="currency">{{ CurrentCurrency()->title }}</span>
                                             <strong class="caret"></strong>
+                                            <button type="button" class="hero-search-card__field-clear" data-clear-target="price"
+                                                title="{{ __('Clear price range') }}" aria-label="{{ __('Clear price range') }}">&times;</button>
                                         </a>
                                         <div class="row price-from-to">
                                             <div class="col-md-4"><span class="min_price_text">0</span></div>

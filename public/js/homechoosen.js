@@ -47,7 +47,6 @@ $(document).ready(function () {
             },
             success: function (response) {
                 cityAreaArray = response.data;
-                restoreAreaChipsFromQuery();
             }
         });
     }
@@ -262,6 +261,15 @@ $(document).ready(function () {
     });
 
     observer.observe(document.querySelector("#chipContainer"), { subtree: false, childList: true });
+
+    // Must run AFTER observer.observe() above, not from inside the ajax
+    // success callback near the top of this function - addChip() just
+    // inserts the <div class="chip">, and it's this observer (via its
+    // addedNodes handler) that pushes it into chipArray and wires up its
+    // own .chip-close click; calling this earlier added the chip to the
+    // DOM with nothing watching yet, so it rendered but could never be
+    // removed by its own "x" and never counted towards chipArray.length.
+    restoreAreaChipsFromQuery();
 
     function setLabel() {
         $('#chipViewMore').children(".chip-content").html(chipArray.length - 1 + ' More+');

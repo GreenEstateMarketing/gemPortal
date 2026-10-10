@@ -186,6 +186,40 @@
     color: var(--header-navy);
 }
 
+.projects-search-card__clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: #eef0f3;
+    color: #6b7280;
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.projects-search-card__clear:hover {
+    background: #e2e4e8;
+    color: var(--header-navy);
+}
+
+.projects-search-card__reset-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 14px;
+    color: var(--header-white);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
 .projects-search-card__submit {
     flex-shrink: 0;
     align-self: center;

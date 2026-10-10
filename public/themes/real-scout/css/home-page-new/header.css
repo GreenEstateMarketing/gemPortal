@@ -1028,6 +1028,53 @@ a.hero-search-card__advanced-bar-trigger.currency {
     font-size: 13px;
 }
 
+/* ---- Reset-all link + per-field "x" clear buttons ---- */
+.hero-search-card__reset-all {
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.hero-search-card__field-clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    margin-left: 6px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: #eef0f3;
+    color: #6b7280;
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.hero-search-card__field-clear:hover {
+    background: #e2e4e8;
+    color: var(--header-navy);
+}
+
+/* Bedroom/Bathroom/Floor: the clear button sits inside the same
+   position:relative .select--arrow wrapper as the down-chevron (see
+   style-oldtheme.css's .select--arrow/.select--arrow i), positioned to its
+   left instead of in normal flex flow - the <select> itself fills the row.
+   Scoped to this panel, not the shared .select--arrow class itself, so
+   other pages reusing that class elsewhere are unaffected. */
+.hero-search-card__advanced-panel .select--arrow .hero-search-card__field-clear--select {
+    position: absolute;
+    top: 50%;
+    right: 28px;
+    transform: translateY(-50%);
+    margin-left: 0;
+}
+
+.hero-search-card__advanced-panel .select--arrow .form-control {
+    padding-right: 48px;
+}
+
 
 /* =========================================================
    OLD-STYLESHEET OVERRIDES

@@ -23,6 +23,8 @@
                 <div class="projects-search-card__input">
                     <i class="fas fa-search"></i>
                     <input type="text" name="name" value="{{ $name }}" placeholder="{{ __('Project name...') }}">
+                    <button type="button" class="projects-search-card__clear" data-clear-target="name"
+                        title="{{ __('Clear') }}" aria-label="{{ __('Clear project name') }}">&times;</button>
                 </div>
             </div>
             <div class="projects-search-card__field">
@@ -35,23 +37,31 @@
                             <option value="{{ $city->id }}" {{ (string) $cityId === (string) $city->id ? 'selected' : '' }}>{{ $city->name }}</option>
                         @endforeach
                     </select>
+                    <button type="button" class="projects-search-card__clear" data-clear-target="city_id"
+                        title="{{ __('Clear') }}" aria-label="{{ __('Clear location') }}">&times;</button>
                 </div>
             </div>
             <div class="projects-search-card__field">
                 <label>{{ __('Type') }}</label>
                 <div class="projects-search-card__input">
                     <i class="fas fa-building"></i>
-                    <select name="category_id">
+                    <select name="category_id" id="projects-category-select">
                         <option value="">{{ __('All types') }}</option>
                         @foreach ($categories as $id => $categoryName)
                             <option value="{{ $id }}" {{ (string) $categoryId === (string) $id ? 'selected' : '' }}>{{ $categoryName }}</option>
                         @endforeach
                     </select>
+                    <button type="button" class="projects-search-card__clear" data-clear-target="category_id"
+                        title="{{ __('Clear') }}" aria-label="{{ __('Clear type') }}">&times;</button>
                 </div>
             </div>
             <button type="submit" class="projects-search-card__submit">
                 {{ __('Search') }} <i class="fas fa-arrow-right"></i>
             </button>
         </form>
+
+        <a href="{{ request()->url() }}" class="projects-search-card__reset-all" title="{{ __('Reset all filters') }}">
+            <i class="far fa-times-circle"></i> {{ __('Reset Filters') }}
+        </a>
     </div>
 </section>
