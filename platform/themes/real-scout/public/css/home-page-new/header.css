@@ -1130,6 +1130,13 @@ a.hero-search-card__advanced-bar-trigger.currency {
     font-weight: 400 !important;
 }
 
+/* Same issue as .category-parent-active above, but for the House/Room/
+   Flat/Upper Portion/etc. subcategory buttons below the tabs. */
+.category-li-item-active {
+    background: var(--header-gold) !important;
+    color: var(--header-white) !important;
+}
+
 /* css/style.css: .listsuggest { width: 45% !important } fights
    css/theme-css.css's width:100% for the same element - this is the
    keyword-suggestions panel appended at the end of the form. Give it
