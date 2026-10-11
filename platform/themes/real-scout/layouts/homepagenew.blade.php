@@ -1,4 +1,5 @@
 {!! Theme::partial('home-page-new/header') !!}
+{!! Theme::partial('home-page-new/usp-showcase') !!}
 {!! Theme::partial('home-page-new/why-choose') !!}
 {!! Theme::partial('home-page-new/how-it-works') !!}
 {!! Theme::partial('home-page-new/about-us') !!}
