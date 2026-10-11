@@ -56,8 +56,6 @@ class PublicController extends Controller
         ProjectInterface $projectRepository
     ) {
         try {
-            $consult = $consultRepository->getModel();
-
             $sendTo = null;
             $link = null;
             $subject = null;
@@ -94,18 +92,22 @@ class PublicController extends Controller
             $consultEntry->email = $request->input('email');
             $consultEntry->content = $request->input('content');
             $consultEntry->interest = $request->input('interest');
+            $consultEntry->preferred_visit_date = $request->input('preferred_visit_date');
+            $consultEntry->preferred_visit_time = $request->input('preferred_visit_time');
             $consultEntry->save();
 
 
             EmailHandler::setModule(REAL_ESTATE_MODULE_SCREEN_NAME)
                 ->setVariableValues([
-                    'consult_name' => $consult->name ?? 'N/A',
-                    'consult_email' => $consult->email ?? 'N/A',
-                    'consult_phone' => $consult->phone ?? 'N/A',
-                    'consult_content' => $consult->content ?? 'N/A',
+                    'consult_name' => $consultEntry->name ?? 'N/A',
+                    'consult_email' => $consultEntry->email ?? 'N/A',
+                    'consult_phone' => $consultEntry->phone ?? 'N/A',
+                    'consult_content' => $consultEntry->content ?? 'N/A',
                     'consult_link' => $link ?? 'N/A',
                     'consult_subject' => $subject ?? 'N/A',
-                    'consult_interest' => $consult->interest ?? 'N/A',
+                    'consult_interest' => $consultEntry->interest ?? 'N/A',
+                    'consult_preferred_date' => $consultEntry->preferred_visit_date ?? 'N/A',
+                    'consult_preferred_time' => $consultEntry->preferred_visit_time ?? 'N/A',
                 ])
                 ->sendUsingTemplate('notice', $sendTo);
 

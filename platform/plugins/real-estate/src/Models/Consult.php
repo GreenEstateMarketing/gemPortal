@@ -29,7 +29,9 @@ class Consult extends BaseModel
         'project_id',
         'property_id',
         'status',
-        'interest'
+        'interest',
+        'preferred_visit_date',
+        'preferred_visit_time',
     ];
 
     /**

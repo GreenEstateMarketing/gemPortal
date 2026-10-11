@@ -94,6 +94,8 @@ class ConsultTable extends TableAbstract
             're_consults.name',
             're_consults.phone',
             're_consults.email',
+            're_consults.preferred_visit_date',
+            're_consults.preferred_visit_time',
             're_consults.created_at',
             're_consults.status',
         ];
@@ -132,6 +134,16 @@ class ConsultTable extends TableAbstract
             'phone'      => [
                 'name'  => 're_consults.phone',
                 'title' => trans('plugins/real-estate::consult.phone'),
+            ],
+            'preferred_visit_date' => [
+                'name'  => 're_consults.preferred_visit_date',
+                'title' => trans('plugins/real-estate::consult.preferred_visit_date'),
+                'width' => '100px',
+            ],
+            'preferred_visit_time' => [
+                'name'  => 're_consults.preferred_visit_time',
+                'title' => trans('plugins/real-estate::consult.preferred_visit_time'),
+                'width' => '80px',
             ],
             'created_at' => [
                 'name'  => 're_consults.created_at',

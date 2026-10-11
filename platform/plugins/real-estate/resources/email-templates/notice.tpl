@@ -20,6 +20,8 @@
                                                 alt="Link" width="20" style="margin-right: 10px;" /> <a href="{{ consult_link }}">{{ consult_subject }}</a></p>
                                         <p><img src="{{ site_url }}/vendor/core/core/base/images/emails/message.png"
                                                 alt="Message" width="20" style="margin-right: 10px;" /> {{ consult_content }}</p>
+                                        <p><strong>Preferred visit date:</strong> {{ consult_preferred_date }}</p>
+                                        <p><strong>Preferred visit time:</strong> {{ consult_preferred_time }}</p>
                                     </td>
                                 </tr>
                                 </tbody>

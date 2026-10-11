@@ -23,6 +23,8 @@ class SendConsultRequest extends Request
                 'content' => 'required',
                 'g-recaptcha-response' => 'required|captcha',
                 'phone' => ['required', 'regex:/^\+?[1-9][0-9]{7,14}$/'],
+                'preferred_visit_date' => 'nullable|date',
+                'preferred_visit_time' => 'nullable|string|max:20',
             ];
         }
         return [
@@ -30,6 +32,8 @@ class SendConsultRequest extends Request
             'email' => 'required|email',
             'content' => 'required',
             'phone' => ['required', 'regex:/^\+?[1-9][0-9]{7,14}$/'],
+            'preferred_visit_date' => 'nullable|date',
+            'preferred_visit_time' => 'nullable|string|max:20',
         ];
     }
 

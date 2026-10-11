@@ -17,4 +17,7 @@
         </div>
     </div>
     <p><strong>{{ trans('plugins/real-estate::consult.content') }}</strong>: <i>{{ $consult->content ? $consult->content : '...' }}</i></p>
+    @if ($consult->preferred_visit_date)
+        <p><strong>{{ trans('plugins/real-estate::consult.preferred_visit_date') }}</strong>: <i>{{ $consult->preferred_visit_date }}</i> <strong>{{ trans('plugins/real-estate::consult.preferred_visit_time') }}</strong>: <i>{{ $consult->preferred_visit_time ?: '...' }}</i></p>
+    @endif
 @endif

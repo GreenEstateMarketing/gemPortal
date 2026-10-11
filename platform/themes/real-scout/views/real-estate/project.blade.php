@@ -281,6 +281,26 @@
                 {{--                </div>--}}
             </div>
             <div class="col-md-3">
+                @php $salesWhatsapp = preg_replace('/\D/', '', (string) theme_option('hotline')); @endphp
+                <div class="boxright">
+                    <div class="head">
+                        {{ __('Contact GEMListing Sales') }}
+                    </div>
+                    <div class="row rowm10 itemagent">
+                        <div class="col">
+                            @if (theme_option('hotline'))
+                                <p class="mb-2"><a href="tel:{{ theme_option('hotline') }}"><i class="fa fa-phone mr-1"></i> {{ theme_option('hotline') }}</a></p>
+                            @endif
+                            @if ($salesWhatsapp)
+                                <p class="mb-2"><a href="https://wa.me/{{ $salesWhatsapp }}" target="_blank" rel="noopener"><i class="fab fa-whatsapp mr-1"></i> {{ __('Chat on WhatsApp') }}</a></p>
+                            @endif
+                            @if (theme_option('email'))
+                                <p class="mb-2"><a href="mailto:{{ theme_option('email') }}"><i class="fa fa-envelope mr-1"></i> {{ theme_option('email') }}</a></p>
+                            @endif
+                            <button type="button" class="btn btn-orange btn-block mt-2" data-toggle="modal" data-target="#scheduleVisitModal">{{ __('Schedule a Site Visit') }}</button>
+                        </div>
+                    </div>
+                </div>
                 @if ($project->author->id)
                     <div class="boxright">
                         <div class="head">
@@ -339,4 +359,5 @@
         <br>
 
     </div>
+    {!! Theme::partial('schedule-visit-modal', ['data' => $project]) !!}
 </main>

@@ -57,4 +57,6 @@ return [
     'view_all'            => 'View all',
     'project'             => 'Project',
     'property'            => 'Property',
+    'preferred_visit_date' => 'Preferred Visit Date',
+    'preferred_visit_time' => 'Preferred Visit Time',
 ];
