@@ -27,11 +27,6 @@
          :root custom properties, and reuses its .btn-primary class. --}}
     <link rel="stylesheet" href="{{ Theme::asset()->url('css/home-page-new/usp-showcase.css') }}">
 
-    {{-- "Why Choose GEMlisting" section stylesheet - relies on the color/font
-         custom properties (--header-navy, --header-gold, etc.) defined
-         on :root in header.css above, so header.css must load first. --}}
-    <link rel="stylesheet" href="{{ Theme::asset()->url('css/home-page-new/why-choose.css') }}">
-
     {{-- "How It Works" section stylesheet - same dependency on header.css's
          :root custom properties. --}}
     <link rel="stylesheet" href="{{ Theme::asset()->url('css/home-page-new/how-it-works.css') }}">

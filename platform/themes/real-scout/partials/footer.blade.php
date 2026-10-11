@@ -105,7 +105,6 @@
                 <ul class="site-footer__links">
                     <li><a href="{{ route('public.index') }}">{{ __('Home') }}</a></li>
                     <li><a href="{{ route('public.properties') }}">{{ __('Properties') }}</a></li>
-                    <li><a href="{{ route('public.index') }}#why-choose-gem">{{ __('Why Choose GEMlisting') }}</a></li>
                     <li><a href="{{ route('public.index') }}#how-it-works">{{ __('How It Works') }}</a></li>
                     <li><a href="{{ $footerAboutUrl }}">{{ __('About Us') }}</a></li>
                     <li><a href="{{ route('public.blog') }}">{{ __('Blog') }}</a></li>
