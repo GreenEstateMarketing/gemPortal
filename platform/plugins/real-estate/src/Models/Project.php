@@ -37,6 +37,7 @@ class Project extends BaseModel
         'images',
         'status',
         'is_featured',
+        'is_verified',
         'investor_id',
         'number_block',
         'number_floor',
@@ -60,6 +61,7 @@ class Project extends BaseModel
      */
     protected $casts = [
         'status' => ProjectStatusEnum::class,
+        'is_verified' => 'boolean',
     ];
 
     /**

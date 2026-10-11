@@ -40,6 +40,9 @@
                             @if ($statusLabel)
                                 <span class="projects-grid-section__card-status {{ $statusClass }}">{{ $statusLabel }}</span>
                             @endif
+                            @if ($project->is_verified)
+                                <span class="projects-grid-section__card-verified"><i class="fas fa-check-circle"></i> {{ __('Verified') }}</span>
+                            @endif
                         </div>
                         <div class="projects-grid-section__card-body">
                             @if ($project->city && $project->city->name)
@@ -48,6 +51,9 @@
                                 </p>
                             @endif
                             <h3 class="projects-grid-section__card-title">{{ $project->name }}</h3>
+                            @if ($project->investor && $project->investor->name)
+                                <p class="projects-grid-section__card-developer">{{ __('By') }} {{ $project->investor->name }}</p>
+                            @endif
                             @if ($project->description)
                                 <p class="projects-grid-section__card-desc">{{ Str::limit(strip_tags($project->description), 90) }}</p>
                             @endif

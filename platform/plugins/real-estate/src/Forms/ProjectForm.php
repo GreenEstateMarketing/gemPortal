@@ -155,6 +155,11 @@ if ($this->getModel() && $this->getModel()->city_id) {
                 'label_attr'    => ['class' => 'control-label'],
                 'default_value' => false,
             ])
+            ->add('is_verified', 'onOff', [
+                'label'         => trans('plugins/real-estate::project.form.is_verified'),
+                'label_attr'    => ['class' => 'control-label'],
+                'default_value' => false,
+            ])
             ->add('description', 'textarea', [
                 'label'      => trans('core/base::forms.description'),
                 'label_attr' => ['class' => 'control-label'],

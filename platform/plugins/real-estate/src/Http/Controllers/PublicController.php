@@ -142,7 +142,7 @@ class PublicController extends Controller
         $project = $projectRepository->getFirstBy(
             ['id' => $slug->reference_id],
             ['*'],
-            ['slugable', 'features', 'currency', 'category', 'facilities']
+            ['slugable', 'features', 'currency', 'category', 'facilities', 'investor']
         );
 
         if (!$project) {
@@ -349,7 +349,7 @@ class PublicController extends Controller
         $perPage = (int) ($request->input('per_page') ?: 6);
 
         $projects = Project::query()
-            ->with(['currency', 'city', 'category'])
+            ->with(['currency', 'city', 'category', 'investor'])
             ->when($name, fn ($query) => $query->where('name', 'LIKE', '%' . $name . '%'))
             ->when($cityId, fn ($query) => $query->where('city_id', $cityId))
             ->when($categoryId, fn ($query) => $query->where('category_id', $categoryId))

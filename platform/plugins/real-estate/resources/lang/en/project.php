@@ -23,6 +23,7 @@ return [
         'city'         => 'City',
         'city_area'    => 'City Area',
         'category'     => 'Category',
+        'is_verified'  => 'Verified',
     ],
     'statuses'        => [
         'not_available'       => 'Not available',

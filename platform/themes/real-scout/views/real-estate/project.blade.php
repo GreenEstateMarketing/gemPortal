@@ -63,8 +63,14 @@
                                     @endphp
                                     <span class="badge {{ $statusBadgeClass }} align-middle ml-2">{{ $project->status->label() }}</span>
                                 @endif
+                                @if ($project->is_verified)
+                                    <span class="badge badge-success align-middle ml-2"><i class="fas fa-check-circle"></i> {{ __('Verified') }}</span>
+                                @endif
                             </h2>
                             <p class="addresshouse"> {{ $project->location }}</p>
+                            @if ($project->investor && $project->investor->name)
+                                <p class="text-muted">{{ __('Developed by') }} <strong>{{ $project->investor->name }}</strong></p>
+                            @endif
 
                         </div>
                         <div class="col-md-4">
@@ -152,7 +158,7 @@
                                             </div>
                                             <div class="col-md-3"> <b class="">{{ __('No. of blocks') }}</b><p> {{ $project->number_block }}</p></div>
 
-                                            <div class="col-md-3"><b class="">{{ __('Built in') }}</b><p> 2005</p></div><!-- later add year built in-->
+                                            <div class="col-md-3"><b class="">{{ __('Possession Date') }}</b><p>{{ $project->date_finish ? \Carbon\Carbon::parse($project->date_finish)->format('d M, Y') : __('To be announced') }}</p></div>
 
                                             <div class="col-md-3"><b class="">{{ __('Added At') }}</b><p>{{ $project->created_at }}</p></div><!-- later add parting type-->
 
