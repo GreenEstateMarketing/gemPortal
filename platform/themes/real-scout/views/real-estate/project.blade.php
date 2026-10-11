@@ -47,7 +47,23 @@
                     </div>
                     <div class="row">
                         <div class="col-8">
-                            <h2 class="titlehouse property_name" id="house-40396">{{ $project->name }}</h2>
+                            <h2 class="titlehouse property_name" id="house-40396">{{ $project->name }}
+                                @if ($project->status)
+                                    @php
+                                        $statusBadgeClass = [
+                                            'not_available' => 'badge-secondary',
+                                            'pre_sale' => 'badge-warning',
+                                            'selling' => 'badge-success',
+                                            'sold' => 'badge-danger',
+                                            'building' => 'badge-info',
+                                            'upcoming' => 'badge-warning',
+                                            'under_construction' => 'badge-info',
+                                            'completed' => 'badge-success',
+                                        ][$project->status->getValue()] ?? 'badge-secondary';
+                                    @endphp
+                                    <span class="badge {{ $statusBadgeClass }} align-middle ml-2">{{ $project->status->label() }}</span>
+                                @endif
+                            </h2>
                             <p class="addresshouse"> {{ $project->location }}</p>
 
                         </div>

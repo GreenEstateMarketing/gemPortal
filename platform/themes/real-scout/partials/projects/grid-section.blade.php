@@ -25,22 +25,9 @@
             <div class="projects-grid-section__grid">
                 @foreach ($projects as $project)
                     @php
-                        $daysOld = $project->created_at ? $project->created_at->diffInDays(now()) : null;
                         $statusValue = $project->status ? $project->status->getValue() : null;
-
-                        if (!is_null($daysOld) && $daysOld <= 60) {
-                            $statusLabel = __('New');
-                            $statusClass = 'is-new';
-                        } elseif (in_array($statusValue, ['pre_sale', 'building'])) {
-                            $statusLabel = __('Coming Soon');
-                            $statusClass = 'is-coming-soon';
-                        } elseif ($statusValue === 'selling') {
-                            $statusLabel = __('Available');
-                            $statusClass = 'is-available';
-                        } else {
-                            $statusLabel = __('Sold');
-                            $statusClass = 'is-sold';
-                        }
+                        $statusLabel = $project->status ? $project->status->label() : null;
+                        $statusClass = $statusValue ? 'is-' . $statusValue : '';
                     @endphp
                     <a href="{{ $project->url }}" title="{{ $project->name }}" class="projects-grid-section__card">
                         <div class="projects-grid-section__card-image-wrap">
@@ -50,7 +37,9 @@
                             @if ($project->is_featured)
                                 <span class="projects-grid-section__card-ribbon"><i class="fas fa-star"></i> {{ __('Featured') }}</span>
                             @endif
-                            <span class="projects-grid-section__card-status {{ $statusClass }}">{{ $statusLabel }}</span>
+                            @if ($statusLabel)
+                                <span class="projects-grid-section__card-status {{ $statusClass }}">{{ $statusLabel }}</span>
+                            @endif
                         </div>
                         <div class="projects-grid-section__card-body">
                             @if ($project->city && $project->city->name)

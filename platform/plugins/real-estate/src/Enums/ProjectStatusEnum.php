@@ -11,6 +11,9 @@ use Html;
  * @method static ProjectStatusEnum SELLING()
  * @method static ProjectStatusEnum SOLD()
  * @method static ProjectStatusEnum BUILDING()
+ * @method static ProjectStatusEnum UPCOMING()
+ * @method static ProjectStatusEnum UNDER_CONSTRUCTION()
+ * @method static ProjectStatusEnum COMPLETED()
  */
 class ProjectStatusEnum extends Enum
 {
@@ -19,6 +22,9 @@ class ProjectStatusEnum extends Enum
     public const SELLING = 'selling';
     public const SOLD = 'sold';
     public const BUILDING = 'building';
+    public const UPCOMING = 'upcoming';
+    public const UNDER_CONSTRUCTION = 'under_construction';
+    public const COMPLETED = 'completed';
 
     /**
      * @var string
@@ -45,6 +51,15 @@ class ProjectStatusEnum extends Enum
                     ->toHtml();
             case self::BUILDING:
                 return Html::tag('span', self::BUILDING()->label(), ['class' => 'label-info status-label'])
+                    ->toHtml();
+            case self::UPCOMING:
+                return Html::tag('span', self::UPCOMING()->label(), ['class' => 'label-warning status-label'])
+                    ->toHtml();
+            case self::UNDER_CONSTRUCTION:
+                return Html::tag('span', self::UNDER_CONSTRUCTION()->label(), ['class' => 'label-info status-label'])
+                    ->toHtml();
+            case self::COMPLETED:
+                return Html::tag('span', self::COMPLETED()->label(), ['class' => 'label-success status-label'])
                     ->toHtml();
             default:
                 return null;

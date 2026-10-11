@@ -153,20 +153,36 @@
     border-radius: 6px;
 }
 
-.projects-grid-section__card-status.is-available {
+.projects-grid-section__card-status.is-selling {
     color: #15803d;
-}
-
-.projects-grid-section__card-status.is-new {
-    color: #1d5f6f;
-}
-
-.projects-grid-section__card-status.is-coming-soon {
-    color: #b45309;
 }
 
 .projects-grid-section__card-status.is-sold {
     color: #6b7280;
+}
+
+.projects-grid-section__card-status.is-pre_sale {
+    color: #b45309;
+}
+
+.projects-grid-section__card-status.is-building {
+    color: #1d5f6f;
+}
+
+.projects-grid-section__card-status.is-not_available {
+    color: #6b7280;
+}
+
+.projects-grid-section__card-status.is-upcoming {
+    color: #b45309;
+}
+
+.projects-grid-section__card-status.is-under_construction {
+    color: #1d5f6f;
+}
+
+.projects-grid-section__card-status.is-completed {
+    color: #15803d;
 }
 
 .projects-grid-section__card-body {
