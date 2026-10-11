@@ -27,8 +27,10 @@ class Package extends BaseModel
     protected $fillable = [
         'name',
         'price',
+        'original_price',
         'currency_id',
         'percent_save',
+        'is_recommended',
         'number_of_listings',
         'account_limit',
         'order',

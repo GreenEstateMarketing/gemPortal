@@ -56,7 +56,7 @@ class PackageForm extends FormAbstract
                 'label'      => trans('plugins/real-estate::package.price'),
                 'label_attr' => ['class' => 'control-label'],
                 'wrapper'    => [
-                    'class' => 'form-group col-md-6',
+                    'class' => 'form-group col-md-4',
                 ],
                 'attr'       => [
                     'id'          => 'price-number',
@@ -64,11 +64,23 @@ class PackageForm extends FormAbstract
                     'class'       => 'form-control input-mask-number',
                 ],
             ])
+            ->add('original_price', 'text', [
+                'label'      => trans('plugins/real-estate::package.original_price'),
+                'label_attr' => ['class' => 'control-label'],
+                'wrapper'    => [
+                    'class' => 'form-group col-md-4',
+                ],
+                'attr'       => [
+                    'id'          => 'original-price-number',
+                    'placeholder' => trans('plugins/real-estate::package.original_price_placeholder'),
+                    'class'       => 'form-control input-mask-number',
+                ],
+            ])
             ->add('currency_id', 'customSelect', [
                 'label'      => trans('plugins/real-estate::package.currency'),
                 'label_attr' => ['class' => 'control-label'],
                 'wrapper'    => [
-                    'class' => 'form-group col-md-6',
+                    'class' => 'form-group col-md-4',
                 ],
                 'attr'       => [
                     'class' => 'form-control select-full',
@@ -122,6 +134,11 @@ class PackageForm extends FormAbstract
             ])
             ->add('is_default', 'onOff', [
                 'label'         => trans('core/base::forms.is_default'),
+                'label_attr'    => ['class' => 'control-label'],
+                'default_value' => false,
+            ])
+            ->add('is_recommended', 'onOff', [
+                'label'         => trans('plugins/real-estate::package.is_recommended'),
                 'label_attr'    => ['class' => 'control-label'],
                 'default_value' => false,
             ])

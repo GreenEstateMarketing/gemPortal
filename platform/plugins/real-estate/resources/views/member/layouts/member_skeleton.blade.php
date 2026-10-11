@@ -88,6 +88,7 @@
 
   <!-- Scripts -->
   <script src="{{ asset('themes/real-scout/js/site-header.js') }}"></script>
+  <script src="{{ asset('custom/js/dashboard-sidebar.js') }}"></script>
   <script src="{{ asset('vendor/core/plugins/real-estate/js/app.js') }}"></script>
   <!-- <script src="{{ asset('/js/app.js') }}"></script> -->
 

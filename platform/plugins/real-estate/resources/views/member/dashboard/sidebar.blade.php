@@ -1,5 +1,8 @@
 <div class="col-12 col-md-3 col-xl-2 sidebar-layout">
-  <div class="list-group sidebar-layout  pl-2" style="background: #3d3d3d">
+  <button type="button" class="dashboard-sidebar__toggle" id="dashboardSidebarToggle" aria-expanded="false" aria-controls="dashboardSidebarMenu">
+    <i class="fas fa-bars"></i> {{ trans('plugins/real-estate::dashboard.dashboard_sidebar_title') }}
+  </button>
+  <div class="list-group sidebar-layout  pl-2" id="dashboardSidebarMenu" style="background: #3d3d3d">
     <!--<div class="list-group-item fw6 bn @if (Route::currentRouteName() == 'public.member.dashboard') active @endif light-gray-text">
         <i class="fas fa-home mr-2"></i>
         {{ trans('plugins/real-estate::dashboard.dashboard_sidebar_title') }}

@@ -19,7 +19,9 @@ class PackageRequest extends Request
         return [
             'name'               => 'required',
             'price'              => 'numeric|required|min:0',
+            'original_price'     => 'nullable|numeric|min:0',
             'percent_save'       => 'numeric|required|min:0',
+            'is_recommended'     => 'nullable|boolean',
             'currency_id'        => 'required',
             'number_of_listings' => 'numeric|required|min:1',
             'status'             => Rule::in(BaseStatusEnum::values()),

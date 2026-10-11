@@ -1,4 +1,26 @@
 {
-    "/js/app.js": "/js/app.js",
-    "/css/app.css": "/css/app.css"
+    "/vendor/core/plugins/real-estate/js/components.js": "/vendor/core/plugins/real-estate/js/components.js",
+    "/vendor/core/plugins/real-estate/js/real-estate.js": "/vendor/core/plugins/real-estate/js/real-estate.js",
+    "/vendor/core/plugins/real-estate/js/currencies.js": "/vendor/core/plugins/real-estate/js/currencies.js",
+    "/vendor/core/plugins/real-estate/js/account-admin.js": "/vendor/core/plugins/real-estate/js/account-admin.js",
+    "/vendor/core/plugins/real-estate/js/app.js": "/vendor/core/plugins/real-estate/js/app.js",
+    "/vendor/core/plugins/real-estate/css/account.css": "/vendor/core/plugins/real-estate/css/account.css",
+    "/vendor/core/plugins/real-estate/css/account-admin.css": "/vendor/core/plugins/real-estate/css/account-admin.css",
+    "/vendor/core/plugins/real-estate/css/currencies.css": "/vendor/core/plugins/real-estate/css/currencies.css",
+    "/vendor/core/plugins/real-estate/css/real-estate.css": "/vendor/core/plugins/real-estate/css/real-estate.css",
+    "/vendor/core/plugins/real-estate/css/app.css": "/vendor/core/plugins/real-estate/css/app.css",
+    "/platform/plugins/real-estate/public/js/account-admin.js": "/platform/plugins/real-estate/public/js/account-admin.js",
+    "/platform/plugins/real-estate/public/js/account-signature.js": "/platform/plugins/real-estate/public/js/account-signature.js",
+    "/platform/plugins/real-estate/public/js/app.js": "/platform/plugins/real-estate/public/js/app.js",
+    "/platform/plugins/real-estate/public/js/app.js.LICENSE.txt": "/platform/plugins/real-estate/public/js/app.js.LICENSE.txt",
+    "/platform/plugins/real-estate/public/js/components.js": "/platform/plugins/real-estate/public/js/components.js",
+    "/platform/plugins/real-estate/public/js/components.js.LICENSE.txt": "/platform/plugins/real-estate/public/js/components.js.LICENSE.txt",
+    "/platform/plugins/real-estate/public/js/currencies.js": "/platform/plugins/real-estate/public/js/currencies.js",
+    "/platform/plugins/real-estate/public/js/real-estate.js": "/platform/plugins/real-estate/public/js/real-estate.js",
+    "/platform/plugins/real-estate/public/css/account-admin.css": "/platform/plugins/real-estate/public/css/account-admin.css",
+    "/platform/plugins/real-estate/public/css/account-signature.css": "/platform/plugins/real-estate/public/css/account-signature.css",
+    "/platform/plugins/real-estate/public/css/account.css": "/platform/plugins/real-estate/public/css/account.css",
+    "/platform/plugins/real-estate/public/css/app.css": "/platform/plugins/real-estate/public/css/app.css",
+    "/platform/plugins/real-estate/public/css/currencies.css": "/platform/plugins/real-estate/public/css/currencies.css",
+    "/platform/plugins/real-estate/public/css/real-estate.css": "/platform/plugins/real-estate/public/css/real-estate.css"
 }
