@@ -5,6 +5,7 @@ namespace Botble\RealEstate\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use PDO;
 use Throwable;
 
 /**
@@ -50,6 +51,16 @@ class WipeDevDataToPakistanCommand extends Command
 
             return self::FAILURE;
         }
+
+        // Touching ~18 different tables in one session can trip MySQL error
+        // 1615 ("Prepared statement needs to be re-prepared") on shared
+        // hosting, where a tight table_definition_cache invalidates the
+        // server-side prepared statement once enough other tables have been
+        // accessed. Emulating prepares client-side for this connection sends
+        // plain SQL instead of using MySQL's native PREPARE/EXECUTE, which
+        // sidesteps that server-side cache entirely. Scoped to this command's
+        // connection only - doesn't touch the app's global DB config.
+        DB::connection()->getPdo()->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
 
         $this->wipeTransactionalData();
         $this->trimLocationsToPakistan();
