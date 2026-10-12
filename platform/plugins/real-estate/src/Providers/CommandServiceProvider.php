@@ -4,6 +4,7 @@ namespace Botble\RealEstate\Providers;
 
 use Botble\RealEstate\Commands\PruneOrphanPropertiesCommand;
 use Botble\RealEstate\Commands\RenewPropertiesCommand;
+use Botble\RealEstate\Commands\WipeDevDataToPakistanCommand;
 use Illuminate\Support\ServiceProvider;
 
 class CommandServiceProvider extends ServiceProvider
@@ -13,6 +14,7 @@ class CommandServiceProvider extends ServiceProvider
         $this->commands([
             RenewPropertiesCommand::class,
             PruneOrphanPropertiesCommand::class,
+            WipeDevDataToPakistanCommand::class,
         ]);
     }
 }
