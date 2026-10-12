@@ -176,6 +176,8 @@
                 @if (session('newsletter_subscribed') && session('success_msg'))
                     <p class="site-footer__newsletter-message">{{ session('success_msg') }}</p>
                 @endif
+
+                <p class="site-footer__copyright">&copy; {{ now()->year }} Greens Estate Marketing (Private) Limited. {{ __('All rights reserved.') }} &middot; v{{ config('app.version') }}</p>
             </div>
         </div>
 
