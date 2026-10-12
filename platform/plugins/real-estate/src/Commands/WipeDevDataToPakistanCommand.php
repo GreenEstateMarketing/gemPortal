@@ -8,11 +8,15 @@ use Illuminate\Support\Facades\Schema;
 use Throwable;
 
 /**
- * One-shot reset for the dev database copy: wipes every member/agent/
- * property/project/lead/consult/comment/document/transaction row and trims
- * the countries/states/cities/city-areas and agent spoken-language lookup
- * down to Pakistan only, so the dev clone of production stops carrying
- * worldwide data it will never actually need.
+ * One-shot reset to Pakistan-only data: wipes every member/agent/property/
+ * project/lead/consult/comment/document/transaction row and trims the
+ * countries/states/cities/city-areas and agent spoken-language lookup down
+ * to Pakistan only. Runs against whichever database connection the app is
+ * currently configured with - dev or production - gated solely by the
+ * password prompt below. There is no environment check: this is
+ * deliberately allowed to run on production too, for the v1.0.0 launch
+ * reset. Double-check the target database/connection before entering the
+ * password.
  *
  * Deliberately NOT wrapped in one big DB::transaction(): every table/phase
  * is handled independently (see wipeTable()) so progress is visible as it
@@ -24,7 +28,7 @@ class WipeDevDataToPakistanCommand extends Command
 {
     protected $signature = 'cms:dev:wipe-to-pakistan';
 
-    protected $description = 'DESTRUCTIVE: wipe member/agent/property/transaction data and trim location + language lookups to Pakistan only (dev DB only)';
+    protected $description = 'DESTRUCTIVE: wipe member/agent/property/transaction data and trim location + language lookups to Pakistan only (runs on dev or production - password gated only)';
 
     private const PASSWORD = 'gemlisting-dev';
 
@@ -37,11 +41,7 @@ class WipeDevDataToPakistanCommand extends Command
 
     public function handle(): int
     {
-        if (app()->environment('production')) {
-            $this->error('Refusing to run: APP_ENV is "production". This command only ever runs against the dev database copy.');
-
-            return self::FAILURE;
-        }
+        $this->warn('This will PERMANENTLY delete members/agents/properties/transactions and trim locations to Pakistan-only on the "' . config('database.default') . '" connection (database: ' . config('database.connections.' . config('database.default') . '.database') . ').');
 
         $password = $this->secret('Enter password to continue');
 
