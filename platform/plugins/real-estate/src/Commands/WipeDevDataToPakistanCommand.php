@@ -55,6 +55,15 @@ class WipeDevDataToPakistanCommand extends Command
         $this->trimLocationsToPakistan();
         $this->trimSpokenLanguages();
 
+        // Every delete above went through the raw query builder, not the
+        // app's Repository classes - so Botble's repository cache decorator
+        // (see CacheAbstractDecorator::flushCacheAndUpdateData()) was never
+        // told anything changed. If "Enable Cache" is on, cached query
+        // results (property/project/member/etc. listings) would otherwise
+        // keep serving the pre-wipe data for up to their TTL. Clear it now
+        // so the public site reflects the wipe immediately.
+        $this->call('cache:clear');
+
         if ($this->warnings > 0) {
             $this->warn("Pakistan-only reset complete with {$this->warnings} warning(s) - see above.");
         } else {
@@ -97,6 +106,11 @@ class WipeDevDataToPakistanCommand extends Command
      * bar. Safe to call repeatedly: an empty or missing table is reported
      * and skipped rather than treated as an error, and any unexpected
      * exception is caught so it can't take the rest of the command down.
+     *
+     * Some pivot tables (re_property_features, re_project_features) have no
+     * surrogate `id` column at all - just a composite key - so chunkById()
+     * can't be used there. Those are deleted in one shot instead; they're
+     * small pivot tables, so a progress bar isn't needed.
      */
     private function wipeTable(string $table, string $label): void
     {
@@ -112,6 +126,13 @@ class WipeDevDataToPakistanCommand extends Command
 
             if ($total === 0) {
                 $this->line("{$label}: already empty, nothing to do.");
+
+                return;
+            }
+
+            if (! Schema::hasColumn($table, 'id')) {
+                DB::table($table)->delete();
+                $this->info("{$label}: deleted {$total} rows.");
 
                 return;
             }
