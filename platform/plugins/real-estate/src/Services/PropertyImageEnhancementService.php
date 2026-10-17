@@ -10,13 +10,21 @@ use Log;
 use RvMedia;
 
 /**
- * Runs CPU-only auto white balance and mild sharpening on a property/project
- * image, then stamps a centered, more visible watermark on the main file and
- * every generated thumbnail size - RvMedia::generateThumbnails() only
- * watermarks the main file, bottom-right, which is why thumbnails (what
- * buyers see in listing grids) never carried a watermark at all. This runs
- * after that method, re-opening the files it already produced rather than
- * duplicating thumbnail generation.
+ * Runs CPU-only mild sharpening on a property/project image, then stamps a
+ * centered, more visible watermark on the main file and every generated
+ * thumbnail size - RvMedia::generateThumbnails() only watermarks the main
+ * file, bottom-right, which is why thumbnails (what buyers see in listing
+ * grids) never carried a watermark at all. This runs after that method,
+ * re-opening the files it already produced rather than duplicating
+ * thumbnail generation.
+ *
+ * Deliberately does NOT do any auto color/white-balance correction: an
+ * earlier version applied a gray-world white balance (scaling each color
+ * channel so the image's average color is neutral gray), which assumes a
+ * photo's content averages out to gray. Real estate exteriors routinely
+ * don't - they're dominated by green grass/trees and blue sky - so that
+ * assumption was false for most uploads and the "correction" was instead
+ * pushing a uniform yellow/green color cast onto every photo.
  *
  * Before touching the main file, the pristine upload is copied to a sibling
  * originals/ folder and that copy's existence doubles as a guard against
@@ -119,32 +127,7 @@ class PropertyImageEnhancementService
 
     protected function enhance(Imagick $imagick): void
     {
-        $this->whiteBalance($imagick);
-
         $imagick->unsharpMaskImage(0, static::UNSHARP_SIGMA, static::UNSHARP_AMOUNT, static::UNSHARP_THRESHOLD);
-    }
-
-    protected function whiteBalance(Imagick $imagick): void
-    {
-        $channels = [Imagick::CHANNEL_RED, Imagick::CHANNEL_GREEN, Imagick::CHANNEL_BLUE];
-
-        $means = [];
-        foreach ($channels as $channel) {
-            $stats = $imagick->getImageChannelStatistics()[$channel] ?? null;
-            $means[$channel] = $stats['mean'] ?? null;
-        }
-
-        $means = array_filter($means, fn ($mean) => $mean !== null && $mean > 0);
-
-        if (count($means) !== count($channels)) {
-            return;
-        }
-
-        $gray = array_sum($means) / count($means);
-
-        foreach ($means as $channel => $mean) {
-            $imagick->evaluateImage(Imagick::EVALUATE_MULTIPLY, $gray / $mean, $channel);
-        }
     }
 
     protected function applyCenteredWatermark($image): void
