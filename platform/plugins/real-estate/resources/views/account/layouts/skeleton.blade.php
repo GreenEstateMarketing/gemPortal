@@ -23,6 +23,7 @@
   <link href="{{ asset('vendor/core/plugins/real-estate/css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('custom/css/agent_style.css') }}" rel="stylesheet">
     <link href="{{ asset('themes/real-scout/css/site-header.css') }}" rel="stylesheet">
+    <link href="{{ asset('themes/real-scout/css/home-page-new/site-footer.css') }}" rel="stylesheet">
   @stack('styles')
 
 
@@ -62,6 +63,8 @@
           </footer>
       @endif
   </div>
+
+  {!! Theme::partial('footer-content') !!}
 
   @if (session()->has('status') || session()->has('success_msg') || session()->has('error_msg') || (isset($errors) && $errors->count() > 0) || isset($error_msg))
     <script type="text/javascript">
