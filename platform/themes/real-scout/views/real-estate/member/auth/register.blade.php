@@ -70,7 +70,7 @@
     </div>
 
     <div class="form-group">
-        <input id="mobile_no" type="number" value="{{ old('mobile_no') }}"
+        <input id="mobile_no" type="tel" value="{{ old('mobile_no') }}"
             class="form-control{{ $errors->has('mobile_no') ? ' is-invalid' : '' }}"
             name="mobile_no" required
             placeholder="{{ trans('plugins/real-estate::dashboard.mobile_no') }}">
@@ -80,7 +80,7 @@
     </div>
 
     <div class="form-group">
-        <div class="gem-auth__field">
+        <div class="gem-auth__field gem-auth__field--no-icon">
             <input id="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}"
                 name="password" required value="{{ old('password') }}"
                 placeholder="{{ trans('plugins/real-estate::dashboard.password') }}">
@@ -91,6 +91,11 @@
         @if ($errors->has('password'))
             <span class="invalid-feedback">{{ $errors->first('password') }}</span>
         @endif
+    </div>
+
+    <div class="form-group">
+        <input id="password-confirm" type="password" class="form-control" name="password_confirmation" required
+            placeholder="{{ trans('plugins/real-estate::dashboard.password-confirmation') }}">
     </div>
 
     <label class="gem-auth__terms">

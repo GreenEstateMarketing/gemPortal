@@ -105,6 +105,16 @@ a.list-group-item.active, a.list-group-item.active:focus, a.list-group-item.acti
     .col-12.sidebar-layout {
         padding-right: 0;
     }
+    .full-with-row {
+        /* The row's min-height (set so the sidebar reaches the bottom of
+           the page on desktop) made the default align-content:stretch
+           inflate the sidebar and content blocks - which wrap onto
+           separate lines at this width - to fill that height, leaving a
+           blank gap below the collapsed toggle button. Let each block
+           size to its own content instead; any leftover height pools
+           below the content, not between the toggle and the content. */
+        align-content: flex-start;
+    }
     .sidebar-inner-pages {
         padding-left: 30px !important;
         padding-right: 15px !important;

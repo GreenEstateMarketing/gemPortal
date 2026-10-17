@@ -250,7 +250,7 @@ class GeneralPropertyController extends Controller
             'full_name' => 'required|string|min:3|max:100|regex:^[a-zA-Z]{3,}(?: [a-zA-Z]+){0,2}$^',
             'email' => 'required|email|string',
             'mobile_no' => ['required', 'regex:/^\+?[1-9][0-9]{7,14}$/'],
-            'password' => 'required|min:6',
+            'password' => 'required|min:6|confirmed',
         ], [
             'mobile_no.regex' => 'The phone number format is invalid. It must be a valid international number, e.g., +1234567890.',
         ]);

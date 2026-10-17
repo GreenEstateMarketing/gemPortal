@@ -947,15 +947,17 @@
         }
 
         function sync() {
+            // Only ever toggle visibility here - clearing the input's value
+            // used to run alongside it, which meant switching the Listing
+            // Type toggle away from "For Rent" (even just to explore it,
+            // with no intent to actually change the listing) silently and
+            // permanently erased whatever had been typed into Price Unit
+            // before the user ever got to "Save & Continue". The field
+            // stays merely hidden, not destroyed, while the type is
+            // something other than "rent".
             var isRent = typeSelect.value === 'rent';
             rentFields.forEach(function (field) {
                 field.style.display = isRent ? '' : 'none';
-                if (!isRent) {
-                    var input = field.querySelector('[data-field]');
-                    if (input) {
-                        input.value = '';
-                    }
-                }
             });
         }
 

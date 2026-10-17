@@ -176,6 +176,14 @@
     font-size: 14px;
 }
 
+/* .gem-auth__field is also reused on the register forms just to host the
+   show/hide password toggle, with no .gem-auth__field-icon — the 46px
+   left padding above is only needed to clear that icon, so this drops it
+   back down to match the field's own right padding. */
+.gem-auth__field--no-icon .form-control {
+    padding-left: 16px;
+}
+
 .gem-auth__field .form-control:focus {
     border-color: #e0a63e;
     background: #ffffff;
