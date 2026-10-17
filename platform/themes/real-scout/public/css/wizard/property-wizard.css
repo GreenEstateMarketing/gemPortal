@@ -1349,6 +1349,7 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
 
 .wizard-verify-status--gap-top {
     margin-top: 24px;
+    margin-bottom: 24px;
 }
 
 .wizard-verify-status i {
@@ -1376,6 +1377,22 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
 
 .wizard-verify-status--success i {
     color: #1e8a1e;
+}
+
+.wizard-verify-status--danger {
+    background: var(--pw-danger);
+    color: var(--pw-white);
+}
+
+.wizard-verify-status--danger i {
+    color: var(--pw-white);
+}
+
+.wizard-verify-status--danger a,
+.wizard-verify-status--danger a:visited,
+.wizard-verify-status--danger a strong {
+    color: var(--pw-white);
+    text-decoration: underline;
 }
 
 .wizard-chat {

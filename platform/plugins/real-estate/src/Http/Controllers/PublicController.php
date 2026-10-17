@@ -3,7 +3,6 @@
 namespace Botble\RealEstate\Http\Controllers;
 
 use Botble\Base\Http\Responses\BaseHttpResponse;
-use Botble\RealEstate\Enums\ModerationStatusEnum;
 use Botble\RealEstate\Enums\PropertyStatusEnum;
 use Botble\RealEstate\Http\Requests\SendConsultRequest;
 use Botble\RealEstate\Models\Category;
@@ -485,7 +484,7 @@ class PublicController extends Controller
         $randomProperties = Property::query()
             ->notExpired()
             ->whereNotIn('status', [PropertyStatusEnum::UNPUBLISHED])
-            ->where('moderation_status', ModerationStatusEnum::APPROVED)
+            ->published()
             ->with(['currency', 'city'])
             ->inRandomOrder()
             ->limit(3)

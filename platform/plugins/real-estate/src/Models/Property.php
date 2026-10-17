@@ -78,6 +78,7 @@ class Property extends BaseModel
         'submission_status',
         'wizard_role',
         'last_wizard_activity_at',
+        'date_published',
     ];
 
     /**
@@ -99,6 +100,7 @@ class Property extends BaseModel
         'expire_date',
         'last_wizard_activity_at',
         'contract_finalized_at',
+        'date_published',
     ];
 
     /**
@@ -236,6 +238,69 @@ class Property extends BaseModel
             $query->where('expire_date', '<', now()->toDateTimeString())
                 ->where('never_expired', false);
         });
+    }
+
+    /**
+     * How long a listing stays publicly visible after the payment that
+     * published (or republished) it, before it needs paying for again.
+     */
+    const PUBLISH_WINDOW_MONTHS = 3;
+
+    /**
+     * The earliest date_published a listing can have and still be
+     * considered currently published. Shared by scopePublished() and by
+     * every raw-condition-array query elsewhere that can't use the scope
+     * directly (e.g. repository/theme code building ['field', 'op', value]
+     * triples rather than chaining the query builder).
+     */
+    public static function publishWindowCutoff(): \Illuminate\Support\Carbon
+    {
+        return now()->subMonths(self::PUBLISH_WINDOW_MONTHS);
+    }
+
+    /**
+     * Whether this listing is currently within its 3-month publishing
+     * window - i.e. actually visible on /properties and in search right
+     * now, not merely "approved at some point in the past".
+     */
+    public function isPublished(): bool
+    {
+        return (string) $this->moderation_status === ModerationStatusEnum::APPROVED
+            && $this->date_published
+            && $this->date_published->gte(self::publishWindowCutoff());
+    }
+
+    /**
+     * Approved, but the 3-month publishing window has lapsed - the listing
+     * is currently hidden from the public and needs another 1-credit
+     * payment to come back. Distinct from "never approved"/"rejected",
+     * which this deliberately excludes.
+     */
+    public function needsRepublish(): bool
+    {
+        return (string) $this->moderation_status === ModerationStatusEnum::APPROVED
+            && $this->date_published
+            && $this->date_published->lt(self::publishWindowCutoff());
+    }
+
+    /**
+     * The date this listing's current publishing window actually ends -
+     * i.e. date_published + 3 months, not date_published itself. Only
+     * meaningful once date_published is set.
+     */
+    public function publishWindowEndsAt(): \Illuminate\Support\Carbon
+    {
+        return $this->date_published->copy()->addMonths(self::PUBLISH_WINDOW_MONTHS);
+    }
+
+    /**
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopePublished($query)
+    {
+        return $query->where('moderation_status', ModerationStatusEnum::APPROVED)
+            ->where('date_published', '>=', self::publishWindowCutoff());
     }
 
     public function user()

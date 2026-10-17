@@ -141,6 +141,7 @@ class FlexHomeController extends PublicController
             're_properties.type' => $type,
             ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::UNPUBLISHED]],
             're_properties.moderation_status' => ModerationStatusEnum::APPROVED,
+            ['re_properties.date_published', '>=', Property::publishWindowCutoff()],
         ];
 
         // 'default' means nothing was actually resolved (no IP match, no
@@ -389,6 +390,7 @@ class FlexHomeController extends PublicController
                         're_properties.type' => PropertyTypeEnum::SALE,
                         ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::UNPUBLISHED]],
                         're_properties.moderation_status' => ModerationStatusEnum::APPROVED,
+                        ['re_properties.date_published', '>=', Property::publishWindowCutoff()],
                     ],
                     (int) theme_option('number_of_properties_for_sale', 8),
                     ['currency']
@@ -401,6 +403,7 @@ class FlexHomeController extends PublicController
                         're_properties.type' => PropertyTypeEnum::RENT,
                         ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::UNPUBLISHED]],
                         're_properties.moderation_status' => ModerationStatusEnum::APPROVED,
+                        ['re_properties.date_published', '>=', Property::publishWindowCutoff()],
                     ],
                     (int) theme_option('number_of_properties_for_sale', 8),
                     ['currency']
@@ -480,6 +483,8 @@ class FlexHomeController extends PublicController
                 'author_id' => $account->id,
                 'author_type' => Account::class,
                 ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::UNPUBLISHED]],
+                're_properties.moderation_status' => ModerationStatusEnum::APPROVED,
+                ['re_properties.date_published', '>=', Property::publishWindowCutoff()],
             ],
             'paginate' => [
                 'per_page' => 12,
@@ -510,6 +515,7 @@ class FlexHomeController extends PublicController
                 'author_type' => Account::class,
                 'moderation_status' => ModerationStatusEnum::APPROVED,
                 ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::UNPUBLISHED]],
+                ['re_properties.date_published', '>=', Property::publishWindowCutoff()],
             ],
             'paginate' => [
                 'per_page' => 12,
@@ -648,7 +654,7 @@ class FlexHomeController extends PublicController
             ->whereNotNull('city_id')
             ->distinct('city_id')
             ->count('city_id');
-        $statProperties = Property::where('moderation_status', ModerationStatusEnum::APPROVED)->count();
+        $statProperties = Property::query()->published()->count();
         $statRating = round((float) (Rating::where('status', 1)->avg('rating') ?? 0), 1);
 
         return Theme::scope('real-estate.agents', compact(

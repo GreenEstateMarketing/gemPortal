@@ -5,6 +5,7 @@ namespace Botble\RealEstate\Repositories\Eloquent;
 use Botble\RealEstate\Enums\ModerationStatusEnum;
 use Botble\RealEstate\Enums\PropertyStatusEnum;
 use Botble\RealEstate\Enums\PropertyTypeEnum;
+use Botble\RealEstate\Models\Property;
 use Botble\RealEstate\Repositories\Interfaces\PropertyInterface;
 use Botble\Support\Repositories\Eloquent\RepositoriesAbstract;
 use Illuminate\Database\Eloquent\Builder;
@@ -30,6 +31,7 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
             'condition' => [
                 ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::UNPUBLISHED]],
                 're_properties.moderation_status' => ModerationStatusEnum::APPROVED,
+                ['re_properties.date_published', '>=', Property::publishWindowCutoff()],
             ],
             'order_by' => [
                 're_properties.created_at' => 'DESC',
@@ -119,6 +121,7 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
             'condition' => [
                 ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::UNPUBLISHED]],
                 're_properties.moderation_status' => ModerationStatusEnum::APPROVED,
+                ['re_properties.date_published', '>=', Property::publishWindowCutoff()],
             ],
             'order_by' => [
                 're_properties.created_at' => 'DESC',
@@ -385,6 +388,7 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
                 're_properties.id' => $propertyId,
                 're_properties.moderation_status' => ModerationStatusEnum::APPROVED,
                 ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::UNPUBLISHED]],
+                ['re_properties.date_published', '>=', Property::publishWindowCutoff()],
             ],
             'with' => $with,
             'take' => 1,
@@ -482,6 +486,7 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
             'condition' => [
                 ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::UNPUBLISHED]],
                 're_properties.moderation_status' => ModerationStatusEnum::APPROVED,
+                ['re_properties.date_published', '>=', Property::publishWindowCutoff()],
             ],
             'order_by' => [
                 're_properties.created_at' => 'DESC',

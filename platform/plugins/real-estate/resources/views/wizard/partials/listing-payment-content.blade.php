@@ -1,5 +1,6 @@
 <link rel="stylesheet" href="{{ asset('themes/real-scout/css/fontawesome.min.css') }}">
 <link rel="stylesheet" href="{{ Theme::asset()->url('css/wizard/property-wizard.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <div class="property-wizard">
     <div class="property-wizard__intro">
@@ -10,7 +11,7 @@
     @include('plugins/real-estate::wizard.partials.global-header', ['currentGlobalStep' => 5])
 
     <div class="wizard-panel">
-        @if ($isPaid)
+        @if ($isPublished ?? $isPaid)
             <div class="wizard-verify-status wizard-verify-status--success">
                 <i class="fas fa-check-circle"></i>
                 <span>
@@ -25,7 +26,11 @@
                 <div class="wizard-verify-status wizard-verify-status--pending">
                     <i class="fas fa-credit-card"></i>
                     <span>
-                        {{ __('Confirming will deduct 1 credit from your account to publish this listing') }} -
+                        @if ($needsRepublish ?? false)
+                            {{ __('This listing\'s 3-month publishing period has ended. Confirming will deduct 1 credit from your account to republish it') }} -
+                        @else
+                            {{ __('Confirming will deduct 1 credit from your account to publish this listing') }} -
+                        @endif
                         {!! trans_choice('you currently have <strong>:count credit</strong> available.|you currently have <strong>:count credits</strong> available.', $credits, ['count' => $credits]) !!}
                     </span>
                 </div>
@@ -38,14 +43,18 @@
         @else
             <div class="wizard-verify-status wizard-verify-status--pending">
                 <i class="fas fa-hourglass-half"></i>
-                {{ __('A payment is pending from :name.', ['name' => $payerName]) }}
+                @if ($needsRepublish ?? false)
+                    {{ __('This listing\'s 3-month publishing period has ended. A renewal payment is pending from :name.', ['name' => $payerName]) }}
+                @else
+                    {{ __('A payment is pending from :name.', ['name' => $payerName]) }}
+                @endif
             </div>
         @endif
 
         <div class="wizard-panel__actions">
             <a href="{{ $signContractUrl }}" class="wizard-btn wizard-btn--ghost"><i class="fas fa-arrow-left"></i> {{ __('Back') }}</a>
 
-            @if ($isPaid)
+            @if ($isPublished ?? $isPaid)
                 <a href="{{ $adListingUrl }}" class="wizard-btn wizard-btn--primary">
                     {{ __('Continue') }} <i class="fas fa-arrow-right"></i>
                 </a>
@@ -53,7 +62,7 @@
                 <form method="post" action="{{ $confirmPaymentUrl }}">
                     @csrf
                     <button type="submit" class="wizard-btn wizard-btn--primary">
-                        {{ __('Confirm Payment') }} <i class="fas fa-credit-card"></i>
+                        {{ ($needsRepublish ?? false) ? __('Renew Listing') : __('Confirm Payment') }} <i class="fas fa-credit-card"></i>
                     </button>
                 </form>
             @elseif ($role === $payerRole && ! $hasCredits)

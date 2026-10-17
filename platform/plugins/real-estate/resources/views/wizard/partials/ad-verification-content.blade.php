@@ -6,6 +6,7 @@
 
 <link rel="stylesheet" href="{{ asset('themes/real-scout/css/fontawesome.min.css') }}">
 <link rel="stylesheet" href="{{ Theme::asset()->url('css/wizard/property-wizard.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <div class="property-wizard">
     <div class="property-wizard__intro">

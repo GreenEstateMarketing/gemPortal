@@ -138,6 +138,7 @@ class PropertyWizardController extends Controller
             'listingPaymentUrl' => $this->isContractFullySigned($property)
                 ? route($this->routeName($role, 'listing-payment'), ['property' => $property->id])
                 : null,
+            'payerRole' => $this->payerRoleFor($property),
             'adListingUrl' => $this->isPaymentComplete($property)
                 ? route($this->routeName($role, 'ad-listing'), ['property' => $property->id])
                 : null,
@@ -500,6 +501,8 @@ class PropertyWizardController extends Controller
                 ? route($this->routeName($role, 'ad-verification'), ['property' => $property->id])
                 : null,
             'nearbyAgents' => $this->nearbyAgentsFor($property, $role),
+            'listingPaymentUrl' => route($this->routeName($role, 'listing-payment'), ['property' => $property->id]),
+            'payerRole' => $this->payerRoleFor($property),
         ]);
     }
 
@@ -574,6 +577,8 @@ class PropertyWizardController extends Controller
             'signContractUrl' => $this->isFullyVerified($property)
                 ? route($this->routeName($role, 'sign-contract'), ['property' => $property->id])
                 : null,
+            'listingPaymentUrl' => route($this->routeName($role, 'listing-payment'), ['property' => $property->id]),
+            'payerRole' => $this->payerRoleFor($property),
         ]);
     }
 
@@ -632,6 +637,7 @@ class PropertyWizardController extends Controller
             'listingPaymentUrl' => $alreadyFinalized
                 ? route($this->routeName($role, 'listing-payment'), ['property' => $property->id])
                 : null,
+            'payerRole' => $this->payerRoleFor($property),
         ]);
     }
 
@@ -719,6 +725,8 @@ class PropertyWizardController extends Controller
             'role' => $role,
             'property' => $property,
             'isPaid' => $isPaid,
+            'isPublished' => $property->isPublished(),
+            'needsRepublish' => $property->needsRepublish(),
             'payerRole' => $payerRole,
             'payerName' => $payer
                 ? ($payerRole === 'member' ? $payer->full_name : $payer->getFullName())
@@ -759,13 +767,14 @@ class PropertyWizardController extends Controller
 
         abort_unless($payer && $role === $payerRole, 403);
 
-        if (! $this->isPaymentComplete($property)) {
+        if (! $property->isPublished()) {
             abort_unless($payer->credits >= 1, 422);
 
             $payer->credits--;
             $payer->save();
 
             $property->moderation_status = ModerationStatusEnum::APPROVED;
+            $property->date_published = now();
             $property->save();
 
             $this->notifyListingPaymentConfirmed($property, $payer);
@@ -797,6 +806,17 @@ class PropertyWizardController extends Controller
     }
 
     /**
+     * Just the role half of payerFor() - who's on the hook for the 1-credit
+     * (re)listing payment. Used wherever a view needs to gate a "Renew
+     * Listing" action to only the party who'd actually be charged, without
+     * needing the full payer model.
+     */
+    protected function payerRoleFor(Property $property): ?string
+    {
+        return $this->payerFor($property)[1];
+    }
+
+    /**
      * Ad Listing (global step 6) - the final "you're live" screen, unlocked
      * once the listing payment has gone through.
      */
@@ -814,6 +834,9 @@ class PropertyWizardController extends Controller
             'property' => $property,
             'dashboardUrl' => $this->dashboardUrlFor($role),
             'publicUrl' => $property->url,
+            'needsRepublish' => $property->needsRepublish(),
+            'listingPaymentUrl' => route($this->routeName($role, 'listing-payment'), ['property' => $property->id]),
+            'payerRole' => $this->payerRoleFor($property),
         ]);
     }
 

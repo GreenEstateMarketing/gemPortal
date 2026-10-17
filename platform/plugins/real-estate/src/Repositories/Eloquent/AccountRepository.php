@@ -3,6 +3,7 @@
 namespace Botble\RealEstate\Repositories\Eloquent;
 
 use Botble\RealEstate\Enums\ModerationStatusEnum;
+use Botble\RealEstate\Models\Property;
 use Botble\RealEstate\Repositories\Interfaces\AccountInterface;
 use Botble\Support\Repositories\Eloquent\RepositoriesAbstract;
 use Illuminate\Support\Str;
@@ -169,7 +170,8 @@ class AccountRepository extends RepositoriesAbstract implements AccountInterface
             'with' => ['spokenLanguages', 'specialties', 'city'],
             'withCount' => [
                 'properties as properties_count' => function ($query) {
-                    $query->where('moderation_status', ModerationStatusEnum::APPROVED);
+                    $query->where('moderation_status', ModerationStatusEnum::APPROVED)
+                        ->where('date_published', '>=', Property::publishWindowCutoff());
                 },
             ],
             'paginate' => [

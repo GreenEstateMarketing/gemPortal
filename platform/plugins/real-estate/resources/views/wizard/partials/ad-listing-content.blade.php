@@ -1,49 +1,76 @@
 <link rel="stylesheet" href="{{ asset('themes/real-scout/css/fontawesome.min.css') }}">
 <link rel="stylesheet" href="{{ Theme::asset()->url('css/wizard/property-wizard.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <div class="property-wizard">
-    <canvas class="wizard-confetti" data-confetti-canvas></canvas>
-
-    <div class="wizard-celebration">
-        <div class="wizard-celebration__icon">🎉</div>
-        <span class="property-wizard__eyebrow">{{ $role === 'agent' ? __('Step 5 of 5') : __('Step 6 of 6') }}</span>
-        <h1 class="wizard-celebration__title">{{ __('Congratulations!') }}</h1>
-        <p class="wizard-celebration__property">{{ $property->name }}</p>
-        <p class="wizard-celebration__message">
-            {{ __('Your property is finally listed successfully! It\'s now live on GEMlisting for everyone to see. Thank you for completing every step along the way.') }}
-        </p>
-
-        <div class="wizard-celebration__link-card">
-            <div class="wizard-celebration__link-label">
-                <i class="fas fa-globe"></i> {{ __('Your listing is now public at') }}
-            </div>
-            <div class="wizard-celebration__link-row">
-                <a href="{{ $publicUrl }}" target="_blank" rel="noopener" class="wizard-celebration__link">{{ $publicUrl }}</a>
-                <button type="button" class="wizard-celebration__copy-btn" data-copy-link data-copy-value="{{ $publicUrl }}" data-copied-text="{{ __('Copied!') }}" title="{{ __('Copy link') }}">
-                    <i class="fas fa-copy"></i> <span data-copy-label>{{ __('Copy') }}</span>
-                </button>
-            </div>
+    @if ($needsRepublish ?? false)
+        <div class="property-wizard__intro">
+            <span class="property-wizard__eyebrow">{{ $role === 'agent' ? __('Step 5 of 5') : __('Step 6 of 6') }}</span>
+            <h1 class="property-wizard__title">{{ __('Ad Listing') }}</h1>
         </div>
 
-        <div class="wizard-celebration__actions">
-            <a href="{{ $publicUrl }}" target="_blank" rel="noopener" class="wizard-btn wizard-btn--primary">
-                {{ __('View Public Listing') }} <i class="fas fa-arrow-up-right-from-square"></i>
-            </a>
-            <a href="{{ $dashboardUrl }}" class="wizard-btn wizard-btn--ghost">
-                {{ __('Back to My Properties') }}
-            </a>
-        </div>
+        {{-- Reuses the exact same banner component shown on every earlier
+             step (steps 1-5 render it via global-header) rather than a
+             bespoke message here, so "no longer published" looks and
+             behaves identically no matter which wizard page it's seen on. --}}
+        @include('plugins/real-estate::wizard.partials.global-header', ['currentGlobalStep' => 6])
 
-        @if ($role === 'admin')
-            <div class="wizard-status-trigger-row wizard-status-trigger-row--celebration">
-                <button type="button" class="wizard-btn wizard-btn--ghost wizard-btn--small" data-toggle="modal" data-target="#property-status-modal">
-                    <i class="fas fa-tags"></i> {{ __('Manage Listing Status') }}
-                </button>
+        <div class="wizard-panel">
+            <div class="wizard-panel__actions">
+                <a href="{{ $dashboardUrl }}" class="wizard-btn wizard-btn--ghost">
+                    {{ __('Back to My Properties') }}
+                </a>
+                @if (($role ?? null) === ($payerRole ?? null))
+                    <a href="{{ $listingPaymentUrl }}" class="wizard-btn wizard-btn--primary">
+                        {{ __('Renew Listing') }} <i class="fas fa-credit-card"></i>
+                    </a>
+                @endif
+            </div>
+        </div>
+    @else
+        <canvas class="wizard-confetti" data-confetti-canvas></canvas>
+
+        <div class="wizard-celebration">
+            <div class="wizard-celebration__icon">🎉</div>
+            <span class="property-wizard__eyebrow">{{ $role === 'agent' ? __('Step 5 of 5') : __('Step 6 of 6') }}</span>
+            <h1 class="wizard-celebration__title">{{ __('Congratulations!') }}</h1>
+            <p class="wizard-celebration__property">{{ $property->name }}</p>
+            <p class="wizard-celebration__message">
+                {{ __('Your property is finally listed successfully! It\'s now live on GEMlisting for everyone to see. Thank you for completing every step along the way.') }}
+            </p>
+
+            <div class="wizard-celebration__link-card">
+                <div class="wizard-celebration__link-label">
+                    <i class="fas fa-globe"></i> {{ __('Your listing is now public at') }}
+                </div>
+                <div class="wizard-celebration__link-row">
+                    <a href="{{ $publicUrl }}" target="_blank" rel="noopener" class="wizard-celebration__link">{{ $publicUrl }}</a>
+                    <button type="button" class="wizard-celebration__copy-btn" data-copy-link data-copy-value="{{ $publicUrl }}" data-copied-text="{{ __('Copied!') }}" title="{{ __('Copy link') }}">
+                        <i class="fas fa-copy"></i> <span data-copy-label>{{ __('Copy') }}</span>
+                    </button>
+                </div>
             </div>
 
-            @include('plugins/real-estate::wizard.partials.property-status-modal')
-        @endif
-    </div>
+            <div class="wizard-celebration__actions">
+                <a href="{{ $publicUrl }}" target="_blank" rel="noopener" class="wizard-btn wizard-btn--primary">
+                    {{ __('View Public Listing') }} <i class="fas fa-arrow-up-right-from-square"></i>
+                </a>
+                <a href="{{ $dashboardUrl }}" class="wizard-btn wizard-btn--ghost">
+                    {{ __('Back to My Properties') }}
+                </a>
+            </div>
+
+            @if ($role === 'admin')
+                <div class="wizard-status-trigger-row wizard-status-trigger-row--celebration">
+                    <button type="button" class="wizard-btn wizard-btn--ghost wizard-btn--small" data-toggle="modal" data-target="#property-status-modal">
+                        <i class="fas fa-tags"></i> {{ __('Manage Listing Status') }}
+                    </button>
+                </div>
+
+                @include('plugins/real-estate::wizard.partials.property-status-modal')
+            @endif
+        </div>
+    @endif
 </div>
 
 <script>

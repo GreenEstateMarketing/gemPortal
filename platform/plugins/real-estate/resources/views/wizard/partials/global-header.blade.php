@@ -43,7 +43,7 @@
             }
         } elseif ($num === 2 && $property->isSubmitted()) {
             $state = $hasAgent ? 'completed' : 'current';
-            if ($num !== $currentGlobalStep) {
+            if ($num !== $currentGlobalStep && isset($chooseAgentUrl)) {
                 $link = $chooseAgentUrl;
             }
         } elseif ($num === 3 && $hasAgent && $property->isSubmitted()) {
@@ -94,6 +94,18 @@
 
     $progressPercent = (int) round((($completedCount + $step1PartialCredit + $step6FullCredit) / count($globalSteps)) * 100);
 @endphp
+
+@if ($property->needsRepublish())
+    <div class="wizard-verify-status wizard-verify-status--danger wizard-verify-status--gap-top">
+        <i class="fas fa-triangle-exclamation"></i>
+        <span>
+            {{ __('This listing is no longer publicly visible - its 3-month publishing period ended on :date.', ['date' => $property->publishWindowEndsAt()->format('M d, Y')]) }}
+            @if (isset($listingPaymentUrl) && ($role ?? null) === ($payerRole ?? null))
+                <a href="{{ $listingPaymentUrl }}"><strong>{{ __('Renew Listing') }}</strong></a>
+            @endif
+        </span>
+    </div>
+@endif
 
 @if (($role ?? null) === 'admin' && $isPaymentComplete)
     <div class="wizard-status-trigger-row">
