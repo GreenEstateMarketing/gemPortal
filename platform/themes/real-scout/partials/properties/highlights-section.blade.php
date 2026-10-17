@@ -14,12 +14,23 @@
         @if ($randomProperties->count() > 0)
             <div class="properties-highlights__grid">
                 @foreach ($randomProperties as $property)
+                    @php
+                        // Matches properties-map.js's STATUS_BADGES: selling/
+                        // renting/building keep the plain type label, but a
+                        // property that's moved on to sold/rented/closed
+                        // needs the card to say so instead of still reading
+                        // "Sale"/"Rent" forever once nothing about its type
+                        // has changed.
+                        $badgeLabel = in_array($property->status->getValue(), ['sold', 'rented', 'closed'])
+                            ? $property->status->label()
+                            : $property->type->label();
+                    @endphp
                     <a href="{{ $property->url }}" title="{{ $property->name }}" class="properties-highlights__card">
                         <div class="properties-highlights__card-image-wrap">
                             <img
                                 src="{{ RvMedia::getImageUrl($property->image, 'medium', false, RvMedia::getDefaultImage()) }}"
                                 alt="{{ $property->name }}" class="properties-highlights__card-image" loading="lazy">
-                            <span class="properties-highlights__card-badge">{{ $property->type->label() }}</span>
+                            <span class="properties-highlights__card-badge">{{ $badgeLabel }}</span>
                         </div>
                         <div class="properties-highlights__card-body">
                             <p class="properties-highlights__card-price">{{ format_price($property->price, $property->currency) }}</p>

@@ -50,6 +50,7 @@ class PropertyResource extends JsonResource
             'square_text'     => $this->square_text,
             'type'            => $this->type,
             'period'          => $this->period,
+            'status'          => $this->status,
             'status_html'     => $this->status->toHtml(),
             'category_name'   => $this->category->name ?? null,
             'category_id'   => $this->category->id ?? null,

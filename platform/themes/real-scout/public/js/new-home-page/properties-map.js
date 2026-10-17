@@ -123,11 +123,22 @@
         );
     }
 
+    // Keyed by Botble\RealEstate\Enums\PropertyStatusEnum values - selling/
+    // renting/building keep the plain "For Sale"/"For Rent" phrasing (the
+    // common case, unchanged from before), but a property that's moved on to
+    // sold/rented/closed needs the card to say so instead of still reading
+    // "For Sale" forever once nothing about its type has changed.
+    var STATUS_BADGES = {
+        sold: 'Sold',
+        rented: 'Rented',
+        closed: 'Closed'
+    };
+
     function buildResultCardHtml(property) {
         var image = property.image
             ? '<img src="' + escapeHtml(property.image) + '" alt="' + escapeHtml(property.name) + '" class="properties-highlights__card-image" loading="lazy">'
             : '';
-        var badge = property.type === 'rent' ? 'For Rent' : 'For Sale';
+        var badge = STATUS_BADGES[property.status] || (property.type === 'rent' ? 'For Rent' : 'For Sale');
 
         var meta = '';
         if (property.number_bedroom) {
