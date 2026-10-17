@@ -10,7 +10,13 @@ storage/*.key
 /v8-compile-cache-0
 /public/storage/
 .idea
+.claude/
 
 /public/js/app.js
 /public/js/app.js.LICENSE.txt
 /public/js/app.js.map
+
+/platform/plugins/real-estate/public/js/app.js.LICENSE.txt
+/platform/plugins/real-estate/public/js/components.js.LICENSE.txt
+/public/vendor/core/plugins/real-estate/js/app.js.LICENSE.txt
+/public/vendor/core/plugins/real-estate/js/components.js.LICENSE.txt
