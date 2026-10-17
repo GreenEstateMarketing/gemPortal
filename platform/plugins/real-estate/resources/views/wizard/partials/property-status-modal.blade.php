@@ -2,6 +2,23 @@
     $currentBuyer = $property->buyer;
     $latestComment = optional($property->statusLogs()->first())->comment;
     $statusOptions = \Botble\RealEstate\Enums\PropertyStatusEnum::labels();
+
+    // Renting/rented only makes sense for a for-rent listing, and
+    // selling/sold only for a for-sale one - hide whichever pair doesn't
+    // apply to this property's type rather than offering a status that
+    // could never be true for it.
+    if ((string) $property->type === \Botble\RealEstate\Enums\PropertyTypeEnum::SALE) {
+        $statusOptions = array_diff_key($statusOptions, array_flip([
+            \Botble\RealEstate\Enums\PropertyStatusEnum::RENTING,
+            \Botble\RealEstate\Enums\PropertyStatusEnum::RENTED,
+        ]));
+    } elseif ((string) $property->type === \Botble\RealEstate\Enums\PropertyTypeEnum::RENT) {
+        $statusOptions = array_diff_key($statusOptions, array_flip([
+            \Botble\RealEstate\Enums\PropertyStatusEnum::SELLING,
+            \Botble\RealEstate\Enums\PropertyStatusEnum::SOLD,
+        ]));
+    }
+
     $buyerStatuses = [
         \Botble\RealEstate\Enums\PropertyStatusEnum::SOLD,
         \Botble\RealEstate\Enums\PropertyStatusEnum::RENTED,

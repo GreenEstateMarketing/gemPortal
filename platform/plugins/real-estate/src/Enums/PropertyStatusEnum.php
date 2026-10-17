@@ -6,7 +6,6 @@ use Botble\Base\Supports\Enum;
 use Html;
 
 /**
- * @method static PropertyStatusEnum NOT_AVAILABLE()
  * @method static PropertyStatusEnum SELLING()
  * @method static PropertyStatusEnum SOLD()
  * @method static PropertyStatusEnum RENTING()
@@ -17,7 +16,6 @@ use Html;
  */
 class PropertyStatusEnum extends Enum
 {
-    public const NOT_AVAILABLE = 'not_available';
     public const SELLING = 'selling';
     public const SOLD = 'sold';
     public const RENTING = 'renting';
@@ -37,9 +35,6 @@ class PropertyStatusEnum extends Enum
     public function toHtml()
     {
         switch ($this->value) {
-            case self::NOT_AVAILABLE:
-                return Html::tag('span', self::NOT_AVAILABLE()->label(), ['class' => 'label-default status-label'])
-                    ->toHtml();
             case self::SELLING:
                 return Html::tag('span', self::SELLING()->label(), ['class' => 'label-success status-label'])
                     ->toHtml();

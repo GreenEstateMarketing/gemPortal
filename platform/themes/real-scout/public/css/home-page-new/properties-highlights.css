@@ -98,6 +98,33 @@
     border-radius: 6px;
 }
 
+/* Same resolved colors as the property detail page's status badge
+   (PropertyStatusEnum::toHtml(), see status-label.label-success/.label-danger/
+   .label-info in style.css/theme-css.css) so a listing's status reads the
+   same color everywhere on the site, not just on its own detail page. */
+.properties-highlights__card-badge--selling,
+.properties-highlights__card-badge--renting {
+    background: #F3A54A;
+    color: #fff;
+}
+
+.properties-highlights__card-badge--sold,
+.properties-highlights__card-badge--rented {
+    background: #968d8e;
+    color: #fff;
+}
+
+.properties-highlights__card-badge--building {
+    background: #659be0;
+    color: #fff;
+}
+
+.properties-highlights__card-badge--closed,
+.properties-highlights__card-badge--unpublished {
+    background: var(--primary-color, #1d5f6f);
+    color: #fff;
+}
+
 .properties-highlights__card-body {
     padding: 20px;
     flex: 1 1 auto;

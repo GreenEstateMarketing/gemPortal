@@ -24,13 +24,20 @@
                         $badgeLabel = in_array($property->status->getValue(), ['sold', 'rented', 'closed'])
                             ? $property->status->label()
                             : $property->type->label();
+                        // Same resolved colors as the detail page's status
+                        // badge (PropertyStatusEnum::toHtml()), so a
+                        // listing's status reads the same color everywhere.
+                        $badgeColorClasses = ['selling', 'renting', 'sold', 'rented', 'building', 'closed', 'unpublished'];
+                        $badgeColorClass = in_array($property->status->getValue(), $badgeColorClasses)
+                            ? ' properties-highlights__card-badge--' . $property->status->getValue()
+                            : '';
                     @endphp
                     <a href="{{ $property->url }}" title="{{ $property->name }}" class="properties-highlights__card">
                         <div class="properties-highlights__card-image-wrap">
                             <img
                                 src="{{ RvMedia::getImageUrl($property->image, 'medium', false, RvMedia::getDefaultImage()) }}"
                                 alt="{{ $property->name }}" class="properties-highlights__card-image" loading="lazy">
-                            <span class="properties-highlights__card-badge">{{ $badgeLabel }}</span>
+                            <span class="properties-highlights__card-badge{{ $badgeColorClass }}">{{ $badgeLabel }}</span>
                         </div>
                         <div class="properties-highlights__card-body">
                             <p class="properties-highlights__card-price">{{ format_price($property->price, $property->currency) }}</p>

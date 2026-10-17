@@ -44,7 +44,6 @@ return [
 
     ],
     'statuses' => [
-        'not_available' => 'Not available',
         'selling' => 'Selling',
         'sold' => 'Sold',
         'renting' => 'Renting',

@@ -134,11 +134,20 @@
         closed: 'Closed'
     };
 
+    // Statuses with a matching --modifier color in properties-highlights.css,
+    // resolved to the same colors as the detail page's status-label badge
+    // (PropertyStatusEnum::toHtml()) - anything else (no valid status, or one
+    // this page can never actually show) just keeps the default gold badge.
+    var STATUS_BADGE_COLOR_CLASSES = ['selling', 'renting', 'sold', 'rented', 'building', 'closed', 'unpublished'];
+
     function buildResultCardHtml(property) {
         var image = property.image
             ? '<img src="' + escapeHtml(property.image) + '" alt="' + escapeHtml(property.name) + '" class="properties-highlights__card-image" loading="lazy">'
             : '';
         var badge = STATUS_BADGES[property.status] || (property.type === 'rent' ? 'For Rent' : 'For Sale');
+        var badgeColorClass = STATUS_BADGE_COLOR_CLASSES.indexOf(property.status) !== -1
+            ? ' properties-highlights__card-badge--' + property.status
+            : '';
 
         var meta = '';
         if (property.number_bedroom) {
@@ -158,7 +167,7 @@
         return (
             '<a href="' + escapeHtml(property.url) + '" title="' + escapeHtml(property.name) + '" class="properties-highlights__card">' +
             '<div class="properties-highlights__card-image-wrap">' + image +
-            '<span class="properties-highlights__card-badge">' + badge + '</span>' +
+            '<span class="properties-highlights__card-badge' + badgeColorClass + '">' + badge + '</span>' +
             '</div>' +
             '<div class="properties-highlights__card-body">' +
             '<p class="properties-highlights__card-price">' + escapeHtml(property.price) + '</p>' +
