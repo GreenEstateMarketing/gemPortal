@@ -502,6 +502,9 @@ class PropertyWizardController extends Controller
                 : null,
             'nearbyAgents' => $this->nearbyAgentsFor($property, $role),
             'listingPaymentUrl' => route($this->routeName($role, 'listing-payment'), ['property' => $property->id]),
+            'adListingUrl' => $this->isPaymentComplete($property)
+                ? route($this->routeName($role, 'ad-listing'), ['property' => $property->id])
+                : null,
             'payerRole' => $this->payerRoleFor($property),
         ]);
     }
@@ -578,6 +581,9 @@ class PropertyWizardController extends Controller
                 ? route($this->routeName($role, 'sign-contract'), ['property' => $property->id])
                 : null,
             'listingPaymentUrl' => route($this->routeName($role, 'listing-payment'), ['property' => $property->id]),
+            'adListingUrl' => $this->isPaymentComplete($property)
+                ? route($this->routeName($role, 'ad-listing'), ['property' => $property->id])
+                : null,
             'payerRole' => $this->payerRoleFor($property),
         ]);
     }
@@ -636,6 +642,9 @@ class PropertyWizardController extends Controller
             'showBaseUrl' => route($this->routeName($role, 'show'), ['property' => $property->id]),
             'listingPaymentUrl' => $alreadyFinalized
                 ? route($this->routeName($role, 'listing-payment'), ['property' => $property->id])
+                : null,
+            'adListingUrl' => $this->isPaymentComplete($property)
+                ? route($this->routeName($role, 'ad-listing'), ['property' => $property->id])
                 : null,
             'payerRole' => $this->payerRoleFor($property),
         ]);
@@ -835,6 +844,15 @@ class PropertyWizardController extends Controller
             'dashboardUrl' => $this->dashboardUrlFor($role),
             'publicUrl' => $property->url,
             'needsRepublish' => $property->needsRepublish(),
+            // Reaching this step at all means every earlier step is already
+            // behind us, so - unlike the conditional "is this reachable yet"
+            // URLs passed from earlier steps - these are always safe to hand
+            // out unconditionally (same convention already used by e.g.
+            // chooseAgentPlaceholder()'s own chooseAgentUrl).
+            'showBaseUrl' => route($this->routeName($role, 'show'), ['property' => $property->id]),
+            'chooseAgentUrl' => route($this->routeName($role, 'choose-agent'), ['property' => $property->id]),
+            'adVerificationUrl' => route($this->routeName($role, 'ad-verification'), ['property' => $property->id]),
+            'signContractUrl' => route($this->routeName($role, 'sign-contract'), ['property' => $property->id]),
             'listingPaymentUrl' => route($this->routeName($role, 'listing-payment'), ['property' => $property->id]),
             'payerRole' => $this->payerRoleFor($property),
         ]);
