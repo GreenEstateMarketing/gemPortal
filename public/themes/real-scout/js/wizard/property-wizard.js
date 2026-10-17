@@ -398,7 +398,12 @@
             }
         }
 
-        function renderThumb(item) {
+        // beforeNode lets a finished upload drop its real thumb exactly where
+        // its "uploading" placeholder was (see renderPlaceholder below),
+        // rather than at the end of the grid - without that, two files
+        // dropped together could land out of order if the second one's
+        // upload happens to finish first.
+        function renderThumb(item, beforeNode) {
             if (options.kind === 'image') {
                 var wrap = document.createElement('div');
                 wrap.className = 'wizard-thumb';
@@ -406,7 +411,7 @@
                 // gets saved) - it isn't browsable on its own, so display
                 // uses item.full_url when we have it.
                 wrap.innerHTML = '<img src="' + (item.full_url || item.url) + '" alt=""><button type="button" class="wizard-thumb__remove" data-remove-url="' + item.url + '">&times;</button>';
-                thumbs.appendChild(wrap);
+                thumbs.insertBefore(wrap, beforeNode || null);
             } else {
                 var row = document.createElement('div');
                 row.className = 'wizard-doc-item';
@@ -436,8 +441,45 @@
                 row.appendChild(icon);
                 row.appendChild(body);
                 row.appendChild(removeBtn);
-                thumbs.appendChild(row);
+                thumbs.insertBefore(row, beforeNode || null);
             }
+        }
+
+        // Shown the instant a file is picked/dropped, before its upload
+        // request even starts - uploads now run the server-side image
+        // enhancement pipeline synchronously, so without this a selected
+        // photo could sit with no feedback for a couple of seconds.
+        function renderPlaceholder(file) {
+            if (options.kind === 'image') {
+                var wrap = document.createElement('div');
+                wrap.className = 'wizard-thumb wizard-thumb--uploading';
+                wrap.innerHTML = '<div class="wizard-spinner"></div>';
+                thumbs.appendChild(wrap);
+                return wrap;
+            }
+
+            var row = document.createElement('div');
+            row.className = 'wizard-doc-item wizard-doc-item--uploading';
+
+            var icon = document.createElement('div');
+            icon.className = 'wizard-doc-item__icon';
+            icon.innerHTML = '<div class="wizard-spinner"></div>';
+
+            var body = document.createElement('div');
+            body.className = 'wizard-doc-item__body';
+            var name = document.createElement('span');
+            name.className = 'wizard-doc-item__name';
+            name.textContent = file.name || '';
+            var meta = document.createElement('span');
+            meta.className = 'wizard-doc-item__meta';
+            meta.textContent = 'Uploading...';
+            body.appendChild(name);
+            body.appendChild(meta);
+
+            row.appendChild(icon);
+            row.appendChild(body);
+            thumbs.appendChild(row);
+            return row;
         }
 
         items.forEach(renderThumb);
@@ -497,6 +539,7 @@
 
             files.forEach(function (file) {
                 reserved += 1;
+                var placeholder = renderPlaceholder(file);
                 var formData = new FormData();
                 formData.append('file[]', file);
                 if (options.kind === 'document') {
@@ -519,6 +562,7 @@
                 }).then(function (json) {
                     reserved -= 1;
                     if (json.error) {
+                        placeholder.remove();
                         window.alert(json.message || 'Upload failed');
                         return;
                     }
@@ -527,10 +571,12 @@
                     var item = { url: url, full_url: fullUrl, name: file.name };
                     items.push(item);
                     persist();
-                    renderThumb(item);
+                    renderThumb(item, placeholder);
+                    placeholder.remove();
                     updateCount();
                 }).catch(function () {
                     reserved -= 1;
+                    placeholder.remove();
                     window.alert('Upload failed, please try again.');
                 });
             });

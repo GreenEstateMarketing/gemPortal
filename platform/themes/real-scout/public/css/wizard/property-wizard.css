@@ -947,6 +947,41 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
     color: var(--pw-white) !important;
 }
 
+.wizard-spinner {
+    width: 22px;
+    height: 22px;
+    border: 2.5px solid var(--pw-border);
+    border-top-color: var(--pw-gold);
+    border-radius: 50%;
+    animation: wizard-spin 0.7s linear infinite;
+}
+
+.wizard-thumb--uploading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.wizard-doc-item--uploading {
+    opacity: 0.75;
+}
+
+.wizard-doc-item--uploading .wizard-doc-item__icon {
+    background: transparent;
+}
+
+.wizard-doc-item--uploading .wizard-spinner {
+    width: 18px;
+    height: 18px;
+    border-width: 2px;
+}
+
+@keyframes wizard-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 /* =========================================================
    DOCUMENT CARDS (Review / Ad Verification display)
    ========================================================= */
