@@ -26,6 +26,18 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
             'permission' => 'real-estate.settings',
         ]);
 
+        Route::get('feature-flags', [
+            'as' => 'real-estate.feature-flags',
+            'uses' => 'FeatureFlagController@index',
+            'permission' => 'real-estate.feature-flags',
+        ]);
+
+        Route::post('feature-flags', [
+            'as' => 'real-estate.feature-flags.post',
+            'uses' => 'FeatureFlagController@update',
+            'permission' => 'real-estate.feature-flags',
+        ]);
+
         Route::group(['prefix' => 'properties', 'as' => 'property.'], function () {
             Route::resource('', 'PropertyController')
                 ->parameters(['' => 'property'])

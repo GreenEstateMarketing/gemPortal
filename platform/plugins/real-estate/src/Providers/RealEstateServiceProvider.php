@@ -350,6 +350,15 @@ class RealEstateServiceProvider extends ServiceProvider
                     'permissions' => ['real-estate.settings'],
                 ])
                 ->registerItem([
+                    'id' => 'cms-plugins-real-estate-feature-flags',
+                    'priority' => 5,
+                    'parent_id' => null,
+                    'name' => 'Feature Flags',
+                    'icon' => 'fas fa-flag',
+                    'url' => route('real-estate.feature-flags'),
+                    'permissions' => ['real-estate.feature-flags'],
+                ])
+                ->registerItem([
                     'id' => 'cms-plugins-consult',
                     'priority' => 6,
                     'parent_id' => null,

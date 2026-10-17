@@ -25,6 +25,7 @@ use Botble\RealEstate\Models\Project;
 use Botble\RealEstate\Models\Property;
 use Botble\RealEstate\Models\PropertyStatusLog;
 use Botble\RealEstate\Services\PropertyContractService;
+use Botble\RealEstate\Supports\FeatureFlag;
 use Botble\RealEstate\Services\PropertySubmissionService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
@@ -117,7 +118,7 @@ class PropertyWizardController extends Controller
             'furthestReachable' => $furthestReachable,
             'wizardContext' => $this->wizardContext($role),
             'isGated' => $property->isDraft(),
-            'isLocked' => $this->isLocked($property),
+            'isLocked' => $this->isEditingLocked($property, $role),
             'showBaseUrl' => $showBaseUrl,
             'stepUrls' => [
                 'basics' => route($this->routeName($role, 'basics'), ['property' => $property->id]),
@@ -220,7 +221,7 @@ class PropertyWizardController extends Controller
         $role = $this->currentRole($request);
         $this->authorizeAccess($role, $property);
 
-        abort_if($this->isLocked($property), 403);
+        abort_if($this->isEditingLocked($property, $role), 403);
 
         // Whether this property already has a slugs row - checked before
         // saving name changes below, since CreatedContentEvent vs
@@ -255,7 +256,7 @@ class PropertyWizardController extends Controller
         $role = $this->currentRole($request);
         $this->authorizeAccess($role, $property);
 
-        abort_if($this->isLocked($property), 403);
+        abort_if($this->isEditingLocked($property, $role), 403);
 
         $property = $this->service->saveLocation(
             $property,
@@ -271,7 +272,7 @@ class PropertyWizardController extends Controller
         $role = $this->currentRole($request);
         $this->authorizeAccess($role, $property);
 
-        abort_if($this->isLocked($property), 403);
+        abort_if($this->isEditingLocked($property, $role), 403);
 
         $data = $request->validated();
         $context = $this->wizardContext($role);
@@ -295,7 +296,7 @@ class PropertyWizardController extends Controller
         $role = $this->currentRole($request);
         $this->authorizeAccess($role, $property);
 
-        abort_if($this->isLocked($property), 403);
+        abort_if($this->isEditingLocked($property, $role), 403);
 
         if ($role === 'guest' && ! $property->member_id) {
             return response()->json([
@@ -491,7 +492,7 @@ class PropertyWizardController extends Controller
         return view('plugins/real-estate::wizard.choose-agent-placeholder', [
             'role' => $role,
             'property' => $property,
-            'locked' => $this->isLocked($property),
+            'locked' => $this->isEditingLocked($property, $role),
             'chooseAgentUrl' => route($this->routeName($role, 'choose-agent'), ['property' => $property->id]),
             'saveAgentUrl' => route($this->routeName($role, 'save-agent'), ['property' => $property->id]),
             'showBaseUrl' => route($this->routeName($role, 'show'), ['property' => $property->id]),
@@ -507,7 +508,7 @@ class PropertyWizardController extends Controller
         $role = $this->currentRole($request);
         $this->authorizeAccess($role, $property);
 
-        if ($this->isLocked($property)) {
+        if ($this->isEditingLocked($property, $role)) {
             return response()->json([
                 'success' => false,
                 'message' => __('This listing has already been approved and can no longer be edited.'),
@@ -552,7 +553,7 @@ class PropertyWizardController extends Controller
         return view('plugins/real-estate::wizard.ad-verification-placeholder', [
             'role' => $role,
             'property' => $property,
-            'locked' => $this->isLocked($property),
+            'locked' => $this->isEditingLocked($property, $role),
             'verified' => (bool) $property->verified,
             'verifiedByAdmin' => (bool) $property->verified_by_admin,
             'comments' => $property->comments()->orderBy('created_at')->get(),
@@ -655,7 +656,7 @@ class PropertyWizardController extends Controller
         $role = $this->currentRole($request);
         $this->authorizeAccess($role, $property);
 
-        abort_if($this->isLocked($property), 403);
+        abort_if($this->isEditingLocked($property, $role), 403);
         abort_unless($this->contractService->isReadyToGenerate($property), 403);
 
         $isFirstFinalization = ! $property->contract_finalized_at;
@@ -909,7 +910,7 @@ class PropertyWizardController extends Controller
         $role = $this->currentRole($request);
         $this->authorizeAccess($role, $property);
 
-        abort_if($this->isLocked($property), 403);
+        abort_if($this->isEditingLocked($property, $role), 403);
 
         $account = auth('account')->user();
 
@@ -930,7 +931,7 @@ class PropertyWizardController extends Controller
         $role = $this->currentRole($request);
         $this->authorizeAccess($role, $property);
 
-        abort_if($this->isLocked($property), 403);
+        abort_if($this->isEditingLocked($property, $role), 403);
         abort_unless($property->verified, 403);
 
         $property->verified_by_admin = true;
@@ -950,7 +951,7 @@ class PropertyWizardController extends Controller
         $role = $this->currentRole($request);
         $this->authorizeAccess($role, $property);
 
-        abort_if($this->isLocked($property), 403);
+        abort_if($this->isEditingLocked($property, $role), 403);
         abort_unless(in_array($role, ['agent', 'member'], true), 403);
 
         $data = $request->validate([
@@ -1243,6 +1244,30 @@ class PropertyWizardController extends Controller
     protected function isLocked(Property $property): bool
     {
         return (string) $property->moderation_status === ModerationStatusEnum::APPROVED;
+    }
+
+    /**
+     * Agent/admin exception to the approved lock, gated behind the
+     * "property_wizard_edit_after_approval" feature flag (off by default -
+     * see FeatureFlag). Members are never allowed to bypass it, regardless
+     * of the flag.
+     */
+    protected function canBypassApprovedLock(string $role): bool
+    {
+        return in_array($role, ['agent', 'admin'], true)
+            && FeatureFlag::enabled(FeatureFlag::PROPERTY_WIZARD_EDIT_AFTER_APPROVAL);
+    }
+
+    /**
+     * The actual editing gate used by every mutating wizard action and by
+     * the views that swap Save/Continue for a plain "Next" link. Unlike
+     * isLocked() (which stays a pure "is this approved" check, since
+     * updateStatus() depends on that exact meaning), this also accounts for
+     * the agent/admin bypass above.
+     */
+    protected function isEditingLocked(Property $property, string $role): bool
+    {
+        return $this->isLocked($property) && ! $this->canBypassApprovedLock($role);
     }
 
     /**

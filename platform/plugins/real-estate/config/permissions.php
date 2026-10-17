@@ -2,6 +2,10 @@
 
 return [
     [
+        'name' => 'Feature Flags',
+        'flag' => 'real-estate.feature-flags',
+    ],
+    [
         'name' => 'Properties',
         'flag' => 'property.index',
     ],
