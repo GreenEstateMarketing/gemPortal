@@ -139,7 +139,7 @@ class FlexHomeController extends PublicController
         $baseConditions = [
             're_properties.is_featured' => true,
             're_properties.type' => $type,
-            ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::NOT_AVAILABLE]],
+            ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::NOT_AVAILABLE, PropertyStatusEnum::UNPUBLISHED]],
             're_properties.moderation_status' => ModerationStatusEnum::APPROVED,
         ];
 
@@ -387,7 +387,7 @@ class FlexHomeController extends PublicController
                     [
                         're_properties.project_id' => $request->input('project_id'),
                         're_properties.type' => PropertyTypeEnum::SALE,
-                        ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::NOT_AVAILABLE]],
+                        ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::NOT_AVAILABLE, PropertyStatusEnum::UNPUBLISHED]],
                         're_properties.moderation_status' => ModerationStatusEnum::APPROVED,
                     ],
                     (int) theme_option('number_of_properties_for_sale', 8),
@@ -399,7 +399,7 @@ class FlexHomeController extends PublicController
                     [
                         're_properties.project_id' => $request->input('project_id'),
                         're_properties.type' => PropertyTypeEnum::RENT,
-                        ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::NOT_AVAILABLE]],
+                        ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::NOT_AVAILABLE, PropertyStatusEnum::UNPUBLISHED]],
                         're_properties.moderation_status' => ModerationStatusEnum::APPROVED,
                     ],
                     (int) theme_option('number_of_properties_for_sale', 8),
@@ -479,6 +479,7 @@ class FlexHomeController extends PublicController
             'condition' => [
                 'author_id' => $account->id,
                 'author_type' => Account::class,
+                ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::UNPUBLISHED]],
             ],
             'paginate' => [
                 'per_page' => 12,
@@ -507,7 +508,8 @@ class FlexHomeController extends PublicController
             'condition' => [
                 'author_id' => $account->id,
                 'author_type' => Account::class,
-                'moderation_status' => ModerationStatusEnum::APPROVED
+                'moderation_status' => ModerationStatusEnum::APPROVED,
+                ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::UNPUBLISHED]],
             ],
             'paginate' => [
                 'per_page' => 12,

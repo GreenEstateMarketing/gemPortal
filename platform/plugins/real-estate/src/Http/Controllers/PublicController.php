@@ -484,7 +484,7 @@ class PublicController extends Controller
 
         $randomProperties = Property::query()
             ->notExpired()
-            ->whereNotIn('status', [PropertyStatusEnum::NOT_AVAILABLE])
+            ->whereNotIn('status', [PropertyStatusEnum::NOT_AVAILABLE, PropertyStatusEnum::UNPUBLISHED])
             ->where('moderation_status', ModerationStatusEnum::APPROVED)
             ->with(['currency', 'city'])
             ->inRandomOrder()

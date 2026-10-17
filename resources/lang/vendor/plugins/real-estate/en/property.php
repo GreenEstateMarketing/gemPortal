@@ -44,13 +44,13 @@ return [
     ],
     'statuses' => [
         'not_available' => 'Not available',
-        'pre_sale' => 'Preparing sellingzz',
         'selling' => 'Selling',
         'sold' => 'Sold',
         'renting' => 'Renting',
         'rented' => 'Rented',
         'building' => 'Building',
         'closed' => 'Closed',
+        'unpublished' => 'Unpublished',
     ],
     'types' => [
         'sale' => 'Sale',

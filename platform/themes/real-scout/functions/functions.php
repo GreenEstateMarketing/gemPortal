@@ -495,7 +495,7 @@ Event::listen(RenderingSiteMapEvent::class, function () {
 
         $properties = app(PropertyInterface::class)->advancedGet([
             'condition' => [
-                ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::NOT_AVAILABLE]],
+                ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::NOT_AVAILABLE, PropertyStatusEnum::UNPUBLISHED]],
                 're_properties.moderation_status' => ModerationStatusEnum::APPROVED,
             ],
             'with' => ['slugable'],
