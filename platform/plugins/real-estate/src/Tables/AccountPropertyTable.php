@@ -3,6 +3,7 @@
 namespace Botble\RealEstate\Tables;
 
 use Botble\RealEstate\Models\Account;
+use Botble\RealEstate\Models\Consult;
 use Html;
 use Illuminate\Support\Arr;
 use RvMedia;
@@ -28,6 +29,16 @@ class AccountPropertyTable extends PropertyTable
      */
     public function ajax()
     {
+        $accountId = auth('account')->user()->getAuthIdentifier();
+
+        $unreadConsultCounts = Consult::selectRaw('re_consults.property_id, count(*) as cnt')
+            ->join('re_properties', 're_consults.property_id', '=', 're_properties.id')
+            ->where('re_properties.author_id', $accountId)
+            ->where('re_properties.author_type', Account::class)
+            ->where('re_consults.status', 'unread')
+            ->groupBy('re_consults.property_id')
+            ->pluck('cnt', 're_consults.property_id');
+
         $data = $this->table
             ->eloquent($this->query())
             ->editColumn('name', function ($item) {
@@ -81,12 +92,13 @@ class AccountPropertyTable extends PropertyTable
             });
 
         return apply_filters(BASE_FILTER_GET_LIST_DATA, $data, $this->repository->getModel())
-            ->addColumn('operations', function ($item) {
+            ->addColumn('operations', function ($item) use ($unreadConsultCounts) {
                 $edit = 'public.account.properties.wizard.show';
                 $delete = 'public.account.properties.destroy';
                 $isDraft = $item->submission_status === 'draft';
+                $consultCount = $unreadConsultCounts[$item->id] ?? '';
 
-                return view('plugins/real-estate::account.table.actions', compact('edit', 'delete', 'item', 'isDraft'))->render();
+                return view('plugins/real-estate::account.table.actions', compact('edit', 'delete', 'item', 'isDraft', 'consultCount'))->render();
             })
             ->escapeColumns([])
             ->make(true);
@@ -113,6 +125,7 @@ class AccountPropertyTable extends PropertyTable
 
         $query = $model
             ->select($select)
+            ->with('member')
             ->where([
                 're_properties.author_id'   => auth('account')->user()->getAuthIdentifier(),
                 're_properties.author_type' => Account::class,

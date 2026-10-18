@@ -19,7 +19,7 @@
             'phone' => $agent->phone,
             'email' => $agent->email,
             'description' => $agent->description,
-            'listings' => $agent->no_of_listings($agent->id),
+            'listings' => $agent->no_of_listings_count,
         ];
     })->values();
     $currentAgentId = $property->author_type === \Botble\RealEstate\Models\Account::class ? $property->author_id : null;

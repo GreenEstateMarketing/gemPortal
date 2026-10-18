@@ -11,7 +11,7 @@
                 ['re_projects.status', 'NOT_IN', [ProjectStatusEnum::NOT_AVAILABLE]],
             ],
             'take'      => (int)theme_option('number_of_featured_projects', 4),
-            'with'      => ['slugable', 'currency', 'city', 'city.state'],
+            'with'      => ['slugable', 'currency', 'city', 'city.state', 'category'],
         ]);
      }
 @endphp

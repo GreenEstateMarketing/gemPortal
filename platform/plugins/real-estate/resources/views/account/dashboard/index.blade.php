@@ -24,7 +24,7 @@
                                         <div class="media-body">
                                             <div class="f3">
                                                 <span class="fw6"><i class="far fa-check-circle"></i></span>
-                                                <span class="fr">{{ $user->properties()->where('moderation_status', \Botble\RealEstate\Enums\ModerationStatusEnum::APPROVED)->count() }}</span>
+                                                <span class="fr">{{ $propertyCounts[\Botble\RealEstate\Enums\ModerationStatusEnum::APPROVED] ?? 0 }}</span>
                                             </div>
                                             <h5 class="black-text text-right">{{ trans('plugins/real-estate::dashboard.approved_properties') }}</h5>
                                         </div>
@@ -40,7 +40,7 @@
                                         <div class="media-body">
                                             <div class="f3">
                                                 <span class="fw6"><i class="fas fa-user-clock"></i></span>
-                                                <span class="fr">{{ $user->properties()->where('moderation_status', \Botble\RealEstate\Enums\ModerationStatusEnum::PENDING)->count() }}</span>
+                                                <span class="fr">{{ $propertyCounts[\Botble\RealEstate\Enums\ModerationStatusEnum::PENDING] ?? 0 }}</span>
                                             </div>
                                             <h5 class="black-text text-right">{{ trans('plugins/real-estate::dashboard.pending_approve_properties') }}</h5>
                                         </div>
@@ -56,7 +56,7 @@
                                         <div class="media-body">
                                             <div class="f3">
                                                 <span class="fw6"><i class="far fa-edit"></i></span>
-                                                <span class="fr">{{ $user->properties()->where('moderation_status', \Botble\RealEstate\Enums\ModerationStatusEnum::REJECTED)->count() }}</span>
+                                                <span class="fr">{{ $propertyCounts[\Botble\RealEstate\Enums\ModerationStatusEnum::REJECTED] ?? 0 }}</span>
                                             </div>
                                             <h5 class="black-text text-right">{{ trans('plugins/real-estate::dashboard.rejected_properties') }}</h5>
                                         </div>
