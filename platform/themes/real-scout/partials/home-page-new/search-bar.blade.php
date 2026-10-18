@@ -128,22 +128,28 @@
                                 <div>
                                     <ul class="category-ul" name="Category picker">
                                         <div>
-                                            @foreach (app(\Botble\RealEstate\Repositories\Interfaces\CategoryInterface::class)->pluck('re_categories.name', 're_categories.id', ['parent_id' => 0]) as $categoryId => $categoryName)
+                                            @foreach (app(\Botble\RealEstate\Repositories\Interfaces\CategoryInterface::class)->allBy(['parent_id' => 0], [], ['id', 'name', 'parent_id', 'for_sale', 'for_rent']) as $category)
                                                 @if ($loop->index == 0)
                                                     <li class="category-parent-active p-category"
-                                                        data-id="{{ $categoryId }}">{{ $categoryName }}</li>
+                                                        data-id="{{ $category->id }}"
+                                                        data-for-sale="{{ $category->for_sale ? 1 : 0 }}"
+                                                        data-for-rent="{{ $category->for_rent ? 1 : 0 }}">{{ $category->name }}</li>
                                                 @else
                                                     <li class="category-parent-inactive p-category"
-                                                        data-id="{{ $categoryId }}">{{ $categoryName }}</li>
+                                                        data-id="{{ $category->id }}"
+                                                        data-for-sale="{{ $category->for_sale ? 1 : 0 }}"
+                                                        data-for-rent="{{ $category->for_rent ? 1 : 0 }}">{{ $category->name }}</li>
                                                 @endif
-                                                <div class="p{{ $categoryId }}" style="display:none">
+                                                <div class="p{{ $category->id }}" style="display:none">
                                                     <div class="row">
-                                                        @foreach (app(\Botble\RealEstate\Repositories\Interfaces\CategoryInterface::class)->pluck('re_categories.name', 're_categories.id', ['parent_id' => $categoryId]) as $subcategoryId => $subcategoryName)
+                                                        @foreach (app(\Botble\RealEstate\Repositories\Interfaces\CategoryInterface::class)->allBy(['parent_id' => $category->id], [], ['id', 'name', 'parent_id', 'for_sale', 'for_rent']) as $subcategory)
                                                             <div class="@if ($loop->count == 1) col-md-12 @else col-md-6 @endif">
                                                                 <li class="category-li-item"
-                                                                    parent-name="{{ $categoryName }}"
-                                                                    data-id="{{ $subcategoryId }}">
-                                                                    {{ $subcategoryName }}</li>
+                                                                    parent-name="{{ $category->name }}"
+                                                                    data-id="{{ $subcategory->id }}"
+                                                                    data-for-sale="{{ $subcategory->for_sale ? 1 : 0 }}"
+                                                                    data-for-rent="{{ $subcategory->for_rent ? 1 : 0 }}">
+                                                                    {{ $subcategory->name }}</li>
                                                             </div>
                                                         @endforeach
                                                     </div>

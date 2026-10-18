@@ -608,6 +608,31 @@
             initMap();
         }
 
+        // Buy/Rent each only show categories tied to that type (data-for-sale
+        // / data-for-rent, set from re_categories.for_sale/for_rent -
+        // search-bar.blade.php). Projects has no sale/rent concept, so every
+        // category stays visible for it. Scoped to
+        // .property-category-search-dropdown specifically since its
+        // .p-category/.category-li-item elements share the same class names
+        // as the separate .project-category-search-dropdown's, which has no
+        // data-for-sale/data-for-rent attributes and must never be hidden.
+        // Shared by the initial-load call below and the tab click handler
+        // further down - hung off window.GEMlisting (see the geo helper
+        // above) rather than a plain function declaration, because this
+        // file's own `$(document).ready(...)` call closes a few lines below
+        // and everything after that - including the tab click handler - runs
+        // in a sibling scope that a plain declaration here wouldn't reach.
+        window.GEMlisting.filterPropertyCategoryDropdownByType = function (activeRel) {
+            var propertyCategoryItems = $(".property-category-search-dropdown .p-category, .property-category-search-dropdown .category-li-item");
+            if (activeRel === 'sale' || activeRel === 'rent') {
+                propertyCategoryItems.each(function () {
+                    $(this).toggle($(this).attr('data-for-' + activeRel) === '1');
+                });
+            } else {
+                propertyCategoryItems.show();
+            }
+        };
+
         // Category-tab switching (clicking HOME/PLOTS/COMMERCIAL in the
         // "Property Type" popover, and the auto-click below that populates
         // the subcategory grid with the first tab's items on load) used to
@@ -618,6 +643,14 @@
         // this same search bar, including /properties. Moved out so it runs
         // on any page.
         (function () {
+            // Filter to the page's default active type (the "Buy" tab, i.e.
+            // "sale" - see #txttypesearch's hardcoded initial value in
+            // search-bar.blade.php) before the trigger("click") below copies
+            // the first category's sub-category markup into view, so that
+            // copy already reflects the filtered set instead of showing
+            // every sub-category regardless of type until a tab is clicked.
+            window.GEMlisting.filterPropertyCategoryDropdownByType($("#txttypesearch").val() || 'sale');
+
             $(".category-parent-active").click(function () {
                 $(".p-category").removeClass("category-parent-active").addClass('category-parent-inactive');
                 $(this).addClass('category-parent-active');
@@ -741,8 +774,35 @@
     $( "#hometypesearch" ).on( "click",".hero-search-card__tab", function( event ) {
         event.preventDefault();
         type=$("#txttypesearch").val();
-        $(this).parent().parent().find(".p-category").first().addClass("category-parent-active");
-        $(this).parent().parent().find(".p-category").first().trigger("click");
+
+        var activeRel = $(this).attr('rel');
+        window.GEMlisting.filterPropertyCategoryDropdownByType(activeRel);
+
+        // If a category (or sub-category) is already picked and it isn't
+        // tied to the newly active type, clear the selection instead of
+        // leaving a now-invalid choice sitting in the "Property Type"
+        // field - e.g. picking "Lower Portion" under Rent, then switching
+        // to Buy, where it isn't offered at all. Looked up by data-id
+        // directly (not jQuery's :visible, which the previous version of
+        // this used) because the dropdown panel is normally closed by the
+        // time a tab gets clicked - the category click handler below hides
+        // it as soon as a pick is made - and :visible on a descendant of a
+        // display:none ancestor is always false, silently no-op'ing any
+        // reset attempt while the panel is collapsed.
+        if (activeRel === 'sale' || activeRel === 'rent') {
+            var selectedId = $("#propertydropdownMenuLink").siblings(".category_id").val();
+            if (selectedId) {
+                var selectedEl = $(".property-category-search-dropdown [data-id='" + selectedId + "']").first();
+                var stillValid = selectedEl.length && selectedEl.attr('data-for-' + activeRel) === '1';
+                if (!stillValid) {
+                    $(".property-category-search-dropdown .p-category, .property-category-search-dropdown .category-li-item").removeClass('category-li-item-active');
+                    $("#projectdropdownMenuLink, #propertydropdownMenuLink").siblings(".category_id").val('');
+                    // Matches the placeholder text search-bar.blade.php renders
+                    // into .category_id_text before any category is picked.
+                    $("#projectdropdownMenuLink, #propertydropdownMenuLink").siblings(".category_id_text").text('Any Type');
+                }
+            }
+        }
     });
 ////
 // ////////

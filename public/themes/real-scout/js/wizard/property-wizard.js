@@ -832,6 +832,7 @@
         var categoryNameInput = document.getElementById('wizard-category-name');
         var templateInput = document.getElementById('wizard-template-description');
         var descriptionField = document.getElementById('wizard-description');
+        var typeInput = document.getElementById('wizard-type');
 
         if (!categoryRow || !subcategoryRow || !categoryIdInput) {
             return;
@@ -858,9 +859,27 @@
             });
         }
 
+        // Which of the two type-tie flags a category needs to have set to
+        // be eligible under the currently active Listing Type.
+        function currentType() {
+            return typeInput && typeInput.value === 'rent' ? 'rent' : 'sale';
+        }
+
+        function flagFor(type) {
+            return type === 'rent' ? 'for_rent' : 'for_sale';
+        }
+
         function childrenOf(parentId) {
+            var flag = flagFor(currentType());
             return tree.filter(function (c) {
-                return c.parent_id === parseInt(parentId, 10);
+                return c.parent_id === parseInt(parentId, 10) && c[flag];
+            });
+        }
+
+        function topCategories() {
+            var flag = flagFor(currentType());
+            return tree.filter(function (c) {
+                return c.parent_id === 0 && c[flag];
             });
         }
 
@@ -908,10 +927,46 @@
                 return;
             }
 
-            var subIdToSelect = selectSubId || children[0].id;
+            // A selectSubId carried over from before a Listing Type switch
+            // may no longer be one of this (now type-filtered) parent's
+            // children - fall back to the first valid one instead of
+            // writing a sub-category id that's invalid for the active type.
+            var stillValid = children.some(function (c) {
+                return String(c.id) === String(selectSubId);
+            });
+            var subIdToSelect = stillValid ? selectSubId : children[0].id;
             markActive(subcategoryRow, subIdToSelect);
             var selected = findById(subIdToSelect);
             setActiveCategory(subIdToSelect, selected ? selected.name : '', triggerFetch);
+        }
+
+        // Rebuilds the top-level category chip row for the currently active
+        // Listing Type and returns whichever category id ends up active -
+        // either the requested one (if still valid for this type) or the
+        // first available category otherwise.
+        function populateTopCategories(selectParentId) {
+            var tops = topCategories();
+            categoryRow.innerHTML = '';
+
+            tops.forEach(function (cat) {
+                var btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'wizard-chip-btn';
+                btn.setAttribute('data-category-option', cat.id);
+                btn.textContent = cat.name;
+                categoryRow.appendChild(btn);
+            });
+
+            if (tops.length === 0) {
+                return null;
+            }
+
+            var stillValid = tops.some(function (cat) {
+                return String(cat.id) === String(selectParentId);
+            });
+            var parentIdToSelect = stillValid ? selectParentId : tops[0].id;
+            markActive(categoryRow, parentIdToSelect);
+            return parentIdToSelect;
         }
 
         categoryRow.addEventListener('click', function (event) {
@@ -922,6 +977,36 @@
             markActive(categoryRow, btn.getAttribute('data-category-option'));
             populateSubcategories(btn.getAttribute('data-category-option'), null, true);
         });
+
+        // Switching Listing Type (Sale <-> Rent) changes which categories
+        // and sub-categories are eligible at all - re-render both rows for
+        // the newly active type, keeping the current selection if it's
+        // still valid and otherwise falling back to the first valid one
+        // (same convention used for a brand-new draft with nothing chosen
+        // yet). This only ever runs on an explicit user click on the type
+        // toggle (see initTypeToggle's 'change' dispatch), never on initial
+        // page load, so an existing property's saved category still
+        // displays correctly on open even if it predates a later flag
+        // change - it only gets re-evaluated if the user actively flips
+        // the toggle during this editing session.
+        if (typeInput) {
+            typeInput.addEventListener('change', function () {
+                var activeParentBtn = categoryRow.querySelector('.wizard-chip-btn--active');
+                var activeSubBtn = subcategoryRow.querySelector('.wizard-chip-btn--active');
+                var currentParentId = activeParentBtn ? activeParentBtn.getAttribute('data-category-option') : null;
+                var currentSubId = activeSubBtn ? activeSubBtn.getAttribute('data-subcategory-option') : null;
+
+                var newParentId = populateTopCategories(currentParentId);
+                if (newParentId === null) {
+                    subcategoryRow.innerHTML = '';
+                    setActiveCategory('', '', true);
+                    return;
+                }
+
+                var parentChanged = String(newParentId) !== String(currentParentId);
+                populateSubcategories(newParentId, parentChanged ? null : currentSubId, true);
+            });
+        }
 
         subcategoryRow.addEventListener('click', function (event) {
             var btn = event.target.closest('[data-subcategory-option]');

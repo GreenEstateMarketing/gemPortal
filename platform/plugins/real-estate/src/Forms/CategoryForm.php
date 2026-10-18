@@ -72,6 +72,16 @@ class CategoryForm extends FormAbstract
                 'label_attr'    => ['class' => 'control-label'],
                 'default_value' => false,
             ])
+            ->add('for_sale', 'onOff', [
+                'label'         => trans('plugins/real-estate::category.for_sale'),
+                'label_attr'    => ['class' => 'control-label'],
+                'default_value' => true,
+            ])
+            ->add('for_rent', 'onOff', [
+                'label'         => trans('plugins/real-estate::category.for_rent'),
+                'label_attr'    => ['class' => 'control-label'],
+                'default_value' => true,
+            ])
             ->add('status', 'customSelect', [
                 'label'      => trans('core/base::tables.status'),
                 'label_attr' => ['class' => 'control-label required'],

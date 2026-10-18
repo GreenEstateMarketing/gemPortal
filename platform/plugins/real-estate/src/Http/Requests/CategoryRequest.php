@@ -17,8 +17,10 @@ class CategoryRequest extends Request
     public function rules()
     {
         return [
-            'name'   => 'required',
-            'status' => Rule::in(BaseStatusEnum::values()),
+            'name'     => 'required',
+            'status'   => Rule::in(BaseStatusEnum::values()),
+            'for_sale' => 'nullable|boolean',
+            'for_rent' => 'nullable|boolean',
         ];
     }
 }
