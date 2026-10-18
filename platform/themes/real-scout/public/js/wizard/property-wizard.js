@@ -837,6 +837,27 @@
             return;
         }
 
+        // Gated by the "wizard_description_editable" feature flag (see
+        // FeatureFlag::WIZARD_DESCRIPTION_EDITABLE). Off by default, in which
+        // case the field stays read-only and always gets overwritten below -
+        // identical to the original behaviour. When on, the field is a real
+        // textarea and descriptionUserEdited tracks whether its text should
+        // be left alone, so incidental field changes (beds/baths/etc.) - and
+        // the on-load re-apply below - stop clobbering it. Picking a
+        // category is a deliberate "regenerate" action and always wins.
+        var isDescriptionEditable = !!descriptionField && descriptionField.dataset.descriptionEditable === '1';
+        // Any text already in the field on load (a previously saved
+        // description, edited or not) counts as already "finalised" - only
+        // an explicit category pick should regenerate it, never just
+        // reopening the step. A brand new draft's empty field is still fair
+        // game so it gets its initial auto-filled template.
+        var descriptionUserEdited = isDescriptionEditable && !!descriptionField && descriptionField.value.trim() !== '';
+        if (descriptionField && isDescriptionEditable) {
+            descriptionField.addEventListener('input', function () {
+                descriptionUserEdited = true;
+            });
+        }
+
         function childrenOf(parentId) {
             return tree.filter(function (c) {
                 return c.parent_id === parseInt(parentId, 10);
@@ -924,7 +945,7 @@
             }).then(function (json) {
                 if (json.status && json.html && json.html.detail) {
                     templateInput.value = json.html.detail;
-                    applyTemplatePlaceholders();
+                    applyTemplatePlaceholders({ force: true });
                 } else if (descriptionField) {
                     templateInput.value = '';
                     descriptionField.value = '';
@@ -934,8 +955,17 @@
             });
         }
 
-        function applyTemplatePlaceholders() {
+        function applyTemplatePlaceholders(opts) {
+            opts = opts || {};
             if (!templateInput || !templateInput.value || !descriptionField) {
+                return;
+            }
+
+            // Once the user has typed a manual edit, only an explicit
+            // category/sub-category selection (force: true) is allowed to
+            // regenerate and overwrite it - incidental field changes below
+            // leave their edit alone.
+            if (isDescriptionEditable && descriptionUserEdited && !opts.force) {
                 return;
             }
 
@@ -959,6 +989,9 @@
             });
 
             descriptionField.value = text;
+            if (opts.force) {
+                descriptionUserEdited = false;
+            }
         }
 
         ['wizard-number-bedroom', 'wizard-number-bathroom', 'wizard-square', 'wizard-type', 'wizard-area-units', 'wizard-number-floor'].forEach(function (id) {
@@ -974,10 +1007,11 @@
         // nothing to pre-fill here beyond re-running the description
         // substitution below.
 
-        // The description field is always read-only - it's entirely
-        // generated from the template + the fields above, so re-apply the
-        // substitution on load too (values may have changed since it was
-        // last saved).
+        // When not editable (the default), the description field is
+        // entirely generated from the template + the fields above, so
+        // re-apply the substitution on load too (values may have changed
+        // since it was last saved). When editable, this still re-applies on
+        // a fresh page load since descriptionUserEdited starts false.
         if (templateInput && templateInput.value) {
             applyTemplatePlaceholders();
         }
