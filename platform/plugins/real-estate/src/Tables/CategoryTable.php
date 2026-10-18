@@ -70,6 +70,16 @@ class CategoryTable extends TableAbstract
             })
             ->editColumn('status', function ($item) {
                 return $item->status->toHtml();
+            })
+            ->editColumn('for_sale', function ($item) {
+                return $item->for_sale
+                    ? Html::tag('span', trans('plugins/real-estate::category.for_sale_badge'), ['class' => 'label-success status-label'])->toHtml()
+                    : '';
+            })
+            ->editColumn('for_rent', function ($item) {
+                return $item->for_rent
+                    ? Html::tag('span', trans('plugins/real-estate::category.for_rent_badge'), ['class' => 'label-info status-label'])->toHtml()
+                    : '';
             });
 
         return apply_filters(BASE_FILTER_GET_LIST_DATA, $data, $this->repository->getModel())
@@ -94,6 +104,8 @@ class CategoryTable extends TableAbstract
             're_categories.name',
             're_categories.created_at',
             're_categories.status',
+            're_categories.for_sale',
+            're_categories.for_rent',
 
         ];
 
@@ -128,6 +140,16 @@ class CategoryTable extends TableAbstract
             'status'     => [
                 'name'  => 're_categories.status',
                 'title' => trans('core/base::tables.status'),
+                'width' => '100px',
+            ],
+            'for_sale'   => [
+                'name'  => 're_categories.for_sale',
+                'title' => trans('plugins/real-estate::category.for_sale'),
+                'width' => '100px',
+            ],
+            'for_rent'   => [
+                'name'  => 're_categories.for_rent',
+                'title' => trans('plugins/real-estate::category.for_rent'),
                 'width' => '100px',
             ],
         ];

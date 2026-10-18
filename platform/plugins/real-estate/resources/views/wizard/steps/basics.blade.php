@@ -33,8 +33,22 @@
     // (which the browser then silently submits as an empty currency_id).
     $selectedCurrencyId = old('currency_id', $p->currency_id ?: optional($currencies->firstWhere('is_default', 1))->id);
 
-    $topCategories = $categories->where('parent_id', 0)->values();
+    $effectiveType = $p->type ?: 'sale';
+    $typeFlag = $effectiveType === 'rent' ? 'for_rent' : 'for_sale';
+
     $currentCategory = $categories->firstWhere('id', $p->category_id);
+    $currentParentId = $currentCategory
+        ? ((int) $currentCategory->parent_id === 0 ? $currentCategory->id : $currentCategory->parent_id)
+        : null;
+
+    // Only offer categories tied to the active Listing Type - except the
+    // property's own already-saved category/parent (if any), which keeps
+    // showing even if it no longer matches (e.g. an admin unchecked its
+    // for_sale/for_rent flag after this property was created), so an
+    // existing listing never appears to have silently lost its category.
+    $topCategories = $categories->where('parent_id', 0)
+        ->filter(fn ($c) => $c->{$typeFlag} || $c->id == $currentParentId)
+        ->values();
 
     $selectedParentId = null;
     $selectedSubId = null;
@@ -53,7 +67,9 @@
     }
 
     $subcategories = $selectedParentId
-        ? $categories->where('parent_id', $selectedParentId)->values()
+        ? $categories->where('parent_id', $selectedParentId)
+            ->filter(fn ($c) => $c->{$typeFlag} || $c->id == $selectedSubId)
+            ->values()
         : collect();
 
     if (! $selectedSubId && $subcategories->isNotEmpty()) {
@@ -62,7 +78,6 @@
 
     $effectiveCategoryId = $selectedSubId ?: $selectedParentId;
     $categoryNameValue = optional($categories->firstWhere('id', $effectiveCategoryId))->name;
-    $effectiveType = $p->type ?: 'sale';
 
     $currentTemplate = $effectiveCategoryId
         ? \App\Models\description_template::where('status', 1)->where('category_id', $effectiveCategoryId)->first()
@@ -73,7 +88,7 @@
     <h2 class="wizard-panel__heading">{{ __('Basics & Price') }}</h2>
     <p class="wizard-panel__description">{{ __('Tell us what you are listing and how much it costs.') }}</p>
 
-    <form {{ ($isLocked ?? false) ? '' : 'data-step-form' }} action="{{ $stepUrls['basics'] }}" method="post" data-category-tree="{{ $categories->map(function ($c) { return ['id' => $c->id, 'name' => $c->name, 'parent_id' => (int) $c->parent_id]; })->toJson() }}">
+    <form {{ ($isLocked ?? false) ? '' : 'data-step-form' }} action="{{ $stepUrls['basics'] }}" method="post" data-category-tree="{{ $categories->map(function ($c) { return ['id' => $c->id, 'name' => $c->name, 'parent_id' => (int) $c->parent_id, 'for_sale' => (bool) $c->for_sale, 'for_rent' => (bool) $c->for_rent]; })->toJson() }}">
         <fieldset {{ ($isLocked ?? false) ? 'disabled' : '' }} style="border:0; padding:0; margin:0;">
         <div class="wizard-field-grid">
             <div class="wizard-field wizard-field--span2">

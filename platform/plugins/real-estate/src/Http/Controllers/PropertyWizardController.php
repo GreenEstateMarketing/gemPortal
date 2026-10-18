@@ -150,8 +150,11 @@ class PropertyWizardController extends Controller
             // show() re-runs on every single wizard step (Basics, Location,
             // Media, Review, ...) - caching them turns 6 queries per step
             // into 6 cache hits after the first.
-            'categories' => Cache::remember('wizard_ref_categories', now()->addMinutes(30), function () {
-                return Category::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name', 'parent_id']);
+            // Cache key versioned (v2) so the new for_sale/for_rent flags
+            // show up immediately after deploy instead of waiting out
+            // whatever TTL was left on an already-cached v1 entry.
+            'categories' => Cache::remember('wizard_ref_categories_v2', now()->addMinutes(30), function () {
+                return Category::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name', 'parent_id', 'for_sale', 'for_rent']);
             }),
             // Project has no draft/published concept of its own (its 'status'
             // column is a sale/rent lifecycle state, not visibility), so

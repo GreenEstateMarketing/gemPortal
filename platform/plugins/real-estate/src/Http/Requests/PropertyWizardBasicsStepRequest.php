@@ -12,7 +12,13 @@ class PropertyWizardBasicsStepRequest extends Request
         return [
             'name' => 'required|min:5|max:120',
             'type' => ['required', Rule::in(['sale', 'rent'])],
-            'category_id' => 'required|not_in:0',
+            'category_id' => [
+                'required',
+                'not_in:0',
+                Rule::exists('re_categories', 'id')->where(function ($query) {
+                    $query->where($this->input('type') === 'rent' ? 'for_rent' : 'for_sale', true);
+                }),
+            ],
             'project_id' => 'nullable',
             'description' => 'nullable|string',
             'price' => 'required|numeric|min:0|max:999999999999999',
