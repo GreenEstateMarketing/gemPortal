@@ -120,6 +120,7 @@ class PropertyWizardController extends Controller
             'wizardContext' => $this->wizardContext($role),
             'isGated' => $property->isDraft(),
             'isLocked' => $this->isEditingLocked($property, $role),
+            'descriptionEditable' => FeatureFlag::enabled(FeatureFlag::WIZARD_DESCRIPTION_EDITABLE),
             'showBaseUrl' => $showBaseUrl,
             'stepUrls' => [
                 'basics' => route($this->routeName($role, 'basics'), ['property' => $property->id]),

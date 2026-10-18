@@ -135,8 +135,8 @@
 
             <div class="wizard-field wizard-field--span2">
                 <label>{{ __('Description') }}</label>
-                <textarea class="wizard-textarea" data-field="description" id="wizard-description" readonly placeholder="{{ __('Select a category above to generate a description automatically.') }}">{{ $p->description }}</textarea>
-                <span class="wizard-hint">{{ __('Generated automatically from your category and details above.') }}</span>
+                <textarea class="wizard-textarea" data-field="description" id="wizard-description" data-description-editable="{{ ($descriptionEditable ?? false) ? '1' : '0' }}" {{ ($descriptionEditable ?? false) ? '' : 'readonly' }} placeholder="{{ ($descriptionEditable ?? false) ? __('Select a category above to generate a description automatically - you can then edit it.') : __('Select a category above to generate a description automatically.') }}">{{ $p->description }}</textarea>
+                <span class="wizard-hint">{{ ($descriptionEditable ?? false) ? __('Auto-filled from your category - feel free to edit it.') : __('Generated automatically from your category and details above.') }}</span>
                 <input type="hidden" id="wizard-template-description" value="{{ $currentTemplate->detail ?? '' }}">
             </div>
 
