@@ -1,7 +1,7 @@
 <div class="table-actions">
     <a href="{{ route('public.account.consult.property.consults', $item->id) }}" class="btn btn-icon btn-sm btn-primary"
         title="Consults"><i class="fas fa-headset"></i><span class="badge badge-info"
-            id="consult_count">{{ auth('account')->user()->getConsults($item->id) }}</span></a>
+            id="consult_count">{{ $consultCount }}</span></a>
 
     @if (!empty($edit))
         <a href="{{ route($edit, $item->id) }}" class="btn btn-icon btn-sm {{ !empty($isDraft) ? 'btn-warning' : 'btn-primary' }}"

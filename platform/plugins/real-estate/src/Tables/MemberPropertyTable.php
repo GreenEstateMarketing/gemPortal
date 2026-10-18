@@ -2,7 +2,6 @@
 
 namespace Botble\RealEstate\Tables;
 
-use App\Models\Rating;
 use Botble\RealEstate\Models\Member;
 use Html;
 use Illuminate\Support\Arr;
@@ -81,7 +80,7 @@ class MemberPropertyTable extends PropertyTable
         return apply_filters(BASE_FILTER_GET_LIST_DATA, $data, $this->repository->getModel())
             ->addColumn('operations', function ($item) {
 
-                $rating = Rating::where('user_id', $item->member_id)->where('agent_id', $item->author_id)->where('property_id', $item->id)->first();
+                $rating = $item->ratings->firstWhere('agent_id', $item->author_id);
 
                 $edit = 'public.member.properties.wizard.show';
                 $delete = 'public.member.properties.destroy';
@@ -114,10 +113,15 @@ class MemberPropertyTable extends PropertyTable
             're_properties.never_expired',
         ];
 
+        $memberId = auth('member')->user()->id;
+
         $query = $model
             ->select($select)
+            ->with(['ratings' => function ($query) use ($memberId) {
+                $query->where('user_id', $memberId);
+            }])
             ->where([
-                're_properties.member_id' => auth('member')->user()->id,
+                're_properties.member_id' => $memberId,
                 're_properties.is_deleted' => 0
             ]);
         return $this->applyScopes(apply_filters(BASE_FILTER_TABLE_QUERY, $query, $model, $select));

@@ -604,6 +604,13 @@ function hex_to_rgba(string $color, $opacity = 1)
 }
 function getPriceLists($multiples = '5', $limit = '11')
 {
+    static $memo = [];
+    $key = $multiples . '|' . $limit;
+
+    if (isset($memo[$key])) {
+        return $memo[$key];
+    }
+
     $html = '';
     $j = 0;
     for ($i = 5000000; $i <= 1000000000; $i = $i + 500000) {
@@ -615,7 +622,8 @@ function getPriceLists($multiples = '5', $limit = '11')
         $j++;
 
     }
-    return $html;
+
+    return $memo[$key] = $html;
 }
 
 function formatPrice($number) {

@@ -132,7 +132,8 @@
                                         autocomplete="off" />
                                     <select class="form-control" id='city_id' name="city_id">
                                         <option value="0">Select city...</option>
-                                       @foreach (app(\Botble\Location\Repositories\Interfaces\CityInterface::class)
+                                       @foreach (\Illuminate\Support\Facades\Cache::remember('public_cities_list', now()->addMinutes(30), function () {
+                                           return app(\Botble\Location\Repositories\Interfaces\CityInterface::class)
 ->allBy(
 [
 'status' => \Botble\Base\Enums\BaseStatusEnum::PUBLISHED,
@@ -140,7 +141,8 @@
 ],
 ['state','country'],
 ['cities.name','cities.state_id','cities.country_id','cities.id']
-) as $city)
+);
+                                       }) as $city)
                                             <option value={{ $city->id }}>
                                                 {{ $city->name . ($city->state->name ? ' (' . $city->state->name . ')' : '') }}
                                             </option>
@@ -455,13 +457,30 @@
                                             </div> <!--end row -->
                                         </div>
                                         <!-- Home search category dropdown popup-->
+                                        @php
+                                            // Cached once: avoids re-querying the full parent+subcategory
+                                            // tree (1 + N queries) on every public page load - this block
+                                            // and the identical "project" tab block below both reuse it.
+                                            $categoryTree = \Illuminate\Support\Facades\Cache::remember('public_category_tree', now()->addMinutes(30), function () {
+                                                $categoryRepo = app(\Botble\RealEstate\Repositories\Interfaces\CategoryInterface::class);
+                                                $tree = [];
+                                                foreach ($categoryRepo->pluck('re_categories.name', 're_categories.id', ['parent_id' => 0]) as $categoryId => $categoryName) {
+                                                    $tree[$categoryId] = [
+                                                        'name' => $categoryName,
+                                                        'children' => $categoryRepo->pluck('re_categories.name', 're_categories.id', ['parent_id' => $categoryId]),
+                                                    ];
+                                                }
+                                                return $tree;
+                                            });
+                                        @endphp
                                         <div class="property-category-search-dropdown" style="display:none">
                                             <div class="category-search-list" role="listbox">
                                                 <div>
                                                     <div>
                                                         <ul class="category-ul" name="Category picker">
                                                             <div>
-                                                                @foreach (app(\Botble\RealEstate\Repositories\Interfaces\CategoryInterface::class)->pluck('re_categories.name', 're_categories.id', ['parent_id' => 0]) as $categoryId => $categoryName)
+                                                                @foreach ($categoryTree as $categoryId => $categoryData)
+                                                                    @php $categoryName = $categoryData['name']; @endphp
                                                                     @if ($loop->index == 0)
                                                                         <li class="category-parent-active p-category"
                                                                             data-id="{{ $categoryId }}">
@@ -475,7 +494,7 @@
                                                                     <div class="p{{ $categoryId }}"
                                                                         style="display:none">
                                                                         <div class="row">
-                                                                            @foreach (app(\Botble\RealEstate\Repositories\Interfaces\CategoryInterface::class)->pluck('re_categories.name', 're_categories.id', ['parent_id' => $categoryId]) as $subcategoryId => $subcategoryName)
+                                                                            @foreach ($categoryData['children'] as $subcategoryId => $subcategoryName)
                                                                                 <div
                                                                                     class="@if ($loop->count == 1) col-md-12 @else col-md-6 @endif">
                                                                                     <li class="category-li-item"
@@ -597,7 +616,8 @@
                                                     <div>
                                                         <ul class="category-ul" name="Category picker">
                                                             <div>
-                                                                @foreach (app(\Botble\RealEstate\Repositories\Interfaces\CategoryInterface::class)->pluck('re_categories.name', 're_categories.id', ['parent_id' => 0]) as $categoryId => $categoryName)
+                                                                @foreach ($categoryTree as $categoryId => $categoryData)
+                                                                    @php $categoryName = $categoryData['name']; @endphp
                                                                     @if ($loop->index == 0)
                                                                         <li class="category-parent-active p-category"
                                                                             data-id="{{ $categoryId }}">
@@ -611,7 +631,7 @@
                                                                     <div class="p{{ $categoryId }}"
                                                                         style="display:none">
                                                                         <div class="row">
-                                                                            @foreach (app(\Botble\RealEstate\Repositories\Interfaces\CategoryInterface::class)->pluck('re_categories.name', 're_categories.id', ['parent_id' => $categoryId]) as $subcategoryId => $subcategoryName)
+                                                                            @foreach ($categoryData['children'] as $subcategoryId => $subcategoryName)
                                                                                 <div
                                                                                     class="@if ($loop->count == 1) col-md-12 @else col-md-6 @endif">
                                                                                     <li class="category-li-item"

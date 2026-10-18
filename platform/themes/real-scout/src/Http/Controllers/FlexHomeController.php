@@ -27,6 +27,7 @@ use Botble\Theme\Http\Controllers\PublicController;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use SeoHelper;
 use Theme;
@@ -626,36 +627,54 @@ class FlexHomeController extends PublicController
         );
         Theme::asset()->add('agent-directory-css', '/css/agent-directory.css');
 
-        $countries = Country::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name']);
+        // Directory-wide reference lists and stats - identical for every
+        // visitor (unlike $cities/$defaultCountryId/$defaultCityId below,
+        // which depend on the visitor's session location and must stay
+        // live) - cached together so this screen doesn't run 8 queries on
+        // every single load.
+        $directoryData = Cache::remember('agent_directory_stats', now()->addMinutes(15), function () {
+            return [
+                'countries' => Country::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name']),
+                'languages' => SpokenLanguage::where('status', BaseStatusEnum::PUBLISHED)->orderBy('order')->get(['id', 'name']),
+                'categories' => Category::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name']),
+                // Pulled from real agent specialty assignments (not just any
+                // top-level category) so every pill is guaranteed to return at
+                // least one agent on its own - clicking one is never a dead end.
+                'topCategories' => Category::query()
+                    ->select('re_categories.id', 're_categories.name')
+                    ->join('re_account_categories', 're_account_categories.category_id', '=', 're_categories.id')
+                    ->join('re_accounts', 're_accounts.id', '=', 're_account_categories.account_id')
+                    ->whereNotNull('re_accounts.confirmed_at')
+                    ->where('re_categories.status', BaseStatusEnum::PUBLISHED)
+                    ->groupBy('re_categories.id', 're_categories.name')
+                    ->orderByRaw('COUNT(*) DESC')
+                    ->limit(6)
+                    ->get(),
+                'statVerifiedAgents' => Account::whereNotNull('confirmed_at')->count(),
+                'statCities' => Account::whereNotNull('confirmed_at')
+                    ->whereNotNull('city_id')
+                    ->distinct('city_id')
+                    ->count('city_id'),
+                'statProperties' => Property::query()->published()->count(),
+                'statRating' => round((float) (Rating::where('status', 1)->avg('rating') ?? 0), 1),
+            ];
+        });
+
+        $countries = $directoryData['countries'];
+        $languages = $directoryData['languages'];
+        $categories = $directoryData['categories'];
+        $topCategories = $directoryData['topCategories'];
+        $statVerifiedAgents = $directoryData['statVerifiedAgents'];
+        $statCities = $directoryData['statCities'];
+        $statProperties = $directoryData['statProperties'];
+        $statRating = $directoryData['statRating'];
+
         $cities = City::select('id', 'name')
             ->where('status', 'published')
             ->where('country_id', session('visitor_location.country_id', 166))
             ->get();
-        $languages = SpokenLanguage::where('status', BaseStatusEnum::PUBLISHED)->orderBy('order')->get(['id', 'name']);
-        $categories = Category::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name']);
-        // Pulled from real agent specialty assignments (not just any
-        // top-level category) so every pill is guaranteed to return at
-        // least one agent on its own - clicking one is never a dead end.
-        $topCategories = Category::query()
-            ->select('re_categories.id', 're_categories.name')
-            ->join('re_account_categories', 're_account_categories.category_id', '=', 're_categories.id')
-            ->join('re_accounts', 're_accounts.id', '=', 're_account_categories.account_id')
-            ->whereNotNull('re_accounts.confirmed_at')
-            ->where('re_categories.status', BaseStatusEnum::PUBLISHED)
-            ->groupBy('re_categories.id', 're_categories.name')
-            ->orderByRaw('COUNT(*) DESC')
-            ->limit(6)
-            ->get();
         $defaultCountryId = session('visitor_location.country_id', 166);
         $defaultCityId = session('visitor_location.city_id');
-
-        $statVerifiedAgents = Account::whereNotNull('confirmed_at')->count();
-        $statCities = Account::whereNotNull('confirmed_at')
-            ->whereNotNull('city_id')
-            ->distinct('city_id')
-            ->count('city_id');
-        $statProperties = Property::query()->published()->count();
-        $statRating = round((float) (Rating::where('status', 1)->avg('rating') ?? 0), 1);
 
         return Theme::scope('real-estate.agents', compact(
             'countries',
