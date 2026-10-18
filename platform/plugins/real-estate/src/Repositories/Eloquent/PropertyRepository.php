@@ -134,7 +134,7 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
             'select' => [
                 're_properties.*',
             ],
-            'with' => [],
+            'with' => ['currency', 'city.state', 'category'],
         ], $params);
 
         $params['order_by'] = $orderBy;
@@ -412,7 +412,7 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
 
         $params = [
             'condition' => $condition,
-            'with' => $with,
+            'with' => array_unique(array_merge($with, ['currency', 'city.state', 'category'])),
             'take' => $limit,
             'order_by' => ['re_properties.created_at' => 'DESC'],
         ];
@@ -499,7 +499,7 @@ class PropertyRepository extends RepositoriesAbstract implements PropertyInterfa
             'select' => [
                 're_properties.*',
             ],
-            'with' => [],
+            'with' => ['currency', 'city.state', 'category'],
         ], $params);
 
         $params['order_by'] = $orderBy;

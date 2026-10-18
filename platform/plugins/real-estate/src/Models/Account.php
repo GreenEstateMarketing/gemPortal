@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Cache;
 use Laravel\Passport\HasApiTokens;
 use Storage;
 
@@ -224,23 +225,27 @@ class Account extends Authenticatable
 
     public function getConsults($property_id = '')
     {
-        $select = [
-            're_consults.id',
-            're_consults.name',
-            're_consults.phone',
-            're_consults.email',
-            're_consults.created_at',
-            're_consults.status',
-        ];
+        $cacheKey = 'account_unread_consults_' . $this->id . '_' . ($property_id !== '' ? $property_id : 'all');
 
-        $query = Consult::select($select)->Join('re_properties', 're_consults.property_id', '=', 're_properties.id')->where('re_properties.author_id', auth('account')->user()->id)->where('re_consults.status', 'unread');
-        if ($property_id != '') {
-            $query->where('property_id', $property_id);
-        }
-        $count = $query->count();
-        if ($count <= 0)
-            $count = '';
-        return $count; //need to implement query here // account properties to where with consults table count
+        return Cache::remember($cacheKey, now()->addMinutes(2), function () use ($property_id) {
+            $select = [
+                're_consults.id',
+                're_consults.name',
+                're_consults.phone',
+                're_consults.email',
+                're_consults.created_at',
+                're_consults.status',
+            ];
+
+            $query = Consult::select($select)->Join('re_properties', 're_consults.property_id', '=', 're_properties.id')->where('re_properties.author_id', auth('account')->user()->id)->where('re_consults.status', 'unread');
+            if ($property_id != '') {
+                $query->where('property_id', $property_id);
+            }
+            $count = $query->count();
+            if ($count <= 0)
+                $count = '';
+            return $count; //need to implement query here // account properties to where with consults table count
+        });
     }
 
     /**

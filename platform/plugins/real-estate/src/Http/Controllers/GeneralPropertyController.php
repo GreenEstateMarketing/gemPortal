@@ -308,7 +308,12 @@ class GeneralPropertyController extends Controller
 
         Assets::addScriptsDirectly('vendor/core/plugins/real-estate/js/components.js');
 
-        return view('plugins/real-estate::member.dashboard.index', compact('user'));
+        $propertyCounts = $user->properties()
+            ->selectRaw('moderation_status, count(*) as cnt')
+            ->groupBy('moderation_status')
+            ->pluck('cnt', 'moderation_status');
+
+        return view('plugins/real-estate::member.dashboard.index', compact('user', 'propertyCounts'));
 
     }
 

@@ -32,6 +32,7 @@ use Illuminate\Routing\Controller;
 use SeoHelper;
 use Theme;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
@@ -144,21 +145,37 @@ class PropertyWizardController extends Controller
                 : null,
             'uploadUrl' => $this->uploadUrlFor($role),
             'authenticateUrl' => $role === 'guest' ? route('general-property-wizard.authenticate') : null,
-            'categories' => Category::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name', 'parent_id']),
+            // These reference lists are admin-managed and change rarely, but
+            // show() re-runs on every single wizard step (Basics, Location,
+            // Media, Review, ...) - caching them turns 6 queries per step
+            // into 6 cache hits after the first.
+            'categories' => Cache::remember('wizard_ref_categories', now()->addMinutes(30), function () {
+                return Category::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name', 'parent_id']);
+            }),
             // Project has no draft/published concept of its own (its 'status'
             // column is a sale/rent lifecycle state, not visibility), so
             // every project is a valid choice here.
-            'projects' => Project::orderBy('name')->get(['id', 'name']),
-            'currencies' => Currency::orderBy('order')->get(['id', 'title', 'symbol', 'is_default']),
-            'countries' => Country::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name']),
-            'features' => Feature::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name']),
-            'facilities' => Facility::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get([
-                'id',
-                'name',
-                'google_place_type',
-                'google_place_keyword',
-                'google_place_radius',
-            ]),
+            'projects' => Cache::remember('wizard_ref_projects', now()->addMinutes(30), function () {
+                return Project::orderBy('name')->get(['id', 'name']);
+            }),
+            'currencies' => Cache::remember('wizard_ref_currencies', now()->addMinutes(30), function () {
+                return Currency::orderBy('order')->get(['id', 'title', 'symbol', 'is_default']);
+            }),
+            'countries' => Cache::remember('wizard_ref_countries', now()->addMinutes(30), function () {
+                return Country::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name']);
+            }),
+            'features' => Cache::remember('wizard_ref_features', now()->addMinutes(30), function () {
+                return Feature::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get(['id', 'name']);
+            }),
+            'facilities' => Cache::remember('wizard_ref_facilities', now()->addMinutes(30), function () {
+                return Facility::where('status', BaseStatusEnum::PUBLISHED)->orderBy('name')->get([
+                    'id',
+                    'name',
+                    'google_place_type',
+                    'google_place_keyword',
+                    'google_place_radius',
+                ]);
+            }),
             // Which document types the property's chosen category requires
             // (set up by admins in Real Estate > Category Documents) - the
             // media step turns each of these into its own upload slot.
@@ -1344,19 +1361,34 @@ class PropertyWizardController extends Controller
     protected function nearbyAgentsFor(Property $property, string $role = 'member')
     {
         if ($role === 'admin') {
-            return Account::query()->orderBy('first_name')->orderBy('last_name')->get();
+            $agents = Account::query()->with('avatar')->orderBy('first_name')->orderBy('last_name')->get();
+        } else {
+            $agents = $property->latitude && $property->longitude
+                ? Account::query()->with('avatar')->coveringPoint($property->longitude, $property->latitude)->get()
+                : collect();
+
+            if ($this->hasAssignedAgent($property) && !$agents->contains('id', $property->author_id)) {
+                $existing = Account::with('avatar')->find($property->author_id);
+
+                if ($existing) {
+                    $agents->push($existing);
+                }
+            }
         }
 
-        $agents = $property->latitude && $property->longitude
-            ? Account::query()->coveringPoint($property->longitude, $property->latitude)->get()
-            : collect();
+        // Pre-compute each agent's listing count in one grouped query instead
+        // of calling Account::no_of_listings() (one COUNT query per agent)
+        // from the choose-agent view's loop.
+        if ($agents->isNotEmpty()) {
+            $listingCounts = Property::where('author_type', Account::class)
+                ->whereIn('author_id', $agents->pluck('id'))
+                ->groupBy('author_id')
+                ->selectRaw('author_id, count(*) as cnt')
+                ->pluck('cnt', 'author_id');
 
-        if ($this->hasAssignedAgent($property) && !$agents->contains('id', $property->author_id)) {
-            $existing = Account::find($property->author_id);
-
-            if ($existing) {
-                $agents->push($existing);
-            }
+            $agents->each(function ($agent) use ($listingCounts) {
+                $agent->setAttribute('no_of_listings_count', $listingCounts[$agent->id] ?? 0);
+            });
         }
 
         return $agents;
