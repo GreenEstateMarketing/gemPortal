@@ -145,11 +145,13 @@
                                     <div role="tabpanel" class="tab-pane fade in active show" id="Section1">
                                         <h3 class="pt-3 primary-head">{{ __('Description') }}</h3>
 
-                                        <!--Template Description -->
-                                        @if($project->category->name!="Plots" || $project->category->parent_id==2)
-                                            <p>This project features {{$project->number_flat}} Flats with {{$project->number_floor}} floors.</p>
-                                        @else
-                                            <p> {!! clean($project->content, 'youtube') !!};</p>
+                                        @if ($project->number_flat || $project->number_floor)
+                                            <p>This project features {{ $project->number_flat }} Flats with {{ $project->number_floor }} floors.</p>
+                                        @endif
+                                        @if ($project->content)
+                                            <div class="project-description-content">
+                                                {!! clean($project->content, 'youtube') !!}
+                                            </div>
                                         @endif
                                         <h3 class="primary-head">{{ __('Project Summary') }}</h3>
                                         <div class="row pt-3">
