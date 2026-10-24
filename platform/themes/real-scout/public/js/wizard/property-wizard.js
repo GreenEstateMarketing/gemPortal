@@ -11,6 +11,40 @@
 (function () {
     'use strict';
 
+    // Shared instant tooltip for invalid-photo thumbnails - a native title="
+    // attribute has a browser/OS-controlled ~1s hover delay with no way to
+    // shorten it from CSS/JS, so invalid-reason messages use this instead.
+    var activeTooltip = null;
+
+    function showTooltip(anchor, message) {
+        hideTooltip();
+        var tip = document.createElement('div');
+        tip.className = 'wizard-tooltip';
+        tip.textContent = message;
+        document.body.appendChild(tip);
+
+        var anchorRect = anchor.getBoundingClientRect();
+        var tipRect = tip.getBoundingClientRect();
+        var top = anchorRect.top - tipRect.height - 8;
+        if (top < 8) {
+            // Not enough room above (e.g. first row of thumbs) - show below instead.
+            top = anchorRect.bottom + 8;
+        }
+        var left = anchorRect.left + (anchorRect.width / 2) - (tipRect.width / 2);
+        left = Math.max(8, Math.min(left, window.innerWidth - tipRect.width - 8));
+
+        tip.style.top = top + 'px';
+        tip.style.left = left + 'px';
+        activeTooltip = tip;
+    }
+
+    function hideTooltip() {
+        if (activeTooltip) {
+            activeTooltip.remove();
+            activeTooltip = null;
+        }
+    }
+
     function csrfToken() {
         var meta = document.querySelector('meta[name="csrf-token"]');
         if (meta) {
@@ -590,10 +624,16 @@
             if (overlay) {
                 overlay.remove();
             }
-            wrap.title = message;
+            // aria-label (not title) carries the reason for screen readers -
+            // the visible tooltip is the instant custom one wired up below,
+            // not the browser's own delayed title="" tooltip.
+            wrap.setAttribute('aria-label', message);
+            wrap.addEventListener('mouseenter', function () {
+                showTooltip(wrap, message);
+            });
+            wrap.addEventListener('mouseleave', hideTooltip);
             var badge = document.createElement('div');
             badge.className = 'wizard-thumb__badge';
-            badge.title = message;
             badge.innerHTML = '<i class="fas fa-exclamation"></i>';
             wrap.appendChild(badge);
             invalidCount += 1;
@@ -660,6 +700,7 @@
             }
             if (wrap) {
                 revokePreview(wrap);
+                hideTooltip();
                 wrap.remove();
             }
         });

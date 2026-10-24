@@ -750,7 +750,14 @@ class PublicAccountController extends Controller
                 }
             }
 
-            $result = RvMedia::handleUpload(Arr::first($request->file('file')), 0, 'accounts');
+            // Images already went through PropertyImageValidationService above,
+            // which is stricter and image-specific - skip RvMedia's own generic
+            // sitewide mime check here so a type it approved (e.g. webp, which
+            // isn't in core.media.media.allowed_mime_types) can't still get
+            // rejected with a confusing "must be a file of type: ...zip, mp3,
+            // doc..." message. Documents still go through it as a safety net,
+            // since they don't have an image-specific check of their own.
+            $result = RvMedia::handleUpload(Arr::first($request->file('file')), 0, 'accounts', ! $isDocument);
 
             if ($result['error']) {
                 return $response->setError(true)->setMessage($result['message']);
