@@ -20,6 +20,7 @@ use Botble\RealEstate\Tables\AccountTable;
 use Exception;
 use Illuminate\Http\Request;
 use DB;
+use Log;
 use Carbon\Carbon;
 
 class AccountController extends BaseController
@@ -79,97 +80,90 @@ class AccountController extends BaseController
         'confirmed_at' => Carbon::now()->format('Y-m-d H:i:s')
     ]);
 
-    $data = json_decode($request['agent_area']);
-    $i = 0;
+    $ap = null;
 
     if ($request['agent_area'] != "") {
+        try {
+            $data = json_decode($request['agent_area']) ?: [];
 
-        $total_ar = count($data);
-
-        if ($total_ar == 1)
-            $po = 'POLYGON((';
-        else
-            $kp = 'MultiPolygon((';
-
-        $ap = 'ST_GeomFromText(';
-        $mo = '';
-        $first = '';
-
-        foreach ($data as $k => $item) {
-
-            $mo .= '(';
-            $rp = '';
-            $total = count($item);
-            $q = 0;
-
-            foreach ($item as $w => $kk) {
-
-                // FIXED: Store as longitude latitude
-                $first = $item[0]->lng . ' ' . $item[0]->lat;
-
-                if ($total_ar == 1) {
-
-                    if ($i == $total - 1) {
-                        // FIXED
-                        $po .= $kk->lng . ' ' . $kk->lat;
-                    } else {
-                        // FIXED
-                        $po .= $kk->lng . ' ' . $kk->lat;
-                    }
-
-                    $po .= ',';
-                    $i++;
-
-                } else {
-
-                    if ($q == $total - 1) {
-                        // FIXED
-                        $rp .= $kk->lng . ' ' . $kk->lat;
-                    } else {
-                        // FIXED
-                        $rp .= $kk->lng . ' ' . $kk->lat;
-                    }
-
-                    $rp .= ',';
-                    $q++;
+            foreach ($data as $item) {
+                if (count($item) < 3) {
+                    throw new Exception('A coverage area ring must have at least 3 points.');
                 }
             }
 
-            $rp .= $first;
+            $total_ar = count($data);
+            $i = 0;
 
-            $mo .= rtrim($rp, ',');
-            $mo .= '),';
-        }
+            if ($total_ar == 1)
+                $po = 'POLYGON((';
+            else
+                $kp = 'MultiPolygon((';
 
-        if ($total_ar == 1) {
+            $mo = '';
+            $first = '';
 
-            $po .= $first;
+            foreach ($data as $k => $item) {
 
-            $ap .= "'";
-            $ap .= rtrim($po, ',');
-            $ap .= '))';
-            // Explicit axis-order avoids MySQL 8's default lat-first axis
-            // interpretation for SRID 4326, which silently swapped the
-            // lng/lat this code writes as text (see AccountController's
-            // store()/update() for the counterpart write, and the
-            // corresponding property-side ST_Contains query in
-            // PropertyWizardController).
-            $ap .= "',4326,'axis-order=long-lat')";
+                $mo .= '(';
+                $rp = '';
+                $total = count($item);
+                $q = 0;
 
-        } else {
+                foreach ($item as $w => $kk) {
 
-            $kp .= rtrim($mo, ',');
+                    // FIXED: Store as longitude latitude
+                    $first = $item[0]->lng . ' ' . $item[0]->lat;
 
-            $ap .= "'";
-            $ap .= rtrim($kp, ',');
-            $ap .= '))';
-            // Explicit axis-order avoids MySQL 8's default lat-first axis
-            // interpretation for SRID 4326, which silently swapped the
-            // lng/lat this code writes as text (see AccountController's
-            // store()/update() for the counterpart write, and the
-            // corresponding property-side ST_Contains query in
-            // PropertyWizardController).
-            $ap .= "',4326,'axis-order=long-lat')";
+                    if ($total_ar == 1) {
+                        // FIXED
+                        $po .= $kk->lng . ' ' . $kk->lat;
+                        $po .= ',';
+                        $i++;
+                    } else {
+                        // FIXED
+                        $rp .= $kk->lng . ' ' . $kk->lat;
+                        $rp .= ',';
+                        $q++;
+                    }
+                }
+
+                $rp .= $first;
+
+                $mo .= rtrim($rp, ',');
+                $mo .= '),';
+            }
+
+            if ($total_ar == 1) {
+
+                $po .= $first;
+
+                // Explicit axis-order avoids MySQL 8's default lat-first axis
+                // interpretation for SRID 4326, which silently swapped the
+                // lng/lat this code writes as text (see AccountController's
+                // store()/update() for the counterpart write, and the
+                // corresponding property-side ST_Contains query in
+                // PropertyWizardController).
+                $ap = "ST_GeomFromText('" . rtrim($po, ',') . "))',4326,'axis-order=long-lat')";
+
+            } else {
+
+                $kp .= rtrim($mo, ',');
+
+                // Explicit axis-order avoids MySQL 8's default lat-first axis
+                // interpretation for SRID 4326, which silently swapped the
+                // lng/lat this code writes as text (see AccountController's
+                // store()/update() for the counterpart write, and the
+                // corresponding property-side ST_Contains query in
+                // PropertyWizardController).
+                $ap = "ST_GeomFromText('" . rtrim($kp, ',') . "))',4326,'axis-order=long-lat')";
+            }
+        } catch (\Throwable $exception) {
+            Log::error($exception);
+
+            return $response
+                ->setError()
+                ->setMessage('We could not save the coverage area you drew. Please redraw it and try again.');
         }
     }
 
@@ -177,9 +171,18 @@ class AccountController extends BaseController
 
     $account = Account::create($request->except('agent_area'));
 
-    if ($request['agent_area'] != "") {
-        $account->agent_area = \DB::raw($ap);
-        $account->save();
+    if ($ap) {
+        try {
+            $account->agent_area = \DB::raw($ap);
+            $account->save();
+        } catch (\Throwable $exception) {
+            Log::error($exception);
+            $account->delete();
+
+            return $response
+                ->setError()
+                ->setMessage('We could not save the coverage area you drew. Please redraw it and try again.');
+        }
     }
 
     $account->confirmed_at = Carbon::now()->format('Y-m-d H:i:s');
@@ -242,42 +245,57 @@ class AccountController extends BaseController
     $agent_area = json_decode($request->input('agent_area')) ?: [];
     $agent_area_edit = json_decode($request->input('agent_area_edit')) ?: [];
 
+    $geom = null;
+
     if (count($agent_area) > 0) {
-
-        $isMulti = count($agent_area) > 1;
-        $wkt = $isMulti ? 'MULTIPOLYGON(' : 'POLYGON(';
-
-        $polygons = [];
-
-        foreach ($agent_area as $polygon) {
-
-            $coordinates = [];
-
-            foreach ($polygon as $point) {
-                // IMPORTANT:
-                // Store as LONGITUDE LATITUDE
-                $coordinates[] = $point->lng . ' ' . $point->lat;
+        try {
+            foreach ($agent_area as $polygon) {
+                if (count($polygon) < 3) {
+                    throw new Exception('A coverage area ring must have at least 3 points.');
+                }
             }
 
-            // Close polygon if needed
-            if ($coordinates[0] !== end($coordinates)) {
-                $coordinates[] = $coordinates[0];
+            $isMulti = count($agent_area) > 1;
+            $wkt = $isMulti ? 'MULTIPOLYGON(' : 'POLYGON(';
+
+            $polygons = [];
+
+            foreach ($agent_area as $polygon) {
+
+                $coordinates = [];
+
+                foreach ($polygon as $point) {
+                    // IMPORTANT:
+                    // Store as LONGITUDE LATITUDE
+                    $coordinates[] = $point->lng . ' ' . $point->lat;
+                }
+
+                // Close polygon if needed
+                if ($coordinates[0] !== end($coordinates)) {
+                    $coordinates[] = $coordinates[0];
+                }
+
+                $ring = '(' . implode(',', $coordinates) . ')';
+
+                if ($isMulti) {
+                    $polygons[] = '(' . $ring . ')';
+                } else {
+                    $polygons[] = $ring;
+                }
             }
 
-            $ring = '(' . implode(',', $coordinates) . ')';
+            $wkt .= implode(',', $polygons) . ')';
 
-            if ($isMulti) {
-                $polygons[] = '(' . $ring . ')';
-            } else {
-                $polygons[] = $ring;
-            }
+            // Explicit axis-order avoids MySQL 8's default lat-first axis
+            // interpretation for SRID 4326 (see the store() method above).
+            $geom = DB::raw("ST_GeomFromText('{$wkt}',4326,'axis-order=long-lat')");
+        } catch (\Throwable $exception) {
+            Log::error($exception);
+
+            return $response
+                ->setError()
+                ->setMessage('We could not save the coverage area you drew. Please redraw it and try again.');
         }
-
-        $wkt .= implode(',', $polygons) . ')';
-
-        // Explicit axis-order avoids MySQL 8's default lat-first axis
-        // interpretation for SRID 4326 (see the store() method above).
-        $geom = DB::raw("ST_GeomFromText('{$wkt}',4326,'axis-order=long-lat')");
     }
 
     $account = Account::findOrFail($id);
@@ -286,9 +304,17 @@ class AccountController extends BaseController
 
     $account->update($request->except('agent_area', 'password'));
 
-    if (count($agent_area) > 0) {
-        $account->agent_area = $geom;
-        $account->save();
+    if ($geom) {
+        try {
+            $account->agent_area = $geom;
+            $account->save();
+        } catch (\Throwable $exception) {
+            Log::error($exception);
+
+            return $response
+                ->setError()
+                ->setMessage('We could not save the coverage area you drew. Please redraw it and try again.');
+        }
     } elseif (count($agent_area_edit) == 0) {
         $account->agent_area = null;
         $account->save();
