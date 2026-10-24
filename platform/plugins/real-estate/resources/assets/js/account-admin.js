@@ -1,4 +1,8 @@
 $(document).ready(() => {
+    if ($.fn.inputmask) {
+        $('.input-mask-cnic').inputmask('99999-9999999-9');
+    }
+
     $(document).on('click', '#is_change_password', (event) => {
         if ($(event.currentTarget).is(':checked')) {
             $('input[type=password]').closest('.form-group').removeClass('hidden').fadeIn();

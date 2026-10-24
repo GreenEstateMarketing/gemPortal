@@ -22,6 +22,8 @@ class AccountEditRequest extends Request
             'username'   => 'required|max:60|min:2|unique:re_accounts,username,' . $this->route('account'),
             'email'      => 'required|max:60|min:6|email|unique:re_accounts,email,' . $this->route('account'),
             'phone' => ['required', 'regex:/^\+?[1-9][0-9]{7,14}$/'],
+            'cnic' => ['required', 'regex:/^\d{5}-\d{7}-\d{1}$/', 'unique:re_accounts,cnic,' . $this->route('account')],
+            'description' => ['required', 'max:300'],
             'image_path' => [new ImageDimension(5000, 5000)],
             'city_id' => ['required', 'integer', 'exists:cities,id'],
             'city_area_id' => ['required', 'array'],
@@ -44,6 +46,8 @@ class AccountEditRequest extends Request
     {
         return [
             'phone.regex' => 'The phone number format is invalid. It must be a valid international number, e.g., +1234567890.',
+            'cnic.regex' => 'The CNIC format is invalid. It must be in the format 11111-1111111-1.',
+            'cnic.unique' => 'This CNIC is already registered to another account.',
         ];
     }
 

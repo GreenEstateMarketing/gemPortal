@@ -43,6 +43,7 @@ class Account extends Authenticatable
         'avatar_id',
         'dob',
         'phone',
+        'cnic',
         'description',
         'gender',
         'credits',
