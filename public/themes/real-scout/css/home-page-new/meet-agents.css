@@ -80,8 +80,14 @@
     /* --meet-agents-count is set inline per-render to however many agent
        cards actually exist (1-3), so a single real agent doesn't render
        as one narrow card in an otherwise-empty 3-column row. Falls back
-       to 3 if the variable is somehow missing. */
-    grid-template-columns: repeat(var(--meet-agents-count, 3), 1fr);
+       to 3 if the variable is somehow missing. Columns are capped to the
+       card width used at the 3-up layout (408px, derived from the
+       1272px inner content width) rather than 1fr, so fewer cards stay
+       card-sized and fill from the left (the grid's default
+       justify-content: start) instead of stretching or centering - a
+       lone agent lands in the first slot, a second fills the slot next
+       to it, exactly like the 3-up layout with empty slots left bare. */
+    grid-template-columns: repeat(var(--meet-agents-count, 3), minmax(0, 408px));
     gap: 24px;
 }
 

@@ -479,6 +479,15 @@ class FlexHomeController extends PublicController
 
         SeoHelper::setTitle($account->getFullName());
 
+        // Same Playfair Display/Poppins pairing and gold/navy palette as the
+        // agent directory (/agents) and the new homepage sections, so this
+        // profile page matches the rest of the already-modernized site.
+        Theme::asset()->style(
+            'google-fonts-playfair-poppins',
+            'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap'
+        );
+        Theme::asset()->add('agent-detail-css', '/css/agent-detail.css');
+
         $properties = $propertyRepository->advancedGet([
             'condition' => [
                 'author_id' => $account->id,

@@ -1,0 +1,348 @@
+/*
+    Path: /var/www/gem/public/css/agent-detail.css
+    Loaded via: Theme::asset()->add() in FlexHomeController::getAgent() (/agents/{username}).
+
+    Hero + overlapping stat bar + bio + property grid for a single agent's
+    public profile page. Mirrors agent-directory.css's hero/stat-bar recipe
+    and properties-highlights.css's card recipe (both from the
+    already-modernized parts of the site) so this page matches them
+    visually, but keeps its own copy of each rather than importing those
+    stylesheets, so the three pages can keep evolving independently.
+*/
+
+.agent-detail {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --agent-detail-navy: #1a1d24;
+    --agent-detail-gold: #e0a63e;
+    --agent-detail-gold-hover: #cf9530;
+    --agent-detail-max-width: 1320px;
+}
+
+.agent-detail * {
+    box-sizing: border-box;
+}
+
+/* ---- Hero ---- */
+.agent-detail__hero {
+    background: var(--agent-detail-navy);
+    padding: 64px 24px 0;
+}
+
+.agent-detail__hero-inner {
+    max-width: var(--agent-detail-max-width);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    padding-bottom: 64px;
+}
+
+.agent-detail__avatar {
+    flex-shrink: 0;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--agent-detail-gold);
+}
+
+.agent-detail__intro {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.agent-detail__role {
+    display: inline-block;
+    color: var(--agent-detail-gold);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.agent-detail__name {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-size: 36px;
+    color: #ffffff;
+    margin: 0 0 10px;
+}
+
+.agent-detail__specialty {
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 15px;
+    margin: 0 0 20px;
+}
+
+.agent-detail__actions {
+    display: flex;
+    gap: 12px;
+}
+
+.agent-detail__action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    font-size: 15px;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.agent-detail__action:hover {
+    background: var(--agent-detail-gold);
+    color: var(--agent-detail-navy);
+}
+
+/* ---- Stat bar (overlaps the hero's bottom edge) ---- */
+.agent-detail__stats-wrap {
+    position: relative;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px;
+    transform: translateY(-36px);
+}
+
+.agent-detail__stats {
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.16);
+    padding: 24px 28px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.agent-detail__stat {
+    text-align: center;
+}
+
+.agent-detail__stat strong {
+    display: block;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 24px;
+    color: var(--agent-detail-navy);
+    line-height: 1.2;
+    margin-bottom: 4px;
+}
+
+.agent-detail__stat span {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #9ca3af;
+}
+
+/* ---- Bio ---- */
+.agent-detail__body {
+    background: #ffffff;
+    padding: 8px 0 24px;
+}
+
+.agent-detail__bio-wrap {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px 40px;
+    text-align: center;
+}
+
+.agent-detail__bio {
+    color: #4b5563;
+    font-size: 15px;
+    line-height: 1.7;
+    margin: 0;
+}
+
+/* ---- Properties grid (card recipe copied from properties-highlights.css,
+   kept under its own class names rather than shared, so these two decks
+   can keep evolving independently) ---- */
+.agent-detail__listings {
+    max-width: var(--agent-detail-max-width);
+    margin: 0 auto;
+    padding: 0 24px 80px;
+}
+
+.agent-detail__listings-heading {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-size: 26px;
+    color: var(--agent-detail-navy);
+    margin: 0 0 24px;
+    text-align: center;
+}
+
+.agent-detail__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+}
+
+.agent-detail__property-card {
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(26, 29, 36, 0.08);
+    border: 1px solid #ececec;
+    text-decoration: none;
+}
+
+.agent-detail__property-image-wrap {
+    position: relative;
+    aspect-ratio: 16 / 11;
+    overflow: hidden;
+    background: #f3f3f3;
+}
+
+.agent-detail__property-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.agent-detail__property-badge {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    background: var(--agent-detail-gold);
+    color: var(--agent-detail-navy);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: 6px;
+}
+
+/* Same resolved colors as the property detail page's status badge, so a
+   listing's status reads the same color everywhere on the site. */
+.agent-detail__property-badge--selling,
+.agent-detail__property-badge--renting {
+    background: #F3A54A;
+    color: #fff;
+}
+
+.agent-detail__property-badge--sold,
+.agent-detail__property-badge--rented {
+    background: #968d8e;
+    color: #fff;
+}
+
+.agent-detail__property-badge--building {
+    background: #659be0;
+    color: #fff;
+}
+
+.agent-detail__property-badge--closed,
+.agent-detail__property-badge--unpublished {
+    background: var(--primary-color, #1d5f6f);
+    color: #fff;
+}
+
+.agent-detail__property-body {
+    padding: 20px;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.agent-detail__property-price {
+    color: var(--agent-detail-gold);
+    font-weight: 700;
+    font-size: 18px;
+    margin: 0 0 8px;
+}
+
+.agent-detail__property-title {
+    font-weight: 600;
+    color: var(--agent-detail-navy);
+    font-size: 16px;
+    line-height: 1.35;
+    margin: 0 0 8px;
+}
+
+.agent-detail__property-location {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #6b7280;
+    font-size: 13px;
+    margin: 0 0 16px;
+}
+
+.agent-detail__property-location i {
+    color: var(--agent-detail-gold);
+}
+
+.agent-detail__property-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: #6b7280;
+    font-size: 13px;
+    border-top: 1px solid #ececec;
+    padding-top: 14px;
+    margin-top: auto;
+}
+
+.agent-detail__property-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.agent-detail__property-meta i {
+    color: var(--agent-detail-gold);
+}
+
+.agent-detail__empty {
+    color: #9ca3af;
+    font-size: 14px;
+    text-align: center;
+}
+
+.agent-detail__pagination {
+    display: flex;
+    justify-content: center;
+    padding-top: 16px;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 992px) {
+    .agent-detail__grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .agent-detail__hero-inner {
+        flex-direction: column;
+        text-align: center;
+        padding-bottom: 56px;
+    }
+
+    .agent-detail__actions {
+        justify-content: center;
+    }
+
+    .agent-detail__stats {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .agent-detail__name {
+        font-size: 28px;
+    }
+}
+
+@media (max-width: 560px) {
+    .agent-detail__grid {
+        grid-template-columns: 1fr;
+    }
+}
