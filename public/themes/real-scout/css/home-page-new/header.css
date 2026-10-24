@@ -86,295 +86,60 @@
 .icon-logo::before     { content: "\1F3E1"; }
 
 /* =========================================================
-   MAIN NAVIGATION
+   HOME PAGE OVERRIDE OF THE SHARED NAV (.gem-header)
+
+   The home page renders the exact same partials/site-header.blade.php
+   markup/items as every other page (partials/site-header.blade.php +
+   public/css/site-header.css) - these rules don't touch that markup or
+   its item list, they only restyle it for this page's larger, more
+   premium hero treatment. Scoped under body.home-page-new so every
+   other page keeps site-header.css's own look untouched.
+
+   The nav floats transparently over the hero image here (only the
+   top-bar above it stays solid) - it's taken out of document flow
+   (position:absolute) rather than given a negative margin to match,
+   so it doesn't need to track the hero's height at every breakpoint.
+   Per product decision, it scrolls away with the hero instead of
+   staying pinned - no scroll-to-solid JS exists in this codebase to
+   keep a transparent nav readable once you scroll past the image.
    ========================================================= */
-.main-nav {
-    background: transparent;
+.home-page-new header.site-header {
     position: relative;
-    z-index: 20;
 }
 
-.main-nav__inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+.home-page-new .gem-header {
+    position: absolute;
+    top: 42px; /* .top-bar__inner's fixed height, constant across breakpoints */
+    left: 0;
+    right: 0;
+    background: transparent;
+    /* css/style.css has a global `header { z-index: 5 !important; }` rule
+       that outranks this otherwise - only this value needs to win against
+       it, not every other z-index in this file. */
+    z-index: 50 !important;
+}
+
+.home-page-new .gem-header__inner {
+    max-width: var(--header-max-width);
     height: 92px;
 }
 
-.main-nav__logo {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    text-decoration: none;
-    color: var(--header-white);
-    font-family: var(--header-font-heading);
-    font-weight: 700;
-    font-size: 26px;
-    letter-spacing: 0.5px;
-    flex-shrink: 0;
+.home-page-new .gem-header__brand img {
+    height: 50px;
 }
 
-.main-nav__logo i {
-    color: var(--header-gold);
-    font-size: 24px;
+.home-page-new .gem-header__links {
+    gap: 40px;
 }
 
-.main-nav__logo-thin {
-    font-weight: 400;
-    color: var(--header-gold);
-}
-
-.main-nav__logo-img {
-    display: block;
-    height: 40px;
-    width: auto;
-}
-
-/* Menu -- targets the <ul> rendered by Menu::renderMenuLocation().
-   NOTE: 'options' => ['class' => ''] means the top-level <ul> gets no custom
-   class from us, so these selectors target it structurally (nav > ul) rather
-   than by a class name. If your theme's `main-menu` view adds its own class
-   or wrapper (e.g. #menu-primary-menu), you can tighten these selectors to
-   match it, but the structural version below works regardless. */
-.main-nav__menu {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-}
-
-.main-nav__menu > ul {
-    display: flex;
-    align-items: center;
-    gap: 34px;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-.main-nav__menu li {
-    position: relative;
-}
-
-.main-nav__menu li > a {
-    display: inline-block;
-    color: var(--header-white);
-    text-decoration: none;
+.home-page-new .gem-header__links > li > a {
+    font-family: var(--header-font-body);
     font-size: 15px;
-    font-weight: 500;
-    padding: 6px 0;
-    transition: color 0.2s ease;
+    letter-spacing: 0.2px;
 }
 
-.main-nav__menu li > a:hover {
-    color: var(--header-gold);
-}
-
-/* js/scripts.js's scroll handler reveals a "Login" menu item (tagged
-   .sticky-login by the menu builder, sitting inline among the other nav
-   links wherever it was ordered) for guests once you scroll - that was
-   built for the OLD page's nav, which hid its own login control on
-   scroll and showed this in its place. This page's login/register
-   controls are never hidden (.main-nav__actions is always visible on
-   desktop, and .main-nav__mobile-actions below covers mobile), so this
-   item is always a duplicate here - keep it hidden regardless of what
-   the scroll handler does to its d-none class. */
-.sticky-login {
-    display: none !important;
-}
-
-/* .main-nav__actions is hidden entirely below 860px (see the mobile
-   media query) with nothing standing in for it - this is that missing
-   mobile equivalent, rendered inside the slide-out drawer instead.
-   Hidden here on desktop; the mobile media query switches it on. */
-.main-nav__mobile-actions {
-    display: none;
-}
-
-/* Active menu item (Botble's menu builder typically adds an "active" class
-   to the current page's <li> - confirm against your rendered markup and
-   adjust if it uses a different class, e.g. "current-menu-item"). */
-.main-nav__menu li.active > a,
-.main-nav__menu li.current-menu-item > a {
-    color: var(--header-gold);
-    border-bottom: 2px solid var(--header-gold);
-}
-
-/* Basic dropdown support if any menu items have children */
-.main-nav__menu li ul {
-    list-style: none;
-    margin: 0;
-    padding: 10px 0;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    min-width: 190px;
-    background: var(--header-navy);
-    border-radius: 6px;
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(8px);
-    transition: all 0.2s ease;
-}
-
-.main-nav__menu li:hover > ul {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
-
-.main-nav__menu li ul li > a {
-    display: block;
-    padding: 8px 18px;
-    color: var(--header-white);
-    border-bottom: none;
-}
-
-.main-nav__menu li ul li > a:hover {
-    background: rgba(255, 255, 255, 0.06);
-}
-
-/* Logged-in user dropdown (account/member) */
-.user-dropdown {
-    position: relative;
-}
-
-.user-dropdown__toggle {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    color: var(--header-white);
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.user-dropdown__avatar {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.user-dropdown .dropdown-menu {
-    display: none;
-    position: absolute;
-    top: 100%;
-    right: 0;
-    min-width: 180px;
-    margin-top: 10px;
-    padding: 8px 0;
-    background: var(--header-navy);
-    border-radius: 6px;
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
-    z-index: 30;
-}
-
-/* Click-only: bootstrap's dropdown JS (data-toggle="dropdown" on the
-   toggle link) adds/removes .show on click. The :hover variant that used
-   to sit here also revealed the menu on mouseover, which fought the
-   click-driven .show state - hovering would open it, moving the mouse
-   toward a link inside could leave the hover box first and close it
-   before the click landed, and clicking the name to open it "stuck" but
-   visibly shifted from the hover-preview layout to the .show layout. */
-.user-dropdown .dropdown-menu.show {
-    display: block;
-}
-
-.user-dropdown .dropdown-item {
-    display: block;
-    padding: 8px 18px;
-    color: var(--header-white);
-    text-decoration: none;
-    font-size: 14px;
-}
-
-.user-dropdown .dropdown-item:hover {
-    background: rgba(255, 255, 255, 0.06);
-}
-
-/* Login / Register actions */
-.main-nav__actions {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    flex-shrink: 0;
-}
-
-.btn-login {
-    color: var(--header-white);
-    text-decoration: none;
-    font-size: 15px;
-    font-weight: 500;
-    transition: color 0.2s ease;
-}
-
-.btn-login:hover {
-    color: var(--header-gold);
-}
-
-.btn-register {
-    display: inline-flex;
-    align-items: center;
-    background: var(--header-gold);
-    color: var(--header-navy);
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 14px;
-    padding: 12px 26px;
-    border-radius: 6px;
-    transition: background 0.2s ease, transform 0.15s ease;
-}
-
-.btn-register:hover {
-    background: var(--header-gold-hover);
-    transform: translateY(-1px);
-}
-
-/* Mobile hamburger toggle */
-.main-nav__toggle {
-    display: none;
-    flex-direction: column;
-    justify-content: center;
-    gap: 5px;
-    width: 34px;
-    height: 34px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    z-index: 30;
-}
-
-.main-nav__toggle span {
-    display: block;
-    width: 100%;
-    height: 2px;
-    /* Was --header-white: fine over the hero's dark image overlay on
-       desktop, but on mobile the nav bar sits on plain white with
-       nothing dark behind it, so the bars were invisible. */
-    background: var(--header-navy);
-    transition: transform 0.25s ease, opacity 0.25s ease;
-}
-
-/* When the slide-out menu is open, its dark navy panel (.main-nav__menu,
-   background: var(--header-navy)) sits behind this toggle button - the
-   navy bars used when closed (visible against the white nav bar) become
-   invisible against that same navy once they rotate into an "X". */
-.main-nav__toggle.is-active span {
-    background: var(--header-white);
-}
-
-.main-nav__toggle.is-active span:nth-child(1) {
-    transform: translateY(7px) rotate(45deg);
-}
-
-.main-nav__toggle.is-active span:nth-child(2) {
-    opacity: 0;
-}
-
-.main-nav__toggle.is-active span:nth-child(3) {
-    transform: translateY(-7px) rotate(-45deg);
+.home-page-new .gem-header__register {
+    padding: 10px 24px;
 }
 
 /* =========================================================
@@ -389,8 +154,6 @@
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    margin-top: -92px; /* pull hero up under the transparent nav */
-    padding-top: 92px;
 }
 
 .hero__overlay {
@@ -512,10 +275,6 @@
     .hero__heading {
         font-size: 44px;
     }
-
-    .main-nav__menu ul.main-menu {
-        gap: 22px;
-    }
 }
 
 /* Mobile nav breakpoint */
@@ -528,91 +287,7 @@
         justify-content: center;
     }
 
-    .main-nav__toggle {
-        display: flex;
-    }
-
-    .main-nav__menu {
-        position: fixed;
-        top: 0;
-        right: 0;
-        width: 78%;
-        max-width: 320px;
-        height: 100vh;
-        background: var(--header-navy);
-        flex-direction: column;
-        justify-content: flex-start;
-        padding: 110px 30px 30px;
-        transform: translateX(100%);
-        transition: transform 0.3s ease;
-        z-index: 25;
-    }
-
-    .main-nav__menu.is-open {
-        transform: translateX(0);
-    }
-
-    .main-nav__menu > ul {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 22px;
-        width: 100%;
-    }
-
-    .main-nav__menu li {
-        width: 100%;
-    }
-
-    .main-nav__menu li ul {
-        position: static;
-        opacity: 1;
-        visibility: visible;
-        transform: none;
-        box-shadow: none;
-        background: rgba(255, 255, 255, 0.04);
-        margin-top: 10px;
-        display: none;
-    }
-
-    .main-nav__menu li.is-open > ul {
-        display: block;
-    }
-
-    .main-nav__actions {
-        display: none;
-    }
-
-    .main-nav__mobile-actions {
-        display: block;
-        margin-top: 28px;
-        padding-top: 24px;
-        border-top: 1px solid rgba(255, 255, 255, 0.12);
-    }
-
-    .main-nav__mobile-actions .btn-login,
-    .main-nav__mobile-actions .btn-register,
-    .main-nav__mobile-actions .user-dropdown {
-        display: block;
-        width: 100%;
-    }
-
-    .main-nav__mobile-actions .btn-login {
-        margin-bottom: 16px;
-        text-align: center;
-    }
-
-    .main-nav__mobile-actions .btn-register {
-        justify-content: center;
-        text-align: center;
-    }
-
-    .main-nav__mobile-actions .user-dropdown__toggle {
-        width: 100%;
-        justify-content: center;
-    }
-
     .hero {
-        margin-top: 0;
         padding-top: 40px;
         min-height: 560px;
     }
@@ -645,12 +320,12 @@
         font-size: 11px;
     }
 
-    .main-nav__inner {
+    .home-page-new .gem-header__inner {
         height: 76px;
     }
 
-    .main-nav__logo {
-        font-size: 21px;
+    .home-page-new .gem-header__brand img {
+        height: 40px;
     }
 
     .hero__heading {

@@ -66,6 +66,31 @@
 
 <header class="site-header">
 
+    <div class="top-bar">
+        <div class="container top-bar__inner">
+            <div class="top-bar__left">
+                <span class="top-bar__item">
+                    <i class="icon-location"></i>
+                    Your Trusted Real Estate Partner
+                </span>
+            </div>
+            <div class="top-bar__right">
+                @if (theme_option('hotline'))
+                    <a href="tel:{{ theme_option('hotline') }}" class="top-bar__item">
+                        <i class="icon-phone"></i>
+                        {{ theme_option('hotline') }}
+                    </a>
+                @endif
+                @if (theme_option('email'))
+                    <a href="mailto:{{ theme_option('email') }}" class="top-bar__item">
+                        <i class="icon-mail"></i>
+                        {{ theme_option('email') }}
+                    </a>
+                @endif
+            </div>
+        </div>
+    </div>
+
     {!! Theme::partial('site-header') !!}
 
     {{-- ============ HERO SECTION ============ --}}

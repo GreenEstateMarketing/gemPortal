@@ -119,16 +119,40 @@
     flex-shrink: 0;
 }
 
-.gem-header__login {
-    color: var(--gem-header-gold) !important;
-    font-weight: 700 !important;
+.gem-header__auth {
+    display: flex;
+    align-items: center;
+    gap: 16px;
     margin-left: 8px;
     padding-left: 20px;
     border-left: 1px solid rgba(255, 255, 255, 0.18);
 }
 
+.gem-header__login {
+    color: var(--gem-header-gold) !important;
+    font-weight: 700 !important;
+}
+
 .gem-header__login:hover {
     color: #f0bc63 !important;
+}
+
+.gem-header__register {
+    display: inline-flex;
+    align-items: center;
+    background: var(--gem-header-gold);
+    color: #1a1a1a !important;
+    font-weight: 700 !important;
+    font-size: 14px !important;
+    padding: 8px 18px;
+    border-radius: 6px;
+    text-decoration: none !important;
+    transition: background .15s ease, transform .15s ease;
+}
+
+.gem-header__register:hover {
+    background: #f0bc63;
+    transform: translateY(-1px);
 }
 
 /* Account/member profile dropdown */
@@ -243,10 +267,20 @@
     }
 
     .gem-header__login,
-    .gem-header__account {
+    .gem-header__account,
+    .gem-header__auth {
         margin-left: 0;
         padding-left: 0;
         border-left: 0;
+    }
+
+    .gem-header__auth {
+        padding: 14px 0;
+    }
+
+    .gem-header__links > li.gem-header__auth > a {
+        width: auto;
+        padding: 0;
     }
 
     .gem-header__account-toggle {
