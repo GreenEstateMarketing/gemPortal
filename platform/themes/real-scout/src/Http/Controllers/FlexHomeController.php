@@ -505,37 +505,6 @@ class FlexHomeController extends PublicController
         return Theme::scope('real-estate.agent', compact('properties', 'account'))
             ->render();
     }
-    public function getAgentDetial(
-        string $username,
-        Request $request,
-        AccountInterface $accountRepository,
-        PropertyInterface $propertyRepository
-    ) {
-        $account = $accountRepository->getFirstBy(['username' => $username]);
-
-        if (!$account) {
-            abort(404);
-        }
-
-        SeoHelper::setTitle($account->getFullName());
-
-        $properties = $propertyRepository->advancedGet([
-            'condition' => [
-                'author_id' => $account->id,
-                'author_type' => Account::class,
-                'moderation_status' => ModerationStatusEnum::APPROVED,
-                ['re_properties.status', 'NOT_IN', [PropertyStatusEnum::UNPUBLISHED]],
-                ['re_properties.date_published', '>=', Property::publishWindowCutoff()],
-            ],
-            'paginate' => [
-                'per_page' => 12,
-                'current_paged' => (int) $request->input('page'),
-            ],
-        ]);
-
-        return Theme::scope('real-estate.agent-search-detail_page', compact('properties', 'account'))
-            ->render();
-    }
     /**
      * @param Request $request
      * @param CityInterface $cityRepository

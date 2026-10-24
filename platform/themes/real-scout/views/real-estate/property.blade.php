@@ -350,7 +350,7 @@
                                         <strong>
                                             @if ($property->author->username)
                                                 <a
-                                                    href="{{ route('public.agent.detail', $property->author->username) }}">{{ $property->author->getFullName() }}</a>
+                                                    href="{{ route('public.agent', $property->author->username) }}">{{ $property->author->getFullName() }}</a>
                                             @else
                                                 {{ $property->author->getFullName() }}
                                             @endif
@@ -377,7 +377,7 @@
                         </div>
                         @if ($property->author->username)
                             <p class="mt-2"><span class="fas fa-arrow-circle-right"></span> <a
-                                    href="{{ route('public.agent.detail', $property->author->username) }}">{{ __('More properties by this agent') }}</a>
+                                    href="{{ route('public.agent', $property->author->username) }}">{{ __('More properties by this agent') }}</a>
                             </p>
                         @endif
                     </div>
