@@ -58,6 +58,8 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                 ->name('edit');
 
             Route::group(['prefix' => 'wizard', 'as' => 'wizard.'], function () {
+                Route::post('upload', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'postUpload'])
+                    ->name('upload');
                 Route::get('{property?}', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'show'])
                     ->name('show');
                 Route::post('{property}/basics', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'saveBasics'])

@@ -31,6 +31,7 @@ use Botble\RealEstate\Repositories\Interfaces\AccountActivityLogInterface;
 use Botble\RealEstate\Repositories\Interfaces\AccountInterface;
 use Botble\RealEstate\Repositories\Interfaces\PackageInterface;
 use Botble\RealEstate\Repositories\Interfaces\TransactionInterface;
+use Botble\RealEstate\Services\PropertyImageValidationService;
 use Exception;
 use File;
 use Illuminate\Contracts\Config\Repository;
@@ -720,19 +721,33 @@ class PublicAccountController extends Controller
      * @param BaseHttpResponse $response
      * @return BaseHttpResponse|\Illuminate\Http\JsonResponse
      */
-    public function postUpload(Request $request, BaseHttpResponse $response)
+    public function postUpload(Request $request, BaseHttpResponse $response, PropertyImageValidationService $propertyImageValidationService)
     {
         if (setting('media_chunk_enabled') != '1') {
             // Same shared-endpoint situation as GeneralPropertyController::postUpload() -
             // the wizard's per-category document slots need this, not just photos.
             $isDocument = $request->input('type') === 'document';
 
-            $validator = Validator::make($request->all(), [
-                'file.0' => $isDocument ? 'required|file' : 'required|image|mimes:jpg,jpeg,png',
-            ]);
+            if ($isDocument) {
+                $validator = Validator::make($request->all(), [
+                    'file.0' => 'required|file',
+                ]);
 
-            if ($validator->fails()) {
-                return $response->setError()->setMessage($validator->getMessageBag()->first());
+                if ($validator->fails()) {
+                    return $response->setError()->setMessage($validator->getMessageBag()->first());
+                }
+            } else {
+                $file = Arr::first((array) $request->file('file'));
+
+                if (! $file) {
+                    return $response->setError()->setMessage('Please select a photo to upload.');
+                }
+
+                $error = $propertyImageValidationService->validate($file);
+
+                if ($error) {
+                    return $response->setError()->setMessage($error);
+                }
             }
 
             $result = RvMedia::handleUpload(Arr::first($request->file('file')), 0, 'accounts');

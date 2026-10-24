@@ -956,10 +956,37 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
     animation: wizard-spin 0.7s linear infinite;
 }
 
-.wizard-thumb--uploading {
+.wizard-thumb--pending img {
+    opacity: 0.45;
+}
+
+.wizard-thumb__overlay {
+    position: absolute;
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.wizard-thumb--invalid {
+    border-color: var(--pw-danger);
+    box-shadow: 0 0 0 2px rgba(192, 57, 53, 0.25) inset;
+}
+
+.wizard-thumb__badge {
+    position: absolute;
+    bottom: 4px;
+    left: 4px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--pw-danger);
+    color: var(--pw-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    cursor: help;
 }
 
 .wizard-doc-item--uploading {

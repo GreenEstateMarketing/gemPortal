@@ -5,6 +5,7 @@ namespace Botble\RealEstate\Http\Controllers;
 use Botble\Base\Enums\BaseStatusEnum;
 use Botble\Base\Events\CreatedContentEvent;
 use Botble\Base\Events\UpdatedContentEvent;
+use Botble\Base\Http\Responses\BaseHttpResponse;
 use Botble\Location\Models\Country;
 use Botble\RealEstate\Enums\ModerationStatusEnum;
 use Botble\RealEstate\Enums\PropertyStatusEnum;
@@ -25,12 +26,14 @@ use Botble\RealEstate\Models\Project;
 use Botble\RealEstate\Models\Property;
 use Botble\RealEstate\Models\PropertyStatusLog;
 use Botble\RealEstate\Services\PropertyContractService;
+use Botble\RealEstate\Services\PropertyImageValidationService;
 use Botble\RealEstate\Supports\FeatureFlag;
 use Botble\RealEstate\Services\PropertySubmissionService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use SeoHelper;
 use Theme;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
@@ -38,6 +41,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use EmailHandler;
+use RvMedia;
 
 class PropertyWizardController extends Controller
 {
@@ -214,12 +218,57 @@ class PropertyWizardController extends Controller
     {
         switch ($role) {
             case 'admin':
-                return route('media.files.upload');
+                return route('property.wizard.upload');
             case 'agent':
                 return route('public.account.upload');
             default:
                 return route('public.member.upload');
         }
+    }
+
+    /**
+     * Admin's own upload endpoint for the wizard's photo/document uploaders -
+     * deliberately NOT the generic media.files.upload (MediaFileController),
+     * since that's the sitewide admin Media Library endpoint used for every
+     * other upload in the admin panel (logos, blog images, banners, etc.).
+     * Reusing it here would mean the property-photo resolution/aspect-ratio
+     * rules below would wrongly apply to all of those too. This mirrors the
+     * same shape as PublicAccountController::postUpload() (agent) and
+     * GeneralPropertyController::postUpload() (member).
+     */
+    public function postUpload(Request $request, BaseHttpResponse $response, PropertyImageValidationService $propertyImageValidationService)
+    {
+        $isDocument = $request->input('type') === 'document';
+
+        if ($isDocument) {
+            $validator = Validator::make($request->all(), [
+                'file.0' => 'required|file',
+            ]);
+
+            if ($validator->fails()) {
+                return $response->setError()->setMessage($validator->getMessageBag()->first());
+            }
+        } else {
+            $file = Arr::first((array) $request->file('file'));
+
+            if (! $file) {
+                return $response->setError()->setMessage('Please select a photo to upload.');
+            }
+
+            $error = $propertyImageValidationService->validate($file);
+
+            if ($error) {
+                return $response->setError()->setMessage($error);
+            }
+        }
+
+        $result = RvMedia::handleUpload(Arr::first($request->file('file')), 0);
+
+        if ($result['error']) {
+            return $response->setError(true)->setMessage($result['message']);
+        }
+
+        return $response->setData($result['data']);
     }
 
     /**

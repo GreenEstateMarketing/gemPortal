@@ -43,6 +43,16 @@ class PropertyImageEnhancementService
 
     protected const MAX_WATERMARK_HEIGHT_RATIO = 0.5;
 
+    // Caps the served file's longer edge for page-load performance - large
+    // camera/phone photos (often 4000px+) get downscaled, while the
+    // already-small generated thumbnail sizes in the same loop are
+    // naturally left alone since they're already under this.
+    protected const MAX_DIMENSION = 2000;
+
+    // Recompression quality used when re-saving every size - keeps file size
+    // down for performance while staying visually close to the original.
+    protected const SAVE_QUALITY = 82;
+
     public function process(MediaFile $file): bool
     {
         if (!$file->canGenerateThumbnails()) {
@@ -87,9 +97,11 @@ class PropertyImageEnhancementService
                 $this->enhance($image->getCore());
             }
 
+            $this->resizeIfOversized($image);
+
             $this->applyCenteredWatermark($image);
 
-            $image->save($path);
+            $image->save($path, static::SAVE_QUALITY);
         }
 
         return true;
@@ -123,6 +135,25 @@ class PropertyImageEnhancementService
 
         File::ensureDirectoryExists(File::dirname($backupPath));
         File::copy($path, $backupPath);
+    }
+
+    protected function resizeIfOversized($image): void
+    {
+        if ($image->width() <= static::MAX_DIMENSION && $image->height() <= static::MAX_DIMENSION) {
+            return;
+        }
+
+        if ($image->width() >= $image->height()) {
+            $image->resize(static::MAX_DIMENSION, null, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
+        } else {
+            $image->resize(null, static::MAX_DIMENSION, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
+        }
     }
 
     protected function enhance(Imagick $imagick): void

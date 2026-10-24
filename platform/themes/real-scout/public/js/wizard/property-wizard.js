@@ -20,6 +20,56 @@
         return root ? root.getAttribute('data-csrf-token') : '';
     }
 
+    // Client-side pre-checks for the property-photo uploader only - a UX
+    // convenience that mirrors PropertyImageValidationService on the server,
+    // which remains authoritative (catches anything that bypasses JS, e.g.
+    // no-JS submissions or direct API calls).
+    var ALLOWED_IMAGE_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+    var MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
+    var MIN_IMAGE_WIDTH = 1024;
+    var MIN_IMAGE_HEIGHT = 768;
+    var MAX_IMAGE_ASPECT_RATIO = 3;
+
+    function validateImageFile(file) {
+        if (ALLOWED_IMAGE_MIME_TYPES.indexOf(file.type) === -1) {
+            return 'Please upload a photo in JPG, PNG, or WEBP format.';
+        }
+        if (file.size > MAX_IMAGE_SIZE_BYTES) {
+            return 'This image is too large. Please upload a photo smaller than 5MB.';
+        }
+        return null;
+    }
+
+    // Probes actual pixel dimensions by loading the file into an off-DOM
+    // Image() - the only reliable way to read this client-side before upload.
+    function checkImageDimensions(file, callback) {
+        var url = URL.createObjectURL(file);
+        var img = new Image();
+        img.onload = function () {
+            var width = img.naturalWidth;
+            var height = img.naturalHeight;
+            URL.revokeObjectURL(url);
+
+            if (width < MIN_IMAGE_WIDTH || height < MIN_IMAGE_HEIGHT) {
+                callback('This image resolution is too low. Please upload an image with a minimum resolution of ' + MIN_IMAGE_WIDTH + ' × ' + MIN_IMAGE_HEIGHT + ' pixels.');
+                return;
+            }
+
+            var ratio = width / height;
+            if (ratio > MAX_IMAGE_ASPECT_RATIO || ratio < (1 / MAX_IMAGE_ASPECT_RATIO)) {
+                callback('This image has an unusual shape and can\'t be used. Please upload a normal photo of the property.');
+                return;
+            }
+
+            callback(null);
+        };
+        img.onerror = function () {
+            URL.revokeObjectURL(url);
+            callback('This image appears to be corrupted or unsupported. Please upload a different photo.');
+        };
+        img.src = url;
+    }
+
     function showError(form, field, message) {
         var el = form.querySelector('[data-error-for="' + field + '"]');
         if (el) {
@@ -381,6 +431,16 @@
         // items.length so a burst of drops can't sneak past the limit
         // before any of them have actually landed in `items`.
         var reserved = 0;
+        // Photos currently shown with a validation problem (client- or
+        // server-side) - Save & Continue stays disabled the whole time any
+        // of these exist, until the user removes or replaces them. Images
+        // only; the document uploader doesn't use this.
+        var invalidCount = 0;
+        var submitBtn = null;
+        if (options.kind === 'image') {
+            var stepForm = widget.closest('form');
+            submitBtn = stepForm ? stepForm.querySelector('[data-step-submit]') : null;
+        }
 
         try {
             items = JSON.parse(hidden.value || '[]');
@@ -398,6 +458,29 @@
             }
         }
 
+        // Keeps the submit button disabled and the shared error message in
+        // sync with how many photos currently have an unresolved problem.
+        function onInvalidCountChanged() {
+            if (submitBtn) {
+                submitBtn.disabled = invalidCount > 0;
+            }
+            if (invalidCount > 0) {
+                showError(root, options.name, invalidCount === 1
+                    ? 'One photo has a problem - hover over it for details, then remove or replace it to continue.'
+                    : invalidCount + ' photos have a problem - hover over each for details, then remove or replace them to continue.');
+            } else {
+                showError(root, options.name, '');
+            }
+        }
+
+        function revokePreview(wrap) {
+            var url = wrap.getAttribute('data-object-url');
+            if (url) {
+                URL.revokeObjectURL(url);
+                wrap.removeAttribute('data-object-url');
+            }
+        }
+
         // beforeNode lets a finished upload drop its real thumb exactly where
         // its "uploading" placeholder was (see renderPlaceholder below),
         // rather than at the end of the grid - without that, two files
@@ -410,7 +493,7 @@
                 // item.url is the raw relative storage path (what actually
                 // gets saved) - it isn't browsable on its own, so display
                 // uses item.full_url when we have it.
-                wrap.innerHTML = '<img src="' + (item.full_url || item.url) + '" alt=""><button type="button" class="wizard-thumb__remove" data-remove-url="' + item.url + '">&times;</button>';
+                wrap.innerHTML = '<img src="' + (item.full_url || item.url) + '" alt=""><button type="button" class="wizard-thumb__remove" data-remove-url="' + item.url + '" title="Remove">&times;</button>';
                 thumbs.insertBefore(wrap, beforeNode || null);
             } else {
                 var row = document.createElement('div');
@@ -445,19 +528,11 @@
             }
         }
 
-        // Shown the instant a file is picked/dropped, before its upload
-        // request even starts - uploads now run the server-side image
-        // enhancement pipeline synchronously, so without this a selected
-        // photo could sit with no feedback for a couple of seconds.
+        // Shown the instant a document is picked/dropped, before its upload
+        // request even starts. Images use renderImagePreview() below instead -
+        // they preview the actual photo rather than a bare spinner, since a
+        // photo that turns out to be invalid still needs to be recognizable.
         function renderPlaceholder(file) {
-            if (options.kind === 'image') {
-                var wrap = document.createElement('div');
-                wrap.className = 'wizard-thumb wizard-thumb--uploading';
-                wrap.innerHTML = '<div class="wizard-spinner"></div>';
-                thumbs.appendChild(wrap);
-                return wrap;
-            }
-
             var row = document.createElement('div');
             row.className = 'wizard-doc-item wizard-doc-item--uploading';
 
@@ -482,21 +557,111 @@
             return row;
         }
 
+        // Previews the exact file the user picked, immediately - before any
+        // validation or upload has happened - so a photo that turns out to
+        // be too small/corrupted/etc. is still clearly the one they chose,
+        // not a mystery blank tile. Stays in this "pending" state (dimmed,
+        // spinner on top) until checkImageDimensions()/the upload resolves
+        // it one way or the other.
+        function renderImagePreview(file) {
+            var wrap = document.createElement('div');
+            wrap.className = 'wizard-thumb wizard-thumb--pending';
+            var objectUrl = URL.createObjectURL(file);
+            wrap.setAttribute('data-object-url', objectUrl);
+            wrap.innerHTML = '<img src="' + objectUrl + '" alt="">' +
+                '<div class="wizard-thumb__overlay"><div class="wizard-spinner"></div></div>' +
+                '<button type="button" class="wizard-thumb__remove" title="Remove">&times;</button>';
+            thumbs.appendChild(wrap);
+            return wrap;
+        }
+
+        // Marks a previewed photo as unusable in place - red border + a
+        // badge carrying the specific reason (shown on hover) - and keeps
+        // Save & Continue disabled until it's removed or replaced.
+        function markThumbInvalid(wrap, message) {
+            if (!wrap.isConnected) {
+                // Already removed by the user while validation/upload was
+                // still in flight - nothing to mark, and no slot to free.
+                return;
+            }
+            wrap.classList.remove('wizard-thumb--pending');
+            wrap.classList.add('wizard-thumb--invalid');
+            var overlay = wrap.querySelector('.wizard-thumb__overlay');
+            if (overlay) {
+                overlay.remove();
+            }
+            wrap.title = message;
+            var badge = document.createElement('div');
+            badge.className = 'wizard-thumb__badge';
+            badge.title = message;
+            badge.innerHTML = '<i class="fas fa-exclamation"></i>';
+            wrap.appendChild(badge);
+            invalidCount += 1;
+            onInvalidCountChanged();
+        }
+
+        // Converts a pending preview into a normal, persisted thumb once the
+        // upload has actually succeeded server-side.
+        function resolveThumbAsUploaded(wrap, file, json) {
+            var url = (json.data && (json.data.url || json.data.src)) || '';
+            var fullUrl = (json.data && (json.data.full_url || json.data.url)) || url;
+            var item = { url: url, full_url: fullUrl, name: file.name };
+            items.push(item);
+            persist();
+
+            if (!wrap.isConnected) {
+                // User removed the preview before the upload finished - the
+                // file is already saved server-side (same as removing an
+                // already-uploaded thumb doesn't delete it there either),
+                // but there's no tile left to update.
+                updateCount();
+                return;
+            }
+
+            revokePreview(wrap);
+            wrap.classList.remove('wizard-thumb--pending');
+            var overlay = wrap.querySelector('.wizard-thumb__overlay');
+            if (overlay) {
+                overlay.remove();
+            }
+            var img = wrap.querySelector('img');
+            if (img) {
+                img.src = fullUrl || url;
+            }
+            var removeBtn = wrap.querySelector('.wizard-thumb__remove');
+            if (removeBtn) {
+                removeBtn.setAttribute('data-remove-url', url);
+            }
+            updateCount();
+        }
+
         items.forEach(renderThumb);
         updateCount();
+        onInvalidCountChanged();
 
         thumbs.addEventListener('click', function (event) {
-            var btn = event.target.closest('[data-remove-url]');
+            var btn = event.target.closest('.wizard-thumb__remove, .wizard-doc-item__remove');
             if (!btn) {
                 return;
             }
+            var wrap = btn.closest(options.kind === 'image' ? '.wizard-thumb' : '.wizard-doc-item');
             var url = btn.getAttribute('data-remove-url');
-            items = items.filter(function (item) {
-                return item.url !== url;
-            });
-            persist();
-            updateCount();
-            btn.closest(options.kind === 'image' ? '.wizard-thumb' : '.wizard-doc-item').remove();
+            if (url) {
+                items = items.filter(function (item) {
+                    return item.url !== url;
+                });
+                persist();
+                updateCount();
+            } else if (wrap && wrap.classList.contains('wizard-thumb--invalid')) {
+                // A still-invalid preview being dismissed - frees up its slot
+                // and may re-enable Save & Continue.
+                invalidCount = Math.max(0, invalidCount - 1);
+                onInvalidCountChanged();
+            }
+            if (wrap) {
+                revokePreview(wrap);
+                wrap.remove();
+            }
         });
 
         dropzone.addEventListener('click', function () {
@@ -524,7 +689,11 @@
             var itemLabel = options.kind === 'image' ? 'photo' : 'document';
 
             if (options.max) {
-                var remaining = options.max - (items.length + reserved);
+                // Invalid previews still occupy a grid slot until the user
+                // deals with them, so they count against the limit too -
+                // otherwise a user could keep adding past max by leaving
+                // rejected photos sitting there.
+                var remaining = options.max - (items.length + reserved + invalidCount);
                 if (remaining <= 0) {
                     window.alert(options.max === 1
                         ? 'Only one ' + itemLabel + ' can be added here - remove the existing one first.'
@@ -537,18 +706,16 @@
                 }
             }
 
-            files.forEach(function (file) {
+            function uploadDocument(file) {
                 reserved += 1;
                 var placeholder = renderPlaceholder(file);
                 var formData = new FormData();
                 formData.append('file[]', file);
-                if (options.kind === 'document') {
-                    // Tells the upload endpoint not to apply its images-only
-                    // validation - documents can legitimately be PDFs, Word
-                    // files, etc. per whatever the category's document type
-                    // allows (see the accept="" attribute on this input).
-                    formData.append('type', 'document');
-                }
+                // Tells the upload endpoint not to apply its images-only
+                // validation - documents can legitimately be PDFs, Word
+                // files, etc. per whatever the category's document type
+                // allows (see the accept="" attribute on this input).
+                formData.append('type', 'document');
 
                 fetch(options.uploadUrl, {
                     method: 'POST',
@@ -558,16 +725,22 @@
                     },
                     body: formData
                 }).then(function (response) {
-                    return response.json();
-                }).then(function (json) {
+                    var ok = response.ok;
+                    return response.json().catch(function () {
+                        return null;
+                    }).then(function (json) {
+                        return { ok: ok, json: json };
+                    });
+                }).then(function (result) {
                     reserved -= 1;
-                    if (json.error) {
+                    var json = result.json;
+                    var url = json && json.data && (json.data.url || json.data.src);
+                    if (!result.ok || !json || json.error || !url) {
                         placeholder.remove();
-                        window.alert(json.message || 'Upload failed');
+                        window.alert((json && json.message) || 'Upload failed');
                         return;
                     }
-                    var url = (json.data && (json.data.url || json.data.src)) || '';
-                    var fullUrl = (json.data && (json.data.full_url || json.data.url)) || url;
+                    var fullUrl = (json.data && json.data.full_url) || url;
                     var item = { url: url, full_url: fullUrl, name: file.name };
                     items.push(item);
                     persist();
@@ -578,6 +751,79 @@
                     reserved -= 1;
                     placeholder.remove();
                     window.alert('Upload failed, please try again.');
+                });
+            }
+
+            // reserved is incremented once, right before the dimension check,
+            // by the caller below - this function owns the matching
+            // decrement, on whichever path it resolves through.
+            function uploadImage(file, wrap) {
+                var formData = new FormData();
+                formData.append('file[]', file);
+
+                fetch(options.uploadUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken(),
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                }).then(function (response) {
+                    // response.ok has to be captured here - it's not available
+                    // any more once we're inside the body-parsing promise below.
+                    var ok = response.ok;
+                    return response.json().catch(function () {
+                        // Not JSON at all (e.g. a raw PHP error page) - treat
+                        // the same as a malformed app response, below.
+                        return null;
+                    }).then(function (json) {
+                        return { ok: ok, json: json };
+                    });
+                }).then(function (result) {
+                    reserved -= 1;
+                    var json = result.json;
+                    var url = json && json.data && (json.data.url || json.data.src);
+                    // A non-2xx status, a response that isn't our app's
+                    // {error, data, message} shape, or one missing a usable
+                    // URL, is never treated as success - without this, an
+                    // unexpected server error (a crash, a proxy error page,
+                    // anything that doesn't match the expected shape) would
+                    // silently fall through as "success" with a blank URL,
+                    // leaving a broken image counted as uploaded with no
+                    // visible explanation.
+                    if (!result.ok || !json || json.error || !url) {
+                        markThumbInvalid(wrap, (json && json.message) || 'Upload failed, please try again.');
+                        return;
+                    }
+                    resolveThumbAsUploaded(wrap, file, json);
+                }).catch(function () {
+                    reserved -= 1;
+                    markThumbInvalid(wrap, 'Upload failed, please try again.');
+                });
+            }
+
+            files.forEach(function (file) {
+                if (options.kind !== 'image') {
+                    uploadDocument(file);
+                    return;
+                }
+
+                var wrap = renderImagePreview(file);
+
+                var syncError = validateImageFile(file);
+                if (syncError) {
+                    markThumbInvalid(wrap, syncError);
+                    return;
+                }
+
+                reserved += 1;
+                checkImageDimensions(file, function (dimensionError) {
+                    if (dimensionError) {
+                        reserved -= 1;
+                        markThumbInvalid(wrap, dimensionError);
+                        return;
+                    }
+                    uploadImage(file, wrap);
                 });
             });
         }
@@ -644,6 +890,19 @@
                 });
             });
             payload.documents = documentsPayload;
+
+            // Belt-and-suspenders alongside the disabled submit button in
+            // onInvalidCountChanged() (property-wizard.js's initUploader) -
+            // checks the live DOM rather than that closure's own counter, so
+            // it still blocks submission even if the button's disabled state
+            // somehow got out of sync.
+            var invalidImageCount = form.querySelectorAll('[data-uploader="images"] .wizard-thumb--invalid').length;
+            if (invalidImageCount > 0) {
+                showError(form, 'images', invalidImageCount === 1
+                    ? 'One photo has a problem - remove or replace it before continuing.'
+                    : invalidImageCount + ' photos have a problem - remove or replace them before continuing.');
+                return;
+            }
 
             // Catch the empty-photos / missing-required-document cases
             // immediately, without a round trip - the server enforces the
