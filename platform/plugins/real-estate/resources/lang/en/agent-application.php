@@ -24,7 +24,7 @@ return [
         ],
         'phone' => [
             'required' => 'Phone number is required',
-            'regex' => 'The phone number format is invalid. It must be a valid international number, e.g., +1234567890.',
+            'regex' => 'The phone number must start with + followed by exactly 11 digits, e.g., +92300123456.',
         ],
         'education_level' => [
             'required' => 'Highest education is required',

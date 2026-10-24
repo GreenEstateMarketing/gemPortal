@@ -14,7 +14,7 @@ class StoreAgentApplicationRequest extends Request
         $rules = [
             'name' => 'required|string|max:120',
             'email' => 'required|email|max:60',
-            'phone' => ['required', 'regex:/^\+?[1-9][0-9]{7,14}$/'],
+            'phone' => ['required', 'regex:/^\+[0-9]{11}$/'],
             'education_level' => 'required|string|max:60',
             'years_of_experience' => 'required|integer|min:0|max:60',
             'category_ids' => 'required|array|min:1',
