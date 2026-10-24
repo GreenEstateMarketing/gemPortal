@@ -368,6 +368,15 @@ class RealEstateServiceProvider extends ServiceProvider
                     'permissions' => ['consult.index'],
                 ])
                 ->registerItem([
+                    'id' => 'cms-plugins-agent-application',
+                    'priority' => 7,
+                    'parent_id' => null,
+                    'name' => 'plugins/real-estate::agent-application.name',
+                    'icon' => 'fas fa-user-tie',
+                    'url' => route('agent-application.index'),
+                    'permissions' => ['agent-application.index'],
+                ])
+                ->registerItem([
                     'id' => 'cms-plugins-real-estate-category',
                     'priority' => 4,
                     'parent_id' => 'cms-plugins-real-estate',

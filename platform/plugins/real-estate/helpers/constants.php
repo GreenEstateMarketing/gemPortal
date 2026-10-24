@@ -72,3 +72,7 @@ if (!defined('SPOKEN_LANGUAGE_MODULE_SCREEN_NAME')) {
     define('SPOKEN_LANGUAGE_MODULE_SCREEN_NAME', 'agent_spoken_language');
 }
 
+if (!defined('AGENT_APPLICATION_MODULE_SCREEN_NAME')) {
+    define('AGENT_APPLICATION_MODULE_SCREEN_NAME', 'agent-application');
+}
+

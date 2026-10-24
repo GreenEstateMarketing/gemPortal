@@ -70,6 +70,7 @@
 
     <p class="gem-auth__footer-link">
         {{ __('Agent accounts are created by an administrator.') }}
+        <a class="gem-auth__link" href="{{ route('public.agent-application.create') }}">{{ __('Apply to become an agent') }}</a>
     </p>
 </form>
 

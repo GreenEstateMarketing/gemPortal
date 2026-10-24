@@ -11,7 +11,7 @@
                 <a href="#agent-search-section" class="agent-directory__btn agent-directory__btn--primary">
                     Explore Agents <i class="fas fa-arrow-down"></i>
                 </a>
-                <a href="{{ route('member.login') }}" class="agent-directory__btn agent-directory__btn--outline">
+                <a href="{{ route('public.agent-application.create') }}" class="agent-directory__btn agent-directory__btn--outline">
                     Become an Agent
                 </a>
             </div>
@@ -85,7 +85,7 @@
                     Join our network and connect with serious property buyers, sellers and investors.
                 </p>
             </div>
-            <a href="{{ route('member.login') }}" class="agent-directory__btn agent-directory__btn--primary agent-directory__cta-btn">
+            <a href="{{ route('public.agent-application.create') }}" class="agent-directory__btn agent-directory__btn--primary agent-directory__cta-btn">
                 Join GEMlisting <i class="fas fa-arrow-right"></i>
             </a>
         </div>
