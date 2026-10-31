@@ -327,7 +327,33 @@ class PublicController extends Controller
             $images[] = RvMedia::getImageUrl($image, null, false, RvMedia::getDefaultImage());
         }
 
-        return Theme::scope('real-estate.property', compact('property', 'images', 'isFavourite'))->render();
+        // Theme::asset()->add() sniffs style vs script from the URL's file
+        // extension (via File::extension()), which is empty for a
+        // query-string URL with no literal ".css" — it would silently
+        // register this as a script and drop it. ->style() always
+        // registers it as a stylesheet, matching FlexHomeController's
+        // agent-detail-page registration of the same font pairing.
+        Theme::asset()->style(
+            'google-fonts-playfair-poppins',
+            'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap'
+        );
+        // Dependency on 'style-css' (the theme's legacy stylesheet,
+        // registered in config.php) forces Theme::asset()'s dependency sort
+        // to render this AFTER it - without it, this was loading BEFORE
+        // style.css despite being registered later, so every override here
+        // that ties in specificity with an equivalent legacy selector (e.g.
+        // two single-class selectors, neither !important) was silently
+        // losing to the legacy rule instead of winning.
+        Theme::asset()->add('property-detail-css', '/css/property-detail.css', ['style-css']);
+
+        $propertyRatings = $property->ratings()->where('status', 1);
+        $propertyRatingAvg = (clone $propertyRatings)->avg('rating');
+        $propertyRatingCount = (clone $propertyRatings)->count();
+
+        return Theme::scope(
+            'real-estate.property',
+            compact('property', 'images', 'isFavourite', 'propertyRatingAvg', 'propertyRatingCount')
+        )->render();
     }
 
     /**

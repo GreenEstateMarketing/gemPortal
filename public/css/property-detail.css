@@ -1,0 +1,1111 @@
+/*
+    Path: /var/www/gem/public/css/property-detail.css
+    Loaded via: Theme::asset()->add() in
+    platform/plugins/real-estate/src/Http/Controllers/PublicController.php::getProperty()
+    (public property show page, /properties/{slug}).
+
+    Restyles the property detail page (header/stats, tabs, contact-agent
+    card, consult form, a new "dream home" CTA) with the same navy/gold,
+    Playfair Display + Poppins system already used on the home page, agent
+    directory and agent detail page. Keeps its own copy of the recipe
+    (see agent-detail.css) rather than importing it, so pages evolve
+    independently.
+
+    Scoping note: the "Related properties" <related> Vue component lives
+    inside this same .property-detail wrapper and reuses GLOBAL classes
+    (.hourseitem, .status-label, .form-control, etc.) on other pages too.
+    Every rule below that touches a shared/global class name is written
+    under one of the unique .property-detail__* wrapper classes added in
+    property.blade.php (never under the bare .property-detail root), so
+    nothing here can leak into the related-properties grid or any other
+    page that happens to reuse those class names.
+*/
+
+.property-detail {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    /* Matches the site footer's navy (--header-navy in home-page-new/header.css)
+       so the active tab pills and the neighbourhood filter chips read as
+       the same navy used elsewhere on the site, instead of a second,
+       slightly different near-black shade. */
+    --property-detail-navy: #30383d;
+    --property-detail-gold: #e0a63e;
+    --property-detail-gold-hover: #cf9530;
+    --property-detail-gold-soft: #fdf3e1;
+    color: #374151;
+}
+
+.property-detail__section-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--property-detail-navy);
+    margin: 0 0 16px;
+    position: relative;
+    padding-top: 14px;
+}
+
+.property-detail__section-title::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 32px;
+    height: 3px;
+    background: var(--property-detail-gold);
+    border-radius: 2px;
+}
+
+/* ---- Header card ---- */
+.property-detail__header {
+    background: #ffffff;
+    border: 1px solid #ececec;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(26, 29, 36, 0.06);
+    padding: 28px;
+    margin-bottom: 24px;
+}
+
+.property-detail__price-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.property-detail__price-group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.property-detail__price {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-size: 30px;
+    color: var(--property-detail-navy);
+    margin: 0;
+}
+
+/* Legacy style.css has `.status-label.label-success { background-color: #F3A54A !important; }`
+   at equal (0,2,0) specificity — add a third class so this always wins
+   regardless of stylesheet load order, instead of relying on it loading
+   after style.css. */
+.property-detail__header .property-detail__status .status-label {
+    display: inline-flex;
+    align-items: center;
+    background: var(--property-detail-gold) !important;
+    color: var(--property-detail-navy) !important;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 7px 14px !important;
+    border-radius: 999px;
+}
+
+.property-detail__favorite {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #f7f7f8;
+    border: 1px solid #ececec;
+    color: #9ca3af;
+    text-decoration: none;
+    flex: none;
+    transition: color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+.property-detail__favorite:hover {
+    color: var(--property-detail-gold-hover);
+    border-color: var(--property-detail-gold);
+    transform: scale(1.06);
+}
+
+.property-detail__favorite i {
+    font-size: 18px;
+    margin: 0 !important;
+}
+
+.property-detail__favorite i.fas {
+    color: #e0545c;
+}
+
+.property-detail__title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-size: 24px;
+    color: var(--property-detail-navy);
+    margin: 0 0 8px;
+}
+
+.property-detail__location {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6b7280;
+    font-size: 14px;
+    margin: 0 0 18px;
+}
+
+.property-detail__location i {
+    color: var(--property-detail-gold);
+}
+
+.property-detail__share {
+    display: inline-flex;
+    margin-bottom: 24px;
+}
+
+.property-detail__share .row {
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.property-detail__share #socialHolder {
+    width: auto;
+    max-width: none;
+    flex: none;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    padding: 9px 10px 9px 18px !important;
+    transition: border-color 0.2s ease;
+}
+
+.property-detail__share #socialHolder:hover {
+    border-color: var(--property-detail-gold);
+}
+
+.property-detail__share #socialHolder b {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--property-detail-navy);
+    padding-right: 0 !important;
+}
+
+.property-detail__share .share-group > button.dropdown-toggle {
+    display: none;
+}
+
+.property-detail__share #socialShare > a.btn-info {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--property-detail-gold-soft) !important;
+    border: none !important;
+    cursor: pointer;
+}
+
+.property-detail__share #socialShare > a.btn-info i {
+    color: var(--property-detail-gold-hover) !important;
+    font-size: 14px;
+}
+
+.property-detail__share .dropdown-menu.socials_links {
+    display: none;
+    min-width: auto;
+    border-radius: 12px;
+    border: 1px solid #ececec;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+    padding: 10px 12px;
+}
+
+.property-detail__share .share-group.open .dropdown-menu.socials_links,
+.property-detail__share .dropdown-menu.socials_links.show {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.property-detail__share .socials_links li {
+    display: inline-block !important;
+}
+
+.property-detail__share .socials_links li a {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 50%;
+    background: #f7f7f8;
+}
+
+.property-detail__share .socials_links .social_icons {
+    width: 20px;
+    height: 20px;
+}
+
+/* ---- Stat tile row ---- */
+.property-detail__stats {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+}
+
+.property-detail__stat {
+    text-align: center;
+    background: #f7f7f8;
+    border-radius: 12px;
+    padding: 16px 10px;
+}
+
+.property-detail__stat-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--property-detail-gold-soft);
+    color: var(--property-detail-gold);
+    font-size: 15px;
+    margin-bottom: 10px;
+}
+
+.property-detail__stat-value {
+    display: block;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--property-detail-navy);
+    line-height: 1.2;
+    margin-bottom: 4px;
+}
+
+.property-detail__stat-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #6b7280;
+}
+
+/* ---- Tabs card ---- */
+.property-detail__tabs-card {
+    background: #ffffff;
+    border: 1px solid #ececec;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(26, 29, 36, 0.06);
+    padding: 28px;
+    margin-bottom: 24px;
+}
+
+/* Legacy style.css also has `.tab .tab-content { padding: 20px; ... }` -
+   stacks with this card's own 28px padding above (48px total per side on
+   every tab, not just Neighbourhood), which is most of the "empty space on
+   all sides" at a wide viewport. This card's own padding is enough. Extra
+   .property-detail ancestor so this doesn't rely on tying with the legacy
+   selector's identical (0,2,0) specificity and winning only by load order. */
+.property-detail .property-detail__tabs-card .tab-content {
+    padding: 0;
+}
+
+/* Legacy style.css has `.tab .nav-tabs { border-bottom: 5px solid #bbbabc; }`
+   at the same (0,2,0) specificity with no !important - add the extra
+   .property-detail__tabs-card ancestor + !important so our thin divider
+   always wins, and give it real breathing room below the pills (legacy's
+   version sits snug against them). */
+.property-detail__tabs-card .property-detail__tab-nav.nav-tabs {
+    display: flex;
+    width: 100%;
+    border-bottom: 1px solid #ececec !important;
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+    /* nowrap, not wrap: with flex:1 on each <li>, a wrapped lone last item
+       would stretch to the full row width by itself (a 4th tab on its own
+       line, spanning edge to edge) instead of shrinking to fit alongside
+       the other 3 - nowrap + min-width:0 on the items lets them shrink
+       together instead. */
+    flex-wrap: nowrap;
+    gap: 6px;
+}
+
+.property-detail__tab-nav.nav-tabs > li {
+    float: none;
+    flex: 1 1 0;
+    min-width: 0;
+    margin: 0;
+}
+
+/* Legacy style.css has `.tab .nav-tabs li a:hover, .tab .nav-tabs li.active a
+   { color:#F3A54A !important; }` at the same (0,2,2)/(0,3,2) specificity as
+   the rules below — every selector here is prefixed with the extra
+   .property-detail__tabs-card ancestor class so it always wins regardless
+   of stylesheet load order. */
+.property-detail__tabs-card .property-detail__tab-nav.nav-tabs > li > a {
+    display: block;
+    width: 100%;
+    border: none !important;
+    background: transparent !important;
+    color: #6b7280 !important;
+    font-weight: 600;
+    font-size: 14px;
+    text-align: center;
+    border-radius: 999px !important;
+    padding: 10px 18px !important;
+    margin: 0 !important;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.property-detail__tab-nav.nav-tabs > li > a i {
+    margin-right: 6px;
+    color: inherit;
+}
+
+/* Legacy style.css draws a 15px step-indicator dot 40px below every tab
+   link via ::before (scaled 2x + gold when `.tab .nav-tabs li.active a`
+   matches) - a leftover from the old vertical-tab design. It has no place
+   in the new pill nav, and since it still keys off li.active (stuck on the
+   first <li> forever - see the active-tracking comment above), it rendered
+   as one large dot stuck under "Highlights" regardless of the real active
+   tab. Kill it outright. */
+.property-detail__tabs-card .property-detail__tab-nav.nav-tabs > li > a::before,
+.property-detail__tabs-card .property-detail__tab-nav.nav-tabs > li > a:before {
+    content: none !important;
+}
+
+.property-detail__tabs-card .property-detail__tab-nav.nav-tabs > li > a:hover {
+    background: var(--property-detail-gold-soft) !important;
+    color: var(--property-detail-gold-hover) !important;
+}
+
+/* The bundled tab plugin toggles .active onto the clicked <a> itself and
+   never touches the parent <li> (its stray initial .active class on the
+   first <li> is otherwise never removed) — key the highlight off the <a>
+   only, so it tracks every real click instead of getting stuck on the
+   first tab. The blade gives the first tab's <a> .active on first paint to
+   match. */
+.property-detail__tabs-card .property-detail__tab-nav.nav-tabs > li > a.active,
+.property-detail__tabs-card .property-detail__tab-nav.nav-tabs > li > a.active:focus,
+.property-detail__tabs-card .property-detail__tab-nav.nav-tabs > li > a.active:hover {
+    background: var(--property-detail-navy) !important;
+    color: #ffffff !important;
+}
+
+.property-detail__tab-panel h3.primary-head {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-size: 19px;
+    color: var(--property-detail-navy);
+}
+
+.property-detail__description {
+    color: #4b5563;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+/* Static highlight callout under the description (no backing field — same
+   copy on every property, per product decision). */
+.property-detail__quote {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: var(--property-detail-gold-soft);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin: 8px 0 20px;
+}
+
+.property-detail__quote i {
+    color: var(--property-detail-gold-hover);
+    font-size: 18px;
+    flex: none;
+}
+
+.property-detail__quote p {
+    margin: 0;
+    color: var(--property-detail-navy);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.property-detail__summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 12px;
+}
+
+.property-detail__summary-item {
+    background: #f7f7f8;
+    border-radius: 12px;
+    padding: 14px 16px;
+}
+
+.property-detail__summary-item b {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6b7280;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 6px;
+}
+
+.property-detail__summary-item b i {
+    color: var(--property-detail-gold);
+}
+
+.property-detail__summary-item p {
+    margin: 0;
+    color: var(--property-detail-navy);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.property-detail__features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.property-detail__feature {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f7f7f8;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--property-detail-navy);
+}
+
+.property-detail__feature i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--property-detail-gold-soft);
+    color: var(--property-detail-gold-hover);
+    font-size: 13px;
+    flex: none;
+}
+
+/* ---- Neighbourhood tab ---- */
+/* The partial wraps everything in <section class="sales-team"><div
+   class="container"><div class="row"> - legacy wrapper elements sized for
+   a standalone full-width page section (40px top/bottom section padding,
+   a Bootstrap .container with its own 15px side padding and a max-width
+   cap), not for sitting inside this already-padded tab panel. Left alone,
+   they added a large empty margin on all four sides of the chip list +
+   map instead of letting it fill the tab panel like the other tabs do. */
+.property-detail__neighbourhood .sales-team {
+    width: auto;
+    padding: 0;
+}
+
+.property-detail__neighbourhood .container {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.property-detail__neighbourhood .container > .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/* A single-column divided list (School/Hospital/Restaurant/Park stacked,
+   not a wrapped grid) - each row's own border-bottom IS the divider line
+   shared with the row below it (only one line between any two rows, no
+   left/right/top border forming a box around each row), capped by a single
+   border-top on the <ul> itself.
+   This <ul> is also a flex sibling of #map-container (530px tall) inside
+   Bootstrap's .row (display:flex) - align-self:flex-start keeps it from
+   being stretched to the map's height (the ROW's cross-axis, i.e. height,
+   not to be confused with each <li>'s own cross-axis below, which is
+   width - there, the default flex "stretch" is what we want, so each row
+   fills the list's full column width for the divider line to span it).
+   Deliberately NOT touching the legacy `.vertical { width: 300px; }` here
+   - that's what keeps this list and #map-container (which has its own
+   inline width:100%) sitting side by side instead of #map-container
+   wrapping onto its own line. */
+.property-detail__neighbourhood ul.vertical {
+    list-style: none;
+    margin: 0 0 16px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-self: flex-start;
+    border-top: 1px solid #e5e7eb;
+}
+
+.property-detail__neighbourhood ul.vertical li {
+    display: flex;
+    align-items: center;
+    height: auto;
+    border: none !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    border-radius: 0;
+    padding: 12px 6px !important;
+    font-size: 13px;
+    font-weight: 600;
+    color: #6b7280;
+    background: #fff;
+}
+
+.property-detail__neighbourhood ul.vertical li a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.property-detail__neighbourhood ul.vertical li i {
+    color: var(--property-detail-gold);
+    margin-right: 6px;
+}
+
+.property-detail__neighbourhood ul.vertical li.active {
+    background: var(--property-detail-navy) !important;
+    border-color: var(--property-detail-navy) !important;
+    color: #ffffff;
+}
+
+/* Legacy style.css has `.vertical li:hover { background-color:#555;
+   color:#FFFFFF !important; }` - the color !important always wins on
+   hover, but the background-color has no !important and loses to this
+   file's own higher-specificity, unconditional `background:#fff` on the
+   base li rule above, so hover ended up white text on a white row
+   (invisible). Both properties need !important here to actually take
+   over on hover. */
+.property-detail__neighbourhood ul.vertical li:hover:not(.active) {
+    background: var(--property-detail-gold-soft) !important;
+    color: var(--property-detail-navy) !important;
+}
+
+.property-detail__neighbourhood ul.vertical li.active i {
+    color: var(--property-detail-gold);
+}
+
+.property-detail__neighbourhood #map-container {
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.property-detail__facilities-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.property-detail__facilities-grid .property-detail__feature {
+    justify-content: flex-start;
+}
+
+/* ---- Calculator tab ---- */
+.property-detail__calculator .mortage-calculator {
+    padding: 0;
+}
+
+/* The partial wraps <form id="mortgage-calculator"> in a bare <div
+   class="row"> with no col-* class of its own - as a flex item of that
+   row (Bootstrap's .row is display:flex) it has no explicit width, so its
+   own nested .row/.col-md-3 grid underneath was computing percentages off
+   an unreliable shrink-to-fit width instead of the full card width, which
+   is what knocked "Loan Duration" out of alignment with the first 3
+   inputs. Give the form a guaranteed full-width block context, then force
+   its two 4-column rows onto an explicit CSS grid so the columns line up
+   deterministically regardless of whatever else is going on in the
+   cascade. */
+.property-detail__calculator #mortgage-calculator {
+    display: block;
+    width: 100%;
+}
+
+/* align-items: start, not end: Bootstrap's own .align-items-end utility
+   class (literally present in the markup) sets `align-items: flex-end
+   !important`, so this needs !important too to actually win - and "end"
+   is the wrong value here anyway: the 4th column (Loan Duration) has a
+   quick-year button row below its input that the other 3 don't have, so
+   bottom-aligning the columns pushes the shorter 3 down past where the
+   4th column's own input sits, instead of lining the inputs up. Top-
+   aligning instead keeps every label (and therefore every input right
+   below it) at the same starting height across all 4 columns. */
+.property-detail__calculator #mortgage-calculator > .row.align-items-end,
+.property-detail__calculator #mortgage-calculator > h3.text-center + .row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+    align-items: start !important;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.property-detail__calculator #mortgage-calculator > .row.align-items-end > [class*="col-"],
+.property-detail__calculator #mortgage-calculator > h3.text-center + .row > [class*="col-"] {
+    width: auto;
+    max-width: none;
+    flex: none;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.property-detail__calculator .control-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.property-detail__calculator .form-control {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    height: 46px;
+    font-size: 14px;
+    box-shadow: none;
+}
+
+.property-detail__calculator .form-control:focus {
+    border-color: var(--property-detail-gold);
+    box-shadow: none;
+}
+
+.property-detail__calculator .btn-year .btn {
+    border-radius: 999px !important;
+    border: 1px solid #e5e7eb !important;
+    background: #fff !important;
+    color: #6b7280 !important;
+    font-size: 12px;
+}
+
+.property-detail__calculator .btn-year .btn.btn-success {
+    background: var(--property-detail-navy) !important;
+    border-color: var(--property-detail-navy) !important;
+    color: #fff !important;
+}
+
+.property-detail__calculator button[name="calculate"] {
+    background: var(--property-detail-gold);
+    border-color: var(--property-detail-gold);
+    border-radius: 10px;
+    font-weight: 700;
+    padding: 12px 20px;
+}
+
+.property-detail__calculator button[name="calculate"]:hover {
+    background: var(--property-detail-gold-hover);
+    border-color: var(--property-detail-gold-hover);
+}
+
+.property-detail__calculator h3.text-center {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--property-detail-navy);
+}
+
+.property-detail__calculator #loan-amount,
+.property-detail__calculator #monthly-payment,
+.property-detail__calculator #total-payment,
+.property-detail__calculator #total-interest {
+    background: #f7f7f8;
+    font-weight: 600;
+    color: var(--property-detail-navy);
+}
+
+/* ---- Statistics tab empty state ---- */
+.property-detail__empty-state {
+    text-align: center;
+    padding: 56px 20px;
+}
+
+.property-detail__empty-state i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--property-detail-gold-soft);
+    color: var(--property-detail-gold);
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+.property-detail__empty-state h4 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--property-detail-navy);
+    margin: 0 0 8px;
+}
+
+.property-detail__empty-state p {
+    color: #9ca3af;
+    font-size: 14px;
+    max-width: 360px;
+    margin: 0 auto;
+}
+
+/* ---- Map card ---- */
+.property-detail__map-card {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(26, 29, 36, 0.06);
+    margin-bottom: 24px;
+}
+
+.property-detail__map-card iframe {
+    display: block;
+}
+
+/* ---- Sidebar: Contact Agent card ---- */
+/* padding:0 + margin-top:0 neutralize legacy .boxright's `padding:30px;
+   margin-top:15px` (same (0,1,0) specificity as this single class, so it
+   doesn't just lose to a competing declaration the way the other .boxright
+   cards' own padding does - unlike those, this card's padding lives on its
+   .property-detail__agent-head/-body children instead, which stacks on
+   top of .boxright's padding rather than replacing it, badly cramping the
+   agent-row's available width). */
+.property-detail__agent-card {
+    background: #ffffff;
+    border: 1px solid #ececec;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(26, 29, 36, 0.06);
+    overflow: hidden;
+    padding: 0;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.property-detail__agent-head {
+    background: var(--property-detail-navy);
+    color: #fff;
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.property-detail__agent-head i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--property-detail-gold);
+    font-size: 15px;
+    flex: none;
+}
+
+.property-detail__agent-head strong {
+    display: block;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.property-detail__agent-head span {
+    display: block;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.65);
+}
+
+/* A smaller left padding than the other sides (was 22px, flush-left at 0
+   turned out to be too tight against the card edge) - the avatar is the
+   row's first child so this directly controls how far its photo sits in
+   from the card's edge. */
+.property-detail__agent-body {
+    padding: 20px 22px 20px 12px;
+}
+
+/* Picture on the left, details column on the right. min-width:0 on the
+   details column is what keeps this robust at a narrow sidebar width (the
+   actual fix for the earlier overlap - a flex child's default min-width is
+   auto/content-based, which can force it wider than its share and push
+   into the avatar; min-width:0 lets its text wrap instead). */
+.property-detail__agent-row {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: nowrap;
+    gap: 14px;
+}
+
+.property-detail__agent-avatar-link {
+    flex: none;
+}
+
+.property-detail__agent-avatar {
+    display: block;
+    width: 84px;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    flex: none;
+    border-radius: 10px;
+    border: 1px solid #ececec;
+}
+
+.property-detail__agent-details {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.property-detail__agent-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--property-detail-navy);
+    margin: 0 0 6px;
+    text-decoration: none;
+    display: block;
+}
+
+.property-detail__agent-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--property-detail-gold-soft);
+    color: var(--property-detail-gold-hover);
+    font-weight: 600;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+}
+
+.property-detail__agent-info p {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #4b5563;
+    font-size: 13px;
+    margin: 0 0 8px;
+}
+
+.property-detail__agent-info i {
+    color: var(--property-detail-gold);
+    width: 16px;
+    flex: none;
+}
+
+.property-detail__agent-more {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--property-detail-navy);
+    margin-top: 10px;
+}
+
+.property-detail__agent-more i {
+    color: var(--property-detail-gold);
+}
+
+/* ---- Sidebar: Consult form ---- */
+.property-detail__consult {
+    background: #ffffff;
+    border: 1px solid #ececec;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(26, 29, 36, 0.06);
+    padding: 22px;
+    margin-bottom: 20px;
+}
+
+.property-detail__consult .head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--property-detail-navy);
+    margin-bottom: 16px;
+}
+
+.property-detail__consult .head i {
+    color: var(--property-detail-gold);
+    font-size: 15px;
+}
+
+.property-detail__consult .form-control {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 13px;
+    padding: 11px 14px;
+    height: auto;
+    box-shadow: none;
+}
+
+.property-detail__consult .form-control:focus {
+    border-color: var(--property-detail-gold);
+    box-shadow: none;
+    outline: none;
+}
+
+.property-detail__consult select.form-control {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7280' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+}
+
+.property-detail__consult textarea.form-control {
+    resize: vertical;
+}
+
+.property-detail__consult .btn-orange {
+    background: var(--property-detail-gold);
+    border-color: var(--property-detail-gold);
+    border-radius: 10px;
+    font-weight: 700;
+    padding: 13px 16px;
+}
+
+.property-detail__consult .btn-orange:hover {
+    background: var(--property-detail-gold-hover);
+    border-color: var(--property-detail-gold-hover);
+}
+
+/* ---- "Your Dream Home Awaits" CTA card ---- */
+.property-detail__dream-cta {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    min-height: 300px;
+    display: flex;
+    align-items: flex-end;
+    background-size: cover;
+    background-position: center;
+    margin-bottom: 20px;
+}
+
+.property-detail__dream-cta-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(26, 29, 36, 0.05) 0%, rgba(26, 29, 36, 0.92) 78%);
+}
+
+.property-detail__dream-cta-inner {
+    position: relative;
+    padding: 24px;
+    color: #ffffff;
+}
+
+.property-detail__dream-cta-inner h3 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-size: 22px;
+    margin: 0 0 8px;
+}
+
+.property-detail__dream-cta-inner h3 span {
+    color: var(--property-detail-gold);
+}
+
+.property-detail__dream-cta-inner p {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.78);
+    margin: 0 0 18px;
+}
+
+.property-detail__dream-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 11px 18px;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.property-detail__dream-cta-btn:hover {
+    background: var(--property-detail-gold);
+    border-color: var(--property-detail-gold);
+    color: var(--property-detail-navy);
+}
+
+/* ---- Related properties heading ---- */
+.property-detail__related-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 12px 0 20px;
+}
+
+.property-detail__related-header h5 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--property-detail-navy);
+    margin: 0;
+}
+
+.property-detail__related-header a {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--property-detail-gold-hover);
+    text-decoration: none;
+}
+
+.property-detail__related-header a:hover {
+    color: var(--property-detail-gold);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 992px) {
+    .property-detail__stats {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .property-detail__summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .property-detail__features-grid,
+    .property-detail__facilities-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .property-detail__header,
+    .property-detail__tabs-card {
+        padding: 20px;
+    }
+
+    .property-detail__price-row {
+        flex-wrap: wrap;
+    }
+
+    .property-detail__stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 560px) {
+    .property-detail__stats,
+    .property-detail__summary-grid,
+    .property-detail__features-grid,
+    .property-detail__facilities-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}

@@ -2,7 +2,7 @@
     @csrf
     <input type="hidden" value="{{ $type }}" name="type">
     <input type="hidden" value="{{ $data->id }}" name="data_id">
-    <div class="head">{{ __('Consult Us') }}</div>
+    <div class="head"><i class="fas fa-comment-dots"></i> {{ __('Consult Us') }}</div>
     <div class="form-group">
         <input type="text" name="name" class="form-control" placeholder="{{ __('Name') }} *"
               required>

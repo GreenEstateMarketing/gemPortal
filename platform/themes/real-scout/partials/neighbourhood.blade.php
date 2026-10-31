@@ -110,7 +110,12 @@
     function nearbyCallback(results, status) {
         if (status == google.maps.places.PlacesServiceStatus.OK) {
             const count = results.length;
-            $('.vertical li.active').find('.count-res').text('(' + count + ')');
+            // nearbySearch returns at most 20 results per page (no
+            // pagination is requested here) - a count of exactly 20 means
+            // "at least 20", not necessarily the true total, so label it
+            // as such instead of implying an exact count.
+            const countLabel = count >= 20 ? '20+' : count;
+            $('.vertical li.active').find('.count-res').text('(' + countLabel + ')');
             const keyword = $('.vertical li.active').attr('data-keyword');
             createMarkers(results, keyword);
         } else {
