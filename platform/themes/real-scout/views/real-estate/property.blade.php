@@ -33,8 +33,16 @@
             <div class="col-md-9">
                 <div class="boxright property-detail__header">
                     <div class="property-detail__price-row">
+                        @php
+                            // format_price() concatenates the currency symbol straight
+                            // onto the digits with no space (e.g. "PKR23,322") - that's
+                            // shared site-wide, so insert the space here rather than in
+                            // the helper to avoid changing price formatting everywhere
+                            // else on the site.
+                            $formattedPrice = preg_replace('/^([^\d]+)(?=\d)/u', '$1 ', format_price($property->price, $property->currency));
+                        @endphp
                         <div class="property-detail__price-group">
-                            <h1 class="property-price property-detail__price">{{ format_price($property->price, $property->currency) }}</h1>
+                            <h1 class="property-price property-detail__price">{{ $formattedPrice }}</h1>
                             <span class="property-detail__status">{!! $property->status->toHtml() !!}</span>
                         </div>
 

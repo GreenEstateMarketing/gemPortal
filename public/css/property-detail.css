@@ -80,8 +80,15 @@
     gap: 14px;
 }
 
+/* Poppins instead of the page's usual Playfair Display heading font here -
+   Playfair's numerals read noticeably thinner/narrower than its letters
+   (a common trait of display serifs, which aren't optimized for figures),
+   so "PKR" and the digits looked mismatched next to each other. Poppins is
+   geometric sans - its numerals share the same stroke weight and
+   proportions as its letters, so currency code and amount read as one
+   consistent unit. */
 .property-detail__price {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-weight: 700;
     font-size: 30px;
     color: var(--property-detail-navy);
