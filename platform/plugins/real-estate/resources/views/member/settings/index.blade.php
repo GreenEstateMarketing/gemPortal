@@ -59,6 +59,17 @@
                                 <input type="number" class="form-control" name="mobile_no" id="mobile_no" required value="{{ old('mobile_no') ?? $user->mobile_no }}">
                             </div>
 
+                            <!-- CNIC -->
+                            <div class="form-group">
+                                <label for="cnic">{{ trans('plugins/real-estate::account.cnic') }}</label>
+                                <input type="text" class="form-control" name="cnic" id="cnic" maxlength="15" data-cnic-mask required placeholder="{{ trans('plugins/real-estate::account.cnic_placeholder') }}" value="{{ old('cnic') ?? $user->cnic }}">
+                                @if ($errors->has('cnic'))
+                                    <span class="invalid-feedback d-block">
+                                        <strong>{{ $errors->first('cnic') }}</strong>
+                                    </span>
+                                @endif
+                            </div>
+
                             <!-- Email -->
                             <div class="form-group">
                                 <label for="email">{{ trans('plugins/real-estate::dashboard.email') }}</label>

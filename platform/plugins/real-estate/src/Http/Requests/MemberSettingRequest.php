@@ -18,6 +18,7 @@ class MemberSettingRequest extends Request
 
             'full_name' => 'required|max:120',
             'mobile_no'      => 'required:max:20|sometimes|regex:/^([0-9\s\-\+\(\)]*)$/',
+            'cnic' => ['required', 'regex:/^\d{5}-\d{7}-\d{1}$/', 'unique:members,cnic,' . auth('member')->id()],
             'signature_file' => 'nullable|file|mimes:png',
             'signature_data' => 'nullable|string',
 
@@ -28,6 +29,8 @@ class MemberSettingRequest extends Request
     {
         return [
             'signature_file.mimes' => trans('plugins/real-estate::account.signature_invalid'),
+            'cnic.regex' => trans('plugins/real-estate::account.cnic_invalid'),
+            'cnic.unique' => trans('plugins/real-estate::account.cnic_unique'),
         ];
     }
 

@@ -160,6 +160,11 @@
                         <div class="wizard-error" data-error-for="mobile_number"></div>
                     </div>
                     <div class="wizard-field">
+                        <label>{{ __('CNIC') }}</label>
+                        <input type="text" class="wizard-input" data-field="cnic" id="wizard-guest-cnic" maxlength="15" placeholder="{{ trans('plugins/real-estate::account.cnic_placeholder') }}">
+                        <div class="wizard-error" data-error-for="cnic"></div>
+                    </div>
+                    <div class="wizard-field">
                         <label>{{ __('Password') }}</label>
                         <input type="password" class="wizard-input" data-field="new_password" placeholder="{{ __('At least 6 characters') }}">
                         <div class="wizard-error" data-error-for="new_password"></div>

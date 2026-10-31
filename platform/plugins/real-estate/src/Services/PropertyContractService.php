@@ -2,6 +2,7 @@
 
 namespace Botble\RealEstate\Services;
 
+use Botble\Media\Facades\RvMediaFacade as RvMedia;
 use Botble\RealEstate\Models\Account;
 use Botble\RealEstate\Models\Property;
 use Botble\RealEstate\Models\PropertyContract;
@@ -160,6 +161,7 @@ class PropertyContractService
         return [
             'logoDataUri' => $this->logoDataUri(),
             'sellerName' => $member ? $member->full_name : null,
+            'sellerCnic' => $member ? $member->cnic : null,
             'sellerContact' => $member ? $this->formatPhone($member->mobile_no) : null,
             'sellerSignatureDataUri' => $member ? $member->signature_data_uri : null,
             'sellerDate' => $member && $member->signature_created_at
@@ -196,22 +198,43 @@ class PropertyContractService
     }
 
     /**
-     * The theme's master logo file is a 1.3MB PNG - too large to embed
-     * as-is on every PDF regeneration. Downscaled on the fly via GD rather
-     * than requiring a separate pre-shrunk static asset.
+     * Mirrors the site header/footer: use whatever logo the admin has set
+     * via Theme Options ("logo"), falling back to the theme's static master
+     * logo when none is configured, unreadable (e.g. on a remote disk), or
+     * not a GD-decodable raster (e.g. an SVG). The chosen image is
+     * downscaled on the fly via GD rather than embedded at full size, since
+     * the static master logo alone is 1.3MB - too large for every PDF
+     * regeneration.
      */
     protected function logoDataUri(): string
     {
-        $path = public_path('themes/real-scout/images/gemlogo.png');
+        $path = $this->resolveLogoPath();
 
-        if (! is_file($path)) {
+        if (! $path) {
             return '';
         }
 
-        $source = @imagecreatefrompng($path);
+        $raw = @file_get_contents($path);
+
+        if ($raw === false) {
+            return '';
+        }
+
+        $source = @imagecreatefromstring($raw);
 
         if (! $source) {
-            return 'data:image/png;base64,' . base64_encode(file_get_contents($path));
+            $fallback = $this->fallbackLogoPath();
+
+            if (! $fallback || $fallback === $path) {
+                return '';
+            }
+
+            $raw = @file_get_contents($fallback);
+            $source = $raw === false ? false : @imagecreatefromstring($raw);
+
+            if (! $source) {
+                return '';
+            }
         }
 
         $targetWidth = 220;
@@ -232,5 +255,34 @@ class PropertyContractService
         imagedestroy($resized);
 
         return 'data:image/png;base64,' . base64_encode($bytes);
+    }
+
+    /**
+     * theme_option('logo') stores a relative media storage path, not a
+     * filesystem path or URL. RvMedia::getRealPath() resolves it to a local
+     * path on the local/public disk; on s3/do_spaces it returns a remote
+     * URL instead, which is_file() correctly rejects so we fall through to
+     * the static asset rather than erroring.
+     */
+    protected function resolveLogoPath(): ?string
+    {
+        $logo = theme_option('logo');
+
+        if ($logo) {
+            $path = RvMedia::getRealPath($logo);
+
+            if ($path && is_file($path)) {
+                return $path;
+            }
+        }
+
+        return $this->fallbackLogoPath();
+    }
+
+    protected function fallbackLogoPath(): ?string
+    {
+        $path = public_path('themes/real-scout/images/gemlogo.png');
+
+        return is_file($path) ? $path : null;
     }
 }

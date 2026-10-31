@@ -251,9 +251,12 @@ class GeneralPropertyController extends Controller
             'full_name' => 'required|string|min:3|max:100|regex:^[a-zA-Z]{3,}(?: [a-zA-Z]+){0,2}$^',
             'email' => 'required|email|string',
             'mobile_no' => ['required', 'regex:/^\+?[1-9][0-9]{7,14}$/'],
+            'cnic' => ['required', 'regex:/^\d{5}-\d{7}-\d{1}$/', 'unique:members,cnic'],
             'password' => 'required|min:6|confirmed',
         ], [
             'mobile_no.regex' => 'The phone number format is invalid. It must be a valid international number, e.g., +1234567890.',
+            'cnic.regex' => 'The CNIC format is invalid. It must be in the format 11111-1111111-1.',
+            'cnic.unique' => 'This CNIC is already registered to another account.',
         ]);
 
         if ($validator->fails()) {
@@ -268,6 +271,7 @@ class GeneralPropertyController extends Controller
                 'full_name' => $request['full_name'],
                 'email' => $request['email'],
                 'mobile_no' => $request['mobile_no'],
+                'cnic' => $request['cnic'],
                 'password' => Hash::make($request['password']),
                 'verification_token' => $token,
                 'email_verified' => 0,

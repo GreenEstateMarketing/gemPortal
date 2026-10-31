@@ -1057,6 +1057,24 @@
         var authForm = panel.querySelector('[data-guest-auth-form]');
         var authSuccess = panel.querySelector('[data-guest-auth-success]');
 
+        var cnicInput = panel.querySelector('#wizard-guest-cnic');
+        if (cnicInput) {
+            cnicInput.addEventListener('input', function () {
+                var digits = cnicInput.value.replace(/\D/g, '').slice(0, 13);
+                var formatted = digits;
+
+                if (digits.length > 5) {
+                    formatted = digits.slice(0, 5) + '-' + digits.slice(5);
+                }
+
+                if (digits.length > 12) {
+                    formatted = digits.slice(0, 5) + '-' + digits.slice(5, 12) + '-' + digits.slice(12);
+                }
+
+                cnicInput.value = formatted;
+            });
+        }
+
         submitBtn.addEventListener('click', function () {
             clearErrors(panel);
             var payload = collectFormData(panel);

@@ -421,12 +421,15 @@ class PropertyWizardController extends Controller
                 'full_name' => ['required', 'string', 'min:3', 'max:100', 'regex:/^[a-zA-Z]{3,}(?: [a-zA-Z]+){0,2}$/'],
                 'new_email' => 'required|email|string|unique:members,email',
                 'mobile_number' => ['required', 'regex:/^\+?[1-9][0-9]{7,14}$/'],
+                'cnic' => ['required', 'regex:/^\d{5}-\d{7}-\d{1}$/', 'unique:members,cnic'],
                 'new_password' => 'required|min:6',
                 'terms' => 'required|accepted',
             ], [
                 'terms.required' => 'Please accept the terms & conditions.',
                 'mobile_number.regex' => 'The phone number format is invalid. It must be a valid international number, e.g., +1234567890.',
                 'new_email.unique' => 'An account with this email already exists.',
+                'cnic.regex' => 'The CNIC format is invalid. It must be in the format 11111-1111111-1.',
+                'cnic.unique' => 'This CNIC is already registered to another account.',
             ]);
 
             if ($validator->fails()) {
@@ -437,6 +440,7 @@ class PropertyWizardController extends Controller
                 'full_name' => $request->input('full_name'),
                 'email' => $request->input('new_email'),
                 'mobile_no' => $request->input('mobile_number'),
+                'cnic' => $request->input('cnic'),
                 'password' => Hash::make($request->input('new_password')),
                 'verification_token' => Str::random(64),
                 'email_verified' => false,

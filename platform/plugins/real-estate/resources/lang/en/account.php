@@ -38,6 +38,8 @@ return [
     'phone_placeholder'          => 'Phone',
     'cnic'                       => 'CNIC',
     'cnic_placeholder'           => '11111-1111111-1',
+    'cnic_invalid'               => 'The CNIC format is invalid. It must be in the format 11111-1111111-1.',
+    'cnic_unique'                => 'This CNIC is already registered to another account.',
     'description'                => 'Short description',
     'description_placeholder'   => 'A short description about this agent',
     'years_of_experience'        => 'Years of Experience',
