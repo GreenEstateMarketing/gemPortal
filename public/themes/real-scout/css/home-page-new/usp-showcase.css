@@ -9,7 +9,7 @@
 */
 
 .usp-showcase {
-    background: var(--header-navy);
+    background: var(--how-bg, #f2f0eb);
     overflow: hidden;
 }
 
@@ -35,7 +35,7 @@
     align-items: center;
     gap: 10px;
     padding: 8px 16px;
-    border: 1px solid rgba(224, 166, 62, 0.4);
+    border: 1px solid rgba(231, 174, 79, 0.50);
     border-radius: 999px;
     color: var(--header-gold);
     font-weight: 600;
@@ -65,7 +65,7 @@
 .usp-showcase__heading {
     font-family: var(--header-font-heading);
     font-weight: 700;
-    color: var(--header-white);
+    color: var(--header-navy);
     font-size: 46px;
     line-height: 1.2;
     margin: 0 0 22px;
@@ -76,7 +76,7 @@
 }
 
 .usp-showcase__text {
-    color: var(--header-text-muted);
+    color: var(--how-text-muted, #687176);
     font-size: 16px;
     line-height: 1.7;
     max-width: 480px;
@@ -87,7 +87,7 @@
     display: flex;
     flex-direction: column;
     margin-bottom: 36px;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-top: 1px solid #e5e7eb;
 }
 
 .usp-showcase__feature {
@@ -95,7 +95,7 @@
     align-items: center;
     gap: 18px;
     padding: 18px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid #e5e7eb;
 }
 
 .usp-showcase__feature-icon {
@@ -120,12 +120,12 @@
     font-family: var(--header-font-body);
     font-weight: 600;
     font-size: 16px;
-    color: var(--header-white);
+    color: var(--header-navy);
     margin: 0 0 4px;
 }
 
 .usp-showcase__feature-text {
-    color: var(--header-text-muted);
+    color: var(--how-text-muted, #687176);
     font-size: 13px;
     line-height: 1.5;
     margin: 0;
@@ -133,7 +133,7 @@
 
 .usp-showcase__feature-arrow {
     flex-shrink: 0;
-    color: rgba(255, 255, 255, 0.35);
+    color: #d1d5db;
     font-size: 14px;
     transition: color 0.2s ease, transform 0.2s ease;
 }
@@ -157,7 +157,7 @@
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    color: var(--header-white);
+    color: var(--header-navy);
     text-decoration: none;
     font-weight: 600;
     font-size: 15px;
@@ -182,7 +182,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    color: var(--header-text-muted);
+    color: var(--how-text-muted, #687176);
     font-weight: 600;
     font-size: 12px;
     letter-spacing: 1.5px;
@@ -339,6 +339,7 @@
    MARQUEE STRIP
    ========================================================= */
 .usp-showcase__marquee {
+    background: var(--header-navy);
     border-top: 1px solid rgba(255, 255, 255, 0.08);
     overflow: hidden;
     padding: 22px 0;
@@ -353,7 +354,7 @@
 }
 
 .usp-showcase__marquee-item {
-    color: var(--header-text-muted);
+    color: rgba(255, 255, 255, 0.55);
     font-weight: 600;
     font-size: 14px;
     letter-spacing: 2px;

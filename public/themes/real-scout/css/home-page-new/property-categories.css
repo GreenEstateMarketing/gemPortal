@@ -60,7 +60,7 @@
     margin: 0 auto;
     background: var(--header-white);
     border-radius: 10px;
-    box-shadow: 0 8px 24px rgba(26, 29, 36, 0.08);
+    box-shadow: 0 8px 24px rgba(30, 35, 38, 0.10);
     padding: 6px 6px 6px 20px;
 }
 
@@ -116,7 +116,7 @@
     right: 0;
     background: var(--header-white);
     border-radius: 10px;
-    box-shadow: 0 16px 40px rgba(26, 29, 36, 0.16);
+    box-shadow: 0 16px 40px rgba(20, 25, 28, 0.18);
     text-align: left;
     overflow: hidden;
     z-index: 20;
@@ -161,7 +161,7 @@
     background: var(--header-white);
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 6px 20px rgba(26, 29, 36, 0.05);
+    box-shadow: 0 6px 20px rgba(30, 35, 38, 0.06);
 }
 
 .property-categories__card-image {

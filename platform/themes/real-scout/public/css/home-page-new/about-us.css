@@ -20,7 +20,7 @@
 .about-us__overlay {
     position: absolute;
     inset: 0;
-    background: rgba(26, 29, 36, 0.6);
+    background: linear-gradient(90deg, rgba(30, 37, 41, 0.92) 0%, rgba(30, 37, 41, 0.55) 100%);
 }
 
 .about-us__inner {
