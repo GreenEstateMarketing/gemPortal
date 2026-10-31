@@ -10,4 +10,6 @@ interface FavouritePropertyInterface extends RepositoryInterface
     public function getFavouritePropertiesByUser($userId, $userType);
 
     public function isFavourite($userId, $propertyId, $userType);
+
+    public function getFavouritePropertyIds(array $propertyIds, $userId, $userType);
 }

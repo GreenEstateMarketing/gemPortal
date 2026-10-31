@@ -19,4 +19,13 @@ class FavouritePropertyRepository extends RepositoriesAbstract implements Favour
             ->where('user_type', $userType)
             ->exists();
     }
+
+    public function getFavouritePropertyIds(array $propertyIds, $userId, $userType)
+    {
+        return $this->model->where('user_id', $userId)
+            ->where('user_type', $userType)
+            ->whereIn('property_id', $propertyIds)
+            ->pluck('property_id')
+            ->all();
+    }
 }

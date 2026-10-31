@@ -68,6 +68,16 @@ class PublicController extends Controller
                     $link = $project->url;
                     $subject = $project->name;
                 }
+            } elseif ($request->input('type') == 'agent') {
+                $account = \Botble\RealEstate\Models\Account::find($request->input('data_id'));
+                if ($account) {
+                    if ($account->email) {
+                        $sendTo = $account->email;
+                    }
+
+                    $link = route('public.agent', $account->username);
+                    $subject = $account->getFullName();
+                }
             } else {
                 $request->merge(['property_id' => $request->input('data_id')]);
                 $property = $propertyRepository->findById($request->input('data_id'), ['author']);
@@ -83,7 +93,7 @@ class PublicController extends Controller
             $consultEntry->name = $request->input('name');
             if ($request->input('type') == 'project') {
                 $consultEntry->project_id = $request->input('data_id');
-            } else {
+            } elseif ($request->input('type') != 'agent') {
                 $consultEntry->property_id = $request->input('data_id');
             }
 

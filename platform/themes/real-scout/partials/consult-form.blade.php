@@ -15,7 +15,7 @@
         <input type="text" name="email" class="form-control " placeholder="{{ __('Email') }}">
     </div>
     <div class="form-group">
-        <input type="text" class="form-control" placeholder="{{ __('Subject') }} *" value="{{ $data->name }}" readonly>
+        <input type="text" class="form-control" placeholder="{{ __('Subject') }} *" value="{{ $data->name ?? $data->getFullName() }}" readonly>
     </div>
     <div class="form-group">
         <select id="interest" name="interest" class="form-control">

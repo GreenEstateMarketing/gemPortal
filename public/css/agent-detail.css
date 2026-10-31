@@ -2,12 +2,13 @@
     Path: /var/www/gem/public/css/agent-detail.css
     Loaded via: Theme::asset()->add() in FlexHomeController::getAgent() (/agents/{username}).
 
-    Hero + overlapping stat bar + bio + property grid for a single agent's
-    public profile page. Mirrors agent-directory.css's hero/stat-bar recipe
-    and properties-highlights.css's card recipe (both from the
-    already-modernized parts of the site) so this page matches them
-    visually, but keeps its own copy of each rather than importing those
-    stylesheets, so the three pages can keep evolving independently.
+    Photo-banner hero, overlapping white profile card, 4-stat strip, a
+    static "My Services" tile grid, and a property grid with favorite
+    hearts, for a single agent's public profile page. Mirrors
+    agent-directory.css's gold/navy palette and Playfair/Poppins pairing so
+    this page matches the rest of the already-modernized site, but keeps
+    its own copy of each recipe rather than importing those stylesheets, so
+    the pages can keep evolving independently.
 */
 
 .agent-detail {
@@ -15,7 +16,10 @@
     --agent-detail-navy: #1a1d24;
     --agent-detail-gold: #e0a63e;
     --agent-detail-gold-hover: #cf9530;
+    --agent-detail-gold-soft: #fdf3e1;
     --agent-detail-max-width: 1320px;
+    background: #f7f7f8;
+    padding-bottom: 80px;
 }
 
 .agent-detail * {
@@ -24,101 +28,336 @@
 
 /* ---- Hero ---- */
 .agent-detail__hero {
-    background: var(--agent-detail-navy);
-    padding: 64px 24px 0;
+    position: relative;
+    background-color: var(--agent-detail-navy);
+    background-size: cover;
+    background-position: center;
+    padding: 90px 24px 120px;
+    text-align: center;
+}
+
+.agent-detail__hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(20, 22, 28, 0.55) 0%, rgba(20, 22, 28, 0.78) 100%);
 }
 
 .agent-detail__hero-inner {
-    max-width: var(--agent-detail-max-width);
+    position: relative;
+    max-width: 760px;
     margin: 0 auto;
-    display: flex;
-    align-items: center;
-    gap: 32px;
-    padding-bottom: 64px;
 }
 
-.agent-detail__avatar {
-    flex-shrink: 0;
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid var(--agent-detail-gold);
-}
-
-.agent-detail__intro {
-    flex: 1 1 auto;
-    min-width: 0;
-}
-
-.agent-detail__role {
+.agent-detail__eyebrow {
     display: inline-block;
     color: var(--agent-detail-gold);
     font-weight: 600;
     font-size: 12px;
-    letter-spacing: 1.5px;
+    letter-spacing: 2px;
     text-transform: uppercase;
-    margin-bottom: 10px;
+    margin-bottom: 14px;
+}
+
+.agent-detail__hero-name {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-size: 44px;
+    color: #ffffff;
+    margin: 0 0 12px;
+}
+
+.agent-detail__hero-role {
+    color: rgba(255, 255, 255, 0.82);
+    font-size: 16px;
+    margin: 0 0 20px;
+}
+
+.agent-detail__hero-rule {
+    display: inline-block;
+    width: 64px;
+    height: 3px;
+    background: var(--agent-detail-gold);
+    border-radius: 2px;
+}
+
+/* ---- Profile card (overlaps the hero's bottom edge) ---- */
+.agent-detail__profile-wrap {
+    position: relative;
+    max-width: var(--agent-detail-max-width);
+    margin: 0 auto;
+    padding: 0 24px;
+    transform: translateY(-80px);
+}
+
+.agent-detail__profile {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.12);
+    padding: 32px;
+    display: flex;
+    gap: 32px;
+}
+
+.agent-detail__photo {
+    flex: 0 0 260px;
+}
+
+.agent-detail__photo img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.agent-detail__info {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.agent-detail__verified {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--agent-detail-gold-soft);
+    color: var(--agent-detail-gold-hover);
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 0.3px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    margin-bottom: 14px;
 }
 
 .agent-detail__name {
     font-family: 'Playfair Display', Georgia, serif;
     font-weight: 700;
-    font-size: 36px;
-    color: #ffffff;
-    margin: 0 0 10px;
+    font-size: 28px;
+    color: var(--agent-detail-navy);
+    margin: 0 0 6px;
 }
 
-.agent-detail__specialty {
-    color: rgba(255, 255, 255, 0.72);
+.agent-detail__role {
+    color: #6b7280;
     font-size: 15px;
-    margin: 0 0 20px;
+    margin: 0 0 14px;
 }
 
-.agent-detail__actions {
-    display: flex;
-    gap: 12px;
-}
-
-.agent-detail__action {
+.agent-detail__rating {
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
-    color: #ffffff;
+    gap: 4px;
+    color: var(--agent-detail-gold);
     font-size: 15px;
-    transition: background 0.2s ease, color 0.2s ease;
+    margin-bottom: 18px;
 }
 
-.agent-detail__action:hover {
+.agent-detail__rating-text {
+    color: #6b7280;
+    font-size: 13px;
+    margin-left: 8px;
+}
+
+.agent-detail__contacts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 28px;
+    margin-bottom: 18px;
+}
+
+.agent-detail__contact {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #374151;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.agent-detail__contact i {
+    color: var(--agent-detail-gold);
+    width: 16px;
+    text-align: center;
+}
+
+.agent-detail__bio {
+    color: #4b5563;
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 0 0 22px;
+}
+
+.agent-detail__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.agent-detail__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    border-radius: 10px;
+    padding: 13px 26px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.agent-detail__btn--primary {
     background: var(--agent-detail-gold);
-    color: var(--agent-detail-navy);
+    color: #ffffff;
 }
 
-/* ---- Stat bar (overlaps the hero's bottom edge) ---- */
+.agent-detail__btn--primary:hover {
+    background: var(--agent-detail-gold-hover);
+    color: #ffffff;
+}
+
+.agent-detail__btn--outline {
+    background: #ffffff;
+    color: var(--agent-detail-navy);
+    border-color: #e5e7eb;
+}
+
+.agent-detail__btn--outline:hover {
+    border-color: var(--agent-detail-gold);
+    color: var(--agent-detail-gold-hover);
+}
+
+/* Scoped overrides for the shared partials/share.blade.php markup (reused
+   on property/blog/project pages too, so only override it inside this
+   wrapper) so its Bootstrap button-group renders as a single round icon
+   button matching Call Now/Message, with the dropdown's label and caret
+   toggle hidden. */
+.agent-detail__share .row {
+    margin: 0;
+}
+
+.agent-detail__share #socialHolder {
+    width: auto;
+    max-width: none;
+    flex: none;
+    padding: 0;
+}
+
+.agent-detail__share #socialHolder b {
+    display: none;
+}
+
+.agent-detail__share .share-group > button.dropdown-toggle {
+    display: none;
+}
+
+.agent-detail__share #socialShare > a.btn-info {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    border-radius: 10px;
+    background: #ffffff !important;
+    border: 1px solid #e5e7eb !important;
+    /* This <a> has no href (it's a pure dropdown toggle via data-toggle),
+       so browsers don't give it the usual link pointer cursor by default. */
+    cursor: pointer;
+}
+
+.agent-detail__share #socialShare > a.btn-info:hover {
+    border-color: var(--agent-detail-gold) !important;
+}
+
+/* Font Awesome's own .fa-inverse rule sets the icon to white directly on
+   the <i>, which wins over the <a>'s inherited color (a direct rule always
+   beats an inherited one) — white icon on our white button is invisible,
+   so override it explicitly instead of relying on inheritance. */
+.agent-detail__share #socialShare > a.btn-info i {
+    color: var(--agent-detail-navy) !important;
+    font-size: 18px;
+}
+
+.agent-detail__share #socialShare > a.btn-info:hover i {
+    color: var(--agent-detail-gold-hover) !important;
+}
+
+.agent-detail__share .dropdown-menu.socials_links {
+    display: none;
+    min-width: auto;
+    border-radius: 12px;
+    border: 1px solid #ececec;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+    padding: 10px 12px;
+}
+
+.agent-detail__share .share-group.open .dropdown-menu.socials_links,
+.agent-detail__share .dropdown-menu.socials_links.show {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.agent-detail__share .socials_links li {
+    display: inline-block !important;
+}
+
+.agent-detail__share .socials_links li a {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 50%;
+    background: #f7f7f8;
+    transition: background 0.2s ease;
+}
+
+.agent-detail__share .socials_links li a:hover {
+    background: var(--agent-detail-gold-soft);
+}
+
+.agent-detail__share .socials_links .social_icons {
+    width: 22px;
+    height: 22px;
+}
+
+/* ---- Stat strip ---- */
 .agent-detail__stats-wrap {
-    position: relative;
-    max-width: 900px;
+    max-width: var(--agent-detail-max-width);
     margin: 0 auto;
     padding: 0 24px;
-    transform: translateY(-36px);
+    transform: translateY(-56px);
 }
 
 .agent-detail__stats {
-    background: #ffffff;
-    border-radius: 14px;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.16);
-    padding: 24px 28px;
+    background: #f3f4f6;
+    border-radius: 16px;
+    padding: 28px;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 24px;
 }
 
 .agent-detail__stat {
     text-align: center;
+}
+
+.agent-detail__stat-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--agent-detail-gold-soft);
+    color: var(--agent-detail-gold);
+    font-size: 18px;
+    margin-bottom: 12px;
 }
 
 .agent-detail__stat strong {
@@ -130,50 +369,134 @@
     margin-bottom: 4px;
 }
 
-.agent-detail__stat span {
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    color: #9ca3af;
+.agent-detail__stat-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #6b7280;
 }
 
-/* ---- Bio ---- */
-.agent-detail__body {
-    background: #ffffff;
-    padding: 8px 0 24px;
+/* ---- My Services ---- */
+.agent-detail__services {
+    max-width: var(--agent-detail-max-width);
+    margin: -8px auto 0;
+    padding: 24px 24px 56px;
+    display: flex;
+    gap: 40px;
+    align-items: center;
 }
 
-.agent-detail__bio-wrap {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 0 24px 40px;
-    text-align: center;
+.agent-detail__services-intro {
+    flex: 0 0 280px;
 }
 
-.agent-detail__bio {
-    color: #4b5563;
-    font-size: 15px;
-    line-height: 1.7;
+.agent-detail__services-intro h2 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-size: 24px;
+    color: var(--agent-detail-navy);
+    margin: 0 0 10px;
+    position: relative;
+    padding-top: 16px;
+}
+
+.agent-detail__services-intro h2::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 36px;
+    height: 3px;
+    background: var(--agent-detail-gold);
+    border-radius: 2px;
+}
+
+.agent-detail__services-intro p {
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.6;
     margin: 0;
 }
 
-/* ---- Properties grid (card recipe copied from properties-highlights.css,
-   kept under its own class names rather than shared, so these two decks
-   can keep evolving independently) ---- */
+.agent-detail__services-grid {
+    flex: 1 1 auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.agent-detail__service {
+    background: #ffffff;
+    border: 1px solid #ececec;
+    border-radius: 14px;
+    padding: 24px 18px;
+    text-align: center;
+}
+
+.agent-detail__service-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--agent-detail-gold-soft);
+    color: var(--agent-detail-gold);
+    font-size: 20px;
+    margin-bottom: 14px;
+}
+
+.agent-detail__service strong {
+    display: block;
+    color: var(--agent-detail-navy);
+    font-size: 15px;
+    margin-bottom: 6px;
+}
+
+.agent-detail__service span {
+    color: #9ca3af;
+    font-size: 12px;
+}
+
+/* ---- Properties grid ---- */
 .agent-detail__listings {
     max-width: var(--agent-detail-max-width);
     margin: 0 auto;
-    padding: 0 24px 80px;
+    padding: 0 24px;
 }
 
-.agent-detail__listings-heading {
+.agent-detail__listings-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.agent-detail__listings-header h2 {
     font-family: 'Playfair Display', Georgia, serif;
     font-weight: 700;
     font-size: 26px;
     color: var(--agent-detail-navy);
-    margin: 0 0 24px;
-    text-align: center;
+    margin: 0 0 6px;
+    position: relative;
+    padding-top: 16px;
+}
+
+.agent-detail__listings-header h2::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 36px;
+    height: 3px;
+    background: var(--agent-detail-gold);
+    border-radius: 2px;
+}
+
+.agent-detail__listings-header p {
+    color: #6b7280;
+    font-size: 14px;
+    margin: 0;
 }
 
 .agent-detail__grid {
@@ -190,11 +513,11 @@
     overflow: hidden;
     box-shadow: 0 6px 20px rgba(26, 29, 36, 0.08);
     border: 1px solid #ececec;
-    text-decoration: none;
 }
 
 .agent-detail__property-image-wrap {
     position: relative;
+    display: block;
     aspect-ratio: 16 / 11;
     overflow: hidden;
     background: #f3f3f3;
@@ -245,11 +568,37 @@
     color: #fff;
 }
 
+.agent-detail__property-favorite {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92);
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.15s ease;
+}
+
+.agent-detail__property-favorite:hover {
+    transform: scale(1.08);
+}
+
+.agent-detail__property-favorite i.fas {
+    color: #e0545c;
+}
+
 .agent-detail__property-body {
     padding: 20px;
     flex: 1 1 auto;
     display: flex;
     flex-direction: column;
+    text-decoration: none;
 }
 
 .agent-detail__property-price {
@@ -310,39 +659,144 @@
 .agent-detail__pagination {
     display: flex;
     justify-content: center;
-    padding-top: 16px;
+    padding-top: 28px;
+}
+
+/* ---- Message modal ---- */
+.agent-detail__modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.agent-detail__modal.is-open {
+    display: flex;
+}
+
+.agent-detail__modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(17, 19, 24, 0.6);
+}
+
+.agent-detail__modal-dialog {
+    position: relative;
+    background: #ffffff;
+    border-radius: 14px;
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 32px;
+}
+
+.agent-detail__modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: #f3f4f6;
+    color: var(--agent-detail-navy);
+    cursor: pointer;
 }
 
 /* ---- Responsive ---- */
 @media (max-width: 992px) {
+    .agent-detail__profile {
+        flex-direction: column;
+    }
+
+    .agent-detail__photo {
+        flex: none;
+        max-width: 200px;
+        margin: 0 auto;
+    }
+
+    .agent-detail__info {
+        text-align: center;
+    }
+
+    .agent-detail__rating,
+    .agent-detail__contacts,
+    .agent-detail__cta {
+        justify-content: center;
+    }
+
+    .agent-detail__stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .agent-detail__services {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+    }
+
+    .agent-detail__services-intro {
+        flex: none;
+    }
+
+    .agent-detail__services-intro h2::before {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .agent-detail__services-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
     .agent-detail__grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
 @media (max-width: 768px) {
-    .agent-detail__hero-inner {
+    .agent-detail__hero {
+        padding: 72px 20px 100px;
+    }
+
+    .agent-detail__hero-name {
+        font-size: 32px;
+    }
+
+    .agent-detail__profile-wrap,
+    .agent-detail__stats-wrap {
+        transform: none;
+        margin-top: -60px;
+    }
+
+    .agent-detail__stats-wrap {
+        margin-top: 24px;
+    }
+
+    .agent-detail__listings-header {
         flex-direction: column;
-        text-align: center;
-        padding-bottom: 56px;
-    }
-
-    .agent-detail__actions {
-        justify-content: center;
-    }
-
-    .agent-detail__stats {
-        grid-template-columns: 1fr;
-        gap: 16px;
-    }
-
-    .agent-detail__name {
-        font-size: 28px;
+        align-items: flex-start;
     }
 }
 
 @media (max-width: 560px) {
+    .agent-detail__stats {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .agent-detail__services-grid {
+        grid-template-columns: 1fr;
+    }
+
     .agent-detail__grid {
         grid-template-columns: 1fr;
+    }
+
+    .agent-detail__cta {
+        flex-direction: column;
+        align-items: stretch;
     }
 }

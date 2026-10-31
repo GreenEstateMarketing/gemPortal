@@ -16,4 +16,9 @@ class FavouritePropertyCacheDecorator extends CacheAbstractDecorator implements 
     {
         return $this->getDataIfExistCache(__FUNCTION__, func_get_args());
     }
+
+    public function getFavouritePropertyIds(array $propertyIds, $userId, $userType)
+    {
+        return $this->getDataIfExistCache(__FUNCTION__, func_get_args());
+    }
 }

@@ -15,11 +15,13 @@ use Botble\Location\Models\Country;
 use Botble\RealEstate\Models\Account;
 use Botble\RealEstate\Models\Category;
 use Botble\RealEstate\Models\City;
+use Botble\RealEstate\Models\Consult;
 use Botble\RealEstate\Models\Property;
 use Botble\RealEstate\Models\SpokenLanguage;
 use App\Models\Rating;
 use Botble\RealEstate\Repositories\Interfaces\AccountInterface;
 use Botble\RealEstate\Repositories\Interfaces\CategoryInterface;
+use Botble\RealEstate\Repositories\Interfaces\FavouritePropertyInterface;
 use Botble\RealEstate\Repositories\Interfaces\ProjectInterface;
 use Botble\RealEstate\Repositories\Interfaces\PropertyInterface;
 use Botble\Location\Repositories\Interfaces\CityAreaInterface;
@@ -469,7 +471,8 @@ class FlexHomeController extends PublicController
         string $username,
         Request $request,
         AccountInterface $accountRepository,
-        PropertyInterface $propertyRepository
+        PropertyInterface $propertyRepository,
+        FavouritePropertyInterface $favouritePropertyRepository
     ) {
         $account = $accountRepository->getFirstBy(['username' => $username]);
 
@@ -487,6 +490,14 @@ class FlexHomeController extends PublicController
             'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap'
         );
         Theme::asset()->add('agent-detail-css', '/css/agent-detail.css');
+        // Enqueued into the 'footer' asset container (not the default one,
+        // which this theme's footer partial never echoes) and rendered
+        // outside the layout's #app div, since real-estate.agent's markup
+        // is inside #app and Vue strips any <script> tag found in its
+        // mount's template during compilation (same "Vue mount wraps
+        // everything" issue noted for the search UI elsewhere in this
+        // theme).
+        Theme::asset()->container('footer')->add('agent-detail-js', '/js/agent-detail.js');
 
         $properties = $propertyRepository->advancedGet([
             'condition' => [
@@ -502,8 +513,45 @@ class FlexHomeController extends PublicController
             ],
         ]);
 
-        return Theme::scope('real-estate.agent', compact('properties', 'account'))
-            ->render();
+        // Same "status = 1" convention AccountRepository::searchAgents() uses
+        // for the agent directory's per-agent rating average.
+        $ratingsQuery = $account->ratings()->where('status', 1);
+        $ratingAvg = (clone $ratingsQuery)->avg('rating');
+        $ratingCount = (clone $ratingsQuery)->count();
+
+        $propertiesSoldCount = $account->properties()
+            ->whereIn('status', ['sold', 'rented', 'closed'])
+            ->count();
+
+        // Proxy for "happy clients": distinct people who have sent this
+        // agent's listings a consult/inquiry.
+        $happyClientsCount = Consult::join('re_properties', 're_consults.property_id', '=', 're_properties.id')
+            ->where('re_properties.author_id', $account->id)
+            ->where('re_properties.author_type', Account::class)
+            ->distinct('re_consults.email')
+            ->count('re_consults.email');
+
+        $favouriteIds = [];
+        if (auth('member')->check() || auth('account')->check()) {
+            $favouriteUserType = auth('member')->check() ? 'member' : 'agent';
+            $favouriteUser = auth('member')->check() ? auth('member')->user() : auth('account')->user();
+
+            $favouriteIds = $favouritePropertyRepository->getFavouritePropertyIds(
+                $properties->pluck('id')->all(),
+                $favouriteUser->id,
+                $favouriteUserType
+            );
+        }
+
+        return Theme::scope('real-estate.agent', compact(
+            'properties',
+            'account',
+            'ratingAvg',
+            'ratingCount',
+            'propertiesSoldCount',
+            'happyClientsCount',
+            'favouriteIds'
+        ))->render();
     }
     /**
      * @param Request $request
