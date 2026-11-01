@@ -35,7 +35,7 @@ class Authenticate extends BaseAuthenticate
 
             if ($flag && !$request->user()->hasAnyPermission((array)$flag)) {
                 if ($request->expectsJson()) {
-                    return response()->json(['message' => 'Unauthenticated.'], 401);
+                    return response()->json(['message' => 'This action is unauthorized.'], 403);
                 }
                 return redirect()->route('dashboard.index');
             }
