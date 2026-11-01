@@ -22,6 +22,8 @@ class Investor extends BaseModel
      */
     protected $fillable = [
         'name',
+        'description',
+        'image',
         'status',
     ];
 

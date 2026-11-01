@@ -17,6 +17,7 @@ return [
         'date_finish'  => 'Finish date',
         'date_sell'    => 'Open sell date',
         'images'       => 'Images',
+        'map_layout_image' => 'Map Layout Image',
         'price_from'   => 'Lowest price',
         'price_to'     => 'Max price',
         'currency'     => 'Currency',

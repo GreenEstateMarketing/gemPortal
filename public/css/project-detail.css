@@ -1,0 +1,1032 @@
+/*
+    Path: /var/www/gem/public/css/project-detail.css
+    Loaded via: Theme::asset()->add() in
+    platform/plugins/real-estate/src/Http/Controllers/PublicController.php::getProject()
+    (public project show page, /projects/{slug}).
+
+    Restyles the project detail page (header, developer section, tabs,
+    sidebar) with the same navy/gold, Playfair Display + Poppins system
+    already used on the property detail page. Keeps its own copy of the
+    recipe (see property-detail.css) rather than importing it, so the two
+    pages evolve independently.
+
+    Scoping note: every rule below lives under one of the unique
+    .project-detail__* wrapper classes added in project.blade.php (never
+    under the bare .project-detail root alone for shared/global class names
+    like .nav-tabs or .boxright), so nothing here can leak into other pages
+    that happen to reuse those class names.
+*/
+
+.project-detail {
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --project-detail-navy: #30383d;
+    --project-detail-gold: #e0a63e;
+    --project-detail-gold-hover: #cf9530;
+    --project-detail-gold-soft: #fdf3e1;
+    color: #374151;
+}
+
+.project-detail__section-title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--project-detail-navy);
+    margin: 0 0 16px;
+    position: relative;
+    padding-top: 14px;
+}
+
+.project-detail__section-title::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 32px;
+    height: 3px;
+    background: var(--project-detail-gold);
+    border-radius: 2px;
+}
+
+/* ---- Header card ---- */
+.project-detail__header {
+    position: relative;
+    background: #ffffff;
+    border: 1px solid #ececec;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(26, 29, 36, 0.06);
+    padding: 28px 28px 28px 32px;
+    margin-bottom: 24px;
+    overflow: hidden;
+}
+
+/* The gold accent strip from the design, running the full height of the
+   left edge of the card - overflow:hidden above clips its corners to the
+   card's own border-radius. */
+.project-detail__header::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 5px;
+    background: linear-gradient(180deg, var(--project-detail-gold) 0%, var(--project-detail-gold-hover) 100%);
+}
+
+.project-detail__price-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--project-detail-gold-soft);
+    color: var(--project-detail-navy);
+    font-size: 14px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    margin-bottom: 18px;
+}
+
+.project-detail__price-pill span {
+    color: #8a6d2f;
+    font-weight: 500;
+}
+
+.project-detail__price-pill strong {
+    font-weight: 700;
+}
+
+.project-detail__header-body {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.project-detail__header-main {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.project-detail__header-side {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding-left: 24px;
+    border-left: 1px solid #ececec;
+    min-width: 96px;
+}
+
+.project-detail__side-stats {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.project-detail__side-stat {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
+.project-detail__side-stat i {
+    display: block;
+    color: var(--project-detail-gold);
+    font-size: 18px;
+    margin-bottom: 4px;
+}
+
+.project-detail__side-stat strong {
+    display: block;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--project-detail-navy);
+}
+
+.project-detail__header .badge {
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    padding: 6px 12px !important;
+    border-radius: 999px;
+    vertical-align: middle;
+}
+
+.project-detail__favorite {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: #f7f7f8;
+    border: 1px solid #ececec;
+    color: #9ca3af;
+    text-decoration: none;
+    flex: none;
+    transition: color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+.project-detail__favorite:hover {
+    color: var(--project-detail-gold-hover);
+    border-color: var(--project-detail-gold);
+    transform: scale(1.06);
+}
+
+.project-detail__favorite i {
+    font-size: 18px;
+    margin: 0 !important;
+}
+
+.project-detail__favorite i.fas {
+    color: #e0545c;
+}
+
+.project-detail__title {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-size: 24px;
+    color: var(--project-detail-navy);
+    margin: 0 0 8px;
+}
+
+.project-detail__location {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6b7280;
+    font-size: 14px;
+    margin: 0 0 8px;
+}
+
+.project-detail__location i {
+    color: var(--project-detail-gold);
+}
+
+.project-detail__developed-by {
+    color: #6b7280;
+    font-size: 13px;
+    margin: 0 0 18px;
+}
+
+.project-detail__developed-by strong {
+    color: var(--project-detail-navy);
+}
+
+.project-detail__share {
+    display: inline-flex;
+    margin-bottom: 20px;
+}
+
+.project-detail__share .row {
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.project-detail__share #socialHolder {
+    width: auto;
+    max-width: none;
+    flex: none;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    padding: 9px 10px 9px 18px !important;
+    transition: border-color 0.2s ease;
+}
+
+.project-detail__share #socialHolder:hover {
+    border-color: var(--project-detail-gold);
+}
+
+.project-detail__share #socialHolder b {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--project-detail-navy);
+    padding-right: 0 !important;
+}
+
+.project-detail__share .share-group > button.dropdown-toggle {
+    display: none;
+}
+
+.project-detail__share #socialShare > a.btn-info {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--project-detail-gold-soft) !important;
+    border: none !important;
+    cursor: pointer;
+}
+
+.project-detail__share #socialShare > a.btn-info i {
+    color: var(--project-detail-gold-hover) !important;
+    font-size: 14px;
+}
+
+.project-detail__share .dropdown-menu.socials_links {
+    display: none;
+    min-width: auto;
+    border-radius: 12px;
+    border: 1px solid #ececec;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+    padding: 10px 12px;
+}
+
+.project-detail__share .share-group.open .dropdown-menu.socials_links,
+.project-detail__share .dropdown-menu.socials_links.show {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.project-detail__share .socials_links li {
+    display: inline-block !important;
+}
+
+.project-detail__share .socials_links li a {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 50%;
+    background: #f7f7f8;
+}
+
+.project-detail__share .socials_links .social_icons {
+    width: 20px;
+    height: 20px;
+}
+
+/* ---- Developer section ---- */
+.project-detail__developer {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    min-height: 220px;
+    background: #ffffff;
+    border: 1px solid #ececec;
+    box-shadow: 0 6px 20px rgba(26, 29, 36, 0.06);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+}
+
+.project-detail__developer-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    pointer-events: none;
+}
+
+/* A plain white-to-transparent overlay painted ON TOP of the photo,
+   instead of a CSS mask-image gradient on the photo itself. mask-image
+   gradients turned out not to be a reliable way to get a smooth fade here:
+   mask-size/mask-repeat default to behavior meant for tiling image masks,
+   not a single full-box gradient, so the gradient was being repeated
+   across the box instead of stretched once across it - the photo read as
+   sharp in the middle (a tile seam) and faded at both edges (each tile's
+   own fade-in), instead of one continuous left-to-right fade. A plain
+   background gradient has none of that: it always fills its box exactly
+   once by default. Since the overlay color matches the card's own white
+   background (.project-detail__developer), opaque white here reads as
+   "photo invisible, card background showing" and transparent reads as
+   "photo fully visible" - the same end result as a real alpha mask,
+   without any mask-specific sizing/repeat pitfalls. */
+.project-detail__developer-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, #ffffff 0%, #ffffff 30%, rgba(255, 255, 255, 0) 90%);
+}
+
+.project-detail__developer-content {
+    position: relative;
+    z-index: 1;
+    padding: 32px;
+    max-width: 55%;
+}
+
+.project-detail__developer-content h3 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--project-detail-navy);
+    margin: 0 0 6px;
+    position: relative;
+    padding-left: 40px;
+}
+
+.project-detail__developer-content h3::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 6px;
+    width: 32px;
+    height: 3px;
+    background: var(--project-detail-gold);
+    border-radius: 2px;
+}
+
+.project-detail__developer-eyebrow {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--project-detail-gold-hover);
+    margin: 0 0 4px;
+    padding-left: 40px;
+}
+
+.project-detail__developer-content p {
+    color: #4b5563;
+    font-size: 13px;
+    line-height: 1.7;
+    margin: 0;
+    padding-left: 40px;
+}
+
+/* ---- Tabs card ---- */
+.project-detail__tabs-card {
+    background: #ffffff;
+    border: 1px solid #ececec;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(26, 29, 36, 0.06);
+    padding: 28px;
+    margin-bottom: 24px;
+}
+
+.project-detail .project-detail__tabs-card .tab-content {
+    padding: 0;
+}
+
+.project-detail__tabs-card .project-detail__tab-nav.nav-tabs {
+    display: flex;
+    width: 100%;
+    border-bottom: 1px solid #ececec !important;
+    padding-bottom: 20px;
+    margin-bottom: 24px;
+    flex-wrap: nowrap;
+    gap: 6px;
+}
+
+.project-detail__tab-nav.nav-tabs > li {
+    float: none;
+    flex: 1 1 0;
+    min-width: 0;
+    margin: 0;
+}
+
+.project-detail__tabs-card .project-detail__tab-nav.nav-tabs > li > a {
+    display: block;
+    width: 100%;
+    border: none !important;
+    background: transparent !important;
+    color: #6b7280 !important;
+    font-weight: 600;
+    font-size: 14px;
+    text-align: center;
+    border-radius: 999px !important;
+    padding: 10px 18px !important;
+    margin: 0 !important;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.project-detail__tab-nav.nav-tabs > li > a i {
+    margin-right: 6px;
+    color: inherit;
+}
+
+.project-detail__tabs-card .project-detail__tab-nav.nav-tabs > li > a::before,
+.project-detail__tabs-card .project-detail__tab-nav.nav-tabs > li > a:before {
+    content: none !important;
+}
+
+.project-detail__tabs-card .project-detail__tab-nav.nav-tabs > li > a:hover {
+    background: var(--project-detail-gold-soft) !important;
+    color: var(--project-detail-gold-hover) !important;
+}
+
+.project-detail__tabs-card .project-detail__tab-nav.nav-tabs > li > a.active,
+.project-detail__tabs-card .project-detail__tab-nav.nav-tabs > li > a.active:focus,
+.project-detail__tabs-card .project-detail__tab-nav.nav-tabs > li > a.active:hover {
+    background: var(--project-detail-navy) !important;
+    color: #ffffff !important;
+}
+
+.project-detail__tab-panel h3.primary-head {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-size: 19px;
+    color: var(--project-detail-navy);
+}
+
+.project-detail__description {
+    color: #4b5563;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.project-detail__summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 12px;
+}
+
+.project-detail__summary-item {
+    background: #f7f7f8;
+    border-radius: 12px;
+    padding: 14px 16px;
+}
+
+.project-detail__summary-item b {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6b7280;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 6px;
+}
+
+.project-detail__summary-item p {
+    margin: 0;
+    color: var(--project-detail-navy);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.project-detail__features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.project-detail__feature {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f7f7f8;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--project-detail-navy);
+}
+
+.project-detail__feature i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--project-detail-gold-soft);
+    color: var(--project-detail-gold-hover);
+    font-size: 13px;
+    flex: none;
+}
+
+/* ---- Neighbourhood tab ---- */
+.project-detail__neighbourhood .sales-team {
+    width: auto;
+    padding: 0;
+}
+
+.project-detail__neighbourhood .container {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.project-detail__neighbourhood .container > .row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.project-detail__neighbourhood ul.vertical {
+    list-style: none;
+    margin: 0 0 16px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-self: flex-start;
+    border-top: 1px solid #e5e7eb;
+}
+
+.project-detail__neighbourhood ul.vertical li {
+    display: flex;
+    align-items: center;
+    height: auto;
+    border: none !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    border-radius: 0;
+    padding: 12px 6px !important;
+    font-size: 13px;
+    font-weight: 600;
+    color: #6b7280;
+    background: #fff;
+}
+
+.project-detail__neighbourhood ul.vertical li a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.project-detail__neighbourhood ul.vertical li i {
+    color: var(--project-detail-gold);
+    margin-right: 6px;
+}
+
+.project-detail__neighbourhood ul.vertical li.active {
+    background: var(--project-detail-navy) !important;
+    border-color: var(--project-detail-navy) !important;
+    color: #ffffff;
+}
+
+.project-detail__neighbourhood ul.vertical li:hover:not(.active) {
+    background: var(--project-detail-gold-soft) !important;
+    color: var(--project-detail-navy) !important;
+}
+
+.project-detail__neighbourhood ul.vertical li.active i {
+    color: var(--project-detail-gold);
+}
+
+.project-detail__neighbourhood #map-container {
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.project-detail__facilities-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.project-detail__facilities-grid .project-detail__feature {
+    justify-content: flex-start;
+}
+
+/* ---- Map Layout tab ---- */
+.project-detail__map-layout {
+    text-align: center;
+}
+
+.project-detail__map-layout img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    border: 1px solid #ececec;
+    margin: 0 auto;
+}
+
+/* ---- Statistics tab empty state ---- */
+.project-detail__empty-state {
+    text-align: center;
+    padding: 56px 20px;
+}
+
+.project-detail__empty-state i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--project-detail-gold-soft);
+    color: var(--project-detail-gold);
+    font-size: 28px;
+    margin-bottom: 20px;
+}
+
+.project-detail__empty-state h4 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--project-detail-navy);
+    margin: 0 0 8px;
+}
+
+.project-detail__empty-state p {
+    color: #9ca3af;
+    font-size: 14px;
+    max-width: 360px;
+    margin: 0 auto;
+}
+
+/* ---- Map card ---- */
+.project-detail__map-card {
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(26, 29, 36, 0.06);
+    margin-bottom: 24px;
+}
+
+.project-detail__map-card iframe {
+    display: block;
+}
+
+/* ---- Sidebar: Sales contact card ---- */
+.project-detail__sales-card {
+    background: #ffffff;
+    border: 1px solid #ececec;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(26, 29, 36, 0.06);
+    overflow: hidden;
+    padding: 0;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.project-detail__sales-head {
+    background: var(--project-detail-navy);
+    color: #fff;
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.project-detail__sales-head i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--project-detail-gold);
+    font-size: 15px;
+    flex: none;
+}
+
+.project-detail__sales-head strong {
+    display: block;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.project-detail__sales-body {
+    padding: 20px 22px;
+}
+
+.project-detail__sales-body p {
+    margin: 0 0 10px;
+}
+
+.project-detail__sales-body a {
+    color: #4b5563;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.project-detail__sales-body a:hover {
+    color: var(--project-detail-navy);
+}
+
+.project-detail__sales-body .btn-orange {
+    background: var(--project-detail-gold);
+    border-color: var(--project-detail-gold);
+    border-radius: 10px;
+    font-weight: 700;
+    padding: 13px 16px;
+}
+
+.project-detail__sales-body .btn-orange:hover {
+    background: var(--project-detail-gold-hover);
+    border-color: var(--project-detail-gold-hover);
+}
+
+/* ---- Sidebar: Contact Agent card ---- */
+.project-detail__agent-card {
+    background: #ffffff;
+    border: 1px solid #ececec;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(26, 29, 36, 0.06);
+    overflow: hidden;
+    padding: 0;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+.project-detail__agent-head {
+    background: var(--project-detail-navy);
+    color: #fff;
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.project-detail__agent-head i {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--project-detail-gold);
+    font-size: 15px;
+    flex: none;
+}
+
+.project-detail__agent-head strong {
+    display: block;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.project-detail__agent-body {
+    padding: 20px 22px 20px 12px;
+}
+
+.project-detail__agent-row {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: nowrap;
+    gap: 14px;
+}
+
+.project-detail__agent-avatar-link {
+    flex: none;
+}
+
+.project-detail__agent-avatar {
+    display: block;
+    width: 84px;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    flex: none;
+    border-radius: 10px;
+    border: 1px solid #ececec;
+}
+
+.project-detail__agent-details {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.project-detail__agent-name {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--project-detail-navy);
+    margin: 0 0 6px;
+    text-decoration: none;
+    display: block;
+}
+
+.project-detail__agent-info p {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #4b5563;
+    font-size: 13px;
+    margin: 0 0 8px;
+}
+
+.project-detail__agent-info i {
+    color: var(--project-detail-gold);
+    width: 16px;
+    flex: none;
+}
+
+.project-detail__agent-contact-btn {
+    background: var(--project-detail-navy);
+    border-color: var(--project-detail-navy);
+    border-radius: 8px;
+    font-size: 12px;
+    padding: 6px 14px;
+}
+
+.project-detail__agent-more {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--project-detail-navy);
+    margin-top: 10px;
+}
+
+.project-detail__agent-more i {
+    color: var(--project-detail-gold);
+}
+
+/* ---- Sidebar: Consult form ---- */
+.project-detail__consult {
+    background: #ffffff;
+    border: 1px solid #ececec;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(26, 29, 36, 0.06);
+    padding: 22px;
+    margin-bottom: 20px;
+}
+
+.project-detail__consult .head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--project-detail-navy);
+    margin-bottom: 16px;
+}
+
+.project-detail__consult .head i {
+    color: var(--project-detail-gold);
+    font-size: 15px;
+}
+
+.project-detail__consult .form-control {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 13px;
+    padding: 11px 14px;
+    height: auto;
+    box-shadow: none;
+}
+
+.project-detail__consult .form-control:focus {
+    border-color: var(--project-detail-gold);
+    box-shadow: none;
+    outline: none;
+}
+
+.project-detail__consult select.form-control {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7280' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+}
+
+.project-detail__consult textarea.form-control {
+    resize: vertical;
+}
+
+.project-detail__consult .btn-orange {
+    background: var(--project-detail-gold);
+    border-color: var(--project-detail-gold);
+    border-radius: 10px;
+    font-weight: 700;
+    padding: 13px 16px;
+}
+
+.project-detail__consult .btn-orange:hover {
+    background: var(--project-detail-gold-hover);
+    border-color: var(--project-detail-gold-hover);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 992px) {
+    .project-detail__summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .project-detail__features-grid,
+    .project-detail__facilities-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .project-detail__developer-content {
+        max-width: 70%;
+    }
+}
+
+@media (max-width: 768px) {
+    .project-detail__header,
+    .project-detail__tabs-card {
+        padding: 20px;
+    }
+
+    .project-detail__header-body {
+        flex-wrap: wrap;
+    }
+
+    .project-detail__header-side {
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 16px;
+        padding-left: 0;
+        padding-top: 16px;
+        margin-top: 16px;
+        border-left: none;
+        border-top: 1px solid #ececec;
+        width: 100%;
+    }
+
+    .project-detail__side-stats {
+        flex-direction: row;
+        gap: 16px;
+    }
+
+    /* The fade only earns its keep when text overlaps the photo
+       side-by-side (desktop). Stacked on mobile, there's nothing left for
+       it to reveal/hide - so instead of collapsing the absolutely
+       positioned .project-detail__developer-bg layer (which would lose its
+       inset:0 reference height the moment the card switches to auto
+       height), turn it into a plain in-flow banner image above the text:
+       simpler, and avoids the layout collapse entirely. */
+    .project-detail__developer {
+        display: block;
+        min-height: auto;
+    }
+
+    .project-detail__developer-bg {
+        position: relative;
+        inset: auto;
+        width: 100%;
+        height: 160px;
+        -webkit-mask-image: none;
+        mask-image: none;
+    }
+
+    .project-detail__developer-content {
+        position: relative;
+        max-width: 100%;
+        padding: 20px;
+    }
+
+    .project-detail__developer-content h3,
+    .project-detail__developer-eyebrow,
+    .project-detail__developer-content p {
+        padding-left: 0;
+    }
+
+    .project-detail__developer-content h3::before {
+        display: none;
+    }
+}
+
+@media (max-width: 560px) {
+    .project-detail__summary-grid,
+    .project-detail__features-grid,
+    .project-detail__facilities-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}

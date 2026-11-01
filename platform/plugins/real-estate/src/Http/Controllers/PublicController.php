@@ -208,6 +208,24 @@ class PublicController extends Controller
             ['jquery']
         );
 
+        // Theme::asset()->add() sniffs style vs script from the URL's file
+        // extension (via File::extension()), which is empty for a
+        // query-string URL with no literal ".css" — it would silently
+        // register this as a script and drop it. ->style() always
+        // registers it as a stylesheet, matching the property detail page's
+        // own registration of the same font pairing.
+        Theme::asset()->style(
+            'google-fonts-playfair-poppins',
+            'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap'
+        );
+        // Dependency on 'style-css' (the theme's legacy stylesheet,
+        // registered in config.php) forces Theme::asset()'s dependency sort
+        // to render this AFTER it - without it, this would load BEFORE
+        // style.css despite being registered later, and any override here
+        // that ties in specificity with an equivalent legacy selector would
+        // silently lose to the legacy rule instead of winning.
+        Theme::asset()->add('project-detail-css', '/css/project-detail.css', ['style-css']);
+
         if (function_exists('admin_bar')) {
             admin_bar()->registerLink(__('Edit this project'), route('project.edit', $project->id));
         }

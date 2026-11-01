@@ -185,6 +185,10 @@ if ($this->getModel() && $this->getModel()->city_id) {
                     'required' => true,
                 ],
             ])
+            ->add('map_layout_image', 'mediaImage', [
+                'label'      => trans('plugins/real-estate::project.form.map_layout_image'),
+                'label_attr' => ['class' => 'control-label'],
+            ])
  ->add('country_dummy', 'customSelect', [
 
     'label' => 'Country',
