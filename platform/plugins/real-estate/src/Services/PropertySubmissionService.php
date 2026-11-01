@@ -53,7 +53,7 @@ class PropertySubmissionService
         $previousProjectId = (int) $property->project_id;
 
         $property->fill(Arr::only($data, [
-            'name', 'type', 'category_id', 'project_id', 'description',
+            'name', 'type', 'category_id', 'industry_type', 'project_id', 'description',
             'price', 'currency_id', 'price_unit', 'square',
             'number_bedroom', 'number_bathroom', 'number_floor', 'built_in',
         ]));

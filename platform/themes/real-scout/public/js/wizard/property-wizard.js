@@ -1148,6 +1148,7 @@
         var subcategoryRow = form.querySelector('[data-subcategory-row]');
         var categoryIdInput = document.getElementById('wizard-category-id');
         var categoryNameInput = document.getElementById('wizard-category-name');
+        var industryTypeField = form.querySelector('[data-industry-type-field]');
         var templateInput = document.getElementById('wizard-template-description');
         var descriptionField = document.getElementById('wizard-description');
         var typeInput = document.getElementById('wizard-type');
@@ -1214,9 +1215,23 @@
             });
         }
 
+        // "Industry Type" only applies to the Commercial > Industrial
+        // sub-category - matched by name (not a hardcoded id) so it keeps
+        // working regardless of how categories are seeded/ordered. Merely
+        // hidden, not cleared, when switched away - same "don't destroy
+        // what the user already typed" rule as initRentOnlyFields below.
+        function syncIndustryTypeField(name) {
+            if (!industryTypeField) {
+                return;
+            }
+            var isIndustrial = String(name || '').toLowerCase() === 'industrial';
+            industryTypeField.style.display = isIndustrial ? '' : 'none';
+        }
+
         function setActiveCategory(id, name, triggerFetch) {
             categoryIdInput.value = id || '';
             categoryNameInput.value = name || '';
+            syncIndustryTypeField(name);
             if (triggerFetch) {
                 fetchTemplate(id);
             }

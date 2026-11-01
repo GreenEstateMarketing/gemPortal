@@ -486,12 +486,24 @@ a.wizard-sub-step:hover:not(.wizard-sub-step--locked) {
 /* On the member/agent/admin wizard (embedded in the account/admin layout,
    unlike the public guest wizard), `select:not([multiple])` from the admin
    panel's base theme CSS (vendor/core/core/base/css/themes/default.css)
-   forces border-radius back to 0 on every <select> - its :not() argument
-   makes it slightly more specific than a plain .wizard-select class rule,
-   so it wins regardless of stylesheet order. Scoping under .wizard-panel
-   raises this rule's specificity above that one. */
+   forces border-radius back to 0, overrides the appearance/background-image
+   it sets for its own dropdown arrow, and - the part that visibly shrinks
+   the field - replaces the 11px/14px padding above with `.5em 1.5em .5em
+   .5em`, making every <select> noticeably shorter than a sibling
+   .wizard-input. Its :not() argument makes it slightly more specific than a
+   plain .wizard-select class rule, so it wins regardless of stylesheet
+   order. Scoping under .wizard-panel raises this rule's specificity above
+   that one, so all of it needs re-asserting here, not just border-radius. */
 .wizard-panel select.wizard-select {
+    padding: 11px 14px;
     border-radius: 10px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231a1d24' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 14px;
 }
 
 /* =========================================================

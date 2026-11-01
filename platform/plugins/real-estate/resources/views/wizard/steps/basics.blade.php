@@ -82,6 +82,31 @@
     $currentTemplate = $effectiveCategoryId
         ? \App\Models\description_template::where('status', 1)->where('category_id', $effectiveCategoryId)->first()
         : null;
+
+    // "Industry Type" only applies to the Commercial > Industrial sub-category -
+    // matched by name (not a hardcoded id) so it stays correct regardless of
+    // how categories are ordered/seeded in a given environment.
+    $isIndustrialCategory = strtolower((string) $categoryNameValue) === 'industrial';
+    $industryTypeOptions = [
+        'Agriculture & Farming', 'Automotive & Transportation', 'Banking & Finance',
+        'Construction & Engineering', 'Education & Training', 'Energy & Power',
+        'Entertainment & Media', 'Fashion & Apparel', 'Food & Beverage',
+        'Healthcare & Medical', 'Hospitality & Tourism', 'Information Technology (IT)',
+        'Manufacturing & Production', 'Real Estate & Property', 'Retail & Wholesale',
+        'Telecommunications', 'Logistics & Supply Chain', 'Legal Services',
+        'Marketing & Advertising', 'E-commerce', 'Beauty & Personal Care',
+        'Sports & Fitness', 'Chemicals & Pharmaceuticals', 'Mining & Minerals',
+        'Oil & Gas', 'Environmental Services', 'Government & Public Administration',
+        'Security & Defense', 'Architecture & Interior Design', 'Consulting & Professional Services',
+        'Human Resources & Recruitment', 'Insurance', 'Textile & Garments',
+        'Printing & Publishing', 'Electronics & Electrical', 'Furniture & Home Decor',
+        'Travel & Transportation', 'Non-Profit & NGO', 'Research & Development',
+        'Marine & Shipping', 'Aviation & Aerospace', 'Event Management',
+        'Digital Services', 'Renewable Energy', 'Waste Management & Recycling',
+        'Water Supply & Sanitation', 'Beauty Salon & Spa', 'Photography & Videography',
+        'Home Improvement & Maintenance',
+    ];
+    $selectedIndustryType = old('industry_type', $p->industry_type);
 @endphp
 
 <div class="wizard-panel">
@@ -202,6 +227,17 @@
             <div class="wizard-field">
                 <label>{{ __('Floors') }}</label>
                 <input type="number" min="0" class="wizard-input" data-field="number_floor" id="wizard-number-floor" value="{{ $p->number_floor }}" placeholder="{{ __('e.g. 1') }}">
+            </div>
+
+            <div class="wizard-field" data-industry-type-field style="{{ $isIndustrialCategory ? '' : 'display:none;' }}">
+                <label class="required">{{ __('Industry Type') }}</label>
+                <select class="wizard-select" data-field="industry_type">
+                    <option value="">{{ __('Select an industry') }}</option>
+                    @foreach ($industryTypeOptions as $industryTypeOption)
+                        <option value="{{ $industryTypeOption }}" {{ $selectedIndustryType == $industryTypeOption ? 'selected' : '' }}>{{ $industryTypeOption }}</option>
+                    @endforeach
+                </select>
+                <div class="wizard-error" data-error-for="industry_type"></div>
             </div>
         </div>
         </fieldset>

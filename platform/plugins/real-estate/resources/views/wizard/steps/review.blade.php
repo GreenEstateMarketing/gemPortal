@@ -23,6 +23,9 @@
             <div class="wizard-review-item"><dt>{{ __('Title') }}</dt><dd>{{ $p->name }}</dd></div>
             <div class="wizard-review-item"><dt>{{ __('Listing Type') }}</dt><dd>{{ $p->type == 'rent' ? __('For Rent') : __('For Sale') }}</dd></div>
             <div class="wizard-review-item"><dt>{{ __('Category') }}</dt><dd>{{ optional($p->category)->name ?: '-' }}</dd></div>
+            @if ($p->industry_type)
+                <div class="wizard-review-item"><dt>{{ __('Industry Type') }}</dt><dd>{{ $p->industry_type }}</dd></div>
+            @endif
             <div class="wizard-review-item"><dt>{{ __('Price') }}</dt><dd>{{ $priceLabel }} {{ $p->price_unit }}</dd></div>
             <div class="wizard-review-item"><dt>{{ __('Area') }}</dt><dd>{{ $p->square_text }}</dd></div>
             <div class="wizard-review-item"><dt>{{ __('Bed / Bath') }}</dt><dd>{{ $p->number_bedroom ?: 0 }} / {{ $p->number_bathroom ?: 0 }}</dd></div>
