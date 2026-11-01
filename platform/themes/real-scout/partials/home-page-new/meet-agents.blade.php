@@ -72,7 +72,7 @@
                             ->filter()
                             ->unique()
                             ->take(2)
-                            ->implode(' & ');
+                            ->join(', ', ' & ');
 
                         $agentWhatsapp = preg_replace('/\D/', '', (string) $agent->phone);
                     @endphp

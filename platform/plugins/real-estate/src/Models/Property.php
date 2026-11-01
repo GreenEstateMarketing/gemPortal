@@ -58,6 +58,7 @@ class Property extends BaseModel
         'author_id',
         'author_type',
         'category_id',
+        'industry_type',
         'expire_date',
         'auto_renew',
         'latitude',

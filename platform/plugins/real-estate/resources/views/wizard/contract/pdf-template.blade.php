@@ -55,7 +55,7 @@
         </tr>
         <tr>
             <td class="field-label">CNIC / ID:</td>
-            <td class="field-value"></td>
+            <td class="field-value">{{ $sellerCnic ?? '—' }}</td>
         </tr>
         <tr>
             <td class="field-label">Contact:</td>

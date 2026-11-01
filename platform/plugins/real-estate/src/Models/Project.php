@@ -35,6 +35,7 @@ class Project extends BaseModel
         'content',
         'location',
         'images',
+        'map_layout_image',
         'status',
         'is_featured',
         'is_verified',

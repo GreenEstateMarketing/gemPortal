@@ -124,6 +124,20 @@ return [
         'parent_flag' => 'consult.index',
     ],
     [
+        'name' => 'Agent Applications',
+        'flag' => 'agent-application.index',
+    ],
+    [
+        'name'        => 'Edit',
+        'flag'        => 'agent-application.edit',
+        'parent_flag' => 'agent-application.index',
+    ],
+    [
+        'name'        => 'Delete',
+        'flag'        => 'agent-application.destroy',
+        'parent_flag' => 'agent-application.index',
+    ],
+    [
         'name' => 'Categories',
         'flag' => 'property_category.index',
     ],

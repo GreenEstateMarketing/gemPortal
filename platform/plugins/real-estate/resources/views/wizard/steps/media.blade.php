@@ -29,7 +29,7 @@
         <fieldset {{ ($isLocked ?? false) ? 'disabled' : '' }} style="border:0; padding:0; margin:0;{{ ($isLocked ?? false) ? ' pointer-events:none; opacity:0.7;' : '' }}">
         <div class="wizard-field wizard-field--span2">
             <label class="required">{{ __('Photos') }}</label>
-            <p class="wizard-hint" style="margin-bottom:10px;">{{ __('Add between 1 and 20 photos of the property.') }} <span data-uploader-count="images"></span></p>
+            <p class="wizard-hint" style="margin-bottom:10px;">{{ __('Add between 1 and 20 photos of the property. Minimum resolution: :width × :height pixels.', ['width' => \Botble\RealEstate\Services\PropertyImageValidationService::MIN_WIDTH, 'height' => \Botble\RealEstate\Services\PropertyImageValidationService::MIN_HEIGHT]) }} <span data-uploader-count="images"></span></p>
             <div data-uploader="images">
                 <div class="wizard-upload">
                     <i class="fas fa-cloud-upload-alt"></i>

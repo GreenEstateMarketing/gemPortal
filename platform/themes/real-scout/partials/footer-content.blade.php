@@ -86,6 +86,7 @@
                     <li><a href="{{ $footerAboutUrl }}">{{ __('About Us') }}</a></li>
                     <li><a href="{{ route('public.blog') }}">{{ __('Blog') }}</a></li>
                     <li><a href="{{ route('public.agent.list') }}">{{ __('Our Agents') }}</a></li>
+                    <li><a href="{{ route('public.agent-application.create') }}">{{ __('Become an Agent') }}</a></li>
                 </ul>
             </div>
 

@@ -80,6 +80,16 @@
     </div>
 
     <div class="form-group">
+        <input id="cnic" type="text" value="{{ old('cnic') }}" maxlength="15" data-cnic-mask
+            class="form-control{{ $errors->has('cnic') ? ' is-invalid' : '' }}"
+            name="cnic" required
+            placeholder="{{ trans('plugins/real-estate::account.cnic_placeholder') }}">
+        @if ($errors->has('cnic'))
+            <span class="invalid-feedback">{{ $errors->first('cnic') }}</span>
+        @endif
+    </div>
+
+    <div class="form-group">
         <div class="gem-auth__field gem-auth__field--no-icon">
             <input id="password" type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}"
                 name="password" required value="{{ old('password') }}"
@@ -118,3 +128,4 @@
 </form>
 
 {!! Theme::partial('auth-shell-close') !!}
+

@@ -57,7 +57,10 @@ class AccountForm extends FormAbstract
         Assets::addStylesDirectly('vendor/core/plugins/real-estate/css/account-admin.css')
             ->addScriptsDirectly('/js/real-estate-agent.js')
             ->addScriptsDirectly(['/vendor/core/plugins/real-estate/js/account-admin.js'])
-            ->addStylesDirectly('/css/real-estate-admin.css');
+            ->addStylesDirectly('/css/real-estate-admin.css')
+            ->addStylesDirectly('vendor/core/plugins/real-estate/css/account-form-grid.css');
+
+        Assets::addScripts(['input-mask']);
 
         $this
             ->setupModel(new Account)
@@ -66,6 +69,9 @@ class AccountForm extends FormAbstract
             ->add('first_name', 'text', [
                 'label' => trans('plugins/real-estate::account.first_name'),
                 'label_attr' => ['class' => 'control-label required'],
+                'wrapper' => [
+                    'class' => 'form-group col-md-6',
+                ],
                 'attr' => [
                     'placeholder' => trans('plugins/real-estate::account.first_name'),
                     'data-counter' => 120,
@@ -74,6 +80,9 @@ class AccountForm extends FormAbstract
             ->add('last_name', 'text', [
                 'label' => trans('plugins/real-estate::account.last_name'),
                 'label_attr' => ['class' => 'control-label required'],
+                'wrapper' => [
+                    'class' => 'form-group col-md-6',
+                ],
                 'attr' => [
                     'placeholder' => trans('plugins/real-estate::account.last_name'),
                     'data-counter' => 120,
@@ -82,25 +91,55 @@ class AccountForm extends FormAbstract
             ->add('username', 'text', [
                 'label' => trans('plugins/real-estate::account.username'),
                 'label_attr' => ['class' => 'control-label required'],
+                'wrapper' => [
+                    'class' => 'form-group col-md-6',
+                ],
                 'attr' => [
                     'placeholder' => trans('plugins/real-estate::account.username_placeholder'),
                     'data-counter' => 120,
                 ],
             ])
+            ->add('email', 'text', [
+                'label' => trans('plugins/real-estate::account.form.email'),
+                'label_attr' => ['class' => 'control-label required'],
+                'wrapper' => [
+                    'class' => 'form-group col-md-6',
+                ],
+                'attr' => [
+                    'placeholder' => trans('plugins/real-estate::account.email_placeholder'),
+                    'data-counter' => 60,
+                ],
+            ])
             ->add('phone', 'text', [
                 'label' => trans('plugins/real-estate::account.phone'),
                 'label_attr' => ['class' => 'control-label required'],
+                'wrapper' => [
+                    'class' => 'form-group col-md-6',
+                ],
                 'attr' => [
                     'placeholder' => trans('plugins/real-estate::account.phone_placeholder'),
                     'data-counter' => 20,
                 ],
             ])
-            ->add('email', 'text', [
-                'label' => trans('plugins/real-estate::account.form.email'),
+            ->add('cnic', 'text', [
+                'label' => trans('plugins/real-estate::account.cnic'),
+                'label_attr' => ['class' => 'control-label required'],
+                'wrapper' => [
+                    'class' => 'form-group col-md-6',
+                ],
+                'attr' => [
+                    'placeholder' => trans('plugins/real-estate::account.cnic_placeholder'),
+                    'data-counter' => 15,
+                    'class' => 'form-control input-mask-cnic',
+                ],
+            ])
+            ->add('description', 'textarea', [
+                'label' => trans('plugins/real-estate::account.description'),
                 'label_attr' => ['class' => 'control-label required'],
                 'attr' => [
-                    'placeholder' => trans('plugins/real-estate::account.email_placeholder'),
-                    'data-counter' => 60,
+                    'placeholder' => trans('plugins/real-estate::account.description_placeholder'),
+                    'rows' => 3,
+                    'maxlength' => 300,
                 ],
             ]);
 
@@ -266,7 +305,7 @@ class AccountForm extends FormAbstract
                     'data-counter' => 60,
                 ],
                 'wrapper' => [
-                    'class' => $this->formHelper->getConfig('defaults.wrapper_class') . ($this->getModel()->id ? ' hidden' : null),
+                    'class' => $this->formHelper->getConfig('defaults.wrapper_class') . ' col-md-6' . ($this->getModel()->id ? ' hidden' : null),
                 ],
             ])
             ->add('password_confirmation', 'password', [
@@ -276,7 +315,7 @@ class AccountForm extends FormAbstract
                     'data-counter' => 60,
                 ],
                 'wrapper' => [
-                    'class' => $this->formHelper->getConfig('defaults.wrapper_class') . ($this->getModel()->id ? ' hidden' : null),
+                    'class' => $this->formHelper->getConfig('defaults.wrapper_class') . ' col-md-6' . ($this->getModel()->id ? ' hidden' : null),
                 ],
             ])
             ->add('image_path', 'mediaImage', [

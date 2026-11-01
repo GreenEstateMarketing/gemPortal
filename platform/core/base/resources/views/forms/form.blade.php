@@ -59,7 +59,7 @@
 </div>
 <div class="row">
     <div class="col-md-12 right-sidebar">
-        @if(Route::current()->getName() != 'consult.edit')
+        @if(!in_array(Route::current()->getName(), ['consult.edit', 'agent-application.edit']))
             {!! $form->getActionButtons() !!}
         @endif
     </div>

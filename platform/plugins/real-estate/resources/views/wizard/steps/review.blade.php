@@ -23,6 +23,9 @@
             <div class="wizard-review-item"><dt>{{ __('Title') }}</dt><dd>{{ $p->name }}</dd></div>
             <div class="wizard-review-item"><dt>{{ __('Listing Type') }}</dt><dd>{{ $p->type == 'rent' ? __('For Rent') : __('For Sale') }}</dd></div>
             <div class="wizard-review-item"><dt>{{ __('Category') }}</dt><dd>{{ optional($p->category)->name ?: '-' }}</dd></div>
+            @if ($p->industry_type)
+                <div class="wizard-review-item"><dt>{{ __('Industry Type') }}</dt><dd>{{ $p->industry_type }}</dd></div>
+            @endif
             <div class="wizard-review-item"><dt>{{ __('Price') }}</dt><dd>{{ $priceLabel }} {{ $p->price_unit }}</dd></div>
             <div class="wizard-review-item"><dt>{{ __('Area') }}</dt><dd>{{ $p->square_text }}</dd></div>
             <div class="wizard-review-item"><dt>{{ __('Bed / Bath') }}</dt><dd>{{ $p->number_bedroom ?: 0 }} / {{ $p->number_bathroom ?: 0 }}</dd></div>
@@ -158,6 +161,11 @@
                         <label>{{ __('Mobile Number') }}</label>
                         <input type="text" class="wizard-input" data-field="mobile_number" placeholder="{{ __('e.g. +1234567890') }}">
                         <div class="wizard-error" data-error-for="mobile_number"></div>
+                    </div>
+                    <div class="wizard-field">
+                        <label>{{ __('CNIC') }}</label>
+                        <input type="text" class="wizard-input" data-field="cnic" id="wizard-guest-cnic" maxlength="15" placeholder="{{ trans('plugins/real-estate::account.cnic_placeholder') }}">
+                        <div class="wizard-error" data-error-for="cnic"></div>
                     </div>
                     <div class="wizard-field">
                         <label>{{ __('Password') }}</label>

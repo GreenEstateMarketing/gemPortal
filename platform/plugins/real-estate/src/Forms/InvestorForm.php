@@ -29,6 +29,19 @@ class InvestorForm extends FormAbstract
                     'data-counter' => 120,
                 ],
             ])
+            ->add('description', 'textarea', [
+                'label'      => trans('core/base::forms.description'),
+                'label_attr' => ['class' => 'control-label'],
+                'attr'       => [
+                    'rows'         => 4,
+                    'placeholder'  => trans('core/base::forms.description_placeholder'),
+                    'data-counter' => 500,
+                ],
+            ])
+            ->add('image', 'mediaImage', [
+                'label'      => trans('plugins/real-estate::investor.form.image'),
+                'label_attr' => ['class' => 'control-label'],
+            ])
             ->add('status', 'customSelect', [
                 'label'      => trans('core/base::tables.status'),
                 'label_attr' => ['class' => 'control-label required'],

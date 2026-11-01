@@ -22,6 +22,8 @@ class AccountCreateRequest extends Request
             'username' => 'required|max:60|min:2|unique:re_accounts,username',
             'email' => 'required|max:60|min:6|email|unique:re_accounts',
             'phone' => ['required', 'regex:/^\+?[1-9][0-9]{7,14}$/'],
+            'cnic' => ['required', 'regex:/^\d{5}-\d{7}-\d{1}$/', 'unique:re_accounts,cnic'],
+            'description' => ['required', 'max:300'],
             'password' => 'required|min:6|confirmed',
             'city_id' => ['required', 'integer', 'exists:cities,id'],
             'city_area_id' => ['required', 'array'],
@@ -48,6 +50,8 @@ class AccountCreateRequest extends Request
     {
         return [
             'phone.regex' => 'The phone number format is invalid. It must be a valid international number, e.g., +1234567890.',
+            'cnic.regex' => 'The CNIC format is invalid. It must be in the format 11111-1111111-1.',
+            'cnic.unique' => 'This CNIC is already registered to another account.',
         ];
     }
 

@@ -48,5 +48,26 @@
                 input.type = input.type === 'password' ? 'text' : 'password';
             }
         });
+
+        // Auto-format CNIC inputs (member signup / settings) as
+        // XXXXX-XXXXXXX-X while typing. Delegated here for the same
+        // Vue-template-compile reason as the password toggle above.
+        document.addEventListener('input', function (event) {
+            if (!event.target.hasAttribute || !event.target.hasAttribute('data-cnic-mask')) {
+                return;
+            }
+            var digits = event.target.value.replace(/\D/g, '').slice(0, 13);
+            var formatted = digits;
+
+            if (digits.length > 5) {
+                formatted = digits.slice(0, 5) + '-' + digits.slice(5);
+            }
+
+            if (digits.length > 12) {
+                formatted = digits.slice(0, 5) + '-' + digits.slice(5, 12) + '-' + digits.slice(12);
+            }
+
+            event.target.value = formatted;
+        });
     });
 })();

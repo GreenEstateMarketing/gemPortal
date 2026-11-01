@@ -58,6 +58,8 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                 ->name('edit');
 
             Route::group(['prefix' => 'wizard', 'as' => 'wizard.'], function () {
+                Route::post('upload', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'postUpload'])
+                    ->name('upload');
                 Route::get('{property?}', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'show'])
                     ->name('show');
                 Route::post('{property}/basics', [\Botble\RealEstate\Http\Controllers\PropertyWizardController::class, 'saveBasics'])
@@ -203,6 +205,22 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
                 'as' => 'property.consults',
                 'uses' => 'ConsultController@propertyConsults',
 
+            ]);
+        });
+
+        Route::group(['prefix' => 'agent-applications', 'as' => 'agent-application.'], function () {
+            Route::get('', ['as' => 'index', 'uses' => 'AgentApplicationController@index', 'permission' => 'agent-application.index']);
+            Route::get('{id}/edit', ['as' => 'edit', 'uses' => 'AgentApplicationController@edit', 'permission' => 'agent-application.edit']);
+            Route::delete('{id}', ['as' => 'destroy', 'uses' => 'AgentApplicationController@destroy', 'permission' => 'agent-application.destroy']);
+            Route::delete('items/destroy', [
+                'as' => 'deletes',
+                'uses' => 'AgentApplicationController@deletes',
+                'permission' => 'agent-application.destroy',
+            ]);
+            Route::get('{id}/resume', [
+                'as' => 'resume',
+                'uses' => 'AgentApplicationController@downloadResume',
+                'permission' => 'agent-application.index',
             ]);
         });
 
@@ -391,6 +409,11 @@ Route::group(['namespace' => 'Botble\RealEstate\Http\Controllers', 'middleware' 
             Route::post('send-consult', 'PublicController@postSendConsult')->name('public.send.consult');
             Route::post('send-post', [\Botble\Contact\Http\Controllers\PublicController::class, 'postSendWanted'])
                 ->name('public.send.wanted');
+
+            Route::get('agent-registration', 'AgentApplicationApplyController@create')
+                ->name('public.agent-application.create');
+            Route::post('agent-registration', 'AgentApplicationApplyController@store')
+                ->name('public.agent-application.store');
 
             Route::get('currency/switch/{code?}', [
                 'as' => 'public.change-currency',

@@ -40,6 +40,7 @@ use Botble\RealEstate\Repositories\Interfaces\PackageInterface;
 use Botble\RealEstate\Repositories\Interfaces\ProjectInterface;
 use Botble\RealEstate\Repositories\Interfaces\PropertyInterface;
 use Botble\RealEstate\Repositories\Interfaces\TransactionInterface;
+use Botble\RealEstate\Services\PropertyImageValidationService;
 use Botble\RealEstate\Tables\AccountPropertyTable;
 use Botble\RealEstate\Tables\MemberPropertyTable;
 use Botble\Setting\Supports\SettingStore;
@@ -250,9 +251,12 @@ class GeneralPropertyController extends Controller
             'full_name' => 'required|string|min:3|max:100|regex:^[a-zA-Z]{3,}(?: [a-zA-Z]+){0,2}$^',
             'email' => 'required|email|string',
             'mobile_no' => ['required', 'regex:/^\+?[1-9][0-9]{7,14}$/'],
+            'cnic' => ['required', 'regex:/^\d{5}-\d{7}-\d{1}$/', 'unique:members,cnic'],
             'password' => 'required|min:6|confirmed',
         ], [
             'mobile_no.regex' => 'The phone number format is invalid. It must be a valid international number, e.g., +1234567890.',
+            'cnic.regex' => 'The CNIC format is invalid. It must be in the format 11111-1111111-1.',
+            'cnic.unique' => 'This CNIC is already registered to another account.',
         ]);
 
         if ($validator->fails()) {
@@ -267,6 +271,7 @@ class GeneralPropertyController extends Controller
                 'full_name' => $request['full_name'],
                 'email' => $request['email'],
                 'mobile_no' => $request['mobile_no'],
+                'cnic' => $request['cnic'],
                 'password' => Hash::make($request['password']),
                 'verification_token' => $token,
                 'email_verified' => 0,
@@ -1187,7 +1192,7 @@ class GeneralPropertyController extends Controller
         }
     }
 
-    public function postUpload(Request $request, BaseHttpResponse $response)
+    public function postUpload(Request $request, BaseHttpResponse $response, PropertyImageValidationService $propertyImageValidationService)
     {
         if (setting('media_chunk_enabled') != '1') {
             // The wizard's per-category document slots (Media & Documents
@@ -1200,15 +1205,36 @@ class GeneralPropertyController extends Controller
             // same as the admin role already does.
             $isDocument = $request->input('type') === 'document';
 
-            $validator = Validator::make($request->all(), [
-                'file.0' => $isDocument ? 'required|file' : 'required|image|mimes:jpg,jpeg,png,webp,gif,bmp',
-            ]);
+            if ($isDocument) {
+                $validator = Validator::make($request->all(), [
+                    'file.0' => 'required|file',
+                ]);
 
-            if ($validator->fails()) {
-                return $response->setError()->setMessage($validator->getMessageBag()->first());
+                if ($validator->fails()) {
+                    return $response->setError()->setMessage($validator->getMessageBag()->first());
+                }
+            } else {
+                $file = Arr::first((array) $request->file('file'));
+
+                if (! $file) {
+                    return $response->setError()->setMessage('Please select a photo to upload.');
+                }
+
+                $error = $propertyImageValidationService->validate($file);
+
+                if ($error) {
+                    return $response->setError()->setMessage($error);
+                }
             }
 
-            $result = RvMedia::handleUpload(Arr::first($request->file('file')), 0, 'members');
+            // Images already went through PropertyImageValidationService above,
+            // which is stricter and image-specific - skip RvMedia's own generic
+            // sitewide mime check here so a type it approved (e.g. webp, which
+            // isn't in core.media.media.allowed_mime_types) can't still get
+            // rejected with a confusing "must be a file of type: ...zip, mp3,
+            // doc..." message. Documents still go through it as a safety net,
+            // since they don't have an image-specific check of their own.
+            $result = RvMedia::handleUpload(Arr::first($request->file('file')), 0, 'members', ! $isDocument);
 
             if ($result['error']) {
                 return $response->setError(true)->setMessage($result['message']);

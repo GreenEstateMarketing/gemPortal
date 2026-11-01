@@ -1,4 +1,4 @@
-<main class="detailproject" style="background: #fff;">
+<main class="detailproject property-detail" style="background: #fff;">
     <div class="boxsliderdetail">
         <div class="slidetop">
             <div class="owl-carousel" id="listcarousel">
@@ -31,73 +31,69 @@
     <div class="container-fluid w90 padtop20">
         <div class="row">
             <div class="col-md-9">
-                <div class="boxright">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <h1 class="property-price">{{ format_price($property->price, $property->currency) }} </h1>
-                            {!! $property->status->toHtml()  !!}
+                <div class="boxright property-detail__header">
+                    <div class="property-detail__price-row">
+                        @php
+                            // format_price() concatenates the currency symbol straight
+                            // onto the digits with no space (e.g. "PKR23,322") - that's
+                            // shared site-wide, so insert the space here rather than in
+                            // the helper to avoid changing price formatting everywhere
+                            // else on the site.
+                            $formattedPrice = preg_replace('/^([^\d]+)(?=\d)/u', '$1 ', format_price($property->price, $property->currency));
+                        @endphp
+                        <div class="property-detail__price-group">
+                            <h1 class="property-price property-detail__price">{{ $formattedPrice }}</h1>
+                            <span class="property-detail__status">{!! $property->status->toHtml() !!}</span>
                         </div>
-                        <div class="col-md-6">
-                            <div class="float-right">
 
-                                <a href="#" class="text-brown heart add-to-wishlist" data-id="{{ $property->id }}"
-                                    data-is-favourite="{{ $isFavourite ? 'true' : 'false' }}"
-                                    title="{{ __('I care about this property!!!') }}">
-                                    <i class="{{ $isFavourite ? 'fas fa-heart' : 'far fa-heart' }} fa-3x"></i>
-                                </a>
-                                <p>Favourite</p>
+                        <a href="#" class="text-brown heart add-to-wishlist property-detail__favorite" data-id="{{ $property->id }}"
+                            data-is-favourite="{{ $isFavourite ? 'true' : 'false' }}"
+                            title="{{ __('I care about this property!!!') }}">
+                            <i class="{{ $isFavourite ? 'fas fa-heart' : 'far fa-heart' }}"></i>
+                        </a>
+                    </div>
+
+                    <h2 class="titlehouse property_name property-detail__title" id="house-40396">{{ $property->name }}</h2>
+                    <p class="addresshouse property-detail__location"><i class="fas fa-map-marker-alt"></i> {{ $property->location }}</p>
+
+                    <div class="property-detail__share">
+                        {!! Theme::partial('share', ['title' => __('Share this property'), 'description' => $property->name]) !!}
+                    </div>
+
+                    <div class="property-detail__stats">
+                        @if($property->category->id == 1 || $property->category->parent_id == 1)
+                            <div class="property-detail__stat">
+                                <span class="property-detail__stat-icon"><i class="far fa-bed"></i></span>
+                                <span class="property-detail__stat-value">{{ number_format($property->number_bedroom) }}</span>
+                                <span class="property-detail__stat-label">{{ __('Bedroom') }}</span>
                             </div>
+                            <div class="property-detail__stat">
+                                <span class="property-detail__stat-icon"><i class="far fa-bath"></i></span>
+                                <span class="property-detail__stat-value">{{ number_format($property->number_bathroom) }}</span>
+                                <span class="property-detail__stat-label">{{ __('Bathroom') }}</span>
+                            </div>
+                        @endif
+                        <div class="property-detail__stat">
+                            <span class="property-detail__stat-icon"><i class="fas fa-ruler-combined"></i></span>
+                            <span class="property-detail__stat-value">{{ $property->square_text }}</span>
+                            <span class="property-detail__stat-label">{{ __('Area') }}</span>
+                        </div>
+                        <div class="property-detail__stat">
+                            <span class="property-detail__stat-icon"><i class="far fa-calendar-alt"></i></span>
+                            <span class="property-detail__stat-value">{{ $property->built_in ?: __('N/A') }}</span>
+                            <span class="property-detail__stat-label">{{ __('Built In') }}</span>
+                        </div>
+                        <div class="property-detail__stat">
+                            <span class="property-detail__stat-icon"><i class="fas fa-star"></i></span>
+                            @if ($propertyRatingCount)
+                                <span class="property-detail__stat-value">{{ number_format($propertyRatingAvg, 1) }}</span>
+                                <span class="property-detail__stat-label">{{ trans_choice(':count Review|:count Reviews', $propertyRatingCount, ['count' => $propertyRatingCount]) }}</span>
+                            @else
+                                <span class="property-detail__stat-value">&mdash;</span>
+                                <span class="property-detail__stat-label">{{ __('No reviews yet') }}</span>
+                            @endif
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-8">
-                            <h2 class="titlehouse property_name" id="house-40396">{{ $property->name }}</h2>
-                            <p class="addresshouse"> {{ $property->location }}</p>
-
-                        </div>
-                        <div class="col-md-4">
-                            <div class="row float-right">
-                                <!-- <div class="col-md-12">
-                                    <div class="d-flex align-items-center float-right">
-                                        <h3 class="text-brown pl-1">{{ number_format($property->number_bedroom) }}</h3><a href="#" class="text-brown pl-1"  title="{{ __('Number of rooms') }}"><i class="far fa-bed fa-2x"></i></a>
-                                        <p>Favourite</p>
-                                        <h3 class="text-brown pl-4">{{ number_format($property->number_bathroom) }}</h3><a href="#" class="text-brown pl-1"  title="{{ __('Number of rest rooms') }}"><i class="far fa-bath fa-2x"></i></a>
-                                        <p>Favourite</p>
-                                    </div>
-
-
-                                </div>-->
-                                @if($property->category->id == 1 || $property->category->parent_id == 1)
-                                    <div class="col-md-6">
-                                        <ul>
-                                            <li><span>{{ number_format($property->number_bedroom) }} <a
-                                                        class="text-brown pl-1" title="{{ __('Number of rooms') }}"><i
-                                                            class="far fa-bed fa-2x"></i></a></span></li>
-
-                                            <li>
-                                                <p>Bedroom</p>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <ul>
-                                            <li><span>{{ number_format($property->number_bathroom) }}<a
-                                                        class="text-brown pl-1" title="{{ __('Number of rest rooms') }}"><i
-                                                            class="far fa-bath fa-2x"></i></a></span></li>
-
-                                            <li>
-                                                <p>Bathroom</p>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                @endif
-
-                            </div>
-
-                        </div>
-                    </div>
-                    <br>
-                    {!! Theme::partial('share', ['title' => __('Share this property'), 'description' => $property->name]) !!}
                 </div>
                 <!-- <section class="boxright">
                     <div class="row">
@@ -113,14 +109,14 @@
                     </div>
                 </section>-->
 
-                <div class="boxright">
+                <div class="boxright property-detail__tabs-card">
                     <div class="row">
                         <div class="col property_tab">
                             <div class="tab" role="tabpanel">
                                 <!-- Nav tabs -->
-                                <ul class="nav nav-tabs" role="tablist">
+                                <ul class="nav nav-tabs property-detail__tab-nav" role="tablist">
                                     <li role="presentation" class="active"><a href="#Section1" aria-controls="home"
-                                            class="showGrid mr-3 ml-3" data-tab-id="1" role="tab" data-toggle="tab"><i
+                                            class="showGrid mr-3 ml-3 active" data-tab-id="1" role="tab" data-toggle="tab"><i
                                                 class="fa fa-star"></i> Highlights</a></li>
                                     <li role="presentation"><a href="#Section2" aria-controls="profile" role="tab"
                                             class="showGrid mr-3 ml-3" data-tab-id="2" data-toggle="tab"><i
@@ -138,19 +134,24 @@
                                 </ul>
                                 <!-- Tab panes -->
                                 <div class="tab-content tabs">
-                                    <div role="tabpanel" class="tab-pane fade in active show" id="Section1">
-                                        <h3 class="pt-3 primary-head">{{ __('Description') }}</h3>
+                                    <div role="tabpanel" class="tab-pane fade in active show property-detail__tab-panel" id="Section1">
+                                        <h3 class="pt-3 primary-head property-detail__section-title">{{ __('Description') }}</h3>
 
+                                        <div class="property-detail__quote">
+                                            <i class="fas fa-home"></i>
+                                            <p>{{ __('A perfect blend of comfort, style and convenience in a prime location!') }}</p>
+                                        </div>
 
-                                        <p> {!! clean($property->description, 'youtube') !!}</p>
+                                        <p class="property-detail__description"> {!! clean($property->description, 'youtube') !!}</p>
 
-                                        <h3 class="primary-head">{{ __('Property Summary') }}</h3>
-                                        <div class="row pt-3">
-                                            <div class="col-md-3">
-                                                <b class="">{{ __('Property Type') }}</b>
+                                        <h3 class="primary-head property-detail__section-title">{{ __('Property Summary') }}</h3>
+                                        <div class="property-detail__summary-grid">
+                                            <div class="property-detail__summary-item">
+                                                <b><i class="fas fa-home"></i> {{ __('Property Type') }}</b>
                                                 <p>{{ $property->category->name }}</p>
                                             </div>
-                                            <div class="col-md-3"><b class="">{{ __('Land Size') }}</b>
+                                            <div class="property-detail__summary-item">
+                                                <b><i class="fas fa-ruler-combined"></i> {{ __('Land Size') }}</b>
                                                 <div class="infoTitle d-none"></div>
                                                 <input type="hidden" id="area_units" name="area_units"
                                                     value="{{setting('real_estate_square_unit') }}" /><input
@@ -161,25 +162,25 @@
                                                 </p>
                                             </div>
 
-                                            <div class="col-md-3">
-                                                <b>{{ __('Built in') }}</b>
+                                            <div class="property-detail__summary-item">
+                                                <b><i class="far fa-calendar-alt"></i> {{ __('Built in') }}</b>
                                                 <p>{{ $property->built_in ? $property->built_in : __('Not Available') }}
                                                 </p>
                                             </div>
 
-                                            <div class="col-md-3"><b class="">{{ __('Added At') }}</b>
+                                            <div class="property-detail__summary-item">
+                                                <b><i class="far fa-clock"></i> {{ __('Added At') }}</b>
                                                 <p>{{ $property->created_at }}</p>
                                             </div><!-- later add parting type-->
 
                                         </div>
                                         @if ($property->features->count())
-                                            <h3 class="primary-head">{{ __('Features') }}</h3>
-                                            <div class="row">
+                                            <h3 class="primary-head property-detail__section-title">{{ __('Features') }}</h3>
+                                            <div class="property-detail__features-grid">
                                                 @foreach($property->features as $feature)
-                                                    <div class="col-sm-4">
-                                                        <p>
-                                                            <i class="fas fa-check text-orange text0i"></i> {{ $feature->name }}
-                                                        </p>
+                                                    <div class="property-detail__feature">
+                                                        <i class="@if ($feature->icon) {{ $feature->icon }} @else fas fa-check @endif"></i>
+                                                        {{ $feature->name }}
                                                     </div>
                                                 @endforeach
                                             </div>
@@ -187,24 +188,22 @@
                                         <br>
 
                                     </div>
-                                    <div role="tabpanel" class="tab-pane fade" id="Section2">
+                                    <div role="tabpanel" class="tab-pane fade property-detail__tab-panel property-detail__neighbourhood" id="Section2">
 
                                         {!! Theme::partial('neighbourhood') !!}
                                         @if ($property->facilities->count())
                                             <div class="row pt-5">
                                                 <div class="col-sm-12">
-                                                    <h5 class="primary-head">{{ __('Distance key between facilities') }}
+                                                    <h5 class="primary-head property-detail__section-title">{{ __('Distance key between facilities') }}
                                                     </h5>
-                                                    <div class="row">
+                                                    <div class="property-detail__facilities-grid">
                                                         @foreach($property->facilities as $facility)
                                                             @if($facility->pivot->distance)
-                                                                <div class="col-sm-4">
-                                                                    <p>
-                                                                        <i
-                                                                            class="@if ($facility->icon) {{ $facility->icon }} @else fas fa-check @endif text-brown text0i"></i>
-                                                                        {{ $facility->name }}
-                                                                        - {{ $facility->pivot->distance }}
-                                                                    </p>
+                                                                <div class="property-detail__feature">
+                                                                    <i
+                                                                        class="@if ($facility->icon) {{ $facility->icon }} @else fas fa-check @endif"></i>
+                                                                    {{ $facility->name }}
+                                                                    &mdash; {{ $facility->pivot->distance }}
                                                                 </div>
                                                             @endif
                                                         @endforeach
@@ -213,13 +212,17 @@
                                             </div>
                                         @endif
                                     </div>
-                                    <div role="tabpanel" class="tab-pane fade" id="Section3">
-                                        {!! Theme::partial('mortage_calculator', ['property' => $property]) !!}
-
+                                    <div role="tabpanel" class="tab-pane fade property-detail__tab-panel" id="Section3">
+                                        <div class="property-detail__calculator">
+                                            {!! Theme::partial('mortage_calculator', ['property' => $property]) !!}
+                                        </div>
                                     </div>
-                                    <div role="tabpanel" class="tab-pane fade" id="Section4">
-                                        Comming Soon
-
+                                    <div role="tabpanel" class="tab-pane fade property-detail__tab-panel" id="Section4">
+                                        <div class="property-detail__empty-state">
+                                            <i class="fas fa-chart-bar"></i>
+                                            <h4>{{ __('Statistics coming soon') }}</h4>
+                                            <p>{{ __("We're building detailed market and pricing insights for this property. Check back soon.") }}</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -313,7 +316,7 @@
 
                     @if ($property->latitude)
 
-                        <div class="mapouter">
+                        <div class="mapouter property-detail__map-card">
                             <div class="gmap_canvas">
                                 <iframe id="gmap_canvas" width="100%" height="500"
                                     src="https://maps.google.com/maps?q={{$property->latitude }},{{$property->longitude }}%20&t=&z=13&ie=UTF8&iwloc=&output=embed"
@@ -327,68 +330,90 @@
             </div>
             <div class="col-md-3">
                 @if ($property->author->id)
-                    <div class="boxright">
-                        <div class="head">
-                            {{ __('Contact Agent') }}
+                    <div class="boxright property-detail__agent-card">
+                        <div class="property-detail__agent-head">
+                            <i class="fas fa-user-tie"></i>
+                            <div>
+                                <strong>{{ __('Contact Agent') }}</strong>
+                                <span>{{ __('Get in touch for more details') }}</span>
+                            </div>
                         </div>
 
-                        <div class="row rowm10 itemagent">
-                            <div class="col-sm-3 colm10">
+                        @php
+                            // image_path (a real uploaded photo) takes priority over
+                            // avatar_url, which only auto-generates an initials avatar
+                            // when no real photo/avatar MediaFile is set (Account::
+                            // getAvatarUrlAttribute()) - same precedence agent.blade.php
+                            // already uses, so the agent's actual photo shows instead of
+                            // a generic placeholder whenever one exists.
+                            $agentPhotoUrl = $property->author->image_path
+                                ? Storage::url($property->author->image_path)
+                                : $property->author->avatar_url;
+                        @endphp
+                        <div class="property-detail__agent-body">
+                            <div class="property-detail__agent-row">
                                 @if ($property->author->username)
-                                    <a href="{{ route('public.agent', $property->author->username) }}">
-                                        <img src="{{ $property->author->avatar_url }}"
-                                            alt="{{ $property->author->getFullName() }}" class="img-thumbnail">
+                                    <a href="{{ route('public.agent', $property->author->username) }}" class="property-detail__agent-avatar-link">
+                                        <img src="{{ $agentPhotoUrl }}"
+                                            alt="{{ $property->author->getFullName() }}" class="property-detail__agent-avatar">
                                     </a>
                                 @else
-                                    <img src="{{ $property->author->avatar_url }}" alt="{{ $property->author->getFullName() }}"
-                                        class="img-thumbnail">
+                                    <img src="{{ $agentPhotoUrl }}" alt="{{ $property->author->getFullName() }}"
+                                        class="property-detail__agent-avatar">
                                 @endif
-                            </div>
-                            <div class="col-sm-8 colm10">
-                                <div class="info">
-                                    <p>
-                                        <strong>
-                                            @if ($property->author->username)
-                                                <a
-                                                    href="{{ route('public.agent.detail', $property->author->username) }}">{{ $property->author->getFullName() }}</a>
-                                            @else
-                                                {{ $property->author->getFullName() }}
-                                            @endif
-                                        </strong>
-                                    </p>
-                                    <button type="button" data-id="{{$property->author->id}}"
-                                        class="showContact btn btn-info pt-1 pb-1">Show Contact <i
-                                            class="fa fa-spinner d-none" aria-hidden="true"></i></button>
 
+                                <div class="property-detail__agent-details">
+                                    @if ($property->author->username)
+                                        <a href="{{ route('public.agent', $property->author->username) }}"
+                                            class="property-detail__agent-name">{{ $property->author->getFullName() }}</a>
+                                    @else
+                                        <span class="property-detail__agent-name">{{ $property->author->getFullName() }}</span>
+                                    @endif
+                                    @if ($property->author->confirmed_at)
+                                        <span class="property-detail__agent-badge"><i class="fas fa-shield-alt"></i> {{ __('Trusted Agent') }}</span>
+                                    @endif
 
-                                </div>
+                                    <div class="property-detail__agent-info">
+                                        @if ($property->author->phone)
+                                            <p><i class="fa fa-phone" aria-hidden="true"></i><span>{{ $property->author->phone }}</span></p>
+                                        @endif
+                                        @if ($property->author->email)
+                                            <p><i class="fa fa-envelope" aria-hidden="true"></i><span>{{ $property->author->email }}</span></p>
+                                        @endif
+                                    </div>
 
-                            </div>
-                        </div>
-                        <div class="row rowm10 itemagent mt-3">
-                            <div class="col">
-                                <div class="showinfo contactInfo-{{$property->author->id}} d-none">
-                                    <p class="mobile mobile-p d-none"><i class="fa fa-phone mr-1"></i><span
-                                            id="mobile_text"></span></p>
-                                    <p><i class="fa fa-envelope mr-1" aria-hidden="true"></i><span id="email_text"></span>
-                                    </p>
+                                    @if ($property->author->username)
+                                        <p class="property-detail__agent-more"><i class="fas fa-arrow-circle-right"></i> <a
+                                                href="{{ route('public.agent', $property->author->username) }}">{{ __('More properties by this agent') }}</a>
+                                        </p>
+                                    @endif
                                 </div>
                             </div>
                         </div>
-                        @if ($property->author->username)
-                            <p class="mt-2"><span class="fas fa-arrow-circle-right"></span> <a
-                                    href="{{ route('public.agent.detail', $property->author->username) }}">{{ __('More properties by this agent') }}</a>
-                            </p>
-                        @endif
                     </div>
                 @endif
-                <div class="boxright">
+                <div class="boxright property-detail__consult">
                     {!! Theme::partial('consult-form', ['type' => 'property', 'data' => $property]) !!}
+                </div>
+
+                <div class="property-detail__dream-cta"
+                    style="background-image: url('{{ Theme::asset()->url('images/property-detail-dream-home-bg.png') }}')">
+                    <div class="property-detail__dream-cta-overlay"></div>
+                    <div class="property-detail__dream-cta-inner">
+                        <h3>{{ __('Your Dream Home') }} <span>{{ __('Awaits!') }}</span></h3>
+                        <p>{{ __('Find the perfect property with GEM.') }}</p>
+                        <a href="{{ route('public.properties') }}" class="property-detail__dream-cta-btn">
+                            {{ __('Browse More Properties') }} <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
                 </div>
 
             </div>
         </div>
-        <h5 class="headifhouse mt-5">{{ __('Related properties') }}</h5>
+        <div class="property-detail__related-header">
+            <h5 class="headifhouse">{{ __('Related properties') }}</h5>
+            <a href="{{ route('public.properties') }}">{{ __('View All Properties') }} <i class="fas fa-arrow-right"></i></a>
+        </div>
         <related type="related" url="{{ route('public.ajax.properties') }}" property_id="{{ $property->id }}"
             category_id="{{ $property->category_id }}" city_id="{{ $property->city_id }}"></related>
         <br>

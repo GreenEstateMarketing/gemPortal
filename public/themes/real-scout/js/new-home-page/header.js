@@ -5,31 +5,6 @@
     <script src="{{ Theme::asset()->url('js/home-page-new/header.js') }}"></script>
 */
 document.addEventListener('DOMContentLoaded', function () {
-    var toggle = document.getElementById('mainNavToggle');
-    var menu = document.getElementById('mainNavMenu');
-
-    if (toggle && menu) {
-        toggle.addEventListener('click', function () {
-            var isOpen = menu.classList.toggle('is-open');
-            toggle.classList.toggle('is-active', isOpen);
-            toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-        });
-    }
-
-    // Allow tapping a parent menu item to expand its submenu on mobile
-    document.querySelectorAll('.main-nav__menu li').forEach(function (li) {
-        var submenu = li.querySelector('ul');
-        if (!submenu) return;
-
-        var link = li.querySelector('a');
-        link.addEventListener('click', function (e) {
-            if (window.innerWidth <= 860) {
-                e.preventDefault();
-                li.classList.toggle('is-open');
-            }
-        });
-    });
-
     // NOTE: "More Filters" (.advanced-search-toggler) needs NO handler here.
     // js/app.js (loaded globally, every page) already has one:
     //   $(document).on('click', '.advanced-search-toggler', function () {

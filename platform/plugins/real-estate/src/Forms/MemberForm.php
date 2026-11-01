@@ -2,6 +2,7 @@
 
 namespace Botble\RealEstate\Forms;
 
+use Assets;
 use Botble\Base\Forms\FormAbstract;
 use Botble\RealEstate\Models\Member;
 
@@ -11,6 +12,9 @@ class MemberForm extends FormAbstract
 
     public function buildForm()
     {
+        Assets::addScripts(['input-mask'])
+            ->addScriptsDirectly('/vendor/core/plugins/real-estate/js/account-admin.js');
+
         $this
             ->setupModel(new Member)
             ->add('full_name', 'text', [
@@ -34,6 +38,14 @@ class MemberForm extends FormAbstract
                 'attr' => [
                     'placeholder' => trans('Mobile No'),
                     'data-counter' => 20,
+                ],
+            ])->add('cnic', 'text', [
+                'label' => trans('plugins/real-estate::account.cnic'),
+                'label_attr' => ['class' => 'control-label required'],
+                'attr' => [
+                    'placeholder' => trans('plugins/real-estate::account.cnic_placeholder'),
+                    'data-counter' => 15,
+                    'class' => 'form-control input-mask-cnic',
                 ],
             ])->add('credits', 'text', [
                 'label' => trans('Credits'),

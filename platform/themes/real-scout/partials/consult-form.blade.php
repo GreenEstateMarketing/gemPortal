@@ -2,7 +2,7 @@
     @csrf
     <input type="hidden" value="{{ $type }}" name="type">
     <input type="hidden" value="{{ $data->id }}" name="data_id">
-    <div class="head">{{ __('Consult Us') }}</div>
+    <div class="head"><i class="fas fa-comment-dots"></i> {{ __('Consult Us') }}</div>
     <div class="form-group">
         <input type="text" name="name" class="form-control" placeholder="{{ __('Name') }} *"
               required>
@@ -15,7 +15,7 @@
         <input type="text" name="email" class="form-control " placeholder="{{ __('Email') }}">
     </div>
     <div class="form-group">
-        <input type="text" class="form-control" placeholder="{{ __('Subject') }} *" value="{{ $data->name }}" readonly>
+        <input type="text" class="form-control" placeholder="{{ __('Subject') }} *" value="{{ $data->name ?? $data->getFullName() }}" readonly>
     </div>
     <div class="form-group">
         <select id="interest" name="interest" class="form-control">

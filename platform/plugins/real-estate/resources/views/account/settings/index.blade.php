@@ -68,7 +68,7 @@
                             <!--Short description-->
                             <div class="form-group">
                                 <label for="description">{{ trans('plugins/real-estate::dashboard.description') }}</label>
-                                <textarea class="form-control" name="description" id="description" rows="3" maxlength="300" placeholder="{{ trans('plugins/real-estate::dashboard.description_placeholder') }}">{{ old('description') ?? $user->description }}</textarea>
+                                <textarea class="form-control" name="description" id="description" rows="3" maxlength="300" required placeholder="{{ trans('plugins/real-estate::dashboard.description_placeholder') }}">{{ old('description') ?? $user->description }}</textarea>
                             </div>
                             <!-- Email -->
                             <div class="form-group">

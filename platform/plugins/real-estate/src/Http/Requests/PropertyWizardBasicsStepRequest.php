@@ -2,6 +2,7 @@
 
 namespace Botble\RealEstate\Http\Requests;
 
+use Botble\RealEstate\Models\Category;
 use Botble\Support\Http\Requests\Request;
 use Illuminate\Validation\Rule;
 
@@ -17,6 +18,19 @@ class PropertyWizardBasicsStepRequest extends Request
                 'not_in:0',
                 Rule::exists('re_categories', 'id')->where(function ($query) {
                     $query->where($this->input('type') === 'rent' ? 'for_rent' : 'for_sale', true);
+                }),
+            ],
+            // Only the "Industrial" sub-category (under Commercial) needs this -
+            // matched by name rather than a hardcoded id, since categories are
+            // admin-managed data and ids differ across environments.
+            'industry_type' => [
+                'nullable',
+                'string',
+                'max:191',
+                Rule::requiredIf(function () {
+                    $category = Category::find($this->input('category_id'));
+
+                    return $category && strtolower($category->name) === 'industrial';
                 }),
             ],
             'project_id' => 'nullable',

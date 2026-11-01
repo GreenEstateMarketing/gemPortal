@@ -11,7 +11,6 @@ use Illuminate\Validation\ValidationException;
 use Log;
 use SeoHelper;
 use Theme;
-use URL;
 
 class LoginController extends Controller
 {
@@ -40,18 +39,20 @@ class LoginController extends Controller
     /**
      * Create a new controller instance.
      *
+     * This used to also stamp session('url.intended') from URL::previous()
+     * here, on every request including the login POST itself. That
+     * clobbered whatever a genuine redirect-to-login (e.g. Laravel's own
+     * auth middleware bouncing an unauthenticated agent off a protected
+     * page) had already stored, with just the referrer of whichever
+     * request happened to hit this controller next - which, for a POST
+     * submit, is always the login page itself. See authenticated() below
+     * for where the post-login redirect is actually decided now.
+     *
      * @return void
      */
     public function __construct()
     {
-        session(['url.intended' => URL::previous()]);
-        $pages = [route('public.account.login'), route('public.single'), route('public.account.register')];
-
-        if (in_array(session()->get('url.intended'), $pages)) {
-            $this->redirectTo = route('public.account.dashboard');
-        } else {
-            $this->redirectTo = route('public.account.login');
-        }
+        $this->redirectTo = route('public.account.dashboard');
     }
 
     /**
@@ -79,6 +80,51 @@ class LoginController extends Controller
     protected function guard()
     {
         return auth('account');
+    }
+
+    /**
+     * Decide where to send an agent right after a successful login.
+     *
+     * The base sendLoginResponse() (AuthenticatesUsers trait) calls
+     * redirect()->intended($this->redirectPath()), and Laravel's
+     * intended() always prefers session('url.intended') over the
+     * $this->redirectTo computed in the constructor above when that
+     * session key is set. Since the constructor stamps url.intended from
+     * the referring page on every request - including the login POST
+     * itself, whose Referer is always the login page the form lives on -
+     * that session value is essentially always one of login/home/register
+     * by the time login succeeds, which silently defeats the dashboard
+     * redirect the constructor computed. Agents ended up bounced back to
+     * whichever trivial page they came from instead of their dashboard.
+     *
+     * Forgetting url.intended here when it's one of those trivial pages
+     * lets intended() fall back to the dashboard, while a genuinely
+     * useful intended URL (e.g. Laravel's own auth middleware redirecting
+     * from a protected page to login) is still honored.
+     *
+     * Trailing slashes are stripped before comparing - browsers send the
+     * homepage's Referer as "http://host/" while route('public.single')
+     * resolves to "http://host" (no trailing slash), so a naive exact
+     * match never recognizes the homepage as "trivial" and this would
+     * silently fail to fix the bug it's here for.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param Account $user
+     * @return \Illuminate\Http\RedirectResponse|null
+     */
+    protected function authenticated(Request $request, $user)
+    {
+        $pages = array_map(fn ($url) => rtrim($url, '/'), [
+            route('public.account.login'),
+            route('public.single'),
+            route('public.account.register'),
+        ]);
+
+        if (in_array(rtrim((string) session('url.intended'), '/'), $pages)) {
+            session()->forget('url.intended');
+        }
+
+        return redirect()->intended(route('public.account.dashboard'));
     }
 
     /**

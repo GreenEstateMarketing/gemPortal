@@ -64,7 +64,7 @@
     border: 1px solid #e5e7eb;
     border-top: 3px solid transparent;
     padding: 28px;
-    box-shadow: 0 6px 20px rgba(26, 29, 36, 0.05);
+    box-shadow: 0 6px 20px rgba(30, 35, 38, 0.06);
 }
 
 .testimonials__card--featured {
@@ -85,7 +85,7 @@
 }
 
 .testimonials__quote-icon {
-    color: rgba(224, 166, 62, 0.25);
+    color: rgba(231, 174, 79, 0.18);
     font-size: 26px;
 }
 

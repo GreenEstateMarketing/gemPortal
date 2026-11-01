@@ -25,6 +25,7 @@ class Member extends Authenticatable
         'full_name',
         'email',
         'mobile_no',
+        'cnic',
         'password',
         'credits',
         'remember_token',

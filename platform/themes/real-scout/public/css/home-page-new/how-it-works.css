@@ -8,8 +8,8 @@
 */
 
 :root {
-    --how-bg: #f6f2ea;
-    --how-text-muted: #6b7280;
+    --how-bg: #f2f0eb;
+    --how-text-muted: #687176;
 }
 
 .how-it-works {
@@ -64,7 +64,7 @@
     border-radius: 10px;
     padding: 6px;
     gap: 6px;
-    box-shadow: 0 8px 24px rgba(26, 29, 36, 0.08);
+    box-shadow: 0 8px 24px rgba(30, 35, 38, 0.10);
 }
 
 .how-it-works__toggle-btn {
@@ -150,7 +150,7 @@
     border-radius: 12px;
     padding: 28px 20px 32px;
     text-align: center;
-    box-shadow: 0 6px 20px rgba(26, 29, 36, 0.05);
+    box-shadow: 0 6px 20px rgba(30, 35, 38, 0.06);
 }
 
 .how-it-works__step-number {
@@ -170,7 +170,7 @@
     height: 64px;
     margin: 0 auto 20px;
     border-radius: 50%;
-    background: rgba(224, 166, 62, 0.14);
+    background: rgba(231, 174, 79, 0.13);
     color: var(--header-gold);
     font-size: 22px;
 }

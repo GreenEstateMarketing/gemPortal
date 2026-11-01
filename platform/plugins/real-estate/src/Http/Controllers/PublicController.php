@@ -68,6 +68,16 @@ class PublicController extends Controller
                     $link = $project->url;
                     $subject = $project->name;
                 }
+            } elseif ($request->input('type') == 'agent') {
+                $account = \Botble\RealEstate\Models\Account::find($request->input('data_id'));
+                if ($account) {
+                    if ($account->email) {
+                        $sendTo = $account->email;
+                    }
+
+                    $link = route('public.agent', $account->username);
+                    $subject = $account->getFullName();
+                }
             } else {
                 $request->merge(['property_id' => $request->input('data_id')]);
                 $property = $propertyRepository->findById($request->input('data_id'), ['author']);
@@ -83,7 +93,7 @@ class PublicController extends Controller
             $consultEntry->name = $request->input('name');
             if ($request->input('type') == 'project') {
                 $consultEntry->project_id = $request->input('data_id');
-            } else {
+            } elseif ($request->input('type') != 'agent') {
                 $consultEntry->property_id = $request->input('data_id');
             }
 
@@ -197,6 +207,24 @@ class PublicController extends Controller
             'libraries/jquery-validation/jquery.validationEngine.js',
             ['jquery']
         );
+
+        // Theme::asset()->add() sniffs style vs script from the URL's file
+        // extension (via File::extension()), which is empty for a
+        // query-string URL with no literal ".css" — it would silently
+        // register this as a script and drop it. ->style() always
+        // registers it as a stylesheet, matching the property detail page's
+        // own registration of the same font pairing.
+        Theme::asset()->style(
+            'google-fonts-playfair-poppins',
+            'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap'
+        );
+        // Dependency on 'style-css' (the theme's legacy stylesheet,
+        // registered in config.php) forces Theme::asset()'s dependency sort
+        // to render this AFTER it - without it, this would load BEFORE
+        // style.css despite being registered later, and any override here
+        // that ties in specificity with an equivalent legacy selector would
+        // silently lose to the legacy rule instead of winning.
+        Theme::asset()->add('project-detail-css', '/css/project-detail.css', ['style-css']);
 
         if (function_exists('admin_bar')) {
             admin_bar()->registerLink(__('Edit this project'), route('project.edit', $project->id));
@@ -317,7 +345,33 @@ class PublicController extends Controller
             $images[] = RvMedia::getImageUrl($image, null, false, RvMedia::getDefaultImage());
         }
 
-        return Theme::scope('real-estate.property', compact('property', 'images', 'isFavourite'))->render();
+        // Theme::asset()->add() sniffs style vs script from the URL's file
+        // extension (via File::extension()), which is empty for a
+        // query-string URL with no literal ".css" — it would silently
+        // register this as a script and drop it. ->style() always
+        // registers it as a stylesheet, matching FlexHomeController's
+        // agent-detail-page registration of the same font pairing.
+        Theme::asset()->style(
+            'google-fonts-playfair-poppins',
+            'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap'
+        );
+        // Dependency on 'style-css' (the theme's legacy stylesheet,
+        // registered in config.php) forces Theme::asset()'s dependency sort
+        // to render this AFTER it - without it, this was loading BEFORE
+        // style.css despite being registered later, so every override here
+        // that ties in specificity with an equivalent legacy selector (e.g.
+        // two single-class selectors, neither !important) was silently
+        // losing to the legacy rule instead of winning.
+        Theme::asset()->add('property-detail-css', '/css/property-detail.css', ['style-css']);
+
+        $propertyRatings = $property->ratings()->where('status', 1);
+        $propertyRatingAvg = (clone $propertyRatings)->avg('rating');
+        $propertyRatingCount = (clone $propertyRatings)->count();
+
+        return Theme::scope(
+            'real-estate.property',
+            compact('property', 'images', 'isFavourite', 'propertyRatingAvg', 'propertyRatingCount')
+        )->render();
     }
 
     /**

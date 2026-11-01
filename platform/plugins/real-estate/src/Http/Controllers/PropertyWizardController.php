@@ -5,6 +5,7 @@ namespace Botble\RealEstate\Http\Controllers;
 use Botble\Base\Enums\BaseStatusEnum;
 use Botble\Base\Events\CreatedContentEvent;
 use Botble\Base\Events\UpdatedContentEvent;
+use Botble\Base\Http\Responses\BaseHttpResponse;
 use Botble\Location\Models\Country;
 use Botble\RealEstate\Enums\ModerationStatusEnum;
 use Botble\RealEstate\Enums\PropertyStatusEnum;
@@ -25,12 +26,14 @@ use Botble\RealEstate\Models\Project;
 use Botble\RealEstate\Models\Property;
 use Botble\RealEstate\Models\PropertyStatusLog;
 use Botble\RealEstate\Services\PropertyContractService;
+use Botble\RealEstate\Services\PropertyImageValidationService;
 use Botble\RealEstate\Supports\FeatureFlag;
 use Botble\RealEstate\Services\PropertySubmissionService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use SeoHelper;
 use Theme;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Hash;
@@ -38,6 +41,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use EmailHandler;
+use RvMedia;
 
 class PropertyWizardController extends Controller
 {
@@ -214,12 +218,64 @@ class PropertyWizardController extends Controller
     {
         switch ($role) {
             case 'admin':
-                return route('media.files.upload');
+                return route('property.wizard.upload');
             case 'agent':
                 return route('public.account.upload');
             default:
                 return route('public.member.upload');
         }
+    }
+
+    /**
+     * Admin's own upload endpoint for the wizard's photo/document uploaders -
+     * deliberately NOT the generic media.files.upload (MediaFileController),
+     * since that's the sitewide admin Media Library endpoint used for every
+     * other upload in the admin panel (logos, blog images, banners, etc.).
+     * Reusing it here would mean the property-photo resolution/aspect-ratio
+     * rules below would wrongly apply to all of those too. This mirrors the
+     * same shape as PublicAccountController::postUpload() (agent) and
+     * GeneralPropertyController::postUpload() (member).
+     */
+    public function postUpload(Request $request, BaseHttpResponse $response, PropertyImageValidationService $propertyImageValidationService)
+    {
+        $isDocument = $request->input('type') === 'document';
+
+        if ($isDocument) {
+            $validator = Validator::make($request->all(), [
+                'file.0' => 'required|file',
+            ]);
+
+            if ($validator->fails()) {
+                return $response->setError()->setMessage($validator->getMessageBag()->first());
+            }
+        } else {
+            $file = Arr::first((array) $request->file('file'));
+
+            if (! $file) {
+                return $response->setError()->setMessage('Please select a photo to upload.');
+            }
+
+            $error = $propertyImageValidationService->validate($file);
+
+            if ($error) {
+                return $response->setError()->setMessage($error);
+            }
+        }
+
+        // Images already went through PropertyImageValidationService above,
+        // which is stricter and image-specific - skip RvMedia's own generic
+        // sitewide mime check here so a type it approved (e.g. webp, which
+        // isn't in core.media.media.allowed_mime_types) can't still get
+        // rejected with a confusing "must be a file of type: ...zip, mp3,
+        // doc..." message. Documents still go through it as a safety net,
+        // since they don't have an image-specific check of their own.
+        $result = RvMedia::handleUpload(Arr::first($request->file('file')), 0, null, ! $isDocument);
+
+        if ($result['error']) {
+            return $response->setError(true)->setMessage($result['message']);
+        }
+
+        return $response->setData($result['data']);
     }
 
     /**
@@ -365,12 +421,15 @@ class PropertyWizardController extends Controller
                 'full_name' => ['required', 'string', 'min:3', 'max:100', 'regex:/^[a-zA-Z]{3,}(?: [a-zA-Z]+){0,2}$/'],
                 'new_email' => 'required|email|string|unique:members,email',
                 'mobile_number' => ['required', 'regex:/^\+?[1-9][0-9]{7,14}$/'],
+                'cnic' => ['required', 'regex:/^\d{5}-\d{7}-\d{1}$/', 'unique:members,cnic'],
                 'new_password' => 'required|min:6',
                 'terms' => 'required|accepted',
             ], [
                 'terms.required' => 'Please accept the terms & conditions.',
                 'mobile_number.regex' => 'The phone number format is invalid. It must be a valid international number, e.g., +1234567890.',
                 'new_email.unique' => 'An account with this email already exists.',
+                'cnic.regex' => 'The CNIC format is invalid. It must be in the format 11111-1111111-1.',
+                'cnic.unique' => 'This CNIC is already registered to another account.',
             ]);
 
             if ($validator->fails()) {
@@ -381,6 +440,7 @@ class PropertyWizardController extends Controller
                 'full_name' => $request->input('full_name'),
                 'email' => $request->input('new_email'),
                 'mobile_no' => $request->input('mobile_number'),
+                'cnic' => $request->input('cnic'),
                 'password' => Hash::make($request->input('new_password')),
                 'verification_token' => Str::random(64),
                 'email_verified' => false,

@@ -146,7 +146,7 @@
                 <strong>{{ agent.properties_count }}</strong>
                 <span>{{ agent.properties_count === 1 ? 'Listing' : 'Listings' }}</span>
               </div>
-              <a class="agent-card__view-profile" :href="'/agent-detail/' + agent.username">
+              <a class="agent-card__view-profile" :href="'/agents/' + agent.username">
                 View Profile <i class="fas fa-arrow-right"></i>
               </a>
             </div>

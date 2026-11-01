@@ -19,6 +19,7 @@ class SettingRequest extends Request
             'first_name' => 'required|max:120',
             'last_name'  => 'required|max:120',
             'phone' => ['required', 'regex:/^\+?[1-9][0-9]{7,14}$/'],
+            'description' => ['required', 'max:300'],
             'dob'        => 'max:20|sometimes',
             'signature_file' => 'nullable|file|mimes:png',
             'signature_data' => 'nullable|string',
