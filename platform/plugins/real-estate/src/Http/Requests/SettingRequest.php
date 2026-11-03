@@ -52,6 +52,18 @@ class SettingRequest extends Request
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
+            // The JS live-validation plugin re-POSTs this form to check a single
+            // field (e.g. "username") via the "_js_validation" marker, stripping
+            // all other rules down to just that field's. This after() callback
+            // still runs on every such ping regardless of which field is being
+            // checked, so without this guard a brand-new agent with no signature
+            // yet would get a "signature required" error added here - which then
+            // gets misreported by the JS as the unrelated field being invalid.
+            $remoteField = $this->input('_js_validation');
+            if ($remoteField !== null && ! in_array($remoteField, ['signature_file', 'signature_data'], true)) {
+                return;
+            }
+
             $submittedFile = $this->hasFile('signature_file');
             $submittedData = $this->filled('signature_data');
 
