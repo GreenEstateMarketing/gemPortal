@@ -371,6 +371,12 @@
         var startLat = hasSavedPosition ? parseFloat(latInput.value) : fallbackLat;
         var startLng = hasSavedPosition ? parseFloat(lngInput.value) : fallbackLng;
 
+        // Set the instant the user commits a point by any means (search,
+        // click, drag, city-area pick) - guards against the browser's async
+        // geolocation lookup below resolving late and silently overwriting
+        // a location the user already picked in the meantime.
+        var locationCommitted = hasSavedPosition;
+
         var map = new google.maps.Map(document.getElementById('wizard-map'), {
             zoom: 14,
             center: { lat: startLat, lng: startLng }
@@ -607,6 +613,7 @@
         };
 
         function placeMarkerAt(lat, lng, shouldReverseGeocode) {
+            locationCommitted = true;
             var pos = { lat: lat, lng: lng };
             map.setCenter(pos);
             map.setZoom(15);
@@ -620,6 +627,7 @@
         }
 
         marker.addListener('dragend', function () {
+            locationCommitted = true;
             var pos = marker.getPosition();
             moveAreaCircleTo(pos);
             latInput.value = pos.lat();
@@ -629,6 +637,7 @@
         });
 
         map.addListener('click', function (event) {
+            locationCommitted = true;
             marker.setPosition(event.latLng);
             moveAreaCircleTo(event.latLng);
             latInput.value = event.latLng.lat();
@@ -641,9 +650,11 @@
         searchBox.addListener('places_changed', function () {
             var places = searchBox.getPlaces();
             if (!places.length || !places[0].geometry) return;
+            locationCommitted = true;
             hideNotice();
             var loc = places[0].geometry.location;
             map.setCenter(loc);
+            map.setZoom(15);
             marker.setPosition(loc);
             moveAreaCircleTo(loc);
             latInput.value = loc.lat();
@@ -664,10 +675,12 @@
 
         navigator.geolocation.getCurrentPosition(
             function (position) {
+                if (locationCommitted) return;
                 hideNotice();
                 placeMarkerAt(position.coords.latitude, position.coords.longitude, true);
             },
             function (error) {
+                if (locationCommitted) return;
                 if (error.code === error.PERMISSION_DENIED) {
                     showNotice('{{ __('Location access is turned off. Please enable location permissions for this site in your browser settings so we can pinpoint your property automatically, or search for an address above / click the map to set it manually.') }}');
                 } else {
