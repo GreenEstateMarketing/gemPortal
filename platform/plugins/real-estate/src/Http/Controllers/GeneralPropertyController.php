@@ -654,7 +654,7 @@ class GeneralPropertyController extends Controller
             abort(403);
         }
 
-        if ($package->price > 0) {
+        if (((float) $package->price) > 0) {
             return $response->setData(['next_page' => route('public.member.package.subscribe', $package->id)]);
         }
 
@@ -710,13 +710,33 @@ class GeneralPropertyController extends Controller
     public function getSubscribePackage(
         $id,
         PackageInterface $packageRepository,
-        PaymentInterface $paymentRepository
+        PaymentInterface $paymentRepository,
+        TransactionInterface $transactionRepository
     ) {
         $package = $packageRepository->findOrFail($id);
         $total_price = $package->price;
         $voucher = false;
         if (session('discount')) {
             $package->price = $total_price - session('discount');
+        }
+
+        // A package (or a discount applied to one) can end up with no fee
+        // at all - never send that to the bank gateway, just credit it.
+        if (((float) $package->price) <= 0) {
+            $this->savePayment($package, null, $transactionRepository, true);
+
+            if ($redirectTo = session()->pull('package_purchase_redirect_to')) {
+                session()->flash(
+                    'success_msg',
+                    'Your credits have been purchased successfully. Please continue with your property listing.'
+                );
+
+                return redirect($redirectTo);
+            }
+
+            return redirect()
+                ->route('public.member.packages')
+                ->with('status', trans('plugins/real-estate::package.add_credit_success'));
         }
 
         //Create Payment With Pending Status
