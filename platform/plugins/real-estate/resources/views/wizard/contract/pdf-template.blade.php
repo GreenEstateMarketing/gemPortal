@@ -27,14 +27,14 @@
         table.agent-inline { width: 100%; border-collapse: collapse; margin: 6px 0; }
         table.agent-inline td.field-label { width: 90px; font-weight: bold; vertical-align: top; padding: 4px 0; }
         table.agent-inline td.field-value { border-bottom: 1px solid #999999; padding: 4px 0; }
-        table.agent-inline img.signature { max-height: 28px; max-width: 140px; }
+        table.agent-inline img.signature { max-height: 56px; max-width: 280px; }
         table.declaration { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
         table.declaration td { width: 50%; vertical-align: top; padding-top: 6px; }
         table.declaration .party-heading { font-weight: bold; font-size: 12px; margin-bottom: 5px; }
         table.declaration .sig-row { margin-bottom: 6px; }
         table.declaration .sig-label { font-weight: bold; display: block; margin-bottom: 1px; }
         table.declaration .sig-line { border-bottom: 1px solid #999999; min-height: 28px; display: block; }
-        table.declaration img.signature { max-height: 26px; max-width: 150px; }
+        table.declaration img.signature { max-height: 52px; max-width: 300px; }
     </style>
 </head>
 <body>

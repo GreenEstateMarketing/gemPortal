@@ -2,6 +2,7 @@
 
 namespace Botble\RealEstate\Http\Requests;
 
+use Botble\RealEstate\Services\SignatureBackgroundRemover;
 use Botble\Support\Http\Requests\Request;
 
 class MemberSettingRequest extends Request
@@ -109,7 +110,7 @@ class MemberSettingRequest extends Request
                 return null;
             }
 
-            return ['bytes' => $bytes, 'source' => 'upload'];
+            return ['bytes' => SignatureBackgroundRemover::process($bytes), 'source' => 'upload'];
         }
 
         if ($this->filled('signature_data')) {
