@@ -2,7 +2,7 @@
     <div class="bgheadproject hidden-xs">
         <div class="description">
             <div class="container-fluid w90">
-                <h1 class="text-center">{{ $category->name }}</h1>
+                <h1 class="text-center">{{ __($category->name) }}</h1>
                 <p class="text-center">{{ $category->description }}</p>
                 {!! Theme::partial('breadcrumb') !!}
             </div>

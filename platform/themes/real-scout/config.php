@@ -166,7 +166,7 @@ return [
             /* $theme->asset()->add('leaflet-css', 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.css');
              $theme->asset()->add('leaflet-draw-css', 'https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/0.2.3/leaflet.draw.css');*/
 
-            if (BaseHelper::siteLanguageDirection() == 'rtl') {
+            if (current_site_direction() == 'rtl') {
                 $theme->asset()->usePath()->add('rtl-style', 'css/rtl-style.css', [], [], $version);
             }
 

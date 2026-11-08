@@ -1,23 +1,23 @@
 {!! Theme::partial('auth-shell-open', [
-    'heading' => 'Join',
+    'heading' => __('Join'),
     'headingAccent' => 'GEMlisting Real Estate',
-    'description' => 'Create your free account to save favorite properties, contact agents, and track your real estate search.',
-    'cardTitle' => 'Create Your Account',
-    'cardSubtitle' => 'Fill in your details to get started.',
+    'description' => __('Create your free account to save favorite properties, contact agents, and track your real estate search.'),
+    'cardTitle' => __('Create Your Account'),
+    'cardSubtitle' => __('Fill in your details to get started.'),
     'features' => [
         [
-            'title' => 'Verified Properties',
-            'subtitle' => '100% genuine listings',
+            'title' => __('Verified Properties'),
+            'subtitle' => __('100% genuine listings'),
             'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/></svg>',
         ],
         [
-            'title' => 'Trusted Agents',
-            'subtitle' => 'Work with verified professionals',
+            'title' => __('Trusted Agents'),
+            'subtitle' => __('Work with verified professionals'),
             'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z"/></svg>',
         ],
         [
-            'title' => 'Better Decisions',
-            'subtitle' => 'Find your dream property, faster',
+            'title' => __('Better Decisions'),
+            'subtitle' => __('Find your dream property, faster'),
             'icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.6z"/></svg>',
         ],
     ],

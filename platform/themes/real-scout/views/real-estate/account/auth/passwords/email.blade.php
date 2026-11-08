@@ -1,9 +1,9 @@
 {!! Theme::partial('auth-shell-open', [
-    'heading' => 'Forgot Your',
-    'headingAccent' => 'Password?',
-    'description' => "No worries. Enter the email address linked to your account and we'll send you a link to reset it.",
-    'cardTitle' => 'Reset Your Password',
-    'cardSubtitle' => "Enter your email address and we'll send you a reset link.",
+    'heading' => __('Forgot Your'),
+    'headingAccent' => __('Password?'),
+    'description' => __("No worries. Enter the email address linked to your account and we'll send you a link to reset it."),
+    'cardTitle' => __('Reset Your Password'),
+    'cardSubtitle' => __("Enter your email address and we'll send you a reset link."),
 ]) !!}
 
 <form method="POST" action="{{ route('public.account.password.email') }}">

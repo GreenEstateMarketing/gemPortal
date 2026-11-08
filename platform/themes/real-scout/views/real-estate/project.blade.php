@@ -139,7 +139,7 @@
                                         <h3 class="primary-head">{{ __('Project Summary') }}</h3>
                                         <div class="project-detail__summary-grid">
                                             <div class="project-detail__summary-item">
-                                                <b>{{ __('Category') }}</b><p>{{ $project->category->name }}</p>
+                                                <b>{{ __('Category') }}</b><p>{{ __($project->category->name) }}</p>
                                             </div>
                                             <div class="project-detail__summary-item">
                                                 <b>{{ __('No. of blocks') }}</b><p>{{ $project->number_block }}</p>

@@ -34,6 +34,7 @@ class Member extends Authenticatable
         'signature',
         'signature_source',
         'signature_created_at',
+        'locale',
     ];
 
     protected $hidden = [

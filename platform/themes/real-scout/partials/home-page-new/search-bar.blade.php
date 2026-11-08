@@ -133,12 +133,12 @@
                                                     <li class="category-parent-active p-category"
                                                         data-id="{{ $category->id }}"
                                                         data-for-sale="{{ $category->for_sale ? 1 : 0 }}"
-                                                        data-for-rent="{{ $category->for_rent ? 1 : 0 }}">{{ $category->name }}</li>
+                                                        data-for-rent="{{ $category->for_rent ? 1 : 0 }}">{{ __($category->name) }}</li>
                                                 @else
                                                     <li class="category-parent-inactive p-category"
                                                         data-id="{{ $category->id }}"
                                                         data-for-sale="{{ $category->for_sale ? 1 : 0 }}"
-                                                        data-for-rent="{{ $category->for_rent ? 1 : 0 }}">{{ $category->name }}</li>
+                                                        data-for-rent="{{ $category->for_rent ? 1 : 0 }}">{{ __($category->name) }}</li>
                                                 @endif
                                                 <div class="p{{ $category->id }}" style="display:none">
                                                     <div class="row">
@@ -149,7 +149,7 @@
                                                                     data-id="{{ $subcategory->id }}"
                                                                     data-for-sale="{{ $subcategory->for_sale ? 1 : 0 }}"
                                                                     data-for-rent="{{ $subcategory->for_rent ? 1 : 0 }}">
-                                                                    {{ $subcategory->name }}</li>
+                                                                    {{ __($subcategory->name) }}</li>
                                                             </div>
                                                         @endforeach
                                                     </div>
@@ -488,10 +488,10 @@
                                             @foreach (app(\Botble\RealEstate\Repositories\Interfaces\CategoryInterface::class)->pluck('re_categories.name', 're_categories.id', ['parent_id' => 0]) as $categoryId => $categoryName)
                                                 @if ($loop->index == 0)
                                                     <li class="category-parent-active p-category"
-                                                        data-id="{{ $categoryId }}">{{ $categoryName }}</li>
+                                                        data-id="{{ $categoryId }}">{{ __($categoryName) }}</li>
                                                 @else
                                                     <li class="category-parent-inactive p-category"
-                                                        data-id="{{ $categoryId }}">{{ $categoryName }}</li>
+                                                        data-id="{{ $categoryId }}">{{ __($categoryName) }}</li>
                                                 @endif
                                                 <div class="p{{ $categoryId }}" style="display:none">
                                                     <div class="row">
@@ -500,7 +500,7 @@
                                                                 <li class="category-li-item"
                                                                     parent-name="{{ $categoryName }}"
                                                                     data-id="{{ $subcategoryId }}">
-                                                                    {{ $subcategoryName }}</li>
+                                                                    {{ __($subcategoryName) }}</li>
                                                             </div>
                                                         @endforeach
                                                     </div>

@@ -48,7 +48,7 @@
                     <select name="category_id" id="projects-category-select">
                         <option value="">{{ __('All types') }}</option>
                         @foreach ($categories as $id => $categoryName)
-                            <option value="{{ $id }}" {{ (string) $categoryId === (string) $id ? 'selected' : '' }}>{{ $categoryName }}</option>
+                            <option value="{{ $id }}" {{ (string) $categoryId === (string) $id ? 'selected' : '' }}>{{ __($categoryName) }}</option>
                         @endforeach
                     </select>
                     <button type="button" class="projects-search-card__clear" data-clear-target="category_id"

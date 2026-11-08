@@ -19,7 +19,7 @@
             @foreach ($filterCategories as $category)
                 <a href="{{ route('public.blog', $keyword ? ['category_id' => $category->id, 'q' => $keyword] : ['category_id' => $category->id]) }}"
                    class="blog-listing-filter__pill {{ (string) $categoryId === (string) $category->id ? 'is-active' : '' }}">
-                    {{ $category->name }}
+                    {{ __($category->name) }}
                 </a>
             @endforeach
         </div>

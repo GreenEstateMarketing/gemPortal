@@ -1,0 +1,30 @@
+<?php
+
+return [
+    'create'              => 'نئی پوسٹ بنائیں',
+    'edit'                => 'پوسٹ میں ترمیم کریں',
+    'form'                => [
+        'name'                    => 'نام',
+        'name_placeholder'        => 'پوسٹ کا نام (زیادہ سے زیادہ :c حروف)',
+        'description'             => 'تفصیل',
+        'description_placeholder' => 'پوسٹ کے لیے مختصر تفصیل (زیادہ سے زیادہ :c حروف)',
+        'categories'              => 'کیٹیگریز',
+        'tags'                    => 'ٹیگز',
+        'tags_placeholder'        => 'ٹیگز',
+        'content'                 => 'مواد',
+        'is_featured'             => 'نمایاں کریں؟',
+        'note'                    => 'نوٹ کا مواد',
+        'format_type'             => 'فارمیٹ',
+    ],
+    'cannot_delete'       => 'پوسٹ حذف نہیں کی جا سکی',
+    'post_deleted'        => 'پوسٹ حذف کر دی گئی',
+    'posts'               => 'پوسٹس',
+    'post'                => 'پوسٹ',
+    'edit_this_post'      => 'اس پوسٹ میں ترمیم کریں',
+    'no_new_post_now'     => 'اس وقت کوئی نئی پوسٹ موجود نہیں!',
+    'menu_name'           => 'پوسٹس',
+    'widget_posts_recent' => 'حالیہ پوسٹس',
+    'categories'          => 'کیٹیگریز',
+    'category'            => 'کیٹیگری',
+    'author'              => 'مصنف',
+];

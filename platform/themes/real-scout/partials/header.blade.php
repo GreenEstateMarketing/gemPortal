@@ -51,7 +51,7 @@
     {!! Theme::header() !!}
 </head>
 
-<body @if (BaseHelper::siteLanguageDirection() == 'rtl') dir="rtl" @endif>
+<body @if (current_site_direction() == 'rtl') dir="rtl" @endif>
 
 
     <!-- end transition-overlay -->
@@ -484,11 +484,11 @@
                                                                     @if ($loop->index == 0)
                                                                         <li class="category-parent-active p-category"
                                                                             data-id="{{ $categoryId }}">
-                                                                            {{ $categoryName }}</li>
+                                                                            {{ __($categoryName) }}</li>
                                                                     @else
                                                                         <li class="category-parent-inactive p-category"
                                                                             data-id="{{ $categoryId }}">
-                                                                            {{ $categoryName }}</li>
+                                                                            {{ __($categoryName) }}</li>
                                                                     @endif
                                                                     <!-- create hiddenly list here of each categories-->
                                                                     <div class="p{{ $categoryId }}"
@@ -500,7 +500,7 @@
                                                                                     <li class="category-li-item"
                                                                                         parent-name="{{ $categoryName }}"
                                                                                         data-id="{{ $subcategoryId }}">
-                                                                                        {{ $subcategoryName }}</li>
+                                                                                        {{ __($subcategoryName) }}</li>
                                                                                 </div>
                                                                             @endforeach
                                                                         </div>
@@ -621,11 +621,11 @@
                                                                     @if ($loop->index == 0)
                                                                         <li class="category-parent-active p-category"
                                                                             data-id="{{ $categoryId }}">
-                                                                            {{ $categoryName }}</li>
+                                                                            {{ __($categoryName) }}</li>
                                                                     @else
                                                                         <li class="category-parent-inactive p-category"
                                                                             data-id="{{ $categoryId }}">
-                                                                            {{ $categoryName }}</li>
+                                                                            {{ __($categoryName) }}</li>
                                                                     @endif
                                                                     <!-- create hiddenly list here of each categories-->
                                                                     <div class="p{{ $categoryId }}"
@@ -637,7 +637,7 @@
                                                                                     <li class="category-li-item"
                                                                                         parent-name="{{ $categoryName }}"
                                                                                         data-id="{{ $subcategoryId }}">
-                                                                                        {{ $subcategoryName }}</li>
+                                                                                        {{ __($subcategoryName) }}</li>
                                                                                 </div>
                                                                             @endforeach
                                                                         </div>

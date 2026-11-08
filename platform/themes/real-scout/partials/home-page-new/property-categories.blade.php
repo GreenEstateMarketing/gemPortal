@@ -122,7 +122,7 @@
                             <span class="property-categories__card-tag">{{ Str::upper($parentName) }}</span>
                         @endif
 
-                        <h3 class="property-categories__card-title">{{ $category->name }}</h3>
+                        <h3 class="property-categories__card-title">{{ __($category->name) }}</h3>
                         <p class="property-categories__card-text">{{ Str::limit($categoryDescription, 80) }}</p>
 
                         <a href="{{ route('public.properties', ['category_id' => $category->id]) }}"

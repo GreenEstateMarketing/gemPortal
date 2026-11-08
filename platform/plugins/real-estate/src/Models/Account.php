@@ -56,6 +56,7 @@ class Account extends Authenticatable
         'signature_source',
         'signature_created_at',
         'years_of_experience',
+        'locale',
     ];
 
     /**

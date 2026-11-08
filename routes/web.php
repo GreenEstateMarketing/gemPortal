@@ -11,3 +11,6 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::get('language/{locale}', [App\Http\Controllers\LocaleController::class, 'switch'])
+    ->name('locale.switch');

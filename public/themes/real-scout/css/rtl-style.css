@@ -5,3 +5,49 @@ body[dir=rtl] {
 body[dir=rtl] .text-left {
   text-align: right !important;
 }
+body[dir=rtl] .gem-header__auth,
+body[dir=rtl] .gem-header__locale,
+body[dir=rtl] .gem-header__account {
+  margin-left: 0;
+  margin-right: 8px;
+  padding-left: 0;
+  padding-right: 20px;
+  border-left: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.18);
+}
+body[dir=rtl] .gem-header__account-menu {
+  right: auto;
+  left: 0;
+}
+body[dir=rtl] .gem-header__account-menu a,
+body[dir=rtl] .gem-header__account-menu button {
+  text-align: right;
+}
+body[dir=rtl] .gem-auth__field-icon {
+  left: auto;
+  right: 16px;
+}
+body[dir=rtl] .gem-auth__field-toggle {
+  right: auto;
+  left: 14px;
+}
+body[dir=rtl] .gem-auth__field .form-control {
+  padding-left: 16px;
+  padding-right: 46px;
+}
+body[dir=rtl] .gem-auth__field--no-icon .form-control {
+  padding-right: 16px;
+}
+body[dir=rtl] .whatsapp-float {
+  right: auto;
+  left: 25px;
+}
+@media (max-width: 991px) {
+  body[dir=rtl] .gem-header__auth,
+  body[dir=rtl] .gem-header__locale,
+  body[dir=rtl] .gem-header__account {
+    margin-right: 0;
+    padding-right: 0;
+    border-right: 0;
+  }
+}

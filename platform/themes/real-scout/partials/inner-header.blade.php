@@ -20,7 +20,7 @@
 
     {!! Theme::header() !!}
 </head>
-<body @if (BaseHelper::siteLanguageDirection() == 'rtl') dir="rtl" @endif>
+<body @if (current_site_direction() == 'rtl') dir="rtl" @endif>
 
 
 <!-- end transition-overlay -->
@@ -79,7 +79,7 @@
                                                 <select name="category_id" id="select-category" class="form-control">
                                                     <option value="">{{ __('Category') }}</option>
                                                     @foreach(\Illuminate\Support\Facades\Cache::remember('public_categories_flat', now()->addMinutes(30), function () { return app(\Botble\RealEstate\Repositories\Interfaces\CategoryInterface::class)->pluck('re_categories.name', 're_categories.id'); }) as $categoryId => $categoryName)
-                                                        <option value="{{ $categoryId }}" @if (request()->input('category_id') == $categoryId) selected @endif>{{ $categoryName }}</option>
+                                                        <option value="{{ $categoryId }}" @if (request()->input('category_id') == $categoryId) selected @endif>{{ __($categoryName) }}</option>
                                                     @endforeach
                                                 </select>
                                                 <i class="fas fa-angle-down"></i>
@@ -133,7 +133,7 @@
                                                 <select name="category_id" id="select-category" class="form-control">
                                                     <option value="">{{ __('Category') }}</option>
                                                     @foreach(\Illuminate\Support\Facades\Cache::remember('public_categories_flat', now()->addMinutes(30), function () { return app(\Botble\RealEstate\Repositories\Interfaces\CategoryInterface::class)->pluck('re_categories.name', 're_categories.id'); }) as $categoryId => $categoryName)
-                                                        <option value="{{ $categoryId }}" @if (request()->input('category_id') == $categoryId) selected @endif>{{ $categoryName }}</option>
+                                                        <option value="{{ $categoryId }}" @if (request()->input('category_id') == $categoryId) selected @endif>{{ __($categoryName) }}</option>
                                                     @endforeach
                                                 </select>
                                                 <i class="fas fa-angle-down"></i>

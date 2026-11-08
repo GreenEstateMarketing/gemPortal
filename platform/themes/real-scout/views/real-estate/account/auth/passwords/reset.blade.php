@@ -1,9 +1,9 @@
 {!! Theme::partial('auth-shell-open', [
-    'heading' => 'Reset Your',
-    'headingAccent' => 'Password',
-    'description' => 'Choose a new password for your GEMlisting account to get back to managing your listings and saved properties.',
-    'cardTitle' => 'Choose a New Password',
-    'cardSubtitle' => 'Enter and confirm your new password below.',
+    'heading' => __('Reset Your'),
+    'headingAccent' => __('Password'),
+    'description' => __('Choose a new password for your GEMlisting account to get back to managing your listings and saved properties.'),
+    'cardTitle' => __('Choose a New Password'),
+    'cardSubtitle' => __('Enter and confirm your new password below.'),
 ]) !!}
 
 <form method="POST" action="{{ route('public.account.password.update') }}">

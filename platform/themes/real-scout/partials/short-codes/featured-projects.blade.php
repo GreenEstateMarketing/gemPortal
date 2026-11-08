@@ -33,7 +33,7 @@
                                     <div class="img"><img class="thumb" data-src="{{ RvMedia::getImageUrl($project->image, 'small', false, RvMedia::getDefaultImage()) }}" src="{{ RvMedia::getImageUrl($project->image, 'small', false, RvMedia::getDefaultImage()) }}" alt="{{ $project->name }}">
                                     </div>
                                     <a href="{{ $project->url }}" class="linkdetail"></a>
-                                    <ul class="item-price-wrap hide-on-list"><li class="h-type"><span>{{ $project->category->name }}</span></li></ul>
+                                    <ul class="item-price-wrap hide-on-list"><li class="h-type"><span>{{ __($project->category->name) }}</span></li></ul>
                                 </div>
 
                                 <div class="description">

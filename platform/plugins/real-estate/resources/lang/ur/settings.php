@@ -1,0 +1,30 @@
+<?php
+
+return [
+    'title'                                     => 'اکاؤنٹس',
+    'description'                               => 'ممبران کے لیے ترتیبات',
+    'verify_account_email'                      => 'اکاؤنٹ کی ای میل کی تصدیق کریں؟',
+    'square_unit'                               => 'رقبہ کی اکائی',
+    'square_unit_none'                          => 'کوئی نہیں',
+    'square_unit_meter'                         => 'مربع میٹر (m²)',
+    'square_unit_feet'                          => 'مربع فٹ (ft²)',
+    'general'                                   => 'عمومی ترتیبات',
+    'general_description'                       => 'ریئل اسٹیٹ کے لیے بنیادی ترتیبات',
+    'real_estate_convert_money_to_text_enabled' => 'اگر رقم بہت بڑی ہو تو اسے متن میں تبدیل کریں؟',
+    'thousands_separator'                        => 'ہزاروں کی علامتِ تفریق',
+    'decimal_separator'                         => 'اعشاریہ کی علامتِ تفریق',
+    'separator_period'                          => 'نقطہ (.)',
+    'separator_comma'                           => 'کوما (,)',
+    'separator_space'                           => 'خالی جگہ ( )',
+    'area_unit'                                 => 'رقبہ کی اکائیاں',
+    'area_unit_description'                     => 'ویب سائٹ پر استعمال ہونے والی رقبہ کی اکائیوں کی تبدیلی کی فہرست',
+    'real_estate_sqaure_feet_unit_to_marla'     => 'مربع فٹ سے مرلہ',
+    'area_unit_calculation'                     => 'رقبہ کی اکائیوں کا حساب',
+    'area_unit_calculation_description'         => 'جائیداد بناتے وقت رقبہ کو ڈیفالٹ فارمیٹ میں محفوظ کرنے کے لیے استعمال ہونے والا رقبہ کی اکائیوں کا حساب',
+    'real_estate_marla_to_square_ft'            =>'مرلہ سے مربع فٹ',
+    'real_estate_square_meter_to_sq_ft'         =>'مربع میٹر سے مربع فٹ',
+    'ft²'                                       =>'مربع فٹ',
+    'real_estate_sqaure_feet_unit_to_square_meter'=>'مربع فٹ سے مربع میٹر',
+    'real_estate_yards_to_sq_ft'                =>'یارڈز سے مربع فٹ',
+    'real_estate_kanal_to_sq_ft'                =>'کنال سے مربع فٹ'
+ ];

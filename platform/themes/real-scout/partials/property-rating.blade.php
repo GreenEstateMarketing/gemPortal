@@ -16,7 +16,7 @@
 
 
                             </div>
-                            <h4>Add a comment for <strong id="agent_name"></strong></h4>
+                            <h4>{{ __('Add a comment for') }} <strong id="agent_name"></strong></h4>
                             <input type="hidden" id="property_id" name="property_id" />
                             <input type="hidden" id="agent_id" name="agent_id" />
                             <div class="rating"> <input type="radio" name="rating" value="5"

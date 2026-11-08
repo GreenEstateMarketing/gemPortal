@@ -155,6 +155,32 @@
     transform: translateY(-1px);
 }
 
+.gem-header__locale {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 8px;
+    padding-left: 20px;
+    border-left: 1px solid rgba(255, 255, 255, 0.18);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.gem-header__locale a {
+    color: var(--gem-header-text-dim);
+    text-decoration: none;
+}
+
+.gem-header__locale a:hover,
+.gem-header__locale a.is-active {
+    color: var(--gem-header-gold);
+}
+
+.gem-header__locale-sep {
+    color: var(--gem-header-text-dim);
+    opacity: .5;
+}
+
 /* Account/member profile dropdown */
 .gem-header__account {
     position: relative;
@@ -268,10 +294,15 @@
 
     .gem-header__login,
     .gem-header__account,
-    .gem-header__auth {
+    .gem-header__auth,
+    .gem-header__locale {
         margin-left: 0;
         padding-left: 0;
         border-left: 0;
+    }
+
+    .gem-header__locale {
+        padding: 14px 0;
     }
 
     .gem-header__auth {

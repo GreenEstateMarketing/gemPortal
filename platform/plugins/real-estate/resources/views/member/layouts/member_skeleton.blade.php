@@ -42,26 +42,13 @@
       };
   </script>
 </head>
-<body>
+<body @if (current_site_direction() == 'rtl') dir="rtl" @endif>
   @include('core/base::layouts.partials.svg-icon')
   <div id="app">
     {!! Theme::partial('site-header') !!}
     <main class="main_form">
    @yield('content')
     </main>
-      @if (count(Assets::getAdminLocales()) > 1)
-          <footer>
-              <p> {{ trans('core/acl::auth.languages') }}:
-                  @foreach (Assets::getAdminLocales() as $key => $value)
-                      <span @if (app()->getLocale() == $key) class="active" @endif>
-                <a href="{{ route('settings.language', $key) }}">
-                    {!! language_flag($value['flag'], $value['name']) !!} <span>{{ $value['name'] }}</span>
-                </a>
-            </span>
-                  @endforeach
-              </p>
-          </footer>
-      @endif
   </div>
 
   {!! Theme::partial('footer-content') !!}

@@ -74,7 +74,7 @@
                                 <label class="wizard-checkbox">
                                     <input type="checkbox" name="category_ids[]" value="{{ $category->id }}"
                                            {{ in_array($category->id, old('category_ids', [])) ? 'checked' : '' }}>
-                                    {{ $category->name }}
+                                    {{ __($category->name) }}
                                 </label>
                             @endforeach
                         </div>

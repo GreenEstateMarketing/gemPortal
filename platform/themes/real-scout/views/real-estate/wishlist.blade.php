@@ -28,7 +28,7 @@
                                                 </div>
                                             </div>
                                             <div class="status">{!! $property->status->toHtml() !!}</div>
-                                            <ul class="item-price-wrap hide-on-list"><li class="h-type"><span>{{ $property->category->name }}</span></li> <li class="item-price">{{ format_price($property->price, $property->currency) }}</li></ul>
+                                            <ul class="item-price-wrap hide-on-list"><li class="h-type"><span>{{ __($property->category->name) }}</span></li> <li class="item-price">{{ format_price($property->price, $property->currency) }}</li></ul>
                                         </div>
 
                                         <div class="description">

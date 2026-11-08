@@ -18,13 +18,13 @@
 <section class="blog-hero">
     <div class="blog-hero__inner">
         <span class="blog-hero__eyebrow">{{ __('Category') }}</span>
-        <h1 class="blog-hero__heading">{{ $category->name }}</h1>
+        <h1 class="blog-hero__heading">{{ __($category->name) }}</h1>
         <p class="blog-hero__breadcrumb">
             <a href="{{ route('public.index') }}">{{ __('Home') }}</a>
             <span>/</span>
             <a href="{{ route('public.blog') }}">{{ __('Blog') }}</a>
             <span>/</span>
-            {{ $category->name }}
+            {{ __($category->name) }}
         </p>
     </div>
 </section>

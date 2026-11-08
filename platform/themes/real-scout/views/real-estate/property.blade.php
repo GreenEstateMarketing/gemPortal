@@ -148,7 +148,7 @@
                                         <div class="property-detail__summary-grid">
                                             <div class="property-detail__summary-item">
                                                 <b><i class="fas fa-home"></i> {{ __('Property Type') }}</b>
-                                                <p>{{ $property->category->name }}</p>
+                                                <p>{{ __($property->category->name) }}</p>
                                             </div>
                                             <div class="property-detail__summary-item">
                                                 <b><i class="fas fa-ruler-combined"></i> {{ __('Land Size') }}</b>

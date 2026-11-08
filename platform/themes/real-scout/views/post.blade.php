@@ -79,7 +79,7 @@
                 <h4 class="blog-sidebar__title">{{ __('Categories') }}</h4>
                 <ul class="blog-sidebar__list">
                     @foreach (get_categories(['select' => ['categories.id', 'categories.name']]) as $category)
-                        <li><a href="{{ $category->url }}">{{ $category->name }}</a></li>
+                        <li><a href="{{ $category->url }}">{{ __($category->name) }}</a></li>
                     @endforeach
                 </ul>
             </div>

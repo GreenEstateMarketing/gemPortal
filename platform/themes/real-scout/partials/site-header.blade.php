@@ -55,6 +55,12 @@
                     </a>
                 </li>
 
+                <li class="gem-header__locale">
+                    <a href="{{ route('locale.switch', 'en') }}" class="{{ app()->getLocale() === 'en' ? 'is-active' : '' }}">English</a>
+                    <span class="gem-header__locale-sep">|</span>
+                    <a href="{{ route('locale.switch', 'ur') }}" class="{{ app()->getLocale() === 'ur' ? 'is-active' : '' }}">اردو</a>
+                </li>
+
                 @if (auth('account')->check() || auth('member')->check())
                     @php
                         $gemHeaderGuard = auth('account')->check() ? 'account' : 'member';

@@ -62,7 +62,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 
-<body @if (BaseHelper::siteLanguageDirection() == 'rtl') dir="rtl" @endif class="home-page-new">
+<body @if (current_site_direction() == 'rtl') dir="rtl" @endif class="home-page-new">
 
 <header class="site-header">
 
@@ -101,22 +101,21 @@
             <div class="hero__content">
                 <span class="hero__eyebrow">
                     <i class="icon-home"></i>
-                    Find Your Perfect Place
+                    {{ __('Find Your Perfect Place') }}
                 </span>
                 <h1 class="hero__heading">
-                    Find a Place<br>
-                    <span class="hero__heading--accent">You'll Love to Call Home.</span>
+                    {{ __('Find a Place') }}<br>
+                    <span class="hero__heading--accent">{{ __("You'll Love to Call Home.") }}</span>
                 </h1>
                 <p class="hero__text">
-                    Discover premium homes, apartments, commercial properties and plots with
-                    GEMlisting. Your trusted partner for buying, selling and renting real estate.
+                    {{ __('Discover premium homes, apartments, commercial properties and plots with GEMlisting. Your trusted partner for buying, selling and renting real estate.') }}
                 </p>
                 <div class="hero__actions">
                     <a href="{{ route('public.properties') }}" class="btn-primary">
-                        Explore Properties
+                        {{ __('Explore Properties') }}
                         <i class="icon-arrow-right"></i>
                     </a>
-                    <a href="{{ route('public.agent.list') }}" class="btn-outline">Talk to an Agent</a>
+                    <a href="{{ route('public.agent.list') }}" class="btn-outline">{{ __('Talk to an Agent') }}</a>
                 </div>
             </div>
 

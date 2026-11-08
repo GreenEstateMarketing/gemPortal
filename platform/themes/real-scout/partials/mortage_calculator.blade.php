@@ -2,8 +2,7 @@
     <div class="row">
         <form class="form-horizontal well" id="mortgage-calculator" method="POST" onsubmit="return false;">
             <div class="col-xs-12 text-center">
-                <p>Enter the <i>house price</i>, <i>interest rate</i>, <i>down payment</i> and <i>loan duration</i> to
-                    see your estimated loan amount, monthly payment, and total cost of the loan:</p>
+                <p>{{ __('Enter the house price, interest rate, down payment and loan duration to see your estimated loan amount, monthly payment, and total cost of the loan:') }}</p>
             </div>
             <div class="row align-items-end">
                 <div class="col-md-3">

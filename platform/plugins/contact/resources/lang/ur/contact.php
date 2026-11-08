@@ -1,0 +1,76 @@
+<?php
+
+return [
+    'menu'                  => 'رابطہ',
+    'edit'                  => 'رابطہ دیکھیں',
+    'tables'                => [
+        'phone'     => 'فون',
+        'email'     => 'ای میل',
+        'full_name' => 'مکمل نام',
+        'time'      => 'وقت',
+        'address'   => 'پتہ',
+        'subject'   => 'موضوع',
+        'content'   => 'مواد',
+    ],
+    'contact_information'   => 'رابطہ کی معلومات',
+    'replies'               => 'جوابات',
+    'email'                 => [
+        'header'  => 'ای میل',
+        'title'   => 'آپ کی سائٹ سے نیا رابطہ',
+        'success' => 'پیغام کامیابی سے بھیج دیا گیا!',
+        'failed'  => 'اس وقت پیغام نہیں بھیجا جا سکا، براہ کرم بعد میں دوبارہ کوشش کریں!',
+    ],
+    'form'                  => [
+        'name'    => [
+            'required' => 'نام درکار ہے',
+        ],
+        'email'   => [
+            'required' => 'ای میل درکار ہے',
+            'email'    => 'ای میل ایڈریس درست نہیں ہے',
+        ],
+        'content' => [
+            'required' => 'مواد درکار ہے',
+        ],
+    ],
+    'contact_sent_from'     => 'یہ رابطہ کی معلومات اس سے بھیجی گئی',
+    'sender'                => 'بھیجنے والا',
+    'sender_email'          => 'ای میل',
+    'sender_address'        => 'پتہ',
+    'sender_phone'          => 'فون',
+    'message_content'       => 'پیغام کا مواد',
+    'sent_from'             => 'ای میل اس سے بھیجی گئی',
+    'form_name'             => 'نام',
+    'form_email'            => 'ای میل',
+    'form_address'          => 'پتہ',
+    'form_subject'          => 'موضوع',
+    'form_phone'            => 'فون',
+    'form_message'          => 'پیغام',
+    'required_field'        => 'جس خانے کے ساتھ (<span style="color: red">*</span>) ہے وہ درکار ہے۔',
+    'send_btn'              => 'پیغام بھیجیں',
+    'new_msg_notice'        => 'آپ کے پاس <span class="bold">:count</span> نئے پیغامات ہیں',
+    'view_all'              => 'تمام دیکھیں',
+    'statuses'              => [
+        'read'   => 'پڑھا گیا',
+        'unread' => 'غیر پڑھا گیا',
+    ],
+    'phone'                 => 'فون',
+    'address'               => 'پتہ',
+    'message'               => 'پیغام',
+    'settings'              => [
+        'email' => [
+            'title'       => 'رابطہ',
+            'description' => 'رابطہ ای میل کی ترتیبات',
+            'templates'   => [
+                'notice_title'       => 'منتظم کو اطلاع بھیجیں',
+                'notice_description' => 'جب سسٹم کو نیا رابطہ موصول ہو تو منتظم کو اطلاع بھیجنے کے لیے ای میل ٹیمپلیٹ',
+            ],
+        ],
+    ],
+    'no_reply'              => 'ابھی تک کوئی جواب نہیں!',
+    'reply'                 => 'جواب دیں',
+    'send'                  => 'بھیجیں',
+    'shortcode_name' => 'رابطہ فارم',
+    'shortcode_description' => 'رابطہ فارم شامل کریں',
+    'shortcode_content_description' => 'ایڈیٹر میں شارٹ کوڈ [contact-form][/contact-form] شامل کریں؟',
+    'message_sent_success'  => 'پیغام کامیابی سے بھیج دیا گیا!',
+];
