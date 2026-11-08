@@ -5,6 +5,7 @@ namespace Botble\RealEstate\Http\Requests;
 use Botble\Support\Http\Requests\Request;
 use Botble\RealEstate\Http\Requests\Rules\ImageDimension;
 use Botble\RealEstate\Http\Requests\Rules\AgentAreaRule;
+use Botble\RealEstate\Http\Requests\Rules\AgentEmailDomainRule;
 
 class AccountEditRequest extends Request
 {
@@ -20,7 +21,7 @@ class AccountEditRequest extends Request
             'first_name' => 'required|max:120|min:2',
             'last_name'  => 'required|max:120|min:2',
             'username'   => 'required|max:60|min:2|unique:re_accounts,username,' . $this->route('account'),
-            'email'      => 'required|max:60|min:6|email|unique:re_accounts,email,' . $this->route('account'),
+            'email'      => ['required', 'max:60', 'min:6', 'email', 'unique:re_accounts,email,' . $this->route('account'), new AgentEmailDomainRule],
             'phone' => ['required', 'regex:/^\+?[1-9][0-9]{7,14}$/'],
             'cnic' => ['required', 'regex:/^\d{5}-\d{7}-\d{1}$/', 'unique:re_accounts,cnic,' . $this->route('account')],
             'description' => ['required', 'max:300'],

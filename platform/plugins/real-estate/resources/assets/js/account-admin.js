@@ -51,4 +51,12 @@ $(document).ready(() => {
         $($(event.currentTarget).data('target')).slideToggle();
         $(event.currentTarget).closest('.comment-log-item').toggleClass('bg-white');
     });
+
+    const $firstError = $('.form-group.has-error').first();
+    if ($firstError.length) {
+        $('html, body').animate({
+            scrollTop: $firstError.offset().top - 100
+        }, 400);
+        $firstError.find('.form-control, input, select, textarea').first().trigger('focus');
+    }
 });
