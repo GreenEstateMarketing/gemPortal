@@ -7,6 +7,11 @@
     --gem-header-text-dim: rgba(255, 255, 255, 0.78);
 }
 
+/* Non-home pages (body has no "home-page-new" class) get the navy header. */
+body:not(.home-page-new) {
+    --gem-header-bg: #30383d;
+}
+
 .gem-header {
     position: sticky;
     top: 0;

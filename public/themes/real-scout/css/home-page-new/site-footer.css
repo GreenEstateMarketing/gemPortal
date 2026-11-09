@@ -24,7 +24,11 @@
 }
 
 .site-footer {
-    background: var(--header-navy);
+    /* Hardcoded, not var(--header-navy): several page-specific stylesheets
+       (properties-search.css, properties-map.css, legal.css, etc.) redefine
+       --header-navy at :root scope for their own local use, which was
+       silently changing this footer's color depending on which page loaded. */
+    background: #30383d;
     padding: 70px 0 30px;
 }
 
