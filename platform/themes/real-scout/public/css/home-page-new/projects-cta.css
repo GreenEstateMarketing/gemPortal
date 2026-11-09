@@ -17,7 +17,10 @@
 }
 
 .projects-cta {
-    background: var(--header-navy);
+    /* Hardcoded to match the global header/footer navy (#30383d), rather
+       than var(--header-navy) which is also used below for the button's
+       text color and is intentionally a different shade (#1a1d24) there. */
+    background: #30383d;
     font-family: var(--header-font-body);
 }
 
