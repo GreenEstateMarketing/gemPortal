@@ -33,8 +33,20 @@ $(document).ready(function () {
         }, interval)
     }
 
-    var url = window.location.href;
-    if (url.indexOf("city_id") < 0) {
+    // This used to gate on the URL having a "city_id" query param, on the
+    // assumption that's the only way #city_id can start non-empty. Since
+    // visitor geolocation added a server-rendered default <option selected>
+    // (search-bar.blade.php), #city_id can be pre-selected with no city_id
+    // in the URL at all - and a browser's SSR "selected" option never fires
+    // a change event, so the handler below (which also seeds
+    // cityAreaArray) never ran either. That left cityAreaArray empty for
+    // the rest of the page's life, so the area autocomplete always reported
+    // no matches, until the visitor reopened the dropdown and picked a city
+    // themselves (firing select2:select -> change). Checking the select's
+    // actual value instead of the URL covers both the query-string case and
+    // the geolocation-default case.
+    var defaultCityId = $('#city_id').val();
+    if (!defaultCityId || defaultCityId === '0') {
         waitForEl('#city-name-from-map', mapCityCallback, 10);
     } else {
         $.ajax({
@@ -43,7 +55,7 @@ $(document).ready(function () {
             dataType: 'json',
             async: false,
             data: {
-                city_id: $('#city_id').val()
+                city_id: defaultCityId
             },
             success: function (response) {
                 cityAreaArray = response.data;
