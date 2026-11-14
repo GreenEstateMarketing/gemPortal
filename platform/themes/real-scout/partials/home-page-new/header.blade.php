@@ -27,6 +27,10 @@
          :root custom properties, and reuses its .btn-primary class. --}}
     <link rel="stylesheet" href="{{ Theme::asset()->url('css/home-page-new/usp-showcase.css') }}">
 
+    {{-- "Our Parent Companies" section stylesheet - same dependency on
+         header.css's :root custom properties. --}}
+    <link rel="stylesheet" href="{{ Theme::asset()->url('css/home-page-new/our-parent-companies.css') }}">
+
     {{-- "How It Works" section stylesheet - same dependency on header.css's
          :root custom properties. --}}
     <link rel="stylesheet" href="{{ Theme::asset()->url('css/home-page-new/how-it-works.css') }}">
