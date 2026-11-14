@@ -23,10 +23,10 @@
         "botble/assets": "^1.0",
         "intervention/image": "^2.4",
         "kris/laravel-form-builder": "^1.52",
-        "prabowosd/laravel-collective-html": "^6.4",
+        "prabowosd/laravel-collective-html": "^1.2",
         "xantios/mimey": "^2.1",
         "tightenco/ziggy": "^1.0",
-        "yajra/laravel-datatables-buttons": "^10.0",
+        "yajra/laravel-datatables-buttons": "^9.1",
         "yajra/laravel-datatables-oracle": "^10.0",
         "guzzlehttp/guzzle": "^7.0",
         "mews/purifier": "^3.2"

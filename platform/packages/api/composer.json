@@ -10,7 +10,7 @@
     "require": {
         "botble/platform": "*@dev",
         "laravel/passport": "^9.0|^10.0",
-        "knuckleswtf/scribe": "^2.0"
+        "knuckleswtf/scribe": "^5.0"
     },
     "extra": {
         "laravel": {

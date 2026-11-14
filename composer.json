@@ -7,12 +7,16 @@
     ],
     "license": "MIT",
     "type": "project",
+    "replace": {
+        "laravellux/html": "*",
+        "rdx/laravelcollective-html": "*"
+    },
     "require": {
         "php": "^8.0.2",
         "ext-curl": "*",
         "ext-json": "*",
         "ext-zip": "*",
-        "angel-source-labs/laravel-spatial": "^6.0",
+        "angel-source-labs/laravel-spatial": "^1.0",
         "beyondcode/laravel-vouchers": "^2.0",
         "botble/api": "*@dev",
         "botble/menu": "*@dev",
@@ -25,6 +29,7 @@
         "guzzlehttp/guzzle": "^7.0.1",
         "laravel/framework": "^9.0",
         "league/flysystem-aws-s3-v3": "^3.0",
+        "predis/predis": "^3.0",
         "wikimedia/composer-merge-plugin": "dev-master"
     },
     "require-dev": {
@@ -32,7 +37,7 @@
         "fakerphp/faker": "^1.10",
         "laravel/sail": "^1.0.1",
         "mockery/mockery": "^1.4.2",
-        "nunomaduro/collision": "^5.0",
+        "nunomaduro/collision": "^6.1",
         "phpunit/phpunit": "^9.3.3",
         "laravel/tinker": "^2.5",
         "barryvdh/laravel-debugbar": "^3.2",
