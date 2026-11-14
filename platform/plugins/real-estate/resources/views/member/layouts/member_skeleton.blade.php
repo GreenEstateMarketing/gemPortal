@@ -91,7 +91,7 @@
 <script src="{{ asset('/js/checkout.js') }}"></script>
 
 <!-- WhatsApp Floating Button -->
-<a href="https://wa.me/923001234567"
+<a href="https://wa.me/923340005622"
    target="_blank"
    class="whatsapp-float"
    title="Chat with us on WhatsApp">
