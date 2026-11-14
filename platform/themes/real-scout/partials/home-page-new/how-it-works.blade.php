@@ -72,7 +72,7 @@
                 </div>
             </div>
 
-            <a href="#" class="how-it-works__cta">{{ __('View Complete Buyer Process') }} <i class="fas fa-arrow-right"></i></a>
+            <a href="{{ route('public.how-it-works-buyer') }}" class="how-it-works__cta">{{ __('View Complete Buyer Process') }} <i class="fas fa-arrow-right"></i></a>
         </div>
 
         {{-- ============ LANDLORD / SELLER ============ --}}

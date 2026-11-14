@@ -583,6 +583,14 @@ class FlexHomeController extends PublicController
         return $response->setData(Theme::partial('city-suggestion', ['items' => $cities]));
     }
 
+    public function getHowItWorksBuyer()
+    {
+        SeoHelper::setTitle(__('How It Works for Buyers'))
+            ->setDescription(__('Find your dream property in 4 simple steps with GEMlisting.'));
+
+        return Theme::scope('real-estate.how-it-works-buyer', [])->render();
+    }
+
     /**
      * @param Request $request
      * @return \Botble\Theme\Facades\Response|Response|\Response
