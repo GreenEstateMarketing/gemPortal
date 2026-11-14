@@ -13,7 +13,6 @@ use Illuminate\Support\ServiceProvider;
 use Botble\Payment\Repositories\Caches\PaymentCacheDecorator;
 use Botble\Payment\Repositories\Eloquent\PaymentRepository;
 use Botble\Payment\Repositories\Interfaces\PaymentInterface;
-use Laravel\Cashier\Cashier;
 
 class PaymentServiceProvider extends ServiceProvider
 {
@@ -26,10 +25,6 @@ class PaymentServiceProvider extends ServiceProvider
         });
 
         Helper::autoload(__DIR__ . '/../../helpers');
-
-        if (class_exists('Laravel\Cashier\Cashier')) {
-            Cashier::ignoreMigrations();
-        }
     }
 
     public function boot()
