@@ -3,13 +3,10 @@
     Rendered via:   {!! Theme::partial('home-page-new/how-it-works') !!}
     Included from:  layouts/homepagenew.blade.php, between why-choose and the footer partials
 
-    Only the Landlord/Seller flow was in the design. The Tenant/Buyer flow's
-    steps/copy below are a reasonable placeholder so the toggle has real
-    content to switch to - swap the text in that panel for the real steps
-    whenever you have them, no markup changes needed.
-
-    "View Complete Seller Process" links to "#" - there's no dedicated page/
-    route for it yet, point it wherever that content ends up living.
+    Both "View Complete Buyer/Seller Process" CTAs below now link to their
+    own dedicated pages (routes "public.how-it-works-buyer" / "-seller",
+    partials/how-it-works/{buyer,seller}-*.blade.php) - this widget's own
+    steps/copy stays as the homepage teaser, unchanged.
 --}}
 <section class="how-it-works" id="how-it-works">
     <div class="container how-it-works__inner">
@@ -72,7 +69,7 @@
                 </div>
             </div>
 
-            <a href="#" class="how-it-works__cta">{{ __('View Complete Buyer Process') }} <i class="fas fa-arrow-right"></i></a>
+            <a href="{{ route('public.how-it-works-buyer') }}" class="how-it-works__cta">{{ __('View Complete Buyer Process') }} <i class="fas fa-arrow-right"></i></a>
         </div>
 
         {{-- ============ LANDLORD / SELLER ============ --}}
@@ -134,7 +131,7 @@
                 </div>
             </div>
 
-            <a href="#" class="how-it-works__cta">{{ __('View Complete Seller Process') }} <i class="fas fa-arrow-right"></i></a>
+            <a href="{{ route('public.how-it-works-seller') }}" class="how-it-works__cta">{{ __('View Complete Seller Process') }} <i class="fas fa-arrow-right"></i></a>
         </div>
 
     </div>

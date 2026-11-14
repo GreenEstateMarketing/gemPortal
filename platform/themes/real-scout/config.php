@@ -141,6 +141,13 @@ return [
                 $theme->asset()->container('footer')->usePath()->add('home-page-header-js', 'js/new-home-page/header.js', [], [], $version);
             }
 
+            // "How It Works" (Buyer) standalone page - same stable-route-name
+            // gating as "public.properties" above.
+            if (Route::current() && in_array(Route::current()->getName(), ['public.how-it-works-buyer', 'public.how-it-works-seller'])) {
+                $theme->asset()->usePath()->add('how-it-works-page-css', 'css/home-page-new/how-it-works-page.css', [], [], $version);
+                $theme->asset()->style('how-it-works-page-fonts-css', 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+            }
+
             // Projects listing page - same stable-route-name gating as
             // "public.properties" above. No Leaflet/map JS needed: the map
             // section is a plain Google Maps iframe embed (see

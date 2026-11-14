@@ -20,6 +20,8 @@ Route::group(['namespace' => 'Theme\FlexHome\Http\Controllers', 'middleware' => 
         Route::get('ajax/properties', 'FlexHomeController@ajaxGetProperties')->name('public.ajax.properties');
         Route::get('ajax/posts', 'FlexHomeController@ajaxGetPosts')->name('public.ajax.posts');
         Route::get('agents', 'FlexHomeController@getAgents')->name('public.agent.list');
+        Route::get('how-it-works/buyer', 'FlexHomeController@getHowItWorksBuyer')->name('public.how-it-works-buyer');
+        Route::get('how-it-works/seller', 'FlexHomeController@getHowItWorksSeller')->name('public.how-it-works-seller');
         Route::get('ajax/agents', 'FlexHomeController@ajaxGetAgents')->name('public.ajax.agents');
         Route::get('ajax/cities-by-country', 'FlexHomeController@ajaxGetCitiesByCountry')->name('public.ajax.cities-by-country');
         Route::get('get-search-area','FlexHomeController@getSearchAreaList');
