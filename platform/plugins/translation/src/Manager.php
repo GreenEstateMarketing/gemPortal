@@ -10,9 +10,6 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Arr;
 use Illuminate\Support\ServiceProvider;
 use Lang;
-use League\Flysystem\Adapter\Local as LocalAdapter;
-use League\Flysystem\Filesystem as Flysystem;
-use League\Flysystem\MountManager;
 use Symfony\Component\VarExporter\VarExporter;
 
 class Manager
@@ -176,16 +173,7 @@ class Manager
                 }
                 $this->files->copy($from, $to);
             } elseif ($this->files->isDirectory($from)) {
-                $manager = new MountManager([
-                    'from' => new Flysystem(new LocalAdapter($from)),
-                    'to'   => new Flysystem(new LocalAdapter($to)),
-                ]);
-
-                foreach ($manager->listContents('from://', true) as $file) {
-                    if ($file['type'] === 'file') {
-                        $manager->put('to://' . $file['path'], $manager->read('from://' . $file['path']));
-                    }
-                }
+                $this->files->copyDirectory($from, $to);
             }
         }
     }

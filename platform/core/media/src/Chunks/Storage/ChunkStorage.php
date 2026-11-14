@@ -6,8 +6,6 @@ use Botble\Media\Chunks\ChunkFile;
 use Closure;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Collection;
-use League\Flysystem\Adapter\Local;
-use League\Flysystem\FilesystemInterface;
 use RuntimeException;
 use Storage;
 
@@ -28,9 +26,12 @@ class ChunkStorage
     protected $disk;
 
     /**
-     * @var Local
+     * The disk name, used to resolve the local root path from config now
+     * that Flysystem v3 no longer exposes the adapter directly.
+     *
+     * @var string
      */
-    protected $diskAdapter;
+    protected $diskName;
 
     /**
      * Is provided disk a local drive.
@@ -46,31 +47,12 @@ class ChunkStorage
     {
         $this->config = config('core.media.media.chunk');
 
+        $this->diskName = $this->config['storage']['disk'];
+
         // Cache the storage path
-        $this->disk = Storage::disk($this->config['storage']['disk']);
+        $this->disk = Storage::disk($this->diskName);
 
-        $driver = $this->driver();
-
-        // Try to get the adapter
-        if (!method_exists($driver, 'getAdapter')) {
-            throw new RuntimeException('FileSystem driver must have an adapter implemented');
-        }
-
-        // Get the disk adapter
-        $this->diskAdapter = $driver->getAdapter();
-
-        // Check if its local adapter
-        $this->isLocalDisk = $this->diskAdapter instanceof Local;
-    }
-
-    /**
-     * Returns the driver.
-     *
-     * @return FilesystemInterface
-     */
-    public function driver()
-    {
-        return $this->disk()->getDriver();
+        $this->isLocalDisk = config("filesystems.disks.{$this->diskName}.driver") === 'local';
     }
 
     /**
@@ -101,7 +83,7 @@ class ChunkStorage
     public function getDiskPathPrefix()
     {
         if ($this->isLocalDisk) {
-            return $this->diskAdapter->getPathPrefix();
+            return rtrim(config("filesystems.disks.{$this->diskName}.root"), '/') . '/';
         }
 
         throw new RuntimeException('The full path is not supported on current disk - local adapter supported only');
