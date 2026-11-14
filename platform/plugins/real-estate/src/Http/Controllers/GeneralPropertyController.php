@@ -16,10 +16,8 @@ use Botble\Media\Chunks\Exceptions\UploadMissingFileException;
 use Botble\Media\Chunks\Handler\DropZoneUploadHandler;
 use Botble\Media\Chunks\Receiver\FileReceiver;
 use Botble\Page\Models\Page;
-use Botble\Payment\Enums\PaymentMethodEnum;
 use Botble\Payment\Enums\PaymentStatusEnum;
 use Botble\Payment\Repositories\Interfaces\PaymentInterface;
-use Botble\Payment\Services\Gateways\PayPalPaymentService;
 use Botble\RealEstate\Http\Requests\MemberSettingRequest;
 use Botble\RealEstate\Http\Requests\UpdatePasswordRequest;
 use Botble\RealEstate\Http\Resources\ActivityLogResource;
@@ -965,43 +963,11 @@ class GeneralPropertyController extends Controller
     public function getPackageSubscribeCallback(
         $packageId,
         Request $request,
-        PayPalPaymentService $payPalService,
         PackageInterface $packageRepository,
         TransactionInterface $transactionRepository,
         BaseHttpResponse $response
     ) {
         $package = $packageRepository->findOrFail($packageId);
-
-        if ($request->input('type') == PaymentMethodEnum::PAYPAL) {
-            $validator = Validator::make($request->input(), [
-                'amount' => 'required|numeric',
-                'currency' => 'required',
-            ]);
-
-            if ($validator->fails()) {
-                return $response->setError()->setMessage($validator->getMessageBag()->first());
-            }
-
-            $paymentStatus = $payPalService->getPaymentStatus($request);
-            if ($paymentStatus && $paymentStatus->state === 'approved') {
-                $payPalService->afterMakePayment($request);
-
-                $this->savePayment($package, $request->input('paymentId'), $transactionRepository);
-
-                $redirectTo = session()->pull('package_purchase_redirect_to');
-
-                return $response
-                    ->setNextUrl($redirectTo ?: route('public.member.packages'))
-                    ->setMessage($redirectTo
-                        ? 'Your credits have been purchased successfully. Please continue with your property listing.'
-                        : trans('plugins/real-estate::package.add_credit_success'));
-            }
-
-            return $response
-                ->setError()
-                ->setNextUrl(route('public.member.packages'))
-                ->setMessage($payPalService->getErrorMessage());
-        }
 
         $this->savePayment($package, $request->input('charge_id'), $transactionRepository);
 

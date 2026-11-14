@@ -9,12 +9,10 @@ use Botble\Payment\Enums\PaymentMethodEnum;
 use Botble\Payment\Enums\PaymentStatusEnum;
 use Botble\Payment\Http\Requests\CheckoutRequest;
 use Botble\Payment\Http\Requests\PaymentMethodRequest;
-use Botble\Payment\Http\Requests\PayPalPaymentCallbackRequest;
 use Botble\Payment\Http\Requests\UpdatePaymentRequest;
 use Botble\Payment\Repositories\Interfaces\PaymentInterface;
 use Botble\Payment\Services\Gateways\BankTransferPaymentService;
 use Botble\Payment\Services\Gateways\CodPaymentService;
-use Botble\Payment\Services\Gateways\PayPalPaymentService;
 use Botble\Payment\Services\Gateways\StripePaymentService;
 use Botble\Payment\Tables\PaymentTable;
 use Botble\RealEstate\Models\Member;
@@ -43,11 +41,6 @@ class PaymentController extends Controller
     protected $bankTransferPaymentService;
 
     /**
-     * @var PayPalPaymentService
-     */
-    protected $payPalService;
-
-    /**
      * @var StripePaymentService
      */
     protected $stripePaymentService;
@@ -69,14 +62,12 @@ class PaymentController extends Controller
 
     /**
      * PaymentController constructor.
-     * @param PayPalPaymentService $payPalService
      * @param StripePaymentService $stripePaymentService
      * @param CodPaymentService $codPaymentService
      * @param BankTransferPaymentService $bankTransferPaymentService
      * @param PaymentInterface $paymentRepository
      */
     public function __construct(
-        PayPalPaymentService       $payPalService,
         StripePaymentService       $stripePaymentService,
         CodPaymentService          $codPaymentService,
         BankTransferPaymentService $bankTransferPaymentService,
@@ -84,8 +75,6 @@ class PaymentController extends Controller
         PackageInterface           $packageRepository
     )
     {
-        $this->payPalService = $payPalService;
-
         $this->stripePaymentService = $stripePaymentService;
         $this->paymentRepository = $paymentRepository;
 
@@ -186,16 +175,6 @@ class PaymentController extends Controller
 
                 break;
 
-            case PaymentMethodEnum::PAYPAL:
-                $checkoutUrl = $this->payPalService->execute($request);
-                if ($checkoutUrl) {
-                    return redirect($checkoutUrl);
-                }
-
-                $data['error'] = true;
-                $data['message'] = $this->payPalService->getErrorMessage();
-                break;
-
             case PaymentMethodEnum::COD:
                 $chargeId = $this->codPaymentService->execute($request);
                 return redirect()->to($returnUrl . '?charge_id=' . $chargeId)->with('success_msg',
@@ -221,26 +200,6 @@ class PaymentController extends Controller
     }
 
     /**
-     * @param PayPalPaymentCallbackRequest $request
-     * @param PayPalPaymentService $palPaymentService
-     * @param BaseHttpResponse $response
-     * @return BaseHttpResponse
-     * @throws Throwable
-     */
-    public function getPayPalStatus(
-        PayPalPaymentCallbackRequest $request,
-        PayPalPaymentService         $palPaymentService,
-        BaseHttpResponse             $response
-    )
-    {
-        $palPaymentService->afterMakePayment($request);
-
-        return $response
-            ->setNextUrl(url('/'))
-            ->setMessage(__('Checkout successfully!'));
-    }
-
-    /**
      * @param int $id
      * @return Factory|View
      * @throws Exception
@@ -252,10 +211,6 @@ class PaymentController extends Controller
 
         $detail = null;
         switch ($payment->payment_channel) {
-            case PaymentMethodEnum::PAYPAL:
-                $paymentDetail = $this->payPalService->getPaymentDetails($payment->charge_id);
-                $detail = view('plugins/payment::paypal.detail', ['payment' => $paymentDetail])->render();
-                break;
             case PaymentMethodEnum::STRIPE:
                 $paymentDetail = $this->stripePaymentService->getPaymentDetails($payment->charge_id);
                 $detail = view('plugins/payment::stripe.detail', ['payment' => $paymentDetail])->render();

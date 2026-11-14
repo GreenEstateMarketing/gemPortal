@@ -11,10 +11,8 @@ use Botble\Media\Chunks\Handler\DropZoneUploadHandler;
 use Botble\Media\Chunks\Receiver\FileReceiver;
 use Botble\Media\Repositories\Interfaces\MediaFileInterface;
 use Botble\Media\Services\ThumbnailService;
-use Botble\Payment\Enums\PaymentMethodEnum;
 use Botble\Payment\Enums\PaymentStatusEnum;
 use Botble\Payment\Repositories\Interfaces\PaymentInterface;
-use Botble\Payment\Services\Gateways\PayPalPaymentService;
 use Botble\RealEstate\Http\Requests\AvatarRequest;
 use Botble\RealEstate\Http\Requests\SettingRequest;
 use Botble\RealEstate\Http\Requests\UpdatePasswordRequest;
@@ -600,7 +598,6 @@ class PublicAccountController extends Controller
     /**
      * @param int $packageId
      * @param Request $request
-     * @param PayPalPaymentService $payPalService
      * @param \Botble\RealEstate\Repositories\Interfaces\PackageInterface $packageRepository
      * @param \Botble\RealEstate\Repositories\Interfaces\TransactionInterface $transactionRepository
      * @return BaseHttpResponse
@@ -608,43 +605,11 @@ class PublicAccountController extends Controller
     public function getPackageSubscribeCallback(
         $packageId,
         Request $request,
-        PayPalPaymentService $payPalService,
         PackageInterface $packageRepository,
         TransactionInterface $transactionRepository,
         BaseHttpResponse $response
     ) {
         $package = $packageRepository->findOrFail($packageId);
-
-        if ($request->input('type') == PaymentMethodEnum::PAYPAL) {
-            $validator = Validator::make($request->input(), [
-                'amount'   => 'required|numeric',
-                'currency' => 'required',
-            ]);
-
-            if ($validator->fails()) {
-                return $response->setError()->setMessage($validator->getMessageBag()->first());
-            }
-
-            $paymentStatus = $payPalService->getPaymentStatus($request);
-            if ($paymentStatus && $paymentStatus->state === 'approved') {
-                $payPalService->afterMakePayment($request);
-
-                $this->savePayment($package, $request->input('paymentId'), $transactionRepository);
-
-                $redirectTo = session()->pull('package_purchase_redirect_to');
-
-                return $response
-                    ->setNextUrl($redirectTo ?: route('public.account.packages'))
-                    ->setMessage($redirectTo
-                        ? 'Your credits have been purchased successfully. Please continue with your property listing.'
-                        : trans('plugins/real-estate::package.add_credit_success'));
-            }
-
-            return $response
-                ->setError()
-                ->setNextUrl(route('public.account.packages'))
-                ->setMessage($payPalService->getErrorMessage());
-        }
 
         $this->savePayment($package, $request->input('charge_id'), $transactionRepository);
 

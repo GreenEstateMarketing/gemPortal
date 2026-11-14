@@ -6,7 +6,6 @@ use Botble\Base\Supports\Helper;
 use Botble\Base\Traits\LoadAndPublishDataTrait;
 use Botble\Payment\Enums\PaymentMethodEnum;
 use Botble\Payment\Models\Payment;
-use Botble\Payment\Services\Gateways\PayPalPaymentService;
 use Botble\Payment\Services\Gateways\StripePaymentService;
 use Event;
 use Illuminate\Routing\Events\RouteMatched;
@@ -104,10 +103,6 @@ class PaymentServiceProvider extends ServiceProvider
 
             $detail = null;
             switch ($payment->payment_channel) {
-                case PaymentMethodEnum::PAYPAL:
-                    $paymentDetail = (new PayPalPaymentService)->getPaymentDetails($payment->charge_id);
-                    $detail = view('plugins/payment::paypal.detail', ['payment' => $paymentDetail])->render();
-                    break;
                 case PaymentMethodEnum::STRIPE:
                     $paymentDetail = (new StripePaymentService)->getPaymentDetails($payment->charge_id);
                     $detail = view('plugins/payment::stripe.detail', ['payment' => $paymentDetail])->render();

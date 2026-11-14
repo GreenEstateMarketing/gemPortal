@@ -3,8 +3,6 @@
 Route::group(['namespace' => 'Botble\Payment\Http\Controllers', 'middleware' => ['web', 'core']], function () {
     Route::group(['prefix' => 'payments'], function () {
         Route::post('checkout', 'PaymentController@postCheckout')->name('payments.checkout');
-
-        Route::get('status', 'PaymentController@getPayPalStatus')->name('payments.paypal.status');
     });
 
     Route::group(['prefix' => BaseHelper::getAdminPrefix(), 'middleware' => 'auth'], function () {

@@ -53,14 +53,6 @@
                         </div>
                     </li>
                 @endif
-                @if (setting('payment_paypal_status') == 1)
-                    <li class="list-group-item">
-                        <input class="magic-radio js_payment_method" type="radio" name="payment_method" id="payment_paypal"
-                               @if (setting('default_payment_method') == \Botble\Payment\Enums\PaymentMethodEnum::PAYPAL) checked @endif
-                               value="paypal">
-                        <label for="payment_paypal" class="text-left">{{ setting('payment_paypal_name', trans('plugins/payment::payment.payment_via_paypal')) }}</label>
-                    </li>
-                @endif
 
                 {!! apply_filters(PAYMENT_FILTER_ADDITIONAL_PAYMENT_METHODS, null, compact('name', 'amount', 'currency')) !!}
 
