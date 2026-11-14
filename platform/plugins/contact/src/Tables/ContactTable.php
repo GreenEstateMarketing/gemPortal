@@ -30,7 +30,7 @@ class ContactTable extends TableAbstract
     /**
      * @var string
      */
-    protected $exportClass = ContactExport::class;
+    protected string $exportClass = ContactExport::class;
 
     /**
      * ContactTable constructor.
@@ -53,7 +53,7 @@ class ContactTable extends TableAbstract
     /**
      * {@inheritDoc}
      */
-    public function ajax()
+    public function ajax(): \Illuminate\Http\JsonResponse
     {
         $data = $this->table
             ->eloquent($this->query())

@@ -33,7 +33,7 @@ class ProjectTable extends TableAbstract
     /**
      * @var string
      */
-    protected $exportClass = ProjectExport::class;
+    protected string $exportClass = ProjectExport::class;
 
     /**
      * TagTable constructor.
@@ -54,7 +54,7 @@ class ProjectTable extends TableAbstract
      * @return JsonResponse
      * @since 2.1
      */
-    public function ajax()
+    public function ajax(): \Illuminate\Http\JsonResponse
     {
         $data = $this->table
             ->eloquent($this->query())

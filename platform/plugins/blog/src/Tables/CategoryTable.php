@@ -51,7 +51,7 @@ class CategoryTable extends TableAbstract
     /**
      * {@inheritDoc}
      */
-    public function ajax()
+    public function ajax(): \Illuminate\Http\JsonResponse
     {
         $data = $this->table
             ->of($this->query())

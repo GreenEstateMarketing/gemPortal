@@ -37,7 +37,7 @@ class AgentApplicationTable extends TableAbstract
     /**
      * @return \Illuminate\Http\JsonResponse
      */
-    public function ajax()
+    public function ajax(): \Illuminate\Http\JsonResponse
     {
         $data = $this->table
             ->eloquent($this->query())

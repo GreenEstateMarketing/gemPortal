@@ -62,7 +62,7 @@ class UserTable extends TableAbstract
     /**
      * {@inheritDoc}
      */
-    public function ajax()
+    public function ajax(): \Illuminate\Http\JsonResponse
     {
         $data = $this->table
             ->eloquent($this->query())

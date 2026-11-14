@@ -27,7 +27,7 @@ class AccountPropertyTable extends PropertyTable
      *
      * @since 2.1
      */
-    public function ajax()
+    public function ajax(): \Illuminate\Http\JsonResponse
     {
         $accountId = auth('account')->user()->getAuthIdentifier();
 

@@ -36,7 +36,7 @@ class PostTable extends TableAbstract
     /**
      * @var string
      */
-    protected $exportClass = PostExport::class;
+    protected string $exportClass = PostExport::class;
 
     /**
      * @var int
@@ -70,7 +70,7 @@ class PostTable extends TableAbstract
     /**
      * {@inheritDoc}
      */
-    public function ajax()
+    public function ajax(): \Illuminate\Http\JsonResponse
     {
         $data = $this->table
             ->eloquent($this->query())

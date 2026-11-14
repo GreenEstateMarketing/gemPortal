@@ -38,7 +38,7 @@ class SpokenLanguageTable extends TableAbstract
      * @return JsonResponse
      * @throws Throwable
      */
-    public function ajax()
+    public function ajax(): \Illuminate\Http\JsonResponse
     {
         $data = $this->table
             ->eloquent($this->query())

@@ -47,7 +47,7 @@ class PageTable extends TableAbstract
     /**
      * {@inheritDoc}
      */
-    public function ajax()
+    public function ajax(): \Illuminate\Http\JsonResponse
     {
         $pageTemplates = get_page_templates();
 

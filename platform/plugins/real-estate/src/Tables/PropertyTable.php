@@ -34,7 +34,7 @@ class PropertyTable extends TableAbstract
     /**
      * @var string
      */
-    protected $exportClass = PropertyExport::class;
+    protected string $exportClass = PropertyExport::class;
 
     /**
      * TagTable constructor.
@@ -57,7 +57,7 @@ class PropertyTable extends TableAbstract
      * @return JsonResponse
      * @since 2.1
      */
-    public function ajax()
+    public function ajax(): \Illuminate\Http\JsonResponse
     {
         $data = $this->table
             ->eloquent($this->query())
