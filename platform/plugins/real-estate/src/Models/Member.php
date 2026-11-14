@@ -43,8 +43,8 @@ class Member extends Authenticatable
         'signature',
     ];
 
-    protected $dates = [
-        'signature_created_at',
+    protected $casts = [
+        'signature_created_at' => 'datetime',
     ];
 
     public function properties()

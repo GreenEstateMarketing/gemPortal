@@ -19,17 +19,6 @@ class MediaFile extends BaseModel
     protected $table = 'media_files';
 
     /**
-     * The date fields for the model.clear
-     *
-     * @var array
-     */
-    protected $dates = [
-        'created_at',
-        'updated_at',
-        'deleted_at',
-    ];
-
-    /**
      * @var array
      */
     protected $fillable = [

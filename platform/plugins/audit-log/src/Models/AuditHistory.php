@@ -16,16 +16,6 @@ class AuditHistory extends BaseModel
     protected $table = 'audit_histories';
 
     /**
-     * The date fields for the model.clear
-     *
-     * @var array
-     */
-    protected $dates = [
-        'created_at',
-        'updated_at',
-    ];
-
-    /**
      * @var array
      */
     protected $fillable = [

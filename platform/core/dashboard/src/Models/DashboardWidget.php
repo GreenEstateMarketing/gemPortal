@@ -16,14 +16,6 @@ class DashboardWidget extends BaseModel
     /**
      * @var array
      */
-    protected $dates = [
-        'created_at',
-        'updated_at',
-    ];
-
-    /**
-     * @var array
-     */
     protected $fillable = [
         'name',
     ];

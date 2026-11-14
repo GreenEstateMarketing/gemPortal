@@ -73,13 +73,11 @@ class Account extends Authenticatable
     /**
      * @var array
      */
-    protected $dates = [
-        'created_at',
-        'updated_at',
-        'dob',
-        'signature_created_at',
-        'package_start_date',
-        'package_end_date',
+    protected $casts = [
+        'dob' => 'datetime',
+        'signature_created_at' => 'datetime',
+        'package_start_date' => 'datetime',
+        'package_end_date' => 'datetime',
     ];
 
     /**

@@ -90,18 +90,10 @@ class Property extends BaseModel
         'moderation_status' => ModerationStatusEnum::class,
         'type' => PropertyTypeEnum::class,
         'period' => PropertyPeriodEnum::class,
-    ];
-
-    /**
-     * @var array
-     */
-    protected $dates = [
-        'created_at',
-        'updated_at',
-        'expire_date',
-        'last_wizard_activity_at',
-        'contract_finalized_at',
-        'date_published',
+        'expire_date' => 'datetime',
+        'last_wizard_activity_at' => 'datetime',
+        'contract_finalized_at' => 'datetime',
+        'date_published' => 'datetime',
     ];
 
     /**

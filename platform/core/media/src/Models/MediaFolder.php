@@ -20,15 +20,6 @@ class MediaFolder extends BaseModel
     /**
      * @var array
      */
-    protected $dates = [
-        'created_at',
-        'updated_at',
-        'deleted_at',
-    ];
-
-    /**
-     * @var array
-     */
     protected $fillable = [
         'name',
         'slug',

@@ -25,16 +25,6 @@ class UserMeta extends BaseModel
     ];
 
     /**
-     * The date fields for the model.clear
-     *
-     * @var array
-     */
-    protected $dates = [
-        'created_at',
-        'updated_at',
-    ];
-
-    /**
      * @param string $key
      * @param null $value
      * @param int $userId

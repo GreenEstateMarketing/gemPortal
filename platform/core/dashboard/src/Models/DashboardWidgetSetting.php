@@ -15,14 +15,6 @@ class DashboardWidgetSetting extends BaseModel
     /**
      * @var array
      */
-    protected $dates = [
-        'created_at',
-        'updated_at',
-    ];
-
-    /**
-     * @var array
-     */
     protected $fillable = [
         'settings',
         'widget_id',

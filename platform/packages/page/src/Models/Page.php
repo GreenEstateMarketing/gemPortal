@@ -42,16 +42,6 @@ class Page extends BaseModel
     protected $dontKeepRevisionOf = ['content'];
 
     /**
-     * The date fields for the model.clear
-     *
-     * @var array
-     */
-    protected $dates = [
-        'created_at',
-        'updated_at',
-    ];
-
-    /**
      * @var array
      */
     protected $casts = [

@@ -220,7 +220,7 @@ abstract class Enum implements JsonSerializable
      * @return mixed
      * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return $this->getValue();
     }
