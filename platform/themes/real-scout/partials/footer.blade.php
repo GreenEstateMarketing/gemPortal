@@ -149,6 +149,41 @@
 </script>
 
 {!! Theme::footer() !!}
+
+<!-- WhatsApp Floating Button -->
+<a href="https://wa.me/923340005622"
+   target="_blank"
+   class="whatsapp-float"
+   aria-label="Chat on WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+</a>
+
+<style>
+.whatsapp-float{
+    position:fixed;
+    width:60px;
+    height:60px;
+    bottom:25px;
+    right:25px;
+    background:#25D366;
+    color:#FFF;
+    border-radius:50%;
+    text-align:center;
+    font-size:34px;
+    line-height:60px;
+    box-shadow:0 4px 10px rgba(0,0,0,.3);
+    z-index:999999;
+    transition:.3s;
+}
+
+.whatsapp-float:hover{
+    background:#1EBE5D;
+    color:#fff;
+    text-decoration:none;
+    transform:scale(1.08);
+}
+</style>
+
 </body>
 
 </html>
