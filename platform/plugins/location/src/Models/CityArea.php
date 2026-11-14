@@ -6,7 +6,7 @@ use Botble\Base\Traits\EnumCastable;
 use Botble\Base\Enums\BaseStatusEnum;
 use Botble\Base\Models\BaseModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Grimzy\LaravelMysqlSpatial\Eloquent\SpatialTrait;
+use AngelSourceLabs\LaravelSpatial\Eloquent\SpatialTrait;
 
 class CityArea extends BaseModel
 {
