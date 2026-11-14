@@ -591,6 +591,14 @@ class FlexHomeController extends PublicController
         return Theme::scope('real-estate.how-it-works-buyer', [])->render();
     }
 
+    public function getHowItWorksSeller()
+    {
+        SeoHelper::setTitle(__('How It Works for Sellers'))
+            ->setDescription(__('List your property in 6 simple steps with GEMlisting.'));
+
+        return Theme::scope('real-estate.how-it-works-seller', [])->render();
+    }
+
     /**
      * @param Request $request
      * @return \Botble\Theme\Facades\Response|Response|\Response

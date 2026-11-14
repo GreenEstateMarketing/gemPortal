@@ -143,7 +143,7 @@ return [
 
             // "How It Works" (Buyer) standalone page - same stable-route-name
             // gating as "public.properties" above.
-            if (Route::current() && Route::current()->getName() === 'public.how-it-works-buyer') {
+            if (Route::current() && in_array(Route::current()->getName(), ['public.how-it-works-buyer', 'public.how-it-works-seller'])) {
                 $theme->asset()->usePath()->add('how-it-works-page-css', 'css/home-page-new/how-it-works-page.css', [], [], $version);
                 $theme->asset()->style('how-it-works-page-fonts-css', 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
             }
