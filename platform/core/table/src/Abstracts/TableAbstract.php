@@ -726,8 +726,8 @@ abstract class TableAbstract extends DataTable
      * @return mixed
      */
     public function applyScopes(
-        \Illuminate\Database\Eloquent\Builder|Builder|\Illuminate\Database\Eloquent\Relations\Relation|\Illuminate\Support\Collection $query
-    ): \Illuminate\Database\Eloquent\Builder|Builder|\Illuminate\Database\Eloquent\Relations\Relation|\Illuminate\Support\Collection
+        \Illuminate\Database\Eloquent\Builder|Builder|\Illuminate\Database\Eloquent\Relations\Relation|\Illuminate\Support\Collection|\Illuminate\Http\Resources\Json\AnonymousResourceCollection $query
+    ): \Illuminate\Database\Eloquent\Builder|Builder|\Illuminate\Database\Eloquent\Relations\Relation|\Illuminate\Support\Collection|\Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
         $request = request();
 
