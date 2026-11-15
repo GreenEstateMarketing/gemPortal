@@ -26,8 +26,8 @@
         "prabowosd/laravel-collective-html": "^1.2",
         "xantios/mimey": "^2.1",
         "tightenco/ziggy": "^1.0",
-        "yajra/laravel-datatables-buttons": "^9.1",
-        "yajra/laravel-datatables-oracle": "^10.0",
+        "yajra/laravel-datatables-buttons": "^9.1|^11.0",
+        "yajra/laravel-datatables-oracle": "^10.0|^11.0",
         "guzzlehttp/guzzle": "^7.0",
         "mews/purifier": "^3.2"
     },
