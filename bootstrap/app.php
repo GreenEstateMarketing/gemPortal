@@ -1,55 +1,57 @@
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| Create The Application
-|--------------------------------------------------------------------------
-|
-| The first thing we will do is create a new Laravel application instance
-| which serves as the "glue" for all the components of Laravel, and is
-| the IoC container for the system binding all of the various parts.
-|
-*/
+use App\Exceptions\Handler;
+use App\Http\Middleware\Member;
+use App\Http\Middleware\PreventBackHistory;
+use Botble\ACL\Http\Middleware\Authenticate;
+use Botble\ACL\Http\Middleware\RedirectIfAuthenticated;
+use Illuminate\Contracts\Debug\ExceptionHandler;
+use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Request;
 
-$app = new Illuminate\Foundation\Application(
-    $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
-);
+$app = Application::configure(basePath: $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__))
+    ->withRouting(
+        commands: __DIR__ . '/../routes/console.php',
+        // web:/api: deliberately omitted — app/Providers/RouteServiceProvider.php keeps
+        // registering routes/web.php and routes/api.php itself, exactly as it did on L10.
+    )
+    ->withMiddleware(function (Middleware $middleware) {
+        $middleware->trustProxies(headers:
+            Request::HEADER_X_FORWARDED_FOR | Request::HEADER_X_FORWARDED_HOST |
+            Request::HEADER_X_FORWARDED_PORT | Request::HEADER_X_FORWARDED_PROTO |
+            Request::HEADER_X_FORWARDED_AWS_ELB
+        );
 
-/*
-|--------------------------------------------------------------------------
-| Bind Important Interfaces
-|--------------------------------------------------------------------------
-|
-| Next, we need to bind some important interfaces into the container so
-| we will be able to resolve them when needed. The kernels serve the
-| incoming requests to this application from both the web and CLI.
-|
-*/
+        $middleware->trimStrings(except: ['password', 'password_confirmation']);
 
-$app->singleton(
-    Illuminate\Contracts\Http\Kernel::class,
-    App\Http\Kernel::class
-);
+        // L11's withMiddleware() unconditionally defaults guests to route('login'),
+        // which doesn't exist here (Botble names it 'access.login'). Without this,
+        // every unauthenticated request throws RouteNotFoundException before
+        // Botble\Base\Exceptions\Handler::unauthenticated() ever gets a chance to
+        // run its own route('access.login') redirect.
+        $middleware->redirectGuestsTo(fn () => route('access.login'));
 
-$app->singleton(
-    Illuminate\Contracts\Console\Kernel::class,
-    App\Console\Kernel::class
-);
+        // app/Http/Kernel.php had AuthenticateSession active in the 'web' group
+        // (not a Laravel default) — this is the purpose-built fluent equivalent.
+        $middleware->authenticateSessions();
 
-$app->singleton(
-    Illuminate\Contracts\Debug\ExceptionHandler::class,
-    App\Exceptions\Handler::class
-);
+        // Custom 'member' group (not a default Laravel group).
+        $middleware->group('member', [Member::class]);
 
-/*
-|--------------------------------------------------------------------------
-| Return The Application
-|--------------------------------------------------------------------------
-|
-| This script returns the application instance. The instance is given to
-| the calling script so we can separate the building of the instances
-| from the actual running of the application and sending responses.
-|
-*/
+        // Replaces $routeMiddleware. Merges into L11's default alias set.
+        $middleware->alias([
+            'auth' => Authenticate::class,
+            'guest' => RedirectIfAuthenticated::class,
+            'member' => Member::class,
+            'preventBackHistory' => PreventBackHistory::class,
+        ]);
+    })
+    ->create();
+
+// Exception handler kept as a manual singleton bind, not migrated to withExceptions().
+// platform/core/base/src/Providers/BaseServiceProvider.php still rebinds this same
+// contract to Botble\Base\Exceptions\Handler at boot — unchanged from L10.
+$app->singleton(ExceptionHandler::class, Handler::class);
 
 return $app;
