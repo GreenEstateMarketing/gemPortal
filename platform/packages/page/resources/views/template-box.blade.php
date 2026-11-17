@@ -10,7 +10,7 @@
                     <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#select-chevron"></use>
                 </svg>
             </div>
-            {!! Form::error('template', $errors) !!}
+            {!! Form::error('template') !!}
         </div>
     </div>
 </div>

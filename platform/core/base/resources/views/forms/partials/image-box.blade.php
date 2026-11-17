@@ -4,6 +4,6 @@
     </div>
     <div class="widget-body">
         {!! Form::mediaImage(isset($name) ? $name : 'image', $value) !!}
-        {!! Form::error(isset($name) ? $name : 'image', $errors) !!}
+        {!! Form::error(isset($name) ? $name : 'image') !!}
     </div>
 </div>
