@@ -92,7 +92,7 @@ Route::group(['namespace' => 'Botble\Blog\Http\Controllers', 'middleware' => ['w
             ]);
 
             Route::get(SlugHelper::getPrefix(Post::class, 'blog') . '/{slug}', [
-                'as'   => 'public.single',
+                'as'   => 'public.blog.single',
                 'uses' => 'PublicController@getPost',
             ]);
 
