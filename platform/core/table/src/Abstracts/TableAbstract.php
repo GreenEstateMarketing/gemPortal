@@ -56,7 +56,7 @@ abstract class TableAbstract extends DataTable
     /**
      * @var string
      */
-    protected $view = 'core/table::table';
+    protected ?string $view = 'core/table::table';
 
     /**
      * @var string
