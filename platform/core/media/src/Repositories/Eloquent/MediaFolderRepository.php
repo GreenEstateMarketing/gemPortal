@@ -183,7 +183,7 @@ class MediaFolderRepository extends RepositoriesAbstract implements MediaFolderI
     /**
      * {@inheritDoc}
      */
-    public function getFullPath($folderId, $path = null)
+    public function getFullPath($folderId, $path = '')
     {
         if (!$folderId) {
             return $path;
